@@ -8,77 +8,97 @@
 
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 </head>
 <body>
 
-  <!-- BOTÓN VOLVER -->
-  <a class="volver" href="../index.html">← Volver a la web</a>
+  <!-- BARRA IGUAL QUE LA WEB PRINCIPAL -->
+  <header class="header">
+    <div class="header-container">
 
-  <div class="card">
+      <div class="logo"><a href="../index.html">YCA Cerámica</a></div>
 
-    <h2>Calculadora de Yeso</h2>
+      <nav class="nav" id="nav">
+        <a href="../index.html#productos">Productos</a>
+        <a href="../index.html#herramientas">Herramientas</a>
+        <a href="../index.html#cursos">Cursos</a>
+        <a href="../index.html#galeria">Galería</a>
+        <a href="../index.html#contacto">Contacto</a>
+        <button id="toggleDark">🌙</button>
+      </nav>
 
-    <label>Tipo de molde</label>
-    <select id="tipoMolde" onchange="cambiarTipo();calcular();">
-      <option value="rectangular">Rectangular</option>
-      <option value="circular">Circular</option>
-    </select>
+      <button class="hamburguesa" id="hamburguesa">☰</button>
 
-    <label>Proporción yeso (%)</label>
-    <select id="proporcion" onchange="calcular()">
-      <option value="70">70 — Mezcla más sólida</option>
-      <option value="75" selected>75 — Mezcla estándar</option>
-      <option value="80">80 — Mezcla más líquida</option>
-    </select>
-
-    <label>Cantidad de moldes</label>
-    <input type="number" id="cantidad" value="1" oninput="calcular()">
-
-    <div id="rectangular">
-      <label>Largo (cm)</label>
-      <input type="number" id="largo" oninput="calcular()">
-
-      <label>Ancho (cm)</label>
-      <input type="number" id="ancho" oninput="calcular()">
-
-      <label>Profundidad (cm)</label>
-      <input type="number" id="profundidad" oninput="calcular()">
     </div>
+  </header>
 
-    <div id="circular" style="display:none">
-      <label>Radio de la pieza (cm)</label>
-      <input type="number" id="radioPieza" oninput="calcular()">
+  <!-- CALCULADORA -->
+  <div class="calc-wrapper">
+    <div class="card">
 
-      <label>Radio del molde (cm)</label>
-      <input type="number" id="radioMolde" oninput="calcular()">
+      <h2>Calculadora de Yeso</h2>
 
-      <label>Altura de la pieza (cm)</label>
-      <input type="number" id="alturaPieza" oninput="calcular()">
+      <label>Tipo de molde</label>
+      <select id="tipoMolde" onchange="cambiarTipo();calcular();">
+        <option value="rectangular">Rectangular</option>
+        <option value="circular">Circular</option>
+      </select>
 
-      <label>Altura del molde (cm)</label>
-      <input type="number" id="alturaMolde" oninput="calcular()">
+      <label>Proporción yeso (%)</label>
+      <select id="proporcion" onchange="calcular()">
+        <option value="70">70 — Mezcla más sólida</option>
+        <option value="75" selected>75 — Mezcla estándar</option>
+        <option value="80">80 — Mezcla más líquida</option>
+      </select>
+
+      <label>Cantidad de moldes</label>
+      <input type="number" id="cantidad" value="1" oninput="calcular()">
+
+      <div id="rectangular">
+        <label>Largo (cm)</label>
+        <input type="number" id="largo" oninput="calcular()">
+
+        <label>Ancho (cm)</label>
+        <input type="number" id="ancho" oninput="calcular()">
+
+        <label>Profundidad (cm)</label>
+        <input type="number" id="profundidad" oninput="calcular()">
+      </div>
+
+      <div id="circular" style="display:none">
+        <label>Radio de la pieza (cm)</label>
+        <input type="number" id="radioPieza" oninput="calcular()">
+
+        <label>Radio del molde (cm)</label>
+        <input type="number" id="radioMolde" oninput="calcular()">
+
+        <label>Altura de la pieza (cm)</label>
+        <input type="number" id="alturaPieza" oninput="calcular()">
+
+        <label>Altura del molde (cm)</label>
+        <input type="number" id="alturaMolde" oninput="calcular()">
+      </div>
+
+      <div class="resultado">
+        Agua necesaria: <b><span id="agua">0</span> ml (cm³)</b><br><br>
+        Yeso necesario: <b><span id="yeso">0</span> g</b>
+      </div>
+
+      <div class="fila">
+        <button onclick="copiar()">Copiar</button>
+        <button onclick="guardar()">Guardar</button>
+      </div>
+
+      <div class="fila">
+        <button onclick="limpiar()">Limpiar</button>
+      </div>
+
+      <div class="historial" id="historial">
+        <b>Historial</b><br>
+      </div>
+
     </div>
-
-    <div class="resultado">
-      Agua necesaria: <b><span id="agua">0</span> ml (cm³)</b><br><br>
-      Yeso necesario: <b><span id="yeso">0</span> g</b>
-    </div>
-
-    <div class="fila">
-      <button onclick="copiar()">Copiar</button>
-      <button onclick="guardar()">Guardar</button>
-    </div>
-
-    <div class="fila">
-      <button onclick="limpiar()">Limpiar</button>
-      <button onclick="toggleDark()">🌙 Modo oscuro</button>
-    </div>
-
-    <div class="historial" id="historial">
-      <b>Historial</b><br>
-    </div>
-
   </div>
 
   <script src="script.js"></script>
