@@ -1,0 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+
+:root{
+  --color-fondo:#f2ede7;
+  --color-superficie:#ffffff;
+  --color-primario:#8b6f56;
+  --color-primario-hover:#7a6048;
+  --color-texto:#333;
+  --color-resultado:#f0e3d6;
+  --color-sombra:rgba(0,0,0,0.1);
+}
+
+body.dark{
+  --color-fondo:#1f1f1f;
+  --color-superficie:#2b2b2b;
+  --color-primario:#b18a6d;
+  --color-primario-hover:#c99a7d;
+  --color-texto:#f1f1f1;
+  --color-resultado:#3a302b;
+  --color-sombra:rgba(0,0,0,0.4);
+}
+
+body{
+  font-family:'Plus Jakarta Sans', sans-serif;
+  background:var(--color-fondo);
+  color:var(--color-texto);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-height:100vh;
+  margin:0;
+  padding:30px 20px;
+  box-sizing:border-box;
+  transition:background 0.3s, color 0.3s;
+}
+
+/* BOTÓN VOLVER */
+.volver{
+  align-self:flex-start;
+  margin-bottom:20px;
+  text-decoration:none;
+  font-weight:600;
+  font-size:14px;
+  color:var(--color-primario);
+}
+
+.volver:hover{
+  text-decoration:underline;
+}
+
+/* CARD */
+.card{
+  background:var(--color-superficie);
+  padding:30px;
+  border-radius:14px;
+  box-shadow:0 8px 20px var(--color-sombra);
+  width:100%;
+  max-width:420px;
+  box-sizing:border-box;
+}
+
+h2{
+  text-align:center;
+  margin-bottom:20px;
+  font-size:22px;
+}
+
+/* LABELS */
+label{
+  font-size:14px;
+  font-weight:600;
+}
+
+/* INPUTS Y SELECTS */
+input, select{
+  width:100%;
+  padding:10px;
+  margin-top:6px;
+  margin-bottom:14px;
+  border-radius:8px;
+  border:1px solid #d8cfc4;
+  box-sizing:border-box;
+  font-size:14px;
+  font-family:'Plus Jakarta Sans', sans-serif;
+  background:var(--color-fondo);
+  color:var(--color-texto);
+  transition:border 0.2s;
+}
+
+input:focus, select:focus{
+  outline:none;
+  border-color:var(--color-primario);
+}
+
+/* BOTONES */
+button{
+  width:100%;
+  padding:11px;
+  background:var(--color-primario);
+  color:white;
+  border:none;
+  border-radius:30px;
+  font-size:14px;
+  font-weight:600;
+  font-family:'Plus Jakarta Sans', sans-serif;
+  cursor:pointer;
+  transition:background 0.2s;
+}
+
+button:hover{
+  background:var(--color-primario-hover);
+}
+
+/* FILA DE BOTONES */
+.fila{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+/* RESULTADO */
+.resultado{
+  margin-top:18px;
+  background:var(--color-resultado);
+  padding:14px;
+  border-radius:10px;
+  font-size:15px;
+  line-height:1.6;
+}
+
+/* HISTORIAL */
+.historial{
+  margin-top:16px;
+  font-size:13px;
+  max-height:120px;
+  overflow:auto;
+  line-height:1.8;
+}
