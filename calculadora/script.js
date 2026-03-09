@@ -1,8 +1,42 @@
-// MODO OSCURO
+// MODO OSCURO — recuerda la preferencia del usuario
 
-function toggleDark(){
-  document.body.classList.toggle("dark")
+function aplicarModoOscuro(){
+  if(localStorage.getItem("dark") === "true"){
+    document.body.classList.add("dark")
+  }
 }
+
+aplicarModoOscuro()
+
+const toggleDark = document.getElementById("toggleDark")
+
+if(toggleDark){
+  toggleDark.addEventListener("click", () => {
+    document.body.classList.toggle("dark")
+    localStorage.setItem("dark", document.body.classList.contains("dark"))
+  })
+}
+
+
+
+// MENU HAMBURGUESA
+
+const hamburguesa = document.getElementById("hamburguesa")
+const nav = document.getElementById("nav")
+
+if(hamburguesa){
+  hamburguesa.addEventListener("click", () => {
+    nav.classList.toggle("active")
+  })
+}
+
+const linksNav = document.querySelectorAll(".nav a")
+
+linksNav.forEach(link => {
+  link.addEventListener("click", () => {
+    nav.classList.remove("active")
+  })
+})
 
 
 
@@ -34,9 +68,9 @@ function calcular(){
 
   if(tipo == "rectangular"){
 
-    var largo      = document.getElementById("largo").value || 0
-    var ancho      = document.getElementById("ancho").value || 0
-    var profundidad= document.getElementById("profundidad").value || 0
+    var largo       = document.getElementById("largo").value || 0
+    var ancho       = document.getElementById("ancho").value || 0
+    var profundidad = document.getElementById("profundidad").value || 0
 
     volumen = (largo * ancho * profundidad) / 1.3
 
@@ -47,8 +81,8 @@ function calcular(){
     var ap = document.getElementById("alturaPieza").value || 0
     var am = document.getElementById("alturaMolde").value || 0
 
-    var volumenMolde  = Math.PI * rm * rm * am
-    var volumenPieza  = Math.PI * rp * rp * ap
+    var volumenMolde = Math.PI * rm * rm * am
+    var volumenPieza = Math.PI * rp * rp * ap
 
     volumen = (volumenMolde - volumenPieza) / 1.3
 
