@@ -113,6 +113,6 @@ input:focus, select:focus{
 }
 
 .logo a{
-  text-decoration:none;
-  color:var(--color-texto);
+  text-decoration:none !important;
+  color:inherit !important;
 }
