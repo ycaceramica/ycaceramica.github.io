@@ -3,6 +3,10 @@
 
 @import url('../style.css');
 
+html{
+  scrollbar-gutter:stable;
+}
+
 /* ─────────────────────────────────────────── */
 /* ESTILOS PROPIOS DE LA CALCULADORA           */
 /* ─────────────────────────────────────────── */
