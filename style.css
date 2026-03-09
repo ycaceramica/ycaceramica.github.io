@@ -169,6 +169,7 @@ color:var(--color-texto);
 
 .hero{
 
+position:relative;
 display:flex;
 justify-content:center;
 align-items:center;
@@ -395,7 +396,24 @@ color:white;
 
 }
 
+/* SCROLL INDICATOR */
 
+.scroll-indicator{
+  position:absolute;
+  bottom:30px;
+  left:50%;
+  transform:translateX(-50%);
+  color:white;
+  font-size:36px;
+  opacity:0.8;
+  animation:rebote 1.5s infinite;
+  cursor:pointer;
+}
+
+@keyframes rebote{
+  0%, 100%{ transform:translateX(-50%) translateY(0); }
+  50%{ transform:translateX(-50%) translateY(10px); }
+}
 
 /* RESPONSIVE */
 
