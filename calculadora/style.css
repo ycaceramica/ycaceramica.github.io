@@ -24,31 +24,93 @@ body{
   font-family:'Plus Jakarta Sans', sans-serif;
   background:var(--color-fondo);
   color:var(--color-texto);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  min-height:100vh;
   margin:0;
-  padding:30px 20px;
-  box-sizing:border-box;
+  padding-top:80px;
   transition:background 0.3s, color 0.3s;
 }
 
-/* BOTÓN VOLVER */
-.volver{
-  align-self:flex-start;
-  margin-bottom:20px;
+/* HEADER — igual que la web principal */
+
+.header{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  background:var(--color-superficie);
+  box-shadow:0 2px 12px var(--color-sombra);
+  z-index:1000;
+}
+
+.header-container{
+  max-width:1100px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:15px 20px;
+}
+
+.logo{
+  font-weight:700;
+  font-size:22px;
+}
+
+.logo a{
+  text-decoration:none;
+  color:var(--color-texto);
+}
+
+.nav{
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
+
+.nav a{
   text-decoration:none;
   font-weight:600;
-  font-size:14px;
+  font-size:15px;
+  color:var(--color-texto);
+  white-space:nowrap;
+}
+
+.nav a:hover{
   color:var(--color-primario);
 }
 
-.volver:hover{
-  text-decoration:underline;
+#toggleDark{
+  border:none;
+  background:var(--color-primario);
+  color:white;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  cursor:pointer;
+  font-size:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.hamburguesa{
+  display:none;
+  background:none;
+  border:none;
+  font-size:26px;
+  cursor:pointer;
+  color:var(--color-texto);
+}
+
+/* WRAPPER CALCULADORA */
+
+.calc-wrapper{
+  display:flex;
+  justify-content:center;
+  padding:40px 20px;
 }
 
 /* CARD */
+
 .card{
   background:var(--color-superficie);
   padding:30px;
@@ -66,12 +128,14 @@ h2{
 }
 
 /* LABELS */
+
 label{
   font-size:14px;
   font-weight:600;
 }
 
 /* INPUTS Y SELECTS */
+
 input, select{
   width:100%;
   padding:10px;
@@ -93,6 +157,7 @@ input:focus, select:focus{
 }
 
 /* BOTONES */
+
 button{
   width:100%;
   padding:11px;
@@ -112,6 +177,7 @@ button:hover{
 }
 
 /* FILA DE BOTONES */
+
 .fila{
   display:flex;
   gap:10px;
@@ -119,6 +185,7 @@ button:hover{
 }
 
 /* RESULTADO */
+
 .resultado{
   margin-top:18px;
   background:var(--color-resultado);
@@ -129,10 +196,37 @@ button:hover{
 }
 
 /* HISTORIAL */
+
 .historial{
   margin-top:16px;
   font-size:13px;
   max-height:120px;
   overflow:auto;
   line-height:1.8;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:768px){
+
+  .hamburguesa{
+    display:block;
+  }
+
+  .nav{
+    position:absolute;
+    top:70px;
+    right:20px;
+    background:var(--color-superficie);
+    flex-direction:column;
+    padding:20px;
+    display:none;
+    box-shadow:0 5px 15px rgba(0,0,0,0.15);
+    border-radius:10px;
+  }
+
+  .nav.active{
+    display:flex;
+  }
+
 }
