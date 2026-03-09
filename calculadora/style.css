@@ -1,126 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+/* IMPORTA TODOS LOS ESTILOS DE LA WEB PRINCIPAL */
+/* Así la barra, colores, fuentes y modo oscuro son exactamente iguales */
+
 @import url('../style.css');
 
-:root{
-  --color-fondo:#f2ede7;
-  --color-superficie:#ffffff;
-  --color-primario:#8b6f56;
-  --color-primario-hover:#7a6048;
-  --color-texto:#333;
-  --color-resultado:#f0e3d6;
-  --color-sombra:rgba(0,0,0,0.1);
-}
+/* ─────────────────────────────────────────── */
+/* ESTILOS PROPIOS DE LA CALCULADORA           */
+/* ─────────────────────────────────────────── */
 
-body.dark{
-  --color-fondo:#1f1f1f;
-  --color-superficie:#2b2b2b;
-  --color-primario:#b18a6d;
-  --color-primario-hover:#c99a7d;
-  --color-texto:#f1f1f1;
-  --color-resultado:#3a302b;
-  --color-sombra:rgba(0,0,0,0.4);
-}
-
-body{
-  font-family:'Plus Jakarta Sans', sans-serif;
-  background:var(--color-fondo);
-  color:var(--color-texto);
-  margin:0;
-  padding-top:80px;
-  transition:background 0.3s, color 0.3s;
-}
-
-/* HEADER */
-
-.header{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  background:var(--color-superficie);
-  box-shadow:0 2px 12px var(--color-sombra);
-  z-index:1000;
-}
-
-.header-container{
-  max-width:1100px;
-  margin:auto;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:15px 20px;
-}
-
-.logo{
-  font-weight:700;
-  font-size:22px;
-  white-space:nowrap;
-}
-
-.logo a{
-  text-decoration:none;
-  color:var(--color-texto);
-}
-
-.nav{
-  display:flex;
-  align-items:center;
-  gap:18px;
-}
-
-.nav a{
-  text-decoration:none;
-  font-weight:600;
-  font-size:15px;
-  color:var(--color-texto);
-  white-space:nowrap;
-}
-
-.nav a:hover{
-  color:var(--color-primario);
-}
-
-/* BOTON DARK — dentro del nav */
-
-#toggleDark{
-  border:none;
-  background:var(--color-primario);
-  color:white;
-  width:34px;
-  height:34px;
-  border-radius:50%;
-  cursor:pointer;
-  font-size:16px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:0;
-  flex-shrink:0;
-}
-
-/* BOTON HAMBURGUESA — separado del estilo general de button */
-
-.hamburguesa{
-  display:none;
-  background:none;
-  border:none;
-  font-size:26px;
-  cursor:pointer;
-  color:var(--color-texto);
-  padding:0;
-  width:auto;
-  border-radius:0;
-  box-shadow:none;
-  font-family:'Plus Jakarta Sans', sans-serif;
-  font-weight:400;
-  line-height:1;
-}
-
-.hamburguesa:hover{
-  background:none;
-}
-
-/* WRAPPER CALCULADORA */
+/* WRAPPER — centra la card debajo de la barra */
 
 .calc-wrapper{
   display:flex;
@@ -146,10 +33,15 @@ h2{
   font-size:22px;
 }
 
+/* LABELS */
+
 label{
   font-size:14px;
   font-weight:600;
+  display:block;
 }
+
+/* INPUTS Y SELECTS */
 
 input, select{
   width:100%;
@@ -171,7 +63,7 @@ input:focus, select:focus{
   border-color:var(--color-primario);
 }
 
-/* BOTONES DE LA CARD */
+/* BOTONES DE LA CARD — sobreescriben el .boton general */
 
 .card button{
   width:100%;
@@ -191,11 +83,15 @@ input:focus, select:focus{
   background:var(--color-primario-hover);
 }
 
+/* FILA DE BOTONES */
+
 .fila{
   display:flex;
   gap:10px;
   margin-top:10px;
 }
+
+/* RESULTADO */
 
 .resultado{
   margin-top:18px;
@@ -206,36 +102,12 @@ input:focus, select:focus{
   line-height:1.6;
 }
 
+/* HISTORIAL */
+
 .historial{
   margin-top:16px;
   font-size:13px;
   max-height:120px;
   overflow:auto;
   line-height:1.8;
-}
-
-/* RESPONSIVE */
-
-@media(max-width:768px){
-
-  .hamburguesa{
-    display:block;
-  }
-
-  .nav{
-    position:absolute;
-    top:70px;
-    right:20px;
-    background:var(--color-superficie);
-    flex-direction:column;
-    padding:20px;
-    display:none;
-    box-shadow:0 5px 15px rgba(0,0,0,0.15);
-    border-radius:10px;
-  }
-
-  .nav.active{
-    display:flex;
-  }
-
 }
