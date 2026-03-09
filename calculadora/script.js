@@ -1,9 +1,17 @@
-// MODO OSCURO — recuerda la preferencia del usuario
+// MODO OSCURO — recuerda la preferencia y cambia ícono
+
+function actualizarIcono(){
+  const btn = document.getElementById("toggleDark")
+  if(btn){
+    btn.innerText = document.body.classList.contains("dark") ? "☀️" : "🌙"
+  }
+}
 
 function aplicarModoOscuro(){
   if(localStorage.getItem("dark") === "true"){
     document.body.classList.add("dark")
   }
+  actualizarIcono()
 }
 
 aplicarModoOscuro()
@@ -14,6 +22,7 @@ if(toggleDark){
   toggleDark.addEventListener("click", () => {
     document.body.classList.toggle("dark")
     localStorage.setItem("dark", document.body.classList.contains("dark"))
+    actualizarIcono()
   })
 }
 
