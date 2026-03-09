@@ -94,11 +94,15 @@ body{
 
 .hamburguesa{
   display:none;
-  background:none;
+  background:none !important;
   border:none;
   font-size:26px;
   cursor:pointer;
   color:var(--color-texto);
+  width:auto !important;
+  padding:0 !important;
+  border-radius:0 !important;
+  font-weight:400 !important;
 }
 
 /* WRAPPER CALCULADORA */
