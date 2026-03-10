@@ -73,3 +73,14 @@ window.addEventListener("scroll", reveal)
 window.addEventListener("load", reveal)
 
 reveal()
+
+// OCULTAR FLECHA AL SCROLLEAR
+const scrollIndicator = document.getElementById("scrollIndicator")
+
+window.addEventListener("scroll", () => {
+  if(window.scrollY > 50){
+    scrollIndicator.classList.add("oculto")
+  } else {
+    scrollIndicator.classList.remove("oculto")
+  }
+})
