@@ -2,7 +2,7 @@
 // CONFIGURACIÓN
 // ─────────────────────────────────────────────
 
-const SHEET_URL = "https://sheetdb.io/api/v1/e42wx721okwqc?sheet=Publicadas"
+const SHEET_URL = "https://sheetdb.io/api/v1/or6tifw8jqcwq?sheet=Publicadas"
 const WHATSAPP = "5491160387535"
 
 
@@ -142,7 +142,13 @@ async function cargarPiezas(){
 
   try {
     const res = await fetch(SHEET_URL)
-const piezas = await res.json()
+const datos = await res.json()
+const piezas = datos.map(d => ({
+  foto: d.Foto || "",
+  nombre: d.Nombre || "",
+  categoria: d.Categoria || "",
+  descripcion: d["Descripción"] || ""
+})).filter(p => p.foto && p.nombre)
 
     estado.classList.add("oculto")
 
