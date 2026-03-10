@@ -458,3 +458,9 @@ display:flex;
 }
 
 }
+
+@media(min-width:769px){
+  .scroll-indicator{
+    display:none;
+  }
+}
