@@ -48,7 +48,9 @@ document.querySelectorAll(".nav a").forEach(link => {
   link.addEventListener("click", () => nav.classList.remove("active"))
 })
 
-
+window.addEventListener("scroll", () => {
+  if(nav) nav.classList.remove("active")
+})
 
 // ─────────────────────────────────────────────
 // CREAR TARJETA
