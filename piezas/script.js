@@ -2,7 +2,7 @@
 // CONFIGURACIÓN
 // ─────────────────────────────────────────────
 
-const SHEET_URL = "https://corsproxy.io/?https://docs.google.com/spreadsheets/d/e/2PACX-1vQqxDRZu5xfbHPqS9EvIdrzbaI0coHRptdAlLUjLehd8x2w7F4ovzatejhYAE4qRc8YR93dVfA18kDv/pub?gid=1299029260&single=true&output=csv"
+const SHEET_URL = "https://api.allorigins.win/raw?url=https://docs.google.com/spreadsheets/d/e/2PACX-1vQqxDRZu5xfbHPqS9EvIdrzbaI0coHRptdAlLUjLehd8x2w7F4ovzatejhYAE4qRc8YR93dVfA18kDv/pub?gid=1299029260%26single=true%26output=csv"
 
 const WHATSAPP = "5491160387535"
 
