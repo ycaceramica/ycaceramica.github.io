@@ -2,7 +2,7 @@
 // CONFIGURACIÓN
 // ─────────────────────────────────────────────
 
-const SHEET_URL = "https://sheetdb.io/api/v1/e42wx721okwqc"
+const SHEET_URL = "https://sheetdb.io/api/v1/e42wx721okwqc?sheet=Publicadas"
 const WHATSAPP = "5491160387535"
 
 
