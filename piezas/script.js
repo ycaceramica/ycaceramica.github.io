@@ -2,9 +2,11 @@
 // CONFIGURACIÓN
 // ─────────────────────────────────────────────
 
-const SHEET_URL = "https://api.allorigins.win/raw?url=https://docs.google.com/spreadsheets/d/e/2PACX-1vQqxDRZu5xfbHPqS9EvIdrzbaI0coHRptdAlLUjLehd8x2w7F4ovzatejhYAE4qRc8YR93dVfA18kDv/pub?gid=1299029260%26single=true%26output=csv"
-
+const SHEET_ID = "1xJW7yH-pIXfDoCuWraxDT0hATCkzqsw7PvpZ0Slcof0"
+const SHEET_NAME = "Publicadas"
 const WHATSAPP = "5491160387535"
+
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`
 
 
 
@@ -49,29 +51,6 @@ if(hamburguesa){
 document.querySelectorAll(".nav a").forEach(link => {
   link.addEventListener("click", () => nav.classList.remove("active"))
 })
-
-
-
-// ─────────────────────────────────────────────
-// PARSEAR CSV
-// ─────────────────────────────────────────────
-
-function parsearCSV(texto){
-  const lineas = texto.trim().split("\n")
-  const encabezados = lineas[0].split(",").map(h => h.trim().replace(/"/g, ""))
-  const datos = []
-
-  for(let i = 1; i < lineas.length; i++){
-    const valores = lineas[i].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || []
-    const fila = {}
-    encabezados.forEach((enc, j) => {
-      fila[enc] = (valores[j] || "").replace(/"/g, "").trim()
-    })
-    if(fila.foto && fila.nombre) datos.push(fila)
-  }
-
-  return datos
-}
 
 
 
@@ -126,7 +105,8 @@ function armarFiltros(piezas){
     contenedor.appendChild(btn)
   })
 
-  document.querySelector(".filtro[data-categoria='todas']").addEventListener("click", () => filtrar("todas"))
+  document.querySelector(".filtro[data-categoria='todas']")
+    .addEventListener("click", () => filtrar("todas"))
 }
 
 function filtrar(categoria){
@@ -156,7 +136,8 @@ function filtrar(categoria){
 
 
 // ─────────────────────────────────────────────
-// CARGAR PIEZAS
+// CARGAR PIEZAS — usa Google Visualization API
+// que no tiene restricciones CORS
 // ─────────────────────────────────────────────
 
 async function cargarPiezas(){
@@ -166,26 +147,37 @@ async function cargarPiezas(){
   try {
     const res = await fetch(SHEET_URL)
     const texto = await res.text()
-    const piezas = parsearCSV(texto)
+
+    // Google devuelve JSONP, hay que limpiar el wrapper
+    const json = JSON.parse(texto.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);/)[1])
+
+    const cols = json.table.cols.map(c => c.label.toLowerCase())
+    const filas = json.table.rows || []
+
+    const piezas = filas.map(fila => {
+      const obj = {}
+      cols.forEach((col, i) => {
+        obj[col] = fila.c[i]?.v || ""
+      })
+      return obj
+    }).filter(p => p.foto && p.nombre)
 
     estado.classList.add("oculto")
 
     if(piezas.length === 0){
       estado.classList.remove("oculto")
-      estado.innerHTML = "<p>No hay piezas publicadas todavía. ¡Volvé pronto!</p>"
+      estado.querySelector("p").innerText = "No hay piezas publicadas todavía. ¡Volvé pronto!"
+      estado.querySelector(".spinner").style.display = "none"
       return
     }
 
     armarFiltros(piezas)
-
-    piezas.forEach(pieza => {
-      const card = crearTarjeta(pieza)
-      grid.appendChild(card)
-    })
+    piezas.forEach(pieza => grid.appendChild(crearTarjeta(pieza)))
 
   } catch(err) {
     estado.classList.remove("oculto")
-    estado.innerHTML = "<p>No se pudieron cargar las piezas. Intentá de nuevo más tarde.</p>"
+    estado.querySelector("p").innerText = "No se pudieron cargar las piezas. Intentá de nuevo más tarde."
+    estado.querySelector(".spinner").style.display = "none"
     console.error(err)
   }
 }
