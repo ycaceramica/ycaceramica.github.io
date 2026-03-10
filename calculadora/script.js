@@ -39,6 +39,10 @@ if(hamburguesa){
   })
 }
 
+window.addEventListener("scroll", () => {
+  if(nav) nav.classList.remove("active")
+})
+
 const linksNav = document.querySelectorAll(".nav a")
 
 linksNav.forEach(link => {
