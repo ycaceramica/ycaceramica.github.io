@@ -400,7 +400,7 @@ color:white;
 
 .scroll-indicator{
   position:fixed;
-  bottom:100px;
+  bottom:30px;
   left:50%;
   transform:translateX(-50%);
   color:white;
