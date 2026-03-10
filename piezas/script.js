@@ -2,12 +2,8 @@
 // CONFIGURACIÓN
 // ─────────────────────────────────────────────
 
-const SHEET_ID = "1xJW7yH-pIXfDoCuWraxDT0hATCkzqsw7PvpZ0Slcof0"
-const SHEET_NAME = "Publicadas"
+const SHEET_URL = "https://sheetdb.io/api/v1/e42wx721okwqc"
 const WHATSAPP = "5491160387535"
-
-const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`
-
 
 
 // ─────────────────────────────────────────────
@@ -146,21 +142,7 @@ async function cargarPiezas(){
 
   try {
     const res = await fetch(SHEET_URL)
-    const texto = await res.text()
-
-    // Google devuelve JSONP, hay que limpiar el wrapper
-    const json = JSON.parse(texto.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);/)[1])
-
-    const cols = json.table.cols.map(c => c.label.toLowerCase())
-    const filas = json.table.rows || []
-
-    const piezas = filas.map(fila => {
-      const obj = {}
-      cols.forEach((col, i) => {
-        obj[col] = fila.c[i]?.v || ""
-      })
-      return obj
-    }).filter(p => p.foto && p.nombre)
+const piezas = await res.json()
 
     estado.classList.add("oculto")
 
