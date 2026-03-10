@@ -9,7 +9,7 @@
 <title>YCA Cerámica</title>
 
 <link rel="icon" type="image/png" href="imagenes/logo.png">
-  
+
 <link rel="stylesheet" href="style.css">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -27,23 +27,15 @@
     <div class="logo"><img src="imagenes/logo.png" alt="YCA Cerámica" style="height:38px;width:38px;border-radius:50%;vertical-align:middle;margin-right:8px;">YCA Cerámica</div>
 
     <nav class="nav" id="nav">
+  <a href="#productos">Productos</a>
+  <a href="#herramientas">Herramientas</a>
+  <a href="#cursos">Cursos y Talleres</a>
+  <a href="#galeria">Galería</a>
+  <a href="#contacto">Contacto</a>
+  <button id="toggleDark">🌙</button>
+</nav>
 
-      <a href="#productos">Productos</a>
-
-      <a href="#herramientas">Herramientas</a>
-
-      <a href="#cursos">Cursos</a>
-
-      <a href="#galeria">Galería</a>
-
-      <a href="#contacto">Contacto</a>
-
-      <button id="toggleDark">🌙</button>
-
-    </nav>
-
-    <!-- BOTÓN HAMBURGUESA (solo visible en móvil) -->
-    <button class="hamburguesa" id="hamburguesa">☰</button>
+    <span class="hamburguesa" id="hamburguesa">☰</span>
 
   </div>
 
@@ -52,44 +44,42 @@
 
 
 <section class="hero">
-
   <div class="hero-contenido">
-
     <h2>Cerámica artesanal</h2>
-
     <p>Piezas, cursos y herramientas para ceramistas</p>
-
     <a class="boton" href="#productos">Ver productos</a>
-
-    
   </div>
-
 </section>
 
-<div class="scroll-indicator" id="scrollIndicator">⌄</div>
+<div class="scroll-indicator" id="scrollIndicator">∨</div>
+
+
 
 <section id="productos" class="reveal">
 
-  <h2>Productos</h2>
+  <h2>Productos y Servicios</h2>
 
   <div class="contenedor">
 
     <div class="tarjeta">
-      <h3>Mate cerámico</h3>
-      <p>Pieza artesanal</p>
-      <a class="boton" href="#">Comprar</a>
+      <div class="tarjeta-icono">🏺</div>
+      <h3>Piezas artesanales</h3>
+      <p>Mates, cuencos, tazas y más. Cada pieza hecha a mano con arcilla y esmaltes únicos.</p>
+      <a class="boton" href="piezas/index.html">Ver piezas</a>
     </div>
 
     <div class="tarjeta">
-      <h3>Cuenco</h3>
-      <p>Cerámica hecha a mano</p>
-      <a class="boton" href="#">Comprar</a>
+      <div class="tarjeta-icono">🪣</div>
+      <h3>Insumos</h3>
+      <p>Materiales para ceramistas: arcillas, esmaltes, herramientas y más.</p>
+      <a class="boton" href="insumos/index.html">Ver insumos</a>
     </div>
 
     <div class="tarjeta">
-      <h3>Taza</h3>
-      <p>Taza esmaltada</p>
-      <a class="boton" href="#">Comprar</a>
+      <div class="tarjeta-icono">🎨</div>
+      <h3>Cumpleaños cerámico</h3>
+      <p>Llevamos todo para que los chicos pinten sus propias piezas. Nosotros las cocinamos, esmaltamos y entregamos en una presentación especial.</p>
+      <a class="boton" href="https://wa.me/5491160387535?text=Hola!%20Me%20interesa%20el%20servicio%20de%20cumplea%C3%B1os%20cer%C3%A1mico%2C%20quer%C3%ADa%20consultar%20disponibilidad%20y%20precios." target="_blank">Consultar disponibilidad</a>
     </div>
 
   </div>
@@ -105,8 +95,9 @@
   <div class="contenedor">
 
     <div class="tarjeta">
+      <div class="tarjeta-icono">🧮</div>
       <h3>Calculadora de yeso</h3>
-      <p>Calculá proporciones de mezcla</p>
+      <p>Calculá proporciones exactas de agua y yeso para tus moldes.</p>
       <a class="boton" href="calculadora/index.html">Abrir calculadora</a>
     </div>
 
@@ -118,18 +109,22 @@
 
 <section id="cursos" class="reveal">
 
-  <h2>Cursos</h2>
+  <h2>Cursos y Talleres</h2>
 
   <div class="contenedor">
 
     <div class="tarjeta">
-      <h3>Curso básico</h3>
-      <p>Introducción a moldes</p>
+      <div class="tarjeta-icono">🏛️</div>
+      <h3>Talleres presenciales</h3>
+      <p>Aprendé cerámica en nuestro taller. Distintas modalidades y niveles.</p>
+      <a class="boton" href="https://wa.me/5491160387535?text=Hola!%20Me%20interesa%20información%20sobre%20los%20talleres%20presenciales." target="_blank">Consultar</a>
     </div>
 
     <div class="tarjeta">
-      <h3>Curso avanzado</h3>
-      <p>Producción cerámica</p>
+      <div class="tarjeta-icono">🎥</div>
+      <h3>Videocursos online</h3>
+      <p>Aprendé a tu ritmo desde casa. Próximamente disponibles con guías en PDF.</p>
+      <span class="badge">Próximamente</span>
     </div>
 
   </div>
@@ -158,16 +153,15 @@
   <h2>Contacto</h2>
 
   <div class="redes">
-    <a href="#"><i class="fa-brands fa-instagram"></i></a>
-    <a href="#"><i class="fa-brands fa-tiktok"></i></a>
-    <a href="#"><i class="fa-brands fa-youtube"></i></a>
+    <a href="https://www.instagram.com/ycaceramica/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+    <a href="https://www.tiktok.com/@yca.ceramica" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+    <a href="https://www.youtube.com/@YCACeramica" target="_blank"><i class="fa-brands fa-youtube"></i></a>
   </div>
 
 </section>
 
 
 
-<!-- REEMPLAZÁ "TUNUMERO" por tu número con código de país, ej: 5491112345678 -->
 <a class="whatsapp" href="https://wa.me/5491160387535" target="_blank">
   <i class="fa-brands fa-whatsapp"></i>
 </a>
