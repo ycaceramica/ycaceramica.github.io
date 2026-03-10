@@ -248,19 +248,15 @@ gap:25px;
 /* TARJETAS */
 
 .tarjeta{
-
-background:var(--color-superficie);
-
-padding:30px;
-
-border-radius:14px;
-
-box-shadow:0 8px 20px var(--color-sombra);
-
-text-align:center;
-
-transition:0.3s;
-
+  background:var(--color-superficie);
+  padding:30px;
+  border-radius:14px;
+  box-shadow:0 8px 20px var(--color-sombra);
+  text-align:center;
+  transition:0.3s;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
 }
 
 .tarjeta:hover{
