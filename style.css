@@ -308,7 +308,7 @@ footer{
     display:block;
   }
 
-  .nav{
+.nav{
     position:absolute;
     top:70px;
     right:20px;
@@ -319,13 +319,22 @@ footer{
     box-shadow:0 5px 15px rgba(0,0,0,0.15);
     border-radius:10px;
   }
-
   .nav.active{
     display:flex;
   }
 
-}
+  .nav.active a{
+    font-size:18px;
+    padding:8px 0;
+  }
 
+  .nav.active #toggleDark{
+    width:40px;
+    height:40px;
+    font-size:18px;
+  }
+
+}
 @media(min-width:769px){
   .scroll-indicator{
     display:none;
