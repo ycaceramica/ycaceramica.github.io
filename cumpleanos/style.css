@@ -160,6 +160,9 @@
   align-items:center;
   gap:10px;
   margin-top:30px;
+  max-width:600px;
+  margin-left:auto;
+  margin-right:auto;
 }
 
 .carrusel{
@@ -171,9 +174,10 @@
 
 .carrusel img{
   min-width:100%;
-  aspect-ratio:16/9;
+  aspect-ratio:4/3;
   object-fit:cover;
   transition:transform 0.4s ease;
+  max-height:350px;
 }
 
 .carrusel-btn{
