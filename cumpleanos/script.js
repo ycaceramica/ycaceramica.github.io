@@ -56,7 +56,29 @@ window.addEventListener("scroll", () => {
 
 
 // ─────────────────────────────────────────────
-// VALIDAR FORMULARIO
+// LIGHTBOX
+// ─────────────────────────────────────────────
+
+function abrirLightbox(src){
+  document.getElementById("lightbox-img").src = src
+  document.getElementById("lightbox").classList.add("activo")
+  document.body.style.overflow = "hidden"
+}
+
+function cerrarLightbox(){
+  document.getElementById("lightbox").classList.remove("activo")
+  document.body.style.overflow = ""
+}
+
+// Cerrar también con la tecla Escape
+document.addEventListener("keydown", (e) => {
+  if(e.key === "Escape") cerrarLightbox()
+})
+
+
+
+// ─────────────────────────────────────────────
+// FORMULARIO
 // ─────────────────────────────────────────────
 
 function obtenerDatos(){
@@ -88,42 +110,10 @@ function armarTexto(datos){
 💬 Mensaje: ${datos.mensaje || "Sin mensaje adicional"}`
 }
 
-
-
-// ─────────────────────────────────────────────
-// ENVIAR POR WHATSAPP
-// ─────────────────────────────────────────────
-
 function enviarWhatsApp(){
   const datos = obtenerDatos()
   if(!datos) return
-
   const texto = armarTexto(datos)
   const url = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(texto)}`
   window.open(url, "_blank")
-}
-
-
-
-// ─────────────────────────────────────────────
-// ENVIAR POR EMAIL
-// ─────────────────────────────────────────────
-
-function enviarEmail(){
-  const datos = obtenerDatos()
-  if(!datos) return
-
-    const asunto = encodeURIComponent("Consulta Cumpleaños Cerámico — YCA Cerámica")
-  const cuerpo = encodeURIComponent(armarTexto(datos))
-  const url = `mailto:${EMAIL}?subject=${asunto}&body=${cuerpo}`
-  window.location.href = url
-}
-
-function abrirLightbox(src){
-  document.getElementById("lightbox-img").src = src
-  document.getElementById("lightbox").classList.add("activo")
-}
-
-function cerrarLightbox(){
-  document.getElementById("lightbox").classList.remove("activo")
 }
