@@ -159,13 +159,16 @@
   grid-template-columns:repeat(3, 1fr);
   gap:15px;
   margin-top:30px;
+  max-width:100%;
+  overflow:hidden;
 }
 
 .cumple-galeria img{
   width:100%;
   border-radius:12px;
-  aspect-ratio:4/3;
+  aspect-ratio:1/1;
   object-fit:cover;
+  display:block;
 }
 
 @media(max-width:768px){
