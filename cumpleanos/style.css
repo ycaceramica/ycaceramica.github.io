@@ -200,7 +200,7 @@
 
 .cumple-galeria{
   display:grid;
-  grid-template-columns:repeat(3, 1fr);
+  grid-template-columns:repeat(2, 1fr);
   gap:15px;
   margin-top:30px;
 }
@@ -359,11 +359,7 @@
   .incluye-grid{
     grid-template-columns:repeat(2, 1fr);
   }
-
-  .cumple-galeria{
-    grid-template-columns:repeat(2, 1fr);
-  }
-
+  
   .formulario-botones{
     flex-direction:column;
   }
