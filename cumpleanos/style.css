@@ -21,7 +21,7 @@
   padding:120px 20px 80px;
   background:
     linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
-    url("https://picsum.photos/seed/cumplehero/1200/600");
+    url("../imagenes/cumplehero.jpg");
   background-size:cover;
   background-position:center;
   color:white;
