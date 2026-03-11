@@ -113,8 +113,22 @@ function enviarEmail(){
   const datos = obtenerDatos()
   if(!datos) return
 
-  const asunto = encodeURIComponent("Consulta Cumpleaños Cerámico — YCA Cerámica")
+    const asunto = encodeURIComponent("Consulta Cumpleaños Cerámico — YCA Cerámica")
   const cuerpo = encodeURIComponent(armarTexto(datos))
   const url = `mailto:${EMAIL}?subject=${asunto}&body=${cuerpo}`
   window.location.href = url
+}
+
+
+// ─────────────────────────────────────────────
+// CARRUSEL
+// ─────────────────────────────────────────────
+
+let indiceCarrusel = 0
+
+function moverCarrusel(direccion){
+  const carrusel = document.getElementById("carrusel")
+  const total = carrusel.querySelectorAll("img").length
+  indiceCarrusel = (indiceCarrusel + direccion + total) % total
+  carrusel.style.transform = `translateX(-${indiceCarrusel * 100}%)`
 }
