@@ -112,25 +112,6 @@
     </div>
   </section>
 
-  <!-- GALERIA FOTOS -->
-<!-- GALERIA -->
-<section class="cumple-seccion">
-  <h2>Experiencias ✨</h2>
-  <div class="cumple-galeria">
-    <img src="https://picsum.photos/seed/cumple1/600/400" alt="Experiencia 1" onclick="abrirLightbox(this.src)">
-    <img src="https://picsum.photos/seed/cumple2/600/400" alt="Experiencia 2" onclick="abrirLightbox(this.src)">
-    <img src="https://picsum.photos/seed/cumple3/600/400" alt="Experiencia 3" onclick="abrirLightbox(this.src)">
-  </div>
-</section>
-
-<!-- LIGHTBOX -->
-<div class="lightbox" id="lightbox" onclick="cerrarLightbox()">
-  <span class="lightbox-cerrar">✕</span>
-  <img id="lightbox-img" src="" alt="Foto ampliada">
-</div>
-
-  </section>
-
   <!-- PROPUESTAS -->
   <section class="cumple-seccion" id="propuestas">
     <h2>Propuestas</h2>
@@ -172,6 +153,23 @@
 
     </div>
   </section>
+
+  <!-- GALERIA EVENTOS -->
+  <section class="cumple-seccion">
+    <h2>Nuestros eventos 📸</h2>
+    <p class="seccion-subtitulo">Algunos de los cumpleaños que fuimos parte.</p>
+    <div class="cumple-galeria">
+      <img src="https://picsum.photos/seed/cumple1/600/600" alt="Evento 1" onclick="abrirLightbox(this.src)">
+      <img src="https://picsum.photos/seed/cumple2/600/600" alt="Evento 2" onclick="abrirLightbox(this.src)">
+      <img src="https://picsum.photos/seed/cumple3/600/600" alt="Evento 3" onclick="abrirLightbox(this.src)">
+    </div>
+  </section>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-cerrar" onclick="cerrarLightbox()">✕ Cerrar</button>
+    <img id="lightbox-img" src="" alt="Foto ampliada">
+  </div>
 
   <!-- FORMULARIO -->
   <section class="cumple-seccion" id="consultar">
@@ -229,10 +227,10 @@
         </div>
 
         <div class="formulario-botones">
-  <button class="boton-formulario" onclick="enviarWhatsApp()">
-    <i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp
-  </button>
-</div>
+          <button class="boton-formulario" onclick="enviarWhatsApp()">
+            <i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp
+          </button>
+        </div>
 
         <p class="formulario-nota">* Campos obligatorios. Te respondemos dentro de las 24hs.</p>
 
