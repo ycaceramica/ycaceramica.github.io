@@ -154,50 +154,24 @@
 
 /* GALERIA */
 
-.carrusel-wrapper{
-  position:relative;
-  display:flex;
-  align-items:center;
-  gap:10px;
+.cumple-galeria{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:15px;
   margin-top:30px;
-  max-width:600px;
-  margin-left:auto;
-  margin-right:auto;
 }
 
-.carrusel{
-  display:flex;
-  overflow:hidden;
-  border-radius:14px;
-  flex:1;
-}
-
-.carrusel img{
-  min-width:100%;
+.cumple-galeria img{
+  width:100%;
+  border-radius:12px;
   aspect-ratio:4/3;
   object-fit:cover;
-  transition:transform 0.4s ease;
-  max-height:350px;
 }
 
-.carrusel-btn{
-  background:var(--color-primario);
-  color:white;
-  border:none;
-  border-radius:50%;
-  width:44px;
-  height:44px;
-  font-size:24px;
-  cursor:pointer;
-  flex-shrink:0;
-  transition:background 0.2s;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.carrusel-btn:hover{
-  background:var(--color-primario-hover);
+@media(max-width:768px){
+  .cumple-galeria{
+    grid-template-columns:repeat(2, 1fr);
+  }
 }
 
 .galeria-nota{
