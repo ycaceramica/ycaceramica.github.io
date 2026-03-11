@@ -113,10 +113,20 @@
   </section>
 
   <!-- GALERIA FOTOS -->
+<!-- GALERIA -->
+<section class="cumple-seccion">
+  <h2>Experiencias ✨</h2>
   <div class="cumple-galeria">
-  <img src="https://picsum.photos/seed/cumple1/600/400" alt="Cumpleaños cerámico 1">
-  <img src="https://picsum.photos/seed/cumple2/600/400" alt="Cumpleaños cerámico 2">
-  <img src="https://picsum.photos/seed/cumple3/600/400" alt="Cumpleaños cerámico 3">
+    <img src="https://picsum.photos/seed/cumple1/600/400" alt="Experiencia 1" onclick="abrirLightbox(this.src)">
+    <img src="https://picsum.photos/seed/cumple2/600/400" alt="Experiencia 2" onclick="abrirLightbox(this.src)">
+    <img src="https://picsum.photos/seed/cumple3/600/400" alt="Experiencia 3" onclick="abrirLightbox(this.src)">
+  </div>
+</section>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="cerrarLightbox()">
+  <span class="lightbox-cerrar">✕</span>
+  <img id="lightbox-img" src="" alt="Foto ampliada">
 </div>
 
   </section>
