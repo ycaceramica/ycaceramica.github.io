@@ -345,3 +345,43 @@
   }
 
 }
+
+.cumple-galeria img{
+  cursor:pointer;
+  transition:transform 0.2s, opacity 0.2s;
+}
+
+.cumple-galeria img:hover{
+  transform:scale(1.03);
+  opacity:0.9;
+}
+
+.lightbox{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.9);
+  z-index:1000;
+  align-items:center;
+  justify-content:center;
+}
+
+.lightbox.activo{
+  display:flex;
+}
+
+.lightbox img{
+  max-width:90vw;
+  max-height:90vh;
+  border-radius:10px;
+  object-fit:contain;
+}
+
+.lightbox-cerrar{
+  position:absolute;
+  top:20px;
+  right:30px;
+  color:white;
+  font-size:30px;
+  cursor:pointer;
+}
