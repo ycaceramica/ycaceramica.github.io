@@ -117,3 +117,18 @@ function enviarWhatsApp(){
   const url = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(texto)}`
   window.open(url, "_blank")
 }
+
+
+// ─────────────────────────────────────────────
+// SCROLL INDICATOR
+// ─────────────────────────────────────────────
+
+const scrollIndicator = document.getElementById("scrollIndicator")
+
+window.addEventListener("scroll", () => {
+  if(window.scrollY > 50){
+    scrollIndicator?.classList.add("oculto")
+  } else {
+    scrollIndicator?.classList.remove("oculto")
+  }
+})
