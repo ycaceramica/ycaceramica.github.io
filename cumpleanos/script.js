@@ -118,3 +118,12 @@ function enviarEmail(){
   const url = `mailto:${EMAIL}?subject=${asunto}&body=${cuerpo}`
   window.location.href = url
 }
+
+function abrirLightbox(src){
+  document.getElementById("lightbox-img").src = src
+  document.getElementById("lightbox").classList.add("activo")
+}
+
+function cerrarLightbox(){
+  document.getElementById("lightbox").classList.remove("activo")
+}
