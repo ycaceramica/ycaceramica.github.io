@@ -69,9 +69,7 @@ function setTipo(tipo){
   document.getElementById("btnOxido").classList.toggle("activo", tipo === "oxido")
   document.getElementById("btnPigmento").classList.toggle("activo", tipo === "pigmento")
 
-  document.getElementById("nombreColorante").innerHTML = tipo === "oxido"
-    ? "🔴 Óxido"
-    : "🎨 Pigmento"
+  document.getElementById("nombreColorante").innerHTML = tipo === "oxido" ? "🔴 Óxido" : "🎨 Pigmento"
 
   const conFeldes = document.getElementById("checkFeldespato").checked
   const refKey    = conFeldes ? "conFeldespato" : "sinFeldespato"
@@ -168,20 +166,18 @@ function obtenerComponentes(){
   const pctColorante  = conColor  ? (parseFloat(document.getElementById("inputColorante").value)  || 0) : 0
   const pctFeldespato = conFeldes ? (parseFloat(document.getElementById("inputFeldespato").value) || 0) : 0
 
-  const componentes = [
-    { nombre: "Tinkar",    emoji: "🟤", pct: pctTinkar }
-  ]
+  const componentes = [{ nombre: "Tinkar", emoji: "🟤", pct: pctTinkar }]
   componentes.push({ nombre: "Flux", emoji: "⚪", pct: pctFlux })
 
   if(conColor){
-    const n = tipoActual === "oxido" ? "Óxido" : "Pigmento"
-    const e = tipoActual === "oxido" ? "🔴"    : "🎨"
-    componentes.push({ nombre: n, emoji: e, pct: pctColorante })
+    componentes.push({
+      nombre: tipoActual === "oxido" ? "Óxido"    : "Pigmento",
+      emoji:  tipoActual === "oxido" ? "🔴"        : "🎨",
+      pct: pctColorante
+    })
   }
 
-  if(conFeldes){
-    componentes.push({ nombre: "Feldespato", emoji: "🪨", pct: pctFeldespato })
-  }
+  if(conFeldes) componentes.push({ nombre: "Feldespato", emoji: "🪨", pct: pctFeldespato })
 
   return { total, componentes, suma: pctTinkar + pctFlux + pctColorante + pctFeldespato }
 }
@@ -189,7 +185,6 @@ function obtenerComponentes(){
 function calcular(){
   const { total, componentes, suma } = obtenerComponentes()
 
-  // Barra
   const barra = document.getElementById("totalBarra")
   barra.style.width = Math.min(suma, 100) + "%"
   barra.classList.toggle("excede", suma > 100)
@@ -198,17 +193,16 @@ function calcular(){
 
   const aviso = document.getElementById("totalAviso")
   if(suma === 100){
-    aviso.innerText   = "✓ Perfecto"
-    aviso.className   = "total-aviso ok"
+    aviso.innerText = "✓ Perfecto"
+    aviso.className = "total-aviso ok"
   } else if(suma < 100){
-    aviso.innerText   = `Falta ${100 - suma}% — completá con Tinkar`
-    aviso.className   = "total-aviso"
+    aviso.innerText = `Falta ${100 - suma}% — completá con Tinkar`
+    aviso.className = "total-aviso"
   } else {
-    aviso.innerText   = `Excede en ${suma - 100}%`
-    aviso.className   = "total-aviso"
+    aviso.innerText = `Excede en ${suma - 100}%`
+    aviso.className = "total-aviso"
   }
 
-  // Resultado
   const grid = document.getElementById("resultadoGrid")
   grid.innerHTML = ""
 
@@ -241,10 +235,10 @@ function guardarFormula(){
 
   const formula = {
     id:          Date.now(),
-    nombre:      nombre,
+    nombre,
     tipo:        tipoActual,
-    total:       total,
-    suma:        suma,
+    total,
+    suma,
     componentes: componentes.map(c => ({
       nombre: c.nombre,
       emoji:  c.emoji,
@@ -259,7 +253,7 @@ function guardarFormula(){
   renderizarHistorial()
 
   const btn = document.querySelector(".btn-guardar")
-  btn.innerText = "✓ Guardado"
+  btn.innerHTML = "✓ Guardado"
   setTimeout(() => {
     btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar en historial'
   }, 2000)
@@ -325,8 +319,7 @@ function copiarResultado(){
   const tipo   = tipoActual === "oxido" ? "Óxidos" : "Pigmentos"
 
   let texto = `YCA Cerámica — Laboratorio de Engobes\n`
-  texto += `Fórmula: ${nombre}\n`
-  texto += `Tipo: ${tipo} | Total: ${total}g\n`
+  texto += `Fórmula: ${nombre}\nTipo: ${tipo} | Total: ${total}g\n`
   texto += `─────────────────────\n`
   componentes.forEach(c => {
     texto += `${c.nombre}: ${((c.pct/100)*total).toFixed(1)}g (${c.pct}%)\n`
@@ -342,6 +335,27 @@ function copiarResultado(){
 }
 
 // ─────────────────────────────────────────────
+// CARGAR LOGO COMO BASE64
+// ─────────────────────────────────────────────
+
+function cargarLogoBase64(){
+  return new Promise((resolve) => {
+    const img = new Image()
+    img.crossOrigin = "anonymous"
+    img.onload = () => {
+      const canvas = document.createElement("canvas")
+      canvas.width  = img.width
+      canvas.height = img.height
+      const ctx = canvas.getContext("2d")
+      ctx.drawImage(img, 0, 0)
+      resolve(canvas.toDataURL("image/png"))
+    }
+    img.onerror = () => resolve(null)
+    img.src = "../imagenes/logo.png"
+  })
+}
+
+// ─────────────────────────────────────────────
 // DESCARGAR PDF
 // ─────────────────────────────────────────────
 
@@ -351,117 +365,124 @@ async function descargarPDF(){
   const { jsPDF } = window.jspdf
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" })
 
-  const W = 210
+  const W      = 210
   const margen = 18
-  let y = 0
+  let y        = 0
 
-  // Colores
   const MARRON     = [139, 111, 86]
-  const MARRON_OSC = [101, 78, 58]
+  const MARRON_OSC = [101, 78,  58]
   const GRIS_CLARO = [245, 240, 235]
-  const GRIS_MED   = [200, 190, 178]
   const BLANCO     = [255, 255, 255]
-  const NEGRO      = [40, 35, 30]
+  const NEGRO      = [40,  35,  30]
 
   // ── ENCABEZADO ──
   doc.setFillColor(...MARRON)
-  doc.rect(0, 0, W, 38, "F")
+  doc.rect(0, 0, W, 40, "F")
 
-  // Logo círculo
-  doc.setFillColor(...MARRON_OSC)
-  doc.circle(margen + 10, 19, 10, "F")
-  doc.setTextColor(...BLANCO)
-  doc.setFontSize(8)
-  doc.setFont("helvetica", "bold")
-  doc.text("YCA", margen + 6.5, 20)
+  // Logo real
+  const logoBase64 = await cargarLogoBase64()
+  if(logoBase64){
+    // Círculo de fondo
+    doc.setFillColor(...MARRON_OSC)
+    doc.circle(margen + 10, 20, 11, "F")
+    // Logo PNG recortado dentro del círculo
+    doc.addImage(logoBase64, "PNG", margen + 1, 10, 18, 18)
+  } else {
+    // Fallback texto
+    doc.setFillColor(...MARRON_OSC)
+    doc.circle(margen + 10, 20, 11, "F")
+    doc.setTextColor(...BLANCO)
+    doc.setFontSize(8)
+    doc.setFont("helvetica", "bold")
+    doc.text("YCA", margen + 6, 21)
+  }
 
   // Título
+  doc.setTextColor(...BLANCO)
   doc.setFontSize(20)
   doc.setFont("helvetica", "bold")
-  doc.text("YCA Cerámica", margen + 26, 16)
+  doc.text("YCA Cerámica", margen + 26, 17)
 
   doc.setFontSize(10)
   doc.setFont("helvetica", "normal")
-  doc.text("Laboratorio de Engobes", margen + 26, 23)
+  doc.text("Laboratorio de Engobes", margen + 26, 24)
 
-  // Redes
   doc.setFontSize(8)
-  doc.text("instagram: @ycaceramica   |   tiktok: @yca.ceramica   |   youtube: @YCACeramica", margen + 26, 30)
+  doc.text("instagram: @ycaceramica   |   tiktok: @yca.ceramica   |   youtube: @YCACeramica", margen + 26, 31)
 
-  // Fecha
   const fecha = new Date().toLocaleDateString("es-AR", { day:"2-digit", month:"long", year:"numeric" })
-  doc.setFontSize(8)
-  doc.text(`Generado: ${fecha}`, W - margen, 34, { align: "right" })
+  doc.text(`Generado: ${fecha}`, W - margen, 36, { align: "right" })
 
-  y = 48
+  y = 50
 
   // ── FÓRMULAS ──
   historial.forEach((f, idx) => {
 
-    // Verificar salto de página
-    const altoEstimado = 14 + f.componentes.length * 8 + 10
-    if(y + altoEstimado > 270){
+    const altoEstimado = 16 + 24 + 12
+    if(y + altoEstimado > 272){
       doc.addPage()
       y = 20
     }
 
-    // Fondo de tarjeta
+    // Tarjeta fondo
     doc.setFillColor(...GRIS_CLARO)
     doc.roundedRect(margen, y, W - margen * 2, altoEstimado, 4, 4, "F")
 
-    // Número
+    // Número — círculo bien centrado
+    const numX = margen + 7
+    const numY = y + 9
     doc.setFillColor(...MARRON)
-    doc.circle(margen + 6, y + 6, 5, "F")
+    doc.circle(numX, numY, 5.5, "F")
     doc.setTextColor(...BLANCO)
-    doc.setFontSize(8)
+    doc.setFontSize(9)
     doc.setFont("helvetica", "bold")
-    doc.text(String(idx + 1), margen + 4.5, y + 8)
+    // Centrado exacto: text con align center sobre el círculo
+    doc.text(String(idx + 1), numX, numY + 3, { align: "center" })
 
-    // Nombre fórmula
+    // Nombre
     doc.setTextColor(...NEGRO)
     doc.setFontSize(13)
     doc.setFont("helvetica", "bold")
-    doc.text(f.nombre, margen + 14, y + 8)
+    doc.text(f.nombre, margen + 16, y + 9)
 
     // Meta
     const tipo = f.tipo === "oxido" ? "Oxidos" : "Pigmentos"
     doc.setFontSize(9)
     doc.setFont("helvetica", "normal")
     doc.setTextColor(120, 110, 100)
-    doc.text(`${tipo}  |  ${f.total}g totales  |  ${f.fecha}`, margen + 14, y + 14)
+    doc.text(`${tipo}  |  ${f.total}g totales  |  ${f.fecha}`, margen + 16, y + 15)
 
     y += 20
 
     // Componentes
-    const colW = (W - margen * 2 - 10) / f.componentes.length
+    const n    = f.componentes.length
+    const colW = (W - margen * 2 - (n - 1) * 3) / n
 
     f.componentes.forEach((c, ci) => {
-      const x = margen + 5 + ci * (colW + 2)
+      const x = margen + ci * (colW + 3)
 
-      // Caja componente
       doc.setFillColor(...BLANCO)
-      doc.roundedRect(x, y, colW, 20, 3, 3, "F")
+      doc.roundedRect(x, y, colW, 14, 2, 2, "F")
 
-      // Nombre
+      const cx = x + colW / 2
+
       doc.setTextColor(120, 110, 100)
-      doc.setFontSize(7)
+      doc.setFontSize(6.5)
       doc.setFont("helvetica", "bold")
-      doc.text(c.nombre.toUpperCase(), x + colW / 2, y + 6, { align: "center" })
+      doc.text(c.nombre.toUpperCase(), cx, y + 4.5, { align: "center" })
 
-      // Gramos
       doc.setTextColor(...MARRON)
-      doc.setFontSize(13)
+      doc.setFontSize(11)
       doc.setFont("helvetica", "bold")
-      doc.text(`${c.gramos}g`, x + colW / 2, y + 13, { align: "center" })
+      doc.text(`${c.gramos}g`, cx, y + 10, { align: "center" })
 
-      // Porcentaje
       doc.setTextColor(160, 150, 140)
-      doc.setFontSize(7)
+      doc.setFontSize(6.5)
       doc.setFont("helvetica", "normal")
-      doc.text(`${c.pct}%`, x + colW / 2, y + 18, { align: "center" })
+      doc.text(`${c.pct}%`, cx, y + 13.5, { align: "center" })
     })
 
-    y += 26
+    y += 18
   })
 
   // ── PIE ──
