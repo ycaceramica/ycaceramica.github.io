@@ -7,6 +7,11 @@
   align-items:center;
 }
 
+/* Evitar doble footer por el import */
+footer + footer{
+  display:none;
+}
+
 .pagina-wrapper{
   max-width:900px;
   margin:auto;
