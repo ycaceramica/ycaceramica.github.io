@@ -340,3 +340,51 @@ footer{
     display:none;
   }
 }
+
+
+.banner-elaboracion{
+  background: linear-gradient(135deg, var(--color-primario) 0%, #6b4f38 100%);
+  padding: 70px 20px;
+  text-align: center;
+  color: white;
+}
+
+.banner-elaboracion-contenido{
+  max-width: 600px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.banner-elaboracion-tag{
+  background: rgba(255,255,255,0.15);
+  border-radius: 30px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.banner-elaboracion h2{
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.banner-elaboracion p{
+  font-size: 15px;
+  opacity: 0.85;
+  margin: 0;
+  line-height: 1.7;
+}
+
+.boton-blanco{
+  background: white !important;
+  color: var(--color-primario) !important;
+  font-weight: 700;
+}
+
+.boton-blanco:hover{
+  background: var(--color-fondo) !important;
+}
