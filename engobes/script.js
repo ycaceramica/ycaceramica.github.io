@@ -379,22 +379,15 @@ async function descargarPDF(){
   doc.setFillColor(...MARRON)
   doc.rect(0, 0, W, 40, "F")
 
-  // Logo real
+  // Logo real (sin círculo de fondo)
   const logoBase64 = await cargarLogoBase64()
   if(logoBase64){
-    // Círculo de fondo
-    doc.setFillColor(...MARRON_OSC)
-    doc.circle(margen + 10, 20, 11, "F")
-    // Logo PNG recortado dentro del círculo
-    doc.addImage(logoBase64, "PNG", margen + 1, 10, 18, 18)
+    doc.addImage(logoBase64, "PNG", margen, 8, 22, 22)
   } else {
-    // Fallback texto
-    doc.setFillColor(...MARRON_OSC)
-    doc.circle(margen + 10, 20, 11, "F")
     doc.setTextColor(...BLANCO)
-    doc.setFontSize(8)
+    doc.setFontSize(10)
     doc.setFont("helvetica", "bold")
-    doc.text("YCA", margen + 6, 21)
+    doc.text("YCA", margen + 3, 22)
   }
 
   // Título
@@ -428,29 +421,24 @@ async function descargarPDF(){
     doc.setFillColor(...GRIS_CLARO)
     doc.roundedRect(margen, y, W - margen * 2, altoEstimado, 4, 4, "F")
 
-    // Número — círculo bien centrado
-    const numX = margen + 7
-    const numY = y + 9
-    doc.setFillColor(...MARRON)
-    doc.circle(numX, numY, 5.5, "F")
-    doc.setTextColor(...BLANCO)
-    doc.setFontSize(9)
+    // Número estilo #1
+    doc.setTextColor(...MARRON)
+    doc.setFontSize(11)
     doc.setFont("helvetica", "bold")
-    // Centrado exacto: text con align center sobre el círculo
-    doc.text(String(idx + 1), numX, numY + 3, { align: "center" })
+    doc.text(`#${idx + 1}`, margen + 5, y + 9)
 
     // Nombre
     doc.setTextColor(...NEGRO)
     doc.setFontSize(13)
     doc.setFont("helvetica", "bold")
-    doc.text(f.nombre, margen + 16, y + 9)
+    doc.text(f.nombre, margen + 18, y + 9)
 
     // Meta
     const tipo = f.tipo === "oxido" ? "Oxidos" : "Pigmentos"
     doc.setFontSize(9)
     doc.setFont("helvetica", "normal")
     doc.setTextColor(120, 110, 100)
-    doc.text(`${tipo}  |  ${f.total}g totales  |  ${f.fecha}`, margen + 16, y + 15)
+    doc.text(`${tipo}  |  ${f.total}g totales  |  ${f.fecha}`, margen + 18, y + 15)
 
     y += 20
 
