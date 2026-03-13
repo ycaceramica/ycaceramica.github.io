@@ -100,6 +100,11 @@ a.herramienta-card:hover{
   flex-shrink:0;
 }
 
+.herramienta-flecha-dis{
+  opacity:0.25;
+  color:var(--color-texto);
+}
+
 @media(max-width:768px){
   .pagina-header h1{
     font-size:26px;
