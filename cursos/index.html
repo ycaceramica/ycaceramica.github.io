@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cursos y Talleres — YCA Cerámica</title>
+
+  <link rel="icon" type="image/png" href="../imagenes/logo.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+<body>
+
+  <!-- BARRA -->
+  <header class="header">
+    <div class="header-container">
+      <div class="logo">
+        <a href="../index.html">
+          <img src="../imagenes/logo.png" alt="YCA Cerámica" style="height:38px;width:38px;border-radius:50%;vertical-align:middle;margin-right:8px;">YCA Cerámica
+        </a>
+      </div>
+      <nav class="nav" id="nav">
+        <a href="../index.html">Inicio</a>
+        <a href="../index.html#productos">Productos</a>
+        <a href="../herramientas/index.html">Herramientas</a>
+        <a href="index.html">Cursos y Talleres</a>
+        <a href="../index.html#galeria">Galería</a>
+        <a href="../index.html#contacto">Contacto</a>
+        <button id="toggleDark">🌙</button>
+      </nav>
+      <span class="hamburguesa" id="hamburguesa">☰</span>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <div class="cursos-hero">
+    <div class="cursos-hero-contenido">
+      <span class="cursos-tag">🏺 Talleres presenciales</span>
+      <h1>Aprendé cerámica<br>con nosotros</h1>
+      <p>Un espacio para conectar con el barro, explorar técnicas y crear tus propias piezas. Con cupos limitados para una experiencia personalizada.</p>
+    </div>
+  </div>
+
+  <!-- CURSOS -->
+  <div class="cursos-wrapper">
+
+    <!-- CURSO ACTIVO -->
+    <div class="curso-card" id="taller-inicial">
+
+      <div class="curso-img-wrapper">
+        <div class="curso-img-placeholder">
+          <i class="fa-solid fa-hands"></i>
+          <span>Fotos próximamente</span>
+        </div>
+        <span class="curso-badge-activo">✦ Abriendo en abril</span>
+      </div>
+
+      <div class="curso-cuerpo">
+
+        <div class="curso-header">
+          <div>
+            <h2>Taller de Cerámica Inicial</h2>
+            <p class="curso-subtitulo">Primer acercamiento al trabajo con arcilla y técnicas básicas de modelado</p>
+          </div>
+        </div>
+
+        <div class="curso-info-grid">
+
+          <div class="curso-info-item">
+            <i class="fa-regular fa-calendar"></i>
+            <div>
+              <span class="curso-info-label">Día y horario</span>
+              <span class="curso-info-valor">Lunes 14:00 hs</span>
+            </div>
+          </div>
+
+          <div class="curso-info-item">
+            <i class="fa-regular fa-clock"></i>
+            <div>
+              <span class="curso-info-label">Duración</span>
+              <span class="curso-info-valor">2 horas por clase</span>
+            </div>
+          </div>
+
+          <div class="curso-info-item">
+            <i class="fa-solid fa-users"></i>
+            <div>
+              <span class="curso-info-label">Modalidad</span>
+              <span class="curso-info-valor">Semanal · cupos limitados</span>
+            </div>
+          </div>
+
+          <div class="curso-info-item">
+            <i class="fa-solid fa-box-open"></i>
+            <div>
+              <span class="curso-info-label">Materiales</span>
+              <span class="curso-info-valor">Incluidos en el taller</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- MATERIALES -->
+        <div class="curso-seccion">
+          <h3>¿Qué incluye?</h3>
+          <div class="curso-chips">
+            <span class="curso-chip">🟤 Arcilla</span>
+            <span class="curso-chip">🔧 Herramientas del taller</span>
+            <span class="curso-chip">🎨 Engobes</span>
+            <span class="curso-chip">✏️ Crayones cerámicos</span>
+            <span class="curso-chip">✨ Esmaltado de piezas</span>
+            <span class="curso-chip">🔥 Horneado</span>
+          </div>
+        </div>
+
+        <!-- CONTENIDOS -->
+        <div class="curso-seccion">
+          <h3>¿Qué vas a aprender?</h3>
+          <div class="curso-tecnicas">
+            <div class="curso-tecnica">
+              <span class="tecnica-num">01</span>
+              <div>
+                <strong>Técnica de pellizco</strong>
+                <p>La forma más directa de dar forma a la arcilla con tus manos.</p>
+              </div>
+            </div>
+            <div class="curso-tecnica">
+              <span class="tecnica-num">02</span>
+              <div>
+                <strong>Técnica de plancha</strong>
+                <p>Construcción con planchas para crear formas y estructuras.</p>
+              </div>
+            </div>
+            <div class="curso-tecnica">
+              <span class="tecnica-num">03</span>
+              <div>
+                <strong>Texturas y superficies</strong>
+                <p>Exploración y experimentación con acabados y decoración.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGO -->
+        <div class="curso-seccion curso-pago">
+          <i class="fa-solid fa-circle-info"></i>
+          <p>El pago se realiza al asistir a la primera clase. Consultanos para conocer los valores actuales y reservar tu lugar.</p>
+        </div>
+
+        <!-- BOTON -->
+        <a class="curso-btn-consulta" href="#formulario">
+          Consultar y reservar lugar →
+        </a>
+
+      </div>
+    </div>
+
+    <!-- FORMULARIO -->
+    <div class="formulario-wrapper" id="formulario">
+      <h2>Reservá tu lugar</h2>
+      <p>Completá el formulario y te contactamos a la brevedad.</p>
+
+      <div class="formulario-card">
+
+        <div class="form-grupo">
+          <label>Nombre completo *</label>
+          <input type="text" id="fNombre" placeholder="Tu nombre">
+        </div>
+
+        <div class="form-fila">
+          <div class="form-grupo">
+            <label>Email *</label>
+            <input type="email" id="fEmail" placeholder="tu@email.com">
+          </div>
+          <div class="form-grupo">
+            <label>Teléfono / WhatsApp</label>
+            <input type="tel" id="fTelefono" placeholder="Ej: 11 1234-5678">
+          </div>
+        </div>
+
+        <div class="form-grupo">
+          <label>Curso de interés</label>
+          <select id="fCurso">
+            <option value="Taller de Cerámica Inicial">Taller de Cerámica Inicial — Lunes 14hs</option>
+          </select>
+        </div>
+
+        <div class="form-grupo">
+          <label>¿Cómo nos conociste?</label>
+          <select id="fConociste">
+            <option value="">Seleccioná una opción</option>
+            <option value="Instagram">Instagram</option>
+            <option value="TikTok">TikTok</option>
+            <option value="YouTube">YouTube</option>
+            <option value="Un amigo o familiar">Un amigo o familiar</option>
+            <option value="Google">Google</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+
+        <div class="form-grupo">
+          <label>Mensaje (opcional)</label>
+          <textarea id="fMensaje" rows="3" placeholder="¿Tenés alguna pregunta o aclaración?"></textarea>
+        </div>
+
+        <button class="form-btn" onclick="enviarConsulta()">
+          <i class="fa-brands fa-whatsapp"></i> Enviar consulta por WhatsApp
+        </button>
+
+      </div>
+    </div>
+
+  </div>
+
+  <a class="whatsapp" href="https://wa.me/5491160387535" target="_blank">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <footer>
+    <p>© 2026 YCA Cerámica</p>
+  </footer>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
