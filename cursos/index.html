@@ -39,176 +39,62 @@
   <div class="cursos-hero">
     <div class="cursos-hero-contenido">
       <span class="cursos-tag">🏺 Talleres presenciales</span>
-      <h1>Aprendé cerámica<br>con nosotros</h1>
-      <p>Un espacio para conectar con el barro, explorar técnicas y crear tus propias piezas. Con cupos limitados para una experiencia personalizada.</p>
+      <h1>Cursos y Talleres</h1>
+      <p>Aprendé cerámica con nosotros. Distintas modalidades para todos los niveles.</p>
     </div>
   </div>
 
-  <!-- CURSOS -->
+  <!-- FILTROS + GRID -->
   <div class="cursos-wrapper">
 
-    <!-- CURSO ACTIVO -->
-    <div class="curso-card" id="taller-inicial">
-
-      <div class="curso-img-wrapper">
-        <img src="../imagenes/cursos/taller.jpg" alt="Taller de cerámica inicial">
-        </div>
-        <span class="curso-badge-activo">✦ Abriendo en abril</span>
-      </div>
-
-      <div class="curso-cuerpo">
-
-        <div class="curso-header">
-          <div>
-            <h2>Taller de Cerámica Inicial</h2>
-            <p class="curso-subtitulo">Primer acercamiento al trabajo con arcilla y técnicas básicas de modelado</p>
-          </div>
-        </div>
-
-        <div class="curso-info-grid">
-
-          <div class="curso-info-item">
-            <i class="fa-regular fa-calendar"></i>
-            <div>
-              <span class="curso-info-label">Día y horario</span>
-              <span class="curso-info-valor">Lunes 14:00 hs</span>
-            </div>
-          </div>
-
-          <div class="curso-info-item">
-            <i class="fa-regular fa-clock"></i>
-            <div>
-              <span class="curso-info-label">Duración</span>
-              <span class="curso-info-valor">2 horas por clase</span>
-            </div>
-          </div>
-
-          <div class="curso-info-item">
-            <i class="fa-solid fa-users"></i>
-            <div>
-              <span class="curso-info-label">Modalidad</span>
-              <span class="curso-info-valor">Semanal · cupos limitados</span>
-            </div>
-          </div>
-
-          <div class="curso-info-item">
-            <i class="fa-solid fa-box-open"></i>
-            <div>
-              <span class="curso-info-label">Materiales</span>
-              <span class="curso-info-valor">Incluidos en el taller</span>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- MATERIALES -->
-        <div class="curso-seccion">
-          <h3>¿Qué incluye?</h3>
-          <div class="curso-chips">
-            <span class="curso-chip">🟤 Arcilla</span>
-            <span class="curso-chip">🔧 Herramientas del taller</span>
-            <span class="curso-chip">🎨 Engobes</span>
-            <span class="curso-chip">✏️ Crayones cerámicos</span>
-            <span class="curso-chip">✨ Esmaltado de piezas</span>
-            <span class="curso-chip">🔥 Horneado</span>
-          </div>
-        </div>
-
-        <!-- CONTENIDOS -->
-        <div class="curso-seccion">
-          <h3>¿Qué vas a aprender?</h3>
-          <div class="curso-tecnicas">
-            <div class="curso-tecnica">
-              <span class="tecnica-num">01</span>
-              <div>
-                <strong>Técnica de pellizco</strong>
-                <p>La forma más directa de dar forma a la arcilla con tus manos.</p>
-              </div>
-            </div>
-            <div class="curso-tecnica">
-              <span class="tecnica-num">02</span>
-              <div>
-                <strong>Técnica de plancha</strong>
-                <p>Construcción con planchas para crear formas y estructuras.</p>
-              </div>
-            </div>
-            <div class="curso-tecnica">
-              <span class="tecnica-num">03</span>
-              <div>
-                <strong>Texturas y superficies</strong>
-                <p>Exploración y experimentación con acabados y decoración.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- PAGO -->
-        <div class="curso-seccion curso-pago">
-          <i class="fa-solid fa-circle-info"></i>
-          <p>El pago se realiza al asistir a la primera clase. Consultanos para conocer los valores actuales y reservar tu lugar.</p>
-        </div>
-
-        <!-- BOTON -->
-        <a class="curso-btn-consulta" href="#formulario">
-          Consultar y reservar lugar →
-        </a>
-
-      </div>
+    <div class="filtros-wrapper">
+      <button class="filtro-btn activo" onclick="filtrar('todos')" id="f-todos">Todos</button>
+      <button class="filtro-btn" onclick="filtrar('activo')" id="f-activo">
+        <span class="filtro-dot activo"></span>Activos
+      </button>
+      <button class="filtro-btn" onclick="filtrar('proximamente')" id="f-proximamente">
+        <span class="filtro-dot proximamente"></span>Próximamente
+      </button>
+      <button class="filtro-btn" onclick="filtrar('finalizado')" id="f-finalizado">
+        <span class="filtro-dot finalizado"></span>Finalizados
+      </button>
     </div>
 
-    <!-- FORMULARIO -->
-    <div class="formulario-wrapper" id="formulario">
-      <h2>Reservá tu lugar</h2>
-      <p>Completá el formulario y te contactamos a la brevedad.</p>
+    <div class="cursos-grid" id="cursosGrid">
 
-      <div class="formulario-card">
+      <!-- ═══════════════════════════════════════
+           PARA AGREGAR UN CURSO NUEVO:
+           1. Copiá el bloque .curso-tarjeta
+           2. Cambiá data-estado: "activo" | "proximamente" | "finalizado"
+           3. Cambiá el href del botón por la carpeta del nuevo curso
+           4. Actualizá la info (nombre, día, duración, descripción)
+           ═══════════════════════════════════════ -->
 
-        <div class="form-grupo">
-          <label>Nombre completo *</label>
-          <input type="text" id="fNombre" placeholder="Tu nombre">
-        </div>
-
-        <div class="form-fila">
-          <div class="form-grupo">
-            <label>Email *</label>
-            <input type="email" id="fEmail" placeholder="tu@email.com">
+      <div class="curso-tarjeta" data-estado="proximamente">
+        <div class="curso-tarjeta-img">
+          <!-- Cuando tengas foto reemplazá el div placeholder por:
+               <img src="../imagenes/cursos/taller-inicial.jpg" alt="Taller de Cerámica Inicial"> -->
+          <div class="curso-tarjeta-placeholder">
+            <i class="fa-solid fa-hands"></i>
           </div>
-          <div class="form-grupo">
-            <label>Teléfono / WhatsApp</label>
-            <input type="tel" id="fTelefono" placeholder="Ej: 11 1234-5678">
+          <span class="curso-estado-badge proximamente">Próximamente</span>
+        </div>
+        <div class="curso-tarjeta-body">
+          <h3>Taller de Cerámica Inicial</h3>
+          <div class="curso-tarjeta-meta">
+            <span><i class="fa-regular fa-calendar"></i> Lunes 14:00 hs</span>
+            <span><i class="fa-regular fa-clock"></i> 2 hs por clase</span>
           </div>
+          <p>Primer acercamiento al trabajo con arcilla y técnicas básicas de modelado. Cupos limitados.</p>
+          <a class="curso-tarjeta-btn" href="taller-inicial/index.html">Ver más →</a>
         </div>
-
-        <div class="form-grupo">
-          <label>Curso de interés</label>
-          <select id="fCurso">
-            <option value="Taller de Cerámica Inicial">Taller de Cerámica Inicial — Lunes 14hs</option>
-          </select>
-        </div>
-
-        <div class="form-grupo">
-          <label>¿Cómo nos conociste?</label>
-          <select id="fConociste">
-            <option value="">Seleccioná una opción</option>
-            <option value="Instagram">Instagram</option>
-            <option value="TikTok">TikTok</option>
-            <option value="YouTube">YouTube</option>
-            <option value="Un amigo o familiar">Un amigo o familiar</option>
-            <option value="Google">Google</option>
-            <option value="Otro">Otro</option>
-          </select>
-        </div>
-
-        <div class="form-grupo">
-          <label>Mensaje (opcional)</label>
-          <textarea id="fMensaje" rows="3" placeholder="¿Tenés alguna pregunta o aclaración?"></textarea>
-        </div>
-
-        <button class="form-btn" onclick="enviarConsulta()">
-          <i class="fa-brands fa-whatsapp"></i> Enviar consulta por WhatsApp
-        </button>
-
       </div>
+
+    </div>
+
+    <div class="sin-resultados" id="sinResultados" style="display:none">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <p>No hay cursos en esta categoría por ahora.</p>
     </div>
 
   </div>
