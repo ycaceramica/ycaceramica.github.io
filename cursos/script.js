@@ -43,30 +43,25 @@ window.addEventListener("scroll", () => {
 })
 
 // ─────────────────────────────────────────────
-// FORMULARIO → WHATSAPP
+// FILTROS
 // ─────────────────────────────────────────────
 
-function enviarConsulta(){
-  const nombre     = document.getElementById("fNombre").value.trim()
-  const email      = document.getElementById("fEmail").value.trim()
-  const telefono   = document.getElementById("fTelefono").value.trim()
-  const curso      = document.getElementById("fCurso").value
-  const conociste  = document.getElementById("fConociste").value
-  const mensaje    = document.getElementById("fMensaje").value.trim()
+function filtrar(estado){
+  // Actualizar botones
+  document.querySelectorAll(".filtro-btn").forEach(b => b.classList.remove("activo"))
+  document.getElementById(`f-${estado}`).classList.add("activo")
 
-  if(!nombre || !email){
-    alert("Por favor completá al menos tu nombre y email.")
-    return
-  }
+  // Filtrar tarjetas
+  const tarjetas = document.querySelectorAll(".curso-tarjeta")
+  let visibles = 0
 
-  let texto = `¡Hola! Me interesa el taller de cerámica 🏺\n\n`
-  texto += `*Nombre:* ${nombre}\n`
-  texto += `*Email:* ${email}\n`
-  if(telefono)  texto += `*Teléfono:* ${telefono}\n`
-  texto += `*Curso:* ${curso}\n`
-  if(conociste) texto += `*¿Cómo nos conoció?:* ${conociste}\n`
-  if(mensaje)   texto += `*Mensaje:* ${mensaje}\n`
+  tarjetas.forEach(t => {
+    const mostrar = estado === "todos" || t.dataset.estado === estado
+    t.style.display = mostrar ? "flex" : "none"
+    if(mostrar) visibles++
+  })
 
-  const url = `https://wa.me/5491160387535?text=${encodeURIComponent(texto)}`
-  window.open(url, "_blank")
+  // Mensaje sin resultados
+  document.getElementById("sinResultados").style.display = visibles === 0 ? "flex" : "none"
+  document.getElementById("cursosGrid").style.display    = visibles === 0 ? "none" : "grid"
 }
