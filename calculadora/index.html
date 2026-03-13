@@ -14,16 +14,14 @@
 </head>
 <body>
 
-  <!-- BARRA IGUAL QUE LA WEB PRINCIPAL -->
+  <!-- BARRA -->
   <header class="header">
     <div class="header-container">
-
       <div class="logo">
-  <a href="../index.html">
-    <img src="../imagenes/logo.png" alt="YCA Cerámica" style="height:38px;width:38px;border-radius:50%;vertical-align:middle;margin-right:8px;">YCA Cerámica
-  </a>
-</div>
-
+        <a href="../index.html">
+          <img src="../imagenes/logo.png" alt="YCA Cerámica" style="height:38px;width:38px;border-radius:50%;vertical-align:middle;margin-right:8px;">YCA Cerámica
+        </a>
+      </div>
       <nav class="nav" id="nav">
         <a href="../index.html">Inicio</a>
         <a href="../index.html#productos">Productos</a>
@@ -33,80 +31,202 @@
         <a href="../index.html#contacto">Contacto</a>
         <button id="toggleDark">🌙</button>
       </nav>
-
-     <span class="hamburguesa" id="hamburguesa">☰</span>
-
+      <span class="hamburguesa" id="hamburguesa">☰</span>
     </div>
   </header>
 
-  <!-- CALCULADORA -->
   <div class="calc-wrapper">
-    <div class="card">
 
-      <h2>Calculadora de Yeso</h2>
+    <div class="calc-header">
+      <a class="calc-volver" href="../herramientas/index.html">← Herramientas</a>
+      <h1>🧱 Calculadora de Yeso</h1>
+      <p>Calculá las proporciones exactas de agua y yeso para tus moldes.</p>
+      <div class="calc-tips">
+        <span>💾 Guardá tus cálculos en el historial</span>
+        <span>📄 Descargalos todos en un PDF</span>
+      </div>
+    </div>
 
-      <label>Tipo de molde</label>
-      <select id="tipoMolde" onchange="cambiarTipo();calcular();">
-        <option value="rectangular">Rectangular</option>
-        <option value="circular">Circular</option>
-      </select>
+    <div class="calc-layout">
 
-      <label>Proporción yeso (%)</label>
-      <select id="proporcion" onchange="calcular()">
-        <option value="70">70 — Mezcla más sólida</option>
-        <option value="75" selected>75 — Mezcla estándar</option>
-        <option value="80">80 — Mezcla más líquida</option>
-      </select>
+      <!-- COLUMNA IZQUIERDA: CALCULADORA -->
+      <div class="calc-card">
 
-      <label>Cantidad de moldes</label>
-      <input type="number" id="cantidad" value="1" oninput="calcular()">
+        <!-- PASO 1: TIPO DE MOLDE -->
+        <div class="calc-paso">
+          <div class="calc-paso-titulo">
+            <span class="calc-paso-num">1</span>
+            <span>Tipo de molde</span>
+          </div>
+          <div class="tipo-selector">
+            <button class="tipo-btn activo" id="btnRectangular" onclick="setTipo('rectangular')">
+              ▭ Rectangular
+            </button>
+            <button class="tipo-btn" id="btnCircular" onclick="setTipo('circular')">
+              ◯ Circular
+            </button>
+          </div>
+        </div>
 
-      <div id="rectangular">
-        <label>Largo (cm)</label>
-        <input type="number" id="largo" oninput="calcular()">
+        <!-- PASO 2: PROPORCIÓN -->
+        <div class="calc-paso">
+          <div class="calc-paso-titulo">
+            <span class="calc-paso-num">2</span>
+            <span>Proporción de yeso</span>
+          </div>
+          <div class="proporcion-grid">
+            <button class="prop-btn" id="prop70" onclick="setProporcion(70)">
+              <span class="prop-valor">70%</span>
+              <span class="prop-desc">Más sólida</span>
+            </button>
+            <button class="prop-btn activo" id="prop75" onclick="setProporcion(75)">
+              <span class="prop-valor">75%</span>
+              <span class="prop-desc">Estándar</span>
+            </button>
+            <button class="prop-btn" id="prop80" onclick="setProporcion(80)">
+              <span class="prop-valor">80%</span>
+              <span class="prop-desc">Más líquida</span>
+            </button>
+          </div>
+        </div>
 
-        <label>Ancho (cm)</label>
-        <input type="number" id="ancho" oninput="calcular()">
+        <!-- PASO 3: CANTIDAD -->
+        <div class="calc-paso">
+          <div class="calc-paso-titulo">
+            <span class="calc-paso-num">3</span>
+            <span>Cantidad de moldes</span>
+          </div>
+          <div class="cantidad-wrapper">
+            <input type="number" id="cantidad" value="1" min="1" oninput="calcular()">
+            <span class="cantidad-unidad">moldes</span>
+          </div>
+        </div>
 
-        <label>Profundidad (cm)</label>
-        <input type="number" id="profundidad" oninput="calcular()">
+        <!-- PASO 4: DIMENSIONES -->
+        <div class="calc-paso">
+          <div class="calc-paso-titulo">
+            <span class="calc-paso-num">4</span>
+            <span>Dimensiones</span>
+          </div>
+
+          <!-- RECTANGULAR -->
+          <div id="camposRectangular">
+            <div class="dimensiones-grid">
+              <div class="dim-grupo">
+                <label>Largo</label>
+                <div class="dim-input-wrapper">
+                  <input type="number" id="largo" placeholder="0" oninput="calcular()">
+                  <span class="dim-unidad">cm</span>
+                </div>
+              </div>
+              <div class="dim-grupo">
+                <label>Ancho</label>
+                <div class="dim-input-wrapper">
+                  <input type="number" id="ancho" placeholder="0" oninput="calcular()">
+                  <span class="dim-unidad">cm</span>
+                </div>
+              </div>
+              <div class="dim-grupo">
+                <label>Profundidad</label>
+                <div class="dim-input-wrapper">
+                  <input type="number" id="profundidad" placeholder="0" oninput="calcular()">
+                  <span class="dim-unidad">cm</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CIRCULAR -->
+          <div id="camposCircular" style="display:none">
+            <div class="dimensiones-grid">
+              <div class="dim-grupo">
+                <label>Radio pieza</label>
+                <div class="dim-input-wrapper">
+                  <input type="number" id="radioPieza" placeholder="0" oninput="calcular()">
+                  <span class="dim-unidad">cm</span>
+                </div>
+              </div>
+              <div class="dim-grupo">
+                <label>Radio molde</label>
+                <div class="dim-input-wrapper">
+                  <input type="number" id="radioMolde" placeholder="0" oninput="calcular()">
+                  <span class="dim-unidad">cm</span>
+                </div>
+              </div>
+              <div class="dim-grupo">
+                <label>Altura pieza</label>
+                <div class="dim-input-wrapper">
+                  <input type="number" id="alturaPieza" placeholder="0" oninput="calcular()">
+                  <span class="dim-unidad">cm</span>
+                </div>
+              </div>
+              <div class="dim-grupo">
+                <label>Altura molde</label>
+                <div class="dim-input-wrapper">
+                  <input type="number" id="alturaMolde" placeholder="0" oninput="calcular()">
+                  <span class="dim-unidad">cm</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RESULTADO -->
+        <div class="calc-resultado">
+          <h3>📋 Resultado</h3>
+          <div class="resultado-grid">
+            <div class="resultado-item">
+              <div class="resultado-nombre">💧 Agua</div>
+              <div class="resultado-valor"><span id="agua">0</span><span class="resultado-unidad">ml</span></div>
+            </div>
+            <div class="resultado-item">
+              <div class="resultado-nombre">🧱 Yeso</div>
+              <div class="resultado-valor"><span id="yeso">0</span><span class="resultado-unidad">g</span></div>
+            </div>
+          </div>
+          <div class="resultado-acciones">
+            <button class="btn-accion btn-guardar" onclick="guardar()">
+              <i class="fa-solid fa-floppy-disk"></i> Guardar en historial
+            </button>
+            <button class="btn-accion btn-copiar" onclick="copiar()">
+              <i class="fa-regular fa-copy"></i> Copiar
+            </button>
+          </div>
+        </div>
+
       </div>
 
-      <div id="circular" style="display:none">
-        <label>Radio de la pieza (cm)</label>
-        <input type="number" id="radioPieza" oninput="calcular()">
-
-        <label>Radio del molde (cm)</label>
-        <input type="number" id="radioMolde" oninput="calcular()">
-
-        <label>Altura de la pieza (cm)</label>
-        <input type="number" id="alturaPieza" oninput="calcular()">
-
-        <label>Altura del molde (cm)</label>
-        <input type="number" id="alturaMolde" oninput="calcular()">
-      </div>
-
-      <div class="resultado">
-        Agua necesaria: <b><span id="agua">0</span> ml (cm³)</b><br><br>
-        Yeso necesario: <b><span id="yeso">0</span> g</b>
-      </div>
-
-      <div class="fila">
-        <button onclick="copiar()">Copiar</button>
-        <button onclick="guardar()">Guardar</button>
-      </div>
-
-      <div class="fila">
-        <button onclick="limpiar()">Limpiar</button>
-      </div>
-
-      <div class="historial" id="historial">
-        <b>Historial</b><br>
+      <!-- COLUMNA DERECHA: HISTORIAL -->
+      <div class="historial-panel">
+        <div class="historial-header">
+          <h3>📚 Historial</h3>
+          <div class="historial-acciones">
+            <button class="btn-pdf" onclick="descargarPDF()" id="btnPDF" disabled>
+              <i class="fa-solid fa-file-pdf"></i> Descargar PDF
+            </button>
+            <button class="btn-limpiar-todo" onclick="limpiarHistorial()" id="btnLimpiar" style="display:none">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="historial-lista" id="historialLista">
+          <p class="historial-vacio">Guardá un cálculo para verlo aquí.</p>
+        </div>
       </div>
 
     </div>
   </div>
 
+  <a class="whatsapp" href="https://wa.me/5491160387535" target="_blank">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <footer>
+    <p>© 2026 YCA Cerámica</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="script.js"></script>
 
 </body>
