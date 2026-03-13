@@ -190,6 +190,57 @@ const DATOS = {
         "No abrir el horno antes de los 150°C"
       ]
     }
+  },
+  porcelana: {
+    nombre: "Porcelana",
+    emoji: "⚪",
+    biscocho: {
+      tempMax:  1000,
+      tiempo:   "8-9 hs",
+      subida:   "50-70°C/h",
+      meseta:   "20-30 min",
+      curva: [
+        { t: 0,   temp: 20   },
+        { t: 2,   temp: 100  },
+        { t: 2.5, temp: 100  },
+        { t: 4,   temp: 350  },
+        { t: 6,   temp: 700  },
+        { t: 8,   temp: 1000 },
+        { t: 8.5, temp: 1000 },
+        { t: 9,   temp: 20   }
+      ],
+      notas: [
+        "La porcelana es muy sensible — subida extremadamente lenta inicial",
+        "Secado previo fundamental: piezas deben estar completamente secas",
+        "Entre 200-400°C riesgo alto de rotura si la subida es brusca",
+        "Biscocción a 1000°C — no superar para mantener porosidad",
+        "Enfriamiento muy lento — la porcelana es frágil a cambios térmicos"
+      ]
+    },
+    esmalte: {
+      tempMax:  1260,
+      tiempo:   "10-11 hs",
+      subida:   "60-80°C/h",
+      meseta:   "20-30 min",
+      curva: [
+        { t: 0,   temp: 20   },
+        { t: 2,   temp: 200  },
+        { t: 3.5, temp: 573  },
+        { t: 4,   temp: 573  },
+        { t: 6,   temp: 900  },
+        { t: 8.5, temp: 1200 },
+        { t: 9.5, temp: 1260 },
+        { t: 10,  temp: 1260 },
+        { t: 11,  temp: 20   }
+      ],
+      notas: [
+        "Meseta a 573°C obligatoria por inversión del cuarzo",
+        "Subida muy lenta entre 1100°C y 1260°C (máx 40°C/h)",
+        "La traslucidez de la porcelana se logra entre 1240°C y 1280°C",
+        "Bajada controlada hasta 600°C — riesgo de craqueo en enfriamiento brusco",
+        "No abrir el horno antes de los 100°C"
+      ]
+    }
   }
 }
 
@@ -411,7 +462,7 @@ async function descargarPDF(){
   doc.setTextColor(...NEGRO)
   doc.setFontSize(15)
   doc.setFont("helvetica", "bold")
-  doc.text(`${info.emoji} ${info.nombre}`, margen + 10, y + 9)
+  doc.text(info.nombre, margen + 10, y + 9)
 
   doc.setFontSize(10)
   doc.setFont("helvetica", "normal")
@@ -459,6 +510,12 @@ async function descargarPDF(){
   doc.setFontSize(11)
   doc.setFont("helvetica", "bold")
   doc.text("Curva de coccion", margen + 8, y + 10)
+
+  // Forzar colores claros para captura del gráfico
+  const isDarkActual = document.body.classList.contains("dark")
+  if(isDarkActual) document.body.classList.remove("dark")
+  dibujarGrafico(datos.curva, datos.tempMax)
+  await new Promise(r => setTimeout(r, 300))
 
   // Convertir canvas a imagen
   const canvas    = document.getElementById("graficoCurva")
@@ -516,6 +573,12 @@ async function descargarPDF(){
   doc.text("ycaceramica.github.io  |  YCA Ceramica © 2026", W / 2, 293, { align: "center" })
 
   doc.save(`YCA_Coccion_${info.nombre.replace(/ /g,"_")}.pdf`)
+
+  // Restaurar modo oscuro si corresponde
+  if(isDarkActual){
+    document.body.classList.add("dark")
+    dibujarGrafico(datos.curva, datos.tempMax)
+  }
 }
 
 // ─────────────────────────────────────────────
