@@ -4,7 +4,7 @@
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Herramientas — YCA Cerámica</title>
+  <title>Calculadora de Cocción — YCA Cerámica</title>
 
   <link rel="icon" type="image/png" href="../imagenes/logo.png">
   <link rel="stylesheet" href="style.css">
@@ -25,7 +25,7 @@
       <nav class="nav" id="nav">
         <a href="../index.html">Inicio</a>
         <a href="../index.html#productos">Productos</a>
-        <a href="index.html">Herramientas</a>
+        <a href="../herramientas/index.html">Herramientas</a>
         <a href="../cursos/index.html">Cursos y Talleres</a>
         <a href="../index.html#galeria">Galería</a>
         <a href="../index.html#contacto">Contacto</a>
@@ -35,63 +35,119 @@
     </div>
   </header>
 
-  <!-- CONTENIDO -->
-  <div class="pagina-wrapper">
+  <div class="calc-wrapper">
 
-    <div class="pagina-header">
-      <h1>Herramientas 🧮</h1>
-      <p>Calculadoras y recursos para ceramistas. Todo lo que necesitás para trabajar con precisión.</p>
+    <div class="calc-header">
+      <a class="calc-volver" href="../herramientas/index.html">← Herramientas</a>
+      <h1>🌡️ Calculadora de Cocción</h1>
+      <p>Consultá temperaturas, tiempos y curvas de cocción según el tipo de arcilla.</p>
     </div>
 
-    <!-- CALCULADORAS -->
-    <div class="herramientas-seccion">
-      <h2>Calculadoras</h2>
-      <div class="herramientas-grid">
+    <div class="calc-layout">
 
-        <a class="herramienta-card" href="../calculadora/index.html">
-          <div class="herramienta-icono">🧱</div>
-          <div class="herramienta-info">
-            <h3>Calculadora de Yeso</h3>
-            <p>Calculá proporciones exactas de agua y yeso para tus moldes rectangulares o circulares.</p>
+      <!-- COLUMNA IZQUIERDA -->
+      <div class="calc-card">
+
+        <!-- PASO 1: TIPO -->
+        <div class="calc-paso">
+          <div class="calc-paso-titulo">
+            <span class="calc-paso-num">1</span>
+            <span>Tipo de arcilla</span>
           </div>
-          <span class="herramienta-flecha">→</span>
-        </a>
+          <div class="tipo-arcilla-grid" id="tipoGrid">
 
-        <a class="herramienta-card" href="../engobes/index.html">
-          <div class="herramienta-icono">🎨</div>
-          <div class="herramienta-info">
-            <h3>Laboratorio de Engobes</h3>
-            <p>Formulá engobes con óxidos o pigmentos. Calculá gramos exactos de cada componente.</p>
+            <button class="arcilla-btn activo" onclick="setArcilla('baja')">
+              <span class="arcilla-emoji">🟡</span>
+              <span class="arcilla-nombre">Baja temperatura</span>
+              <span class="arcilla-temp">~1000°C</span>
+            </button>
+
+            <button class="arcilla-btn" onclick="setArcilla('media')">
+              <span class="arcilla-emoji">🟠</span>
+              <span class="arcilla-nombre">Media temperatura</span>
+              <span class="arcilla-temp">~1180°C</span>
+            </button>
+
+            <button class="arcilla-btn" onclick="setArcilla('alta')">
+              <span class="arcilla-emoji">🔴</span>
+              <span class="arcilla-nombre">Alta temperatura</span>
+              <span class="arcilla-temp">~1280°C</span>
+            </button>
+
+            <button class="arcilla-btn" onclick="setArcilla('porcelana')">
+              <span class="arcilla-emoji">⚪</span>
+              <span class="arcilla-nombre">Porcelana</span>
+              <span class="arcilla-temp">~1260°C</span>
+            </button>
+
           </div>
-          <span class="herramienta-flecha">→</span>
-        </a>
+        </div>
 
-        <a class="herramienta-card" href="../coccion/index.html">
-  <div class="herramienta-icono">🌡️</div>
-  <div class="herramienta-info">
-    <h3>Calculadora de cocción</h3>
-    <p>Temperaturas y curvas de cocción según el tipo de arcilla.</p>
-  </div>
-  <span class="herramienta-flecha">→</span>
-</a>
-        
+        <!-- PASO 2: QUEMA -->
+        <div class="calc-paso">
+          <div class="calc-paso-titulo">
+            <span class="calc-paso-num">2</span>
+            <span>Tipo de quema</span>
+          </div>
+          <div class="quema-selector">
+            <button class="quema-btn activo" id="btnBiscocho" onclick="setQuema('biscocho')">
+              🔥 Biscocción
+            </button>
+            <button class="quema-btn" id="btnEsmalte" onclick="setQuema('esmalte')">
+              ✨ Quema de esmalte
+            </button>
+          </div>
+        </div>
+
+        <!-- RESULTADO INFO -->
+        <div class="resultado-info" id="resultadoInfo">
+
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Temperatura máxima</span>
+              <span class="info-valor" id="infoTemp">—</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Tiempo estimado</span>
+              <span class="info-valor" id="infoTiempo">—</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Subida recomendada</span>
+              <span class="info-valor" id="infoSubida">—</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Meseta</span>
+              <span class="info-valor" id="infoMeseta">—</span>
+            </div>
+          </div>
+
+          <div class="notas-wrapper" id="notasWrapper">
+            <h4>📝 Notas importantes</h4>
+            <ul id="notasList"></ul>
+          </div>
+
+          <button class="btn-pdf-coccion" onclick="descargarPDF()">
+            <i class="fa-solid fa-file-pdf"></i> Descargar ficha PDF
+          </button>
+
+        </div>
+
       </div>
-    </div>
 
-    <!-- PRÓXIMAMENTE -->
-    <div class="herramientas-seccion">
-      <h2>Próximamente</h2>
-      <div class="herramientas-grid">
-
-        <div class="herramienta-card proximamente">
-          <div class="herramienta-icono">📄</div>
-          <div class="herramienta-info">
-            <h3>Guías en PDF</h3>
-            <p>Fichas técnicas y guías de referencia para descargar.</p>
-          </div>
-          <span class="herramienta-flecha herramienta-flecha-dis">→</span>
-        </div>       
+      <!-- COLUMNA DERECHA: GRÁFICO -->
+      <div class="grafico-card">
+        <h3>📈 Curva de cocción</h3>
+        <p class="grafico-subtitulo" id="graficoSubtitulo">Seleccioná arcilla y tipo de quema</p>
+        <div class="grafico-wrapper">
+          <canvas id="graficoCurva"></canvas>
+        </div>
+        <div class="grafico-leyenda">
+          <span class="leyenda-item"><span class="leyenda-dot subida"></span>Subida</span>
+          <span class="leyenda-item"><span class="leyenda-dot meseta"></span>Meseta</span>
+          <span class="leyenda-item"><span class="leyenda-dot bajada"></span>Bajada</span>
+        </div>
       </div>
+
     </div>
 
   </div>
@@ -104,6 +160,8 @@
     <p>© 2026 YCA Cerámica</p>
   </footer>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="script.js"></script>
 
 </body>
