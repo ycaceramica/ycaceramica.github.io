@@ -708,12 +708,59 @@ async function cargarUsuarios(){
   document.getElementById('loading-usuarios').style.display = 'block'
   try {
     const sesion = getSesion()
-    const res    = await fetch(`${API}?action=getUsuarios&token=${encodeURIComponent(sesion.token)}`)
-    const data   = await res.json()
-    usuariosData = data.data || []
+
+    // Cargar cursos y usuarios en paralelo
+    const [resUsuarios, resCursos] = await Promise.all([
+      fetch(`${API}?action=getUsuarios&token=${encodeURIComponent(sesion.token)}`),
+      cursosData.length > 0
+        ? Promise.resolve({ json: () => ({ data: cursosData }) })
+        : fetch(`${API}?action=getCursosAdmin&token=${encodeURIComponent(sesion.token)}`)
+    ])
+
+    const dataUsuarios = await resUsuarios.json()
+    usuariosData = dataUsuarios.data || []
+
+    if(cursosData.length === 0){
+      const dataCursos = await resCursos.json()
+      cursosData = dataCursos.data || []
+    }
+
     renderUsuarios()
   } catch(e) { toast('❌ Error al cargar usuarios', 'err') }
   document.getElementById('loading-usuarios').style.display = 'none'
+}
+
+function toggleCursoSelector(userId){
+  const sel = document.getElementById('cselector-' + userId)
+  sel.style.display = sel.style.display === 'none' ? 'flex' : 'none'
+}
+
+async function asignarCurso(userId){
+  const select   = document.getElementById('cselect-' + userId)
+  const nuevoCurso = select?.value || ''
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'actualizarCampo',
+        hoja:   'usuarios',
+        id:     userId,
+        campo:  'curso',
+        valor:  nuevoCurso,
+        token:  sesion.token
+      })
+    })
+    const data = await res.json()
+    if(data.ok){
+      // Actualizar en memoria
+      const u = usuariosData.find(u => u.id === userId)
+      if(u) u.curso = nuevoCurso
+      renderUsuarios()
+      const nombre = cursosData.find(c => c.hojaId === nuevoCurso)?.nombre || 'Sin curso'
+      toast(`✅ Curso actualizado: ${nombre}`, 'ok')
+    }
+  } catch(e) { toast('❌ Error', 'err') }
 }
 
 function setUsuarioTab(tab){
@@ -747,10 +794,17 @@ function renderUsuarios(){
   }
 
   filtrados.forEach(u => {
-    const inicial = (u.nombre || '?')[0].toUpperCase()
-    const fecha   = formatearFecha(u.fechaRegistro)
-    const card    = document.createElement('div')
+    const inicial    = (u.nombre || '?')[0].toUpperCase()
+    const fecha      = formatearFecha(u.fechaRegistro)
+    const cursoActual = u.curso || ''
+
+    // Buscar nombre real del curso
+    const cursoObj   = cursosData.find(c => c.hojaId === cursoActual || c.id === cursoActual)
+    const cursoNombre = cursoObj ? cursoObj.nombre : (cursoActual || 'Sin curso')
+
+    const card = document.createElement('div')
     card.className = 'usuario-card'
+    card.id = 'ucard-' + u.id
 
     let botones = `<span class="estado-badge ${u.estado}">${u.estado}</span>`
 
@@ -773,11 +827,34 @@ function renderUsuarios(){
       `
     }
 
+    // Selector de curso
+    const opsCurso = cursosData.map(c =>
+      `<option value="${c.hojaId}" ${c.hojaId === cursoActual ? 'selected' : ''}>${c.nombre}</option>`
+    ).join('')
+
     card.innerHTML = `
       <div class="usuario-avatar">${inicial}</div>
       <div class="usuario-info">
         <div class="usuario-nombre">${u.nombre || ''}</div>
-        <div class="usuario-meta">${u.email || ''} · ${u.curso || 'Sin curso'} · ${fecha}</div>
+        <div class="usuario-meta">${u.email || ''} · ${fecha}</div>
+        <div class="usuario-curso-row">
+          <span class="usuario-curso-label"><i class="fa-solid fa-graduation-cap"></i> ${cursoNombre}</span>
+          <button class="btn-cambiar-curso" onclick="toggleCursoSelector('${u.id}')">
+            <i class="fa-solid fa-pen"></i> Cambiar
+          </button>
+        </div>
+        <div class="usuario-curso-selector" id="cselector-${u.id}" style="display:none">
+          <select id="cselect-${u.id}">
+            <option value="">Sin curso</option>
+            ${opsCurso}
+          </select>
+          <button class="btn-guardar-curso" onclick="asignarCurso('${u.id}')">
+            <i class="fa-solid fa-check"></i> Guardar
+          </button>
+          <button class="btn-cancelar-curso" onclick="toggleCursoSelector('${u.id}')">
+            Cancelar
+          </button>
+        </div>
       </div>
       <div class="usuario-acciones">${botones}</div>
     `
