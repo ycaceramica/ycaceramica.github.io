@@ -209,9 +209,14 @@ footer{
 .admin-main{
   flex: 1;
   margin-left: 220px;
-  padding: 28px 24px;
+  padding: 32px 36px;
   min-height: calc(100vh - 56px);
   background: var(--color-fondo);
+}
+
+/* Separador visual entre sidebar y contenido */
+.seccion{
+  max-width: 1200px;
 }
 
 /* ── SECCIÓN ── */
