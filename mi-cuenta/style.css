@@ -34,6 +34,8 @@
 .cuenta-avatar{
   width: 56px;
   height: 56px;
+  min-width: 56px;
+  min-height: 56px;
   border-radius: 50%;
   background: var(--color-primario);
   color: white;
@@ -43,6 +45,7 @@
   font-size: 22px;
   font-weight: 700;
   flex-shrink: 0;
+  aspect-ratio: 1/1;
 }
 
 .cuenta-header h1{
