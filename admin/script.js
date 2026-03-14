@@ -99,6 +99,7 @@ function limpiarCache(){
 async function cargarSeccion(nombre){
   if(nombre === 'usuarios'){ await cargarUsuarios(); return }
   if(nombre === 'cursos')  { await cargarCursos();   return }
+  if(nombre === 'galeria') { await cargarGaleria();  return }
 
   const grid    = document.getElementById('grid-' + nombre)
   const loading = document.getElementById('loading-' + nombre)
@@ -892,6 +893,110 @@ async function cambiarEstadoCurso(id, nuevoEstado, btn){
       toast(`✅ Curso marcado como: ${labels[nuevoEstado]}`, 'ok')
     }
   } catch(e) { toast('❌ Error', 'err') }
+}
+
+// ─────────────────────────────────────────────
+// GALERÍA
+// ─────────────────────────────────────────────
+
+async function cargarGaleria(){
+  const grid    = document.getElementById('grid-galeria')
+  const loading = document.getElementById('loading-galeria')
+  loading.style.display = 'block'
+  grid.innerHTML = ''
+
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(`${API}?action=getAll&hoja=galeria&token=${encodeURIComponent(sesion.token)}`)
+    const data   = await res.json()
+    const slots  = data.data || []
+    renderGaleria(slots)
+  } catch(e) {
+    grid.innerHTML = '<p style="opacity:0.5;padding:20px">Error al cargar la galería.</p>'
+  }
+  loading.style.display = 'none'
+}
+
+function renderGaleria(slots){
+  const grid = document.getElementById('grid-galeria')
+  grid.innerHTML = ''
+
+  // Asegurar 4 slots aunque vengan menos
+  const slotsRender = [1,2,3,4].map(n =>
+    slots.find(s => String(s.slot) === String(n) || s.id === 'GAL-' + n) ||
+    { id: 'GAL-' + n, slot: n, foto: '', alt: 'Foto de galería ' + n }
+  )
+
+  slotsRender.forEach(slot => {
+    const div = document.createElement('div')
+    div.className = 'galeria-slot'
+    div.id = 'galeria-slot-' + slot.slot
+    div.innerHTML = `
+      <div class="galeria-slot-img" onclick="subirFotoGaleria('${slot.id}', ${slot.slot})">
+        ${slot.foto
+          ? `<img src="${slot.foto}" alt="${slot.alt || ''}" loading="lazy">`
+          : `<div class="galeria-slot-placeholder">
+               <i class="fa-solid fa-image"></i>
+               <span>Sin foto — clic para agregar</span>
+             </div>`
+        }
+        <div class="galeria-slot-overlay">
+          <button class="galeria-slot-cambiar" type="button">
+            <i class="fa-solid fa-camera"></i>
+            ${slot.foto ? 'Cambiar foto' : 'Agregar foto'}
+          </button>
+        </div>
+      </div>
+      <div class="galeria-slot-body">
+        <span class="galeria-slot-num">Foto ${slot.slot} de 4</span>
+        <span class="galeria-slot-size">📐 1200×675px · JPG · máx 500kb</span>
+      </div>
+    `
+    grid.appendChild(div)
+  })
+}
+
+function subirFotoGaleria(id, slot){
+  const input  = document.createElement('input')
+  input.type   = 'file'
+  input.accept = 'image/*'
+  input.onchange = async (e) => {
+    const file = e.target.files[0]
+    if(!file) return
+
+    // Advertir si el archivo es muy pesado
+    if(file.size > 1.5 * 1024 * 1024){
+      toast('⚠️ La foto pesa más de 1.5MB — puede cargar lento en la web', '')
+    }
+
+    toast('⏳ Subiendo foto de galería...', '')
+    const b64  = await fileToBase64(file)
+
+    try {
+      const sesion = getSesion()
+      const res    = await fetch(API, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'subirFoto',
+          hoja:   'galeria',
+          id,
+          b64,
+          nombre: 'galeria_' + slot + '_' + Date.now(),
+          token:  sesion.token
+        })
+      })
+      const data = await res.json()
+      if(data.ok){
+        await cargarGaleria()
+        toast('✅ Foto ' + slot + ' actualizada — se ve en la web al recargar', 'ok')
+      } else {
+        toast('❌ Error al subir foto', 'err')
+      }
+    } catch(e) {
+      toast('❌ Error de conexión', 'err')
+    }
+  }
+  input.click()
 }
 
 // ─────────────────────────────────────────────
