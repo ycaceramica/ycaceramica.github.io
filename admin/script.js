@@ -105,6 +105,7 @@ async function cargarSeccion(nombre){
 
   if(cache[nombre]){
     renderGrid(nombre, cache[nombre])
+    armarFiltrosAdmin(nombre, cache[nombre])
     return
   }
 
@@ -117,6 +118,7 @@ async function cargarSeccion(nombre){
     const data   = await res.json()
     cache[nombre] = data.data || []
     renderGrid(nombre, cache[nombre])
+    armarFiltrosAdmin(nombre, cache[nombre])
   } catch(e) {
     grid.innerHTML = '<p style="opacity:0.5;padding:20px;grid-column:1/-1">Error al cargar. Revisá tu conexión.</p>'
   }
@@ -124,7 +126,72 @@ async function cargarSeccion(nombre){
 }
 
 // ─────────────────────────────────────────────
-// RENDER GRID
+// FILTROS Y BÚSQUEDA
+// ─────────────────────────────────────────────
+
+// Estado de filtros por hoja
+const filtroActivo = {}
+
+function armarFiltrosAdmin(hoja, items){
+  const contenedor = document.getElementById('filtros-' + hoja)
+  if(!contenedor) return
+
+  // Obtener categorías únicas
+  const cats = ['Todos', ...new Set(items.map(i => i.categoria).filter(Boolean))]
+
+  contenedor.innerHTML = ''
+  filtroActivo[hoja] = 'Todos'
+
+  cats.forEach(cat => {
+    const btn = document.createElement('button')
+    btn.className = 'admin-filtro-btn' + (cat === 'Todos' ? ' activo' : '')
+    btn.innerText = cat
+    btn.onclick = () => {
+      filtroActivo[hoja] = cat
+      contenedor.querySelectorAll('.admin-filtro-btn').forEach(b => b.classList.remove('activo'))
+      btn.classList.add('activo')
+      filtrarGrid(hoja)
+    }
+    contenedor.appendChild(btn)
+  })
+}
+
+function filtrarGrid(hoja){
+  const busqueda = (document.getElementById('buscar-' + hoja)?.value || '').toLowerCase().trim()
+  const catActiva = filtroActivo[hoja] || 'Todos'
+  const cards     = document.querySelectorAll(`#grid-${hoja} .item-card`)
+  let visibles    = 0
+
+  cards.forEach(card => {
+    const nombre    = (card.querySelector('.item-card-nombre')?.innerText || '').toLowerCase()
+    const categoria = (card.querySelector('.item-card-cat')?.innerText || '')
+    const codigo    = (card.querySelector('.item-card-codigo')?.innerText || '').toLowerCase()
+
+    const matchCat    = catActiva === 'Todos' || categoria === catActiva
+    const matchBuscar = !busqueda || nombre.includes(busqueda) || codigo.includes(busqueda)
+    const mostrar     = matchCat && matchBuscar
+
+    card.style.display = mostrar ? 'flex' : 'none'
+    if(mostrar) visibles++
+  })
+
+  // Mostrar mensaje si no hay resultados
+  let sinRes = document.querySelector(`#grid-${hoja} .sin-resultados-admin`)
+  if(visibles === 0){
+    if(!sinRes){
+      sinRes = document.createElement('div')
+      sinRes.className = 'vacio sin-resultados-admin'
+      sinRes.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i><p>No hay items que coincidan</p>`
+      document.getElementById('grid-' + hoja).appendChild(sinRes)
+    }
+    sinRes.style.display = 'flex'
+  } else if(sinRes){
+    sinRes.style.display = 'none'
+  }
+}
+
+// ─────────────────────────────────────────────
+// RENDER GRID — actualizado con filtros
 // ─────────────────────────────────────────────
 
 function renderGrid(hoja, items){
@@ -145,7 +212,6 @@ function renderGrid(hoja, items){
     const icono     = hoja === 'insumos' ? 'fa-flask' : hoja === 'moldes' ? 'fa-layer-group' : hoja === 'apuntes' ? 'fa-book-open' : 'fa-jar'
     const esMolde   = hoja === 'moldes'
     const esApunte  = hoja === 'apuntes'
-
     const card = document.createElement('div')
     card.className = 'item-card'
     card.innerHTML = `
@@ -881,6 +947,13 @@ function setSeccionInventario(inv){
         <button class="btn-nuevo" onclick="abrirModal('${inv.hojaId}')">
           <i class="fa-solid fa-plus"></i> Nuevo item
         </button>
+      </div>
+      <div class="admin-filtros-wrapper">
+        <div class="admin-buscador-wrapper">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input class="admin-buscador" id="buscar-${inv.hojaId}" placeholder="Buscar por nombre..." oninput="filtrarGrid('${inv.hojaId}')">
+        </div>
+        <div class="admin-filtros-cats" id="filtros-${inv.hojaId}"></div>
       </div>
       <div class="items-grid" id="grid-${inv.hojaId}"></div>
       <div class="loading" id="loading-${inv.hojaId}"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
