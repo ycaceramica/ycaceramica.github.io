@@ -110,9 +110,10 @@ function limpiarCache(){
 }
 
 async function cargarSeccion(nombre){
-  if(nombre === 'usuarios'){ await cargarUsuarios(); return }
-  if(nombre === 'cursos')  { await cargarCursos();   return }
-  if(nombre === 'galeria') { await cargarGaleria();  return }
+  if(nombre === 'usuarios')   { await cargarUsuarios();   return }
+  if(nombre === 'cursos')     { await cargarCursos();     return }
+  if(nombre === 'galeria')    { await cargarGaleria();    return }
+  if(nombre === 'multimedia') { await cargarMultimedia(); return }
 
   const grid    = document.getElementById('grid-' + nombre)
   const loading = document.getElementById('loading-' + nombre)
@@ -1121,6 +1122,295 @@ function subirFotoGaleria(id, slot){
     }
   }
   input.click()
+}
+
+// ─────────────────────────────────────────────
+// MULTIMEDIA
+// ─────────────────────────────────────────────
+
+let multimediaData    = []
+let tipoMultimedia    = 'foto'
+let fotoMultimediaB64 = null
+
+async function cargarMultimedia(){
+  const grid    = document.getElementById('grid-multimedia')
+  const loading = document.getElementById('loading-multimedia')
+  loading.style.display = 'block'
+  grid.innerHTML = ''
+
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(`${API}?action=getAll&hoja=multimedia&token=${encodeURIComponent(sesion.token)}`)
+    const data   = await res.json()
+    multimediaData = data.data || []
+    renderMultimedia()
+  } catch(e) {
+    grid.innerHTML = '<p style="opacity:0.5;padding:20px;grid-column:1/-1">Error al cargar.</p>'
+  }
+  loading.style.display = 'none'
+}
+
+function renderMultimedia(){
+  const grid = document.getElementById('grid-multimedia')
+  grid.innerHTML = ''
+
+  if(multimediaData.length === 0){
+    grid.innerHTML = `
+      <div class="vacio">
+        <i class="fa-solid fa-photo-film"></i>
+        <p>No hay multimedia todavía. ¡Agregá fotos o videos!</p>
+      </div>`
+    return
+  }
+
+  multimediaData.forEach(m => {
+    const publicado    = m.publicado === true || m.publicado === 'TRUE' || m.publicado === 'true'
+    const cursoObj     = cursosData.find(c => c.hojaId === m.curso)
+    const cursoNombre  = cursoObj ? cursoObj.nombre : (m.curso || 'General')
+    const esVideo      = m.tipo === 'video'
+
+    let mediaHTML = ''
+    if(esVideo && m.url){
+      const embedUrl = getEmbedUrl(m.url)
+      mediaHTML = embedUrl
+        ? `<iframe src="${embedUrl}" allowfullscreen loading="lazy"></iframe>`
+        : `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,0.5);font-size:13px;">Vista previa no disponible</div>`
+    } else if(m.foto){
+      mediaHTML = `<img src="${m.foto}" alt="${m.titulo || ''}" loading="lazy">`
+    } else {
+      mediaHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:32px;">🖼️</div>`
+    }
+
+    const card = document.createElement('div')
+    card.className = 'multimedia-card'
+    card.innerHTML = `
+      <div class="multimedia-card-media">
+        ${mediaHTML}
+        <span class="multimedia-tipo-badge">
+          <i class="fa-solid ${esVideo ? 'fa-play' : 'fa-image'}"></i>
+          ${esVideo ? 'Video' : 'Foto'}
+        </span>
+      </div>
+      <div class="multimedia-card-body">
+        <div class="multimedia-card-titulo">${m.titulo || (esVideo ? 'Video' : 'Foto')}</div>
+        <div class="multimedia-card-curso">${cursoNombre}</div>
+        <div class="multimedia-card-acciones">
+          <button class="btn-toggle-pub ${publicado ? 'publicado' : ''}"
+            onclick="togglePublicado('multimedia','${m.id}',${publicado})"
+            title="${publicado ? 'Visible — clic para ocultar' : 'Oculto — clic para mostrar'}">
+            <i class="fa-solid ${publicado ? 'fa-eye' : 'fa-eye-slash'}"></i>
+            ${publicado ? 'Visible' : 'Oculto'}
+          </button>
+          <button class="btn-borrar" onclick="borrarMultimedia('${m.id}')" title="Eliminar">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `
+    grid.appendChild(card)
+  })
+}
+
+function getEmbedUrl(url){
+  if(!url) return null
+  // YouTube
+  const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
+  if(yt) return `https://www.youtube.com/embed/${yt[1]}`
+  // YouTube shorts
+  const yts = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/)
+  if(yts) return `https://www.youtube.com/embed/${yts[1]}`
+  // Instagram — no tiene embed directo, mostramos link
+  if(url.includes('instagram.com')) return null
+  // TikTok — no tiene embed directo
+  if(url.includes('tiktok.com')) return null
+  return null
+}
+
+// ── MODAL MULTIMEDIA ──
+
+function abrirModalMultimedia(){
+  tipoMultimedia    = 'foto'
+  fotoMultimediaB64 = null
+
+  // Resetear form
+  document.getElementById('mMultimediaTitulo').value   = ''
+  document.getElementById('mMultimediaPublicado').checked = true
+  document.getElementById('mMultimediaFotoArea').innerHTML = `
+    <div class="mform-foto-placeholder">
+      <i class="fa-solid fa-camera"></i>
+      <strong>Tocá para agregar foto</strong>
+    </div>`
+
+  if(document.getElementById('mMultimediaUrl'))
+    document.getElementById('mMultimediaUrl').value = ''
+
+  document.getElementById('mMultimediaPreview').style.display = 'none'
+
+  // Cargar cursos en el select
+  const sel = document.getElementById('mMultimediaCurso')
+  sel.innerHTML = '<option value="">Seleccioná</option><option value="General">General (todos los alumnos)</option>'
+  cursosData.forEach(c => {
+    const opt = document.createElement('option')
+    opt.value       = c.hojaId
+    opt.textContent = c.nombre
+    sel.appendChild(opt)
+  })
+
+  setTipoMultimedia('foto')
+  document.getElementById('modalMultimedia').style.display = 'flex'
+}
+
+function cerrarModalMultimedia(e){
+  if(e && e.target !== document.getElementById('modalMultimedia')) return
+  document.getElementById('modalMultimedia').style.display = 'none'
+  fotoMultimediaB64 = null
+}
+
+function setTipoMultimedia(tipo){
+  tipoMultimedia = tipo
+  document.getElementById('mtipo-foto').classList.toggle('activo',  tipo === 'foto')
+  document.getElementById('mtipo-video').classList.toggle('activo', tipo === 'video')
+  document.getElementById('mMultimediaFotoBloque').style.display  = tipo === 'foto'  ? 'block' : 'none'
+  document.getElementById('mMultimediaVideoBloque').style.display = tipo === 'video' ? 'block' : 'none'
+}
+
+function elegirFotoMultimedia(){
+  document.getElementById('inputFotoMultimedia').click()
+}
+
+function previsualizarFotoMultimedia(e){
+  const file = e.target.files[0]
+  if(!file) return
+  const reader = new FileReader()
+  reader.onload = (ev) => {
+    fotoMultimediaB64 = ev.target.result
+    document.getElementById('mMultimediaFotoArea').innerHTML = `
+      <img class="mform-foto-preview" src="${fotoMultimediaB64}" alt="Preview">
+      <button class="mform-foto-cambiar" onclick="elegirFotoMultimedia()" type="button">
+        <i class="fa-solid fa-camera"></i> Cambiar
+      </button>`
+  }
+  reader.readAsDataURL(file)
+}
+
+// Preview de video al escribir URL
+document.addEventListener('DOMContentLoaded', () => {
+  const urlInput = document.getElementById('mMultimediaUrl')
+  if(urlInput){
+    urlInput.addEventListener('input', () => {
+      const embed   = getEmbedUrl(urlInput.value)
+      const preview = document.getElementById('mMultimediaPreview')
+      if(embed){
+        preview.style.display = 'block'
+        preview.innerHTML = `<iframe src="${embed}" allowfullscreen></iframe>`
+      } else {
+        preview.style.display = 'none'
+        preview.innerHTML = ''
+      }
+    })
+  }
+})
+
+async function guardarMultimedia(){
+  const titulo    = document.getElementById('mMultimediaTitulo').value.trim()
+  const curso     = document.getElementById('mMultimediaCurso').value
+  const publicado = document.getElementById('mMultimediaPublicado').checked ? 'true' : 'false'
+  const id        = 'MUL-' + Date.now()
+
+  if(tipoMultimedia === 'foto' && !fotoMultimediaB64){
+    toast('Seleccioná una foto', 'err'); return
+  }
+
+  if(tipoMultimedia === 'video'){
+    const url = document.getElementById('mMultimediaUrl').value.trim()
+    if(!url){ toast('Ingresá el link del video', 'err'); return }
+
+    const btn = document.querySelector('#modalMultimedia .btn-guardar-modal')
+    btn.classList.add('cargando')
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'
+
+    try {
+      const sesion = getSesion()
+      const res    = await fetch(API, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'guardar', hoja: 'multimedia',
+          fila: { id, tipo: 'video', titulo, curso, url, foto: '', publicado, creadoEn: new Date().toLocaleDateString('es-AR') },
+          token: sesion.token
+        })
+      })
+      const data = await res.json()
+      if(data.ok){
+        cerrarModalMultimedia()
+        multimediaData = []
+        await cargarMultimedia()
+        toast('✅ Video agregado', 'ok')
+      } else toast('❌ ' + (data.error || 'Error'), 'err')
+    } catch(e) { toast('❌ Error de conexión', 'err') }
+
+    btn.classList.remove('cargando')
+    btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar'
+    return
+  }
+
+  // Es foto — primero guardar el item, después subir foto
+  const btn = document.querySelector('#modalMultimedia .btn-guardar-modal')
+  btn.classList.add('cargando')
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'
+
+  try {
+    const sesion = getSesion()
+
+    // 1. Guardar fila
+    const res = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'guardar', hoja: 'multimedia',
+        fila: { id, tipo: 'foto', titulo, curso, url: '', foto: '', publicado, creadoEn: new Date().toLocaleDateString('es-AR') },
+        token: sesion.token
+      })
+    })
+    const data = await res.json()
+    if(!data.ok){ toast('❌ Error al guardar', 'err'); btn.classList.remove('cargando'); btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar'; return }
+
+    cerrarModalMultimedia()
+    multimediaData = []
+    await cargarMultimedia()
+    toast('✅ Guardado — subiendo foto...', 'ok')
+
+    // 2. Subir foto en segundo plano
+    fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'subirFoto', hoja: 'multimedia', id,
+        b64: fotoMultimediaB64, nombre: 'multimedia_' + id,
+        token: sesion.token
+      })
+    }).then(r => r.json()).then(d => {
+      if(d.ok){
+        multimediaData = []
+        cargarMultimedia()
+        toast('✅ Foto subida correctamente', 'ok')
+      }
+    })
+
+  } catch(e) { toast('❌ Error de conexión', 'err') }
+
+  btn.classList.remove('cargando')
+  btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar'
+}
+
+async function borrarMultimedia(id){
+  if(!confirm('¿Eliminar este item de multimedia?')) return
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'eliminar', hoja: 'multimedia', id, token: sesion.token })
+    })
+    const data = await res.json()
+    if(data.ok){ multimediaData = []; await cargarMultimedia(); toast('🗑 Eliminado', 'ok') }
+  } catch(e) { toast('❌ Error', 'err') }
 }
 
 // ─────────────────────────────────────────────
