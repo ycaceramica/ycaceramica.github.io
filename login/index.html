@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ingresar — YCA Cerámica</title>
+
+  <link rel="icon" type="image/png" href="../imagenes/logo.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+<body>
+
+  <div class="login-bg">
+    <div class="login-card" id="loginCard">
+
+      <!-- LOGO -->
+      <div class="login-logo">
+        <img src="../imagenes/logo.png" alt="YCA Cerámica">
+        <h1>YCA Cerámica</h1>
+        <p>Ingresá a tu cuenta</p>
+      </div>
+
+      <!-- TABS -->
+      <div class="login-tabs" id="loginTabs">
+        <button class="tab-btn activo" onclick="setTab('ingresar')" id="tabIngresar">
+          Ingresar
+        </button>
+        <button class="tab-btn" onclick="setTab('registrarse')" id="tabRegistrarse">
+          Registrarse
+        </button>
+      </div>
+
+      <!-- FORM INGRESAR -->
+      <div class="login-form" id="formIngresar">
+
+        <div class="form-grupo">
+          <label><i class="fa-regular fa-user"></i> Usuario o email</label>
+          <input type="text" id="loginUser" placeholder="Tu usuario o email" autocomplete="username">
+        </div>
+
+        <div class="form-grupo">
+          <label><i class="fa-solid fa-lock"></i> Contraseña</label>
+          <div class="pass-wrapper">
+            <input type="password" id="loginPass" placeholder="Tu contraseña" autocomplete="current-password">
+            <button class="pass-toggle" onclick="togglePass('loginPass', this)" type="button">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="login-error" id="loginError" style="display:none">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span id="loginErrorMsg">Usuario o contraseña incorrectos</span>
+        </div>
+
+        <button class="login-btn" onclick="ingresar()" id="btnIngresar">
+          <span>Ingresar</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+
+      </div>
+
+      <!-- FORM REGISTRARSE -->
+      <div class="login-form" id="formRegistrarse" style="display:none">
+
+        <div class="form-grupo">
+          <label><i class="fa-regular fa-user"></i> Nombre completo</label>
+          <input type="text" id="regNombre" placeholder="Tu nombre">
+        </div>
+
+        <div class="form-grupo">
+          <label><i class="fa-regular fa-envelope"></i> Email</label>
+          <input type="email" id="regEmail" placeholder="tu@email.com">
+        </div>
+
+        <div class="form-grupo">
+          <label><i class="fa-solid fa-lock"></i> Contraseña</label>
+          <div class="pass-wrapper">
+            <input type="password" id="regPass" placeholder="Elegí una contraseña">
+            <button class="pass-toggle" onclick="togglePass('regPass', this)" type="button">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-grupo">
+          <label><i class="fa-solid fa-graduation-cap"></i> Curso de interés</label>
+          <select id="regCurso">
+            <option value="">Seleccioná un curso</option>
+            <option value="taller-inicial">Taller de Cerámica Inicial</option>
+          </select>
+        </div>
+
+        <div class="login-error" id="regError" style="display:none">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span id="regErrorMsg"></span>
+        </div>
+
+        <div class="login-success" id="regSuccess" style="display:none">
+          <i class="fa-solid fa-circle-check"></i>
+          <span>¡Registro exitoso! Esperá la aprobación para ingresar.</span>
+        </div>
+
+        <button class="login-btn" onclick="registrarse()" id="btnRegistrarse">
+          <span>Solicitar acceso</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+
+      </div>
+
+      <!-- VOLVER -->
+      <a class="login-volver" href="../index.html">
+        ← Volver al sitio
+      </a>
+
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
