@@ -213,6 +213,7 @@ function renderGrid(hoja, items){
     const icono     = hoja === 'insumos' ? 'fa-flask' : hoja === 'moldes' ? 'fa-layer-group' : hoja === 'apuntes' ? 'fa-book-open' : 'fa-jar'
     const esMolde   = hoja === 'moldes'
     const esApunte  = hoja === 'apuntes'
+    const mostrarPub = !esMolde
     const card = document.createElement('div')
     card.className = 'item-card'
     card.innerHTML = `
@@ -236,12 +237,12 @@ function renderGrid(hoja, items){
           <button class="btn-editar" onclick='editarItem("${hoja}", ${JSON.stringify(item).replace(/'/g,"&#39;").replace(/"/g,'&quot;')})'>
             <i class="fa-solid fa-pen"></i> Editar
           </button>
-          ${!esMolde ? `
+          ${mostrarPub ? `
           <button class="btn-toggle-pub ${publicado ? 'publicado' : ''}"
             onclick="togglePublicado('${hoja}','${item.id}',${publicado})"
-            title="${publicado ? 'Visible en web — clic para ocultar' : 'Oculto — clic para publicar'}">
+            title="${publicado ? 'Visible — clic para ocultar' : 'Oculto — clic para publicar'}">
             <i class="fa-solid ${publicado ? 'fa-eye' : 'fa-eye-slash'}"></i>
-            ${publicado ? 'Publicado' : 'Oculto'}
+            ${publicado ? 'Visible' : 'Oculto'}
           </button>` : ''}
           <button class="btn-borrar" onclick="borrarItem('${hoja}','${item.id}')" title="Eliminar">
             <i class="fa-solid fa-trash"></i>
@@ -367,6 +368,10 @@ function abrirModal(hoja, item = null){
         <label>URL de archivo (PDF, video, etc.)</label>
         <input id="mArchivoUrl" value="${item?.archivoUrl || ''}" placeholder="https://...">
       </div>
+      <label class="publicado-toggle">
+        <input type="checkbox" id="mPublicado" ${(item?.publicado === true || item?.publicado === 'TRUE' || item?.publicado === 'true') ? 'checked' : ''}>
+        <span>✅ Visible para los alumnos</span>
+      </label>
     `
   } else {
     html += `
@@ -559,6 +564,7 @@ function construirFila(){
       curso:      document.getElementById('mCategoria')?.value || '',
       contenido:  document.getElementById('mContenido')?.value.trim() || '',
       archivoUrl: document.getElementById('mArchivoUrl')?.value.trim() || '',
+      publicado:  document.getElementById('mPublicado')?.checked ? 'true' : 'false',
       creadoEn:   modalItem?.creadoEn || new Date().toLocaleDateString('es-AR')
     }
   }
