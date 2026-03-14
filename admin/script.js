@@ -43,6 +43,8 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   cargarSeccion('piezas')
   cargarInventarios()
+  // Precargar cursos para usarlos en modales de apuntes y usuarios
+  cargarCursosSilencioso()
 })
 
 function cerrarSesion(){
@@ -66,6 +68,17 @@ function cerrarSidebar(){
   document.getElementById('adminSidebar').classList.remove('abierto')
   document.getElementById('sidebarOverlay').classList.remove('activo')
   document.body.style.overflow = ''
+}
+
+// Precarga silenciosa de cursos al iniciar
+async function cargarCursosSilencioso(){
+  if(cursosData.length > 0) return
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(`${API}?action=getCursosAdmin&token=${encodeURIComponent(sesion.token)}`)
+    const data   = await res.json()
+    cursosData   = data.data || []
+  } catch(e) {}
 }
 
 // ─────────────────────────────────────────────
@@ -351,6 +364,11 @@ function abrirModal(hoja, item = null){
   let html = bloqFoto
 
   if(esApuntes){
+    // Cursos dinámicos desde Sheets
+    const cursosOps = cursosData.length > 0
+      ? cursosData.map(c => `<option value="${c.hojaId}" ${item?.curso === c.hojaId ? 'selected' : ''}>${c.nombre}</option>`).join('')
+      : cats.map(c => `<option value="${c}" ${item?.curso === c ? 'selected' : ''}>${c}</option>`).join('')
+
     html = `
       <div class="mform-grupo">
         <label>Título *</label>
@@ -358,7 +376,11 @@ function abrirModal(hoja, item = null){
       </div>
       <div class="mform-grupo">
         <label>Curso</label>
-        <select id="mCategoria"><option value="">Seleccioná</option>${opsCat}</select>
+        <select id="mCategoria">
+          <option value="">Seleccioná</option>
+          ${cursosOps}
+          <option value="General" ${item?.curso === 'General' ? 'selected' : ''}>General (todos los alumnos)</option>
+        </select>
       </div>
       <div class="mform-grupo">
         <label>Contenido</label>
