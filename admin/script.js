@@ -27,7 +27,7 @@ function actualizarIconoDark(){
 aplicarModoOscuro()
 
 // ─────────────────────────────────────────────
-// VERIFICAR SESIÓN ADMIN
+// SESIÓN
 // ─────────────────────────────────────────────
 
 function getSesion(){
@@ -61,6 +61,12 @@ function toggleSidebar(){
   document.body.style.overflow = abierto ? 'hidden' : ''
 }
 
+function cerrarSidebar(){
+  document.getElementById('adminSidebar').classList.remove('abierto')
+  document.getElementById('sidebarOverlay').classList.remove('activo')
+  document.body.style.overflow = ''
+}
+
 // ─────────────────────────────────────────────
 // SECCIONES
 // ─────────────────────────────────────────────
@@ -68,31 +74,29 @@ function toggleSidebar(){
 let seccionActual = 'piezas'
 
 function setSeccion(nombre){
-  // Ocultar todas
   document.querySelectorAll('.seccion').forEach(s => s.style.display = 'none')
   document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('activo'))
-
-  // Mostrar la seleccionada
   document.getElementById('seccion-' + nombre).style.display = 'block'
   document.getElementById('nav-' + nombre).classList.add('activo')
-
   seccionActual = nombre
-
-  // Cerrar sidebar en mobile
-  document.getElementById('adminSidebar').classList.remove('abierto')
-  document.getElementById('sidebarOverlay').classList.remove('activo')
-
+  cerrarSidebar()
   cargarSeccion(nombre)
 }
 
 // ─────────────────────────────────────────────
-// CARGAR DATOS
+// CACHÉ Y CARGA DE DATOS
 // ─────────────────────────────────────────────
 
 const cache = {}
 
+function limpiarCache(){
+  Object.keys(cache).forEach(k => delete cache[k])
+  cargarSeccion(seccionActual)
+  toast('🔄 Datos actualizados', 'ok')
+}
+
 async function cargarSeccion(nombre){
-  if(nombre === 'usuarios') { await cargarUsuarios(); return }
+  if(nombre === 'usuarios'){ await cargarUsuarios(); return }
 
   const grid    = document.getElementById('grid-' + nombre)
   const loading = document.getElementById('loading-' + nombre)
@@ -107,12 +111,12 @@ async function cargarSeccion(nombre){
 
   try {
     const sesion = getSesion()
-    const res    = await fetch(`${API}?action=getAll&hoja=${nombre}&token=${sesion.token}`)
+    const res    = await fetch(`${API}?action=getAll&hoja=${nombre}&token=${encodeURIComponent(sesion.token)}`)
     const data   = await res.json()
     cache[nombre] = data.data || []
     renderGrid(nombre, cache[nombre])
   } catch(e) {
-    grid.innerHTML = '<p style="opacity:0.5;padding:20px">Error al cargar datos</p>'
+    grid.innerHTML = '<p style="opacity:0.5;padding:20px;grid-column:1/-1">Error al cargar. Revisá tu conexión.</p>'
   }
   loading.style.display = 'none'
 }
@@ -127,7 +131,7 @@ function renderGrid(hoja, items){
 
   if(!items || items.length === 0){
     grid.innerHTML = `
-      <div class="vacio" style="grid-column:1/-1">
+      <div class="vacio">
         <i class="fa-solid fa-box-open"></i>
         <p>No hay items todavía. ¡Agregá el primero!</p>
       </div>`
@@ -137,37 +141,40 @@ function renderGrid(hoja, items){
   items.forEach(item => {
     const publicado = item.publicado === true || item.publicado === 'TRUE' || item.publicado === 'true'
     const icono     = hoja === 'insumos' ? 'fa-flask' : hoja === 'moldes' ? 'fa-layer-group' : hoja === 'apuntes' ? 'fa-book-open' : 'fa-jar'
+    const esMolde   = hoja === 'moldes'
+    const esApunte  = hoja === 'apuntes'
 
     const card = document.createElement('div')
     card.className = 'item-card'
     card.innerHTML = `
       <div class="item-card-img">
         ${item.foto
-          ? `<img src="${item.foto}" alt="${item.nombre}" loading="lazy">`
+          ? `<img src="${item.foto}" alt="${item.nombre || ''}" loading="lazy">`
           : `<div class="item-card-img-placeholder"><i class="fa-solid ${icono}"></i></div>`
         }
+        ${!esApunte ? `
         <button class="item-card-foto-btn" onclick="subirFotoItem('${hoja}','${item.id}','${item.codigo || item.id}')">
           <i class="fa-solid fa-camera"></i> ${item.foto ? 'Cambiar foto' : 'Agregar foto'}
         </button>
-        ${!item.foto ? `<span class="item-card-foto-hint">📷 desde cámara o galería</span>` : ''}
+        ${!item.foto ? `<span class="item-card-foto-hint">📐 Usá foto cuadrada (1:1)</span>` : ''}
+        ` : ''}
       </div>
       <div class="item-card-body">
-        <div class="item-card-codigo">${item.codigo || ''}</div>
-        <div class="item-card-nombre">${item.nombre || ''}</div>
+        <div class="item-card-codigo">${item.codigo || (esApunte ? item.curso || '' : '')}</div>
+        <div class="item-card-nombre">${item.nombre || item.titulo || ''}</div>
         <div class="item-card-cat">${item.categoria || ''}</div>
-        ${item.precio ? `<div class="item-card-precio">$${item.precio}</div>` : ''}
         <div class="item-card-acciones">
-          <button class="btn-editar" onclick='editarItem("${hoja}", ${JSON.stringify(item).replace(/'/g,"&#39;")})'>
+          <button class="btn-editar" onclick='editarItem("${hoja}", ${JSON.stringify(item).replace(/'/g,"&#39;").replace(/"/g,'&quot;')})'>
             <i class="fa-solid fa-pen"></i> Editar
           </button>
-          ${hoja !== 'moldes' ? `
-          <button class="btn-toggle-pub ${publicado ? 'publicado' : ''}" 
+          ${!esMolde ? `
+          <button class="btn-toggle-pub ${publicado ? 'publicado' : ''}"
             onclick="togglePublicado('${hoja}','${item.id}',${publicado})"
-            title="${publicado ? 'Visible en la web — clic para ocultar' : 'Oculto — clic para publicar'}">
+            title="${publicado ? 'Visible en web — clic para ocultar' : 'Oculto — clic para publicar'}">
             <i class="fa-solid ${publicado ? 'fa-eye' : 'fa-eye-slash'}"></i>
             ${publicado ? 'Publicado' : 'Oculto'}
           </button>` : ''}
-          <button class="btn-borrar" onclick="borrarItem('${hoja}','${item.id}')">
+          <button class="btn-borrar" onclick="borrarItem('${hoja}','${item.id}')" title="Eliminar">
             <i class="fa-solid fa-trash"></i>
           </button>
         </div>
@@ -178,7 +185,7 @@ function renderGrid(hoja, items){
 }
 
 // ─────────────────────────────────────────────
-// CATEGORÍAS POR HOJA
+// CATEGORÍAS
 // ─────────────────────────────────────────────
 
 const CATEGORIAS = {
@@ -189,31 +196,89 @@ const CATEGORIAS = {
 }
 
 // ─────────────────────────────────────────────
+// FOTO EN MODAL
+// ─────────────────────────────────────────────
+
+let fotoModalBase64 = null
+let fotoModalNombre = null
+
+function elegirFotoModal(){
+  document.getElementById('inputFotoModal').click()
+}
+
+function previsualizarFoto(e){
+  const file = e.target.files[0]
+  if(!file) return
+
+  fotoModalNombre = file.name.split('.')[0]
+
+  const reader = new FileReader()
+  reader.onload = (ev) => {
+    fotoModalBase64 = ev.target.result
+
+    // Actualizar previsualización en modal
+    const area = document.getElementById('mFotoArea')
+    if(area){
+      area.innerHTML = `
+        <img class="mform-foto-preview" src="${fotoModalBase64}" alt="Preview">
+        <button class="mform-foto-cambiar" onclick="elegirFotoModal()" type="button">
+          <i class="fa-solid fa-camera"></i> Cambiar
+        </button>
+      `
+    }
+  }
+  reader.readAsDataURL(file)
+}
+
+// ─────────────────────────────────────────────
 // MODAL — ABRIR
 // ─────────────────────────────────────────────
 
-let modalHoja    = ''
-let modalItem    = null
+let modalHoja = ''
+let modalItem = null
 
 function abrirModal(hoja, item = null){
-  modalHoja = hoja
-  modalItem = item
+  modalHoja        = hoja
+  modalItem        = item
+  fotoModalBase64  = null
+  fotoModalNombre  = null
 
+  const esApuntes = hoja === 'apuntes'
+  const esMoldes  = hoja === 'moldes'
   const esPiezas  = hoja === 'piezas'
   const esInsumos = hoja === 'insumos'
-  const esMoldes  = hoja === 'moldes'
-  const esApuntes = hoja === 'apuntes'
 
   document.getElementById('modalTitulo').innerText = item
-    ? `Editar ${hoja.slice(0,-1)}`
-    : `Nuevo/a ${hoja === 'apuntes' ? 'apunte' : hoja.slice(0,-1)}`
+    ? `Editar ${esApuntes ? 'apunte' : hoja.slice(0,-1)}`
+    : `Nuevo ${esApuntes ? 'apunte' : hoja.slice(0,-1)}`
 
-  const cats = CATEGORIAS[hoja] || []
+  const cats   = CATEGORIAS[hoja] || []
   const opsCat = cats.map(c =>
-    `<option value="${c}" ${item && item.categoria === c ? 'selected' : ''}>${c}</option>`
+    `<option value="${c}" ${item?.categoria === c || item?.curso === c ? 'selected' : ''}>${c}</option>`
   ).join('')
 
-  let html = ''
+  // Foto actual si existe
+  const fotoActual = item?.foto || ''
+  const bloqFoto = !esApuntes ? `
+    <div class="mform-grupo">
+      <label>📷 Foto <small style="opacity:0.5;font-weight:400">(cuadrada 1:1 para verse mejor)</small></label>
+      <div class="mform-foto-area" id="mFotoArea" onclick="elegirFotoModal()">
+        ${fotoActual
+          ? `<img class="mform-foto-preview" src="${fotoActual}" alt="Foto actual">
+             <button class="mform-foto-cambiar" onclick="elegirFotoModal()" type="button">
+               <i class="fa-solid fa-camera"></i> Cambiar
+             </button>`
+          : `<div class="mform-foto-placeholder">
+               <i class="fa-solid fa-camera"></i>
+               <strong>Tocá para agregar foto</strong>
+               <small>Recomendado: formato cuadrado (1:1)</small>
+             </div>`
+        }
+      </div>
+    </div>
+  ` : ''
+
+  let html = bloqFoto
 
   if(esApuntes){
     html = `
@@ -227,15 +292,15 @@ function abrirModal(hoja, item = null){
       </div>
       <div class="mform-grupo">
         <label>Contenido</label>
-        <textarea id="mContenido" rows="5" placeholder="Escribí el contenido del apunte...">${item?.contenido || ''}</textarea>
+        <textarea id="mContenido" rows="5" placeholder="Escribí el contenido...">${item?.contenido || ''}</textarea>
       </div>
       <div class="mform-grupo">
-        <label>URL de archivo (PDF, etc.)</label>
+        <label>URL de archivo (PDF, video, etc.)</label>
         <input id="mArchivoUrl" value="${item?.archivoUrl || ''}" placeholder="https://...">
       </div>
     `
   } else {
-    html = `
+    html += `
       <div class="mform-fila">
         <div class="mform-grupo">
           <label>Categoría *</label>
@@ -244,8 +309,8 @@ function abrirModal(hoja, item = null){
         <div class="mform-grupo">
           <label>Código</label>
           <div class="mform-codigo-wrapper">
-            <input id="mCodigo" value="${item?.codigo || ''}" placeholder="AUTO">
-            <button class="btn-generar-codigo" onclick="generarCodigo()">↺ Auto</button>
+            <input id="mCodigo" value="${item?.codigo || ''}" placeholder="Auto">
+            <button class="btn-generar-codigo" onclick="generarCodigo()" type="button">↺ Auto</button>
           </div>
         </div>
       </div>
@@ -267,19 +332,19 @@ function abrirModal(hoja, item = null){
             <input id="mTipo" value="${item?.tipo || item?.tecnica || ''}" placeholder="${esInsumos ? 'Tipo...' : 'Técnica...'}">
           </div>
           <div class="mform-grupo">
-            <label>Precio</label>
-            <input id="mPrecio" type="number" value="${item?.precio || ''}" placeholder="0">
+            <label>Precio (solo admin)</label>
+            <input id="mPrecio" type="number" value="${item?.precio || ''}" placeholder="$0">
           </div>
         </div>
         <div class="mform-fila">
           <div class="mform-grupo">
-            <label>Cantidad</label>
+            <label>Cantidad en stock</label>
             <input id="mCantidad" type="number" value="${item?.cantidad || ''}" placeholder="0">
           </div>
           ${esInsumos ? `
           <div class="mform-grupo">
             <label>Unidad</label>
-            <input id="mUnidad" value="${item?.unidad || ''}" placeholder="kg, litros...">
+            <input id="mUnidad" value="${item?.unidad || ''}" placeholder="kg, litros, unidades...">
           </div>` : `
           <div class="mform-grupo">
             <label>Medidas</label>
@@ -297,7 +362,7 @@ function abrirModal(hoja, item = null){
         </div>`}
         <label class="publicado-toggle">
           <input type="checkbox" id="mPublicado" ${(item?.publicado === true || item?.publicado === 'TRUE' || item?.publicado === 'true') ? 'checked' : ''}>
-          <span>Publicar en la web</span>
+          <span>✅ Publicar en la web pública</span>
         </label>
       `
     }
@@ -319,8 +384,8 @@ function abrirModal(hoja, item = null){
           <input id="mDimensiones" value="${item?.dimensiones || ''}" placeholder="Ej: 20x15cm">
         </div>
         <div class="mform-grupo">
-          <label>Notas</label>
-          <textarea id="mNotas" rows="2" placeholder="Notas internas...">${item?.notas || ''}</textarea>
+          <label>Notas internas</label>
+          <textarea id="mNotas" rows="2" placeholder="Notas...">${item?.notas || ''}</textarea>
         </div>
       `
     }
@@ -329,10 +394,7 @@ function abrirModal(hoja, item = null){
   document.getElementById('modalBody').innerHTML = html
   document.getElementById('modalOverlay').style.display = 'flex'
 
-  // Generar código automático si es nuevo
-  if(!item && !esApuntes){
-    setTimeout(() => generarCodigo(), 100)
-  }
+  if(!item && !esApuntes) setTimeout(() => generarCodigo(), 100)
 }
 
 function editarItem(hoja, item){
@@ -342,6 +404,8 @@ function editarItem(hoja, item){
 function cerrarModal(e){
   if(e && e.target !== document.getElementById('modalOverlay')) return
   document.getElementById('modalOverlay').style.display = 'none'
+  fotoModalBase64 = null
+  fotoModalNombre = null
   modalHoja = ''
   modalItem = null
 }
@@ -359,7 +423,7 @@ async function generarCodigo(){
 
   try {
     const sesion = getSesion()
-    const res  = await fetch(`${API}?action=siguienteCodigo&hoja=${modalHoja}&categoria=${encodeURIComponent(cat)}&token=${sesion.token}`)
+    const res  = await fetch(`${API}?action=siguienteCodigo&hoja=${modalHoja}&categoria=${encodeURIComponent(cat)}&token=${encodeURIComponent(sesion.token)}`)
     const data = await res.json()
     if(data.codigo) codEl.value = data.codigo
   } catch(e) {}
@@ -372,37 +436,49 @@ async function generarCodigo(){
 async function guardarModal(){
   const btn = document.getElementById('btnGuardarModal')
   btn.classList.add('cargando')
-  btn.querySelector('span') && (btn.querySelector('span').innerText = 'Guardando...')
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'
 
   try {
     const sesion = getSesion()
     const fila   = construirFila()
+    if(!fila){ btn.classList.remove('cargando'); btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar'; return }
 
-    if(!fila) { btn.classList.remove('cargando'); return }
-
+    // 1. Guardar datos
     const res  = await fetch(API, {
       method: 'POST',
       body: JSON.stringify({ action: 'guardar', hoja: modalHoja, fila, token: sesion.token })
     })
     const data = await res.json()
 
-    if(data.ok){
-      delete cache[modalHoja]
-      cerrarModal()
-      await cargarSeccion(modalHoja)
-      toast('✅ Guardado correctamente', 'ok')
-    } else {
-      toast('❌ Error: ' + (data.error || 'Error desconocido'), 'err')
+    if(!data.ok){ toast('❌ ' + (data.error || 'Error al guardar'), 'err'); btn.classList.remove('cargando'); btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar'; return }
+
+    // 2. Si hay foto nueva, subirla
+    if(fotoModalBase64 && modalHoja !== 'apuntes'){
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo foto...'
+      const nombre = (fila.codigo || fila.id) + '_' + Date.now()
+      const resF = await fetch(API, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'subirFoto', hoja: modalHoja, id: fila.id, b64: fotoModalBase64, nombre, token: sesion.token })
+      })
+      const dataF = await resF.json()
+      if(!dataF.ok) toast('⚠️ Item guardado pero hubo un error al subir la foto', 'err')
     }
+
+    delete cache[modalHoja]
+    cerrarModal()
+    await cargarSeccion(modalHoja)
+    toast('✅ Guardado correctamente', 'ok')
+
   } catch(e) {
     toast('❌ Error de conexión', 'err')
   }
 
   btn.classList.remove('cargando')
+  btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar'
 }
 
 function construirFila(){
-  const id   = modalItem?.id || (modalHoja.toUpperCase().slice(0,3) + '-' + Date.now())
+  const id  = modalItem?.id || (modalHoja.toUpperCase().slice(0,3) + '-' + Date.now())
   const hoja = modalHoja
 
   if(hoja === 'apuntes'){
@@ -423,50 +499,44 @@ function construirFila(){
 
   const base = {
     id,
-    codigo:     document.getElementById('mCodigo')?.value.trim() || '',
+    codigo:      document.getElementById('mCodigo')?.value.trim() || '',
     nombre,
-    categoria:  document.getElementById('mCategoria')?.value || '',
-    descripcion:document.getElementById('mDescripcion')?.value.trim() || '',
-    foto:       modalItem?.foto || '',
-    creadoEn:   modalItem?.creadoEn || new Date().toLocaleDateString('es-AR')
+    categoria:   document.getElementById('mCategoria')?.value || '',
+    descripcion: document.getElementById('mDescripcion')?.value.trim() || '',
+    foto:        modalItem?.foto || '',
+    creadoEn:    modalItem?.creadoEn || new Date().toLocaleDateString('es-AR')
   }
 
-  if(hoja === 'piezas'){
-    return { ...base,
-      tecnica:   document.getElementById('mTipo')?.value.trim() || '',
-      precio:    document.getElementById('mPrecio')?.value || '',
-      cantidad:  document.getElementById('mCantidad')?.value || '',
-      medidas:   document.getElementById('mMedidas')?.value.trim() || '',
-      esmalte:   document.getElementById('mEsmalte')?.value.trim() || '',
-      publicado: document.getElementById('mPublicado')?.checked ? 'true' : 'false'
-    }
+  if(hoja === 'piezas') return { ...base,
+    tecnica:   document.getElementById('mTipo')?.value.trim() || '',
+    precio:    document.getElementById('mPrecio')?.value || '',
+    cantidad:  document.getElementById('mCantidad')?.value || '',
+    medidas:   document.getElementById('mMedidas')?.value.trim() || '',
+    esmalte:   document.getElementById('mEsmalte')?.value.trim() || '',
+    publicado: document.getElementById('mPublicado')?.checked ? 'true' : 'false'
   }
 
-  if(hoja === 'insumos'){
-    return { ...base,
-      tipo:        document.getElementById('mTipo')?.value.trim() || '',
-      precio:      document.getElementById('mPrecio')?.value || '',
-      cantidad:    document.getElementById('mCantidad')?.value || '',
-      unidad:      document.getElementById('mUnidad')?.value.trim() || '',
-      temperatura: document.getElementById('mTemperatura')?.value.trim() || '',
-      publicado:   document.getElementById('mPublicado')?.checked ? 'true' : 'false'
-    }
+  if(hoja === 'insumos') return { ...base,
+    tipo:        document.getElementById('mTipo')?.value.trim() || '',
+    precio:      document.getElementById('mPrecio')?.value || '',
+    cantidad:    document.getElementById('mCantidad')?.value || '',
+    unidad:      document.getElementById('mUnidad')?.value.trim() || '',
+    temperatura: document.getElementById('mTemperatura')?.value.trim() || '',
+    publicado:   document.getElementById('mPublicado')?.checked ? 'true' : 'false'
   }
 
-  if(hoja === 'moldes'){
-    return { ...base,
-      cantidad:    document.getElementById('mCantidad')?.value || '',
-      material:    document.getElementById('mMaterial')?.value.trim() || '',
-      dimensiones: document.getElementById('mDimensiones')?.value.trim() || '',
-      notas:       document.getElementById('mNotas')?.value.trim() || ''
-    }
+  if(hoja === 'moldes') return { ...base,
+    cantidad:    document.getElementById('mCantidad')?.value || '',
+    material:    document.getElementById('mMaterial')?.value.trim() || '',
+    dimensiones: document.getElementById('mDimensiones')?.value.trim() || '',
+    notas:       document.getElementById('mNotas')?.value.trim() || ''
   }
 
   return base
 }
 
 // ─────────────────────────────────────────────
-// SUBIR FOTO
+// SUBIR FOTO DESDE TARJETA
 // ─────────────────────────────────────────────
 
 function subirFotoItem(hoja, id, nombre){
@@ -476,10 +546,8 @@ function subirFotoItem(hoja, id, nombre){
   input.onchange = async (e) => {
     const file = e.target.files[0]
     if(!file) return
-
     toast('⏳ Subiendo foto...', '')
     const b64 = await fileToBase64(file)
-
     try {
       const sesion = getSesion()
       const res  = await fetch(API, {
@@ -487,16 +555,9 @@ function subirFotoItem(hoja, id, nombre){
         body: JSON.stringify({ action: 'subirFoto', hoja, id, b64, nombre: nombre + '_' + Date.now(), token: sesion.token })
       })
       const data = await res.json()
-      if(data.ok){
-        delete cache[hoja]
-        await cargarSeccion(hoja)
-        toast('✅ Foto subida correctamente', 'ok')
-      } else {
-        toast('❌ Error al subir foto', 'err')
-      }
-    } catch(e) {
-      toast('❌ Error de conexión', 'err')
-    }
+      if(data.ok){ delete cache[hoja]; await cargarSeccion(hoja); toast('✅ Foto actualizada', 'ok') }
+      else toast('❌ Error al subir foto', 'err')
+    } catch(e) { toast('❌ Error de conexión', 'err') }
   }
   input.click()
 }
@@ -525,11 +586,9 @@ async function togglePublicado(hoja, id, publicadoActual){
     if(data.ok){
       delete cache[hoja]
       await cargarSeccion(hoja)
-      toast(nuevoValor === 'true' ? '✅ Publicado' : '👁 Ocultado', 'ok')
+      toast(nuevoValor === 'true' ? '✅ Publicado en la web' : '👁 Ocultado de la web', 'ok')
     }
-  } catch(e) {
-    toast('❌ Error', 'err')
-  }
+  } catch(e) { toast('❌ Error', 'err') }
 }
 
 // ─────────────────────────────────────────────
@@ -537,7 +596,7 @@ async function togglePublicado(hoja, id, publicadoActual){
 // ─────────────────────────────────────────────
 
 async function borrarItem(hoja, id){
-  if(!confirm('¿Seguro que querés borrar este ítem? No se puede deshacer.')) return
+  if(!confirm('¿Seguro que querés eliminar este ítem? No se puede deshacer.')) return
   try {
     const sesion = getSesion()
     const res  = await fetch(API, {
@@ -545,14 +604,8 @@ async function borrarItem(hoja, id){
       body: JSON.stringify({ action: 'eliminar', hoja, id, token: sesion.token })
     })
     const data = await res.json()
-    if(data.ok){
-      delete cache[hoja]
-      await cargarSeccion(hoja)
-      toast('🗑 Eliminado', 'ok')
-    }
-  } catch(e) {
-    toast('❌ Error', 'err')
-  }
+    if(data.ok){ delete cache[hoja]; await cargarSeccion(hoja); toast('🗑 Eliminado', 'ok') }
+  } catch(e) { toast('❌ Error', 'err') }
 }
 
 // ─────────────────────────────────────────────
@@ -563,19 +616,15 @@ let tabUsuarioActual = 'pendientes'
 let usuariosData     = []
 
 async function cargarUsuarios(){
-  const loading = document.getElementById('loading-usuarios')
-  loading.style.display = 'block'
-
+  document.getElementById('loading-usuarios').style.display = 'block'
   try {
     const sesion = getSesion()
-    const res  = await fetch(`${API}?action=getUsuarios&token=${sesion.token}`)
+    const res  = await fetch(`${API}?action=getUsuarios&token=${encodeURIComponent(sesion.token)}`)
     const data = await res.json()
     usuariosData = data.data || []
     renderUsuarios()
-  } catch(e) {
-    toast('❌ Error al cargar usuarios', 'err')
-  }
-  loading.style.display = 'none'
+  } catch(e) { toast('❌ Error al cargar usuarios', 'err') }
+  document.getElementById('loading-usuarios').style.display = 'none'
 }
 
 function setUsuarioTab(tab){
@@ -586,32 +635,25 @@ function setUsuarioTab(tab){
 }
 
 function renderUsuarios(){
-  const lista = document.getElementById('lista-usuarios')
-  lista.innerHTML = ''
-
-  const pendientes  = usuariosData.filter(u => u.estado === 'pendiente')
-  const activos     = usuariosData.filter(u => u.estado === 'activo')
-  const rechazados  = usuariosData.filter(u => u.estado === 'rechazado')
+  const lista      = document.getElementById('lista-usuarios')
+  const pendientes = usuariosData.filter(u => u.estado === 'pendiente')
+  const activos    = usuariosData.filter(u => u.estado === 'activo')
+  const rechazados = usuariosData.filter(u => u.estado === 'rechazado')
 
   document.getElementById('cnt-pendientes').innerText = pendientes.length
   document.getElementById('cnt-activos').innerText    = activos.length
   document.getElementById('cnt-rechazados').innerText = rechazados.length
 
-  // Badge en sidebar
   const badge = document.getElementById('badgePendientes')
   badge.style.display = pendientes.length > 0 ? 'inline' : 'none'
   badge.innerText = pendientes.length
 
+  lista.innerHTML = ''
   const filtrados = tabUsuarioActual === 'pendientes' ? pendientes
-                  : tabUsuarioActual === 'activos'    ? activos
-                  : rechazados
+                  : tabUsuarioActual === 'activos'    ? activos : rechazados
 
   if(filtrados.length === 0){
-    lista.innerHTML = `
-      <div class="vacio">
-        <i class="fa-solid fa-users"></i>
-        <p>No hay usuarios en esta categoría</p>
-      </div>`
+    lista.innerHTML = `<div class="vacio"><i class="fa-solid fa-users"></i><p>No hay usuarios en esta categoría</p></div>`
     return
   }
 
@@ -629,11 +671,9 @@ function renderUsuarios(){
         <span class="estado-badge ${u.estado}">${u.estado}</span>
         ${u.estado === 'pendiente' ? `
           <button class="btn-aprobar" onclick="gestionarUsuario('${u.id}','aprobar')">✓ Aprobar</button>
-          <button class="btn-rechazar" onclick="gestionarUsuario('${u.id}','rechazar')">✗ Rechazar</button>
-        ` : ''}
+          <button class="btn-rechazar" onclick="gestionarUsuario('${u.id}','rechazar')">✗ Rechazar</button>` : ''}
         ${u.estado === 'rechazado' ? `
-          <button class="btn-aprobar" onclick="gestionarUsuario('${u.id}','aprobar')">✓ Aprobar</button>
-        ` : ''}
+          <button class="btn-aprobar" onclick="gestionarUsuario('${u.id}','aprobar')">✓ Aprobar</button>` : ''}
       </div>
     `
     lista.appendChild(card)
@@ -647,18 +687,12 @@ async function gestionarUsuario(id, accion){
       method: 'POST',
       body: JSON.stringify({
         action: accion === 'aprobar' ? 'aprobarUsuario' : 'rechazarUsuario',
-        id,
-        token: sesion.token
+        id, token: sesion.token
       })
     })
     const data = await res.json()
-    if(data.ok){
-      await cargarUsuarios()
-      toast(accion === 'aprobar' ? '✅ Usuario aprobado' : '✗ Usuario rechazado', 'ok')
-    }
-  } catch(e) {
-    toast('❌ Error', 'err')
-  }
+    if(data.ok){ await cargarUsuarios(); toast(accion === 'aprobar' ? '✅ Usuario aprobado' : '✗ Rechazado', 'ok') }
+  } catch(e) { toast('❌ Error', 'err') }
 }
 
 // ─────────────────────────────────────────────
