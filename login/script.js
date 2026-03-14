@@ -140,10 +140,12 @@ async function registrarse(){
 
 function guardarSesion(data){
   sessionStorage.setItem('yca_sesion', JSON.stringify({
-    rol:    data.rol,
-    token:  data.token,
-    nombre: data.nombre,
-    id:     data.id || null
+    rol:         data.rol,
+    token:       data.token,
+    nombre:      data.nombre,
+    id:          data.id || null,
+    curso:       data.curso || '',
+    cursoNombre: data.cursoNombre || data.curso || ''
   }))
 }
 
