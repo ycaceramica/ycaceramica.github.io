@@ -1396,23 +1396,34 @@ async function guardarMultimedia(){
   btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar'
 }
 
-async function borrarMultimedia(id){
-  const item     = multimediaData.find(m => m.id === id)
+let borrarMultimediaId = null
+
+function abrirModalBorrar(id){
+  const item      = multimediaData.find(m => m.id === id)
+  borrarMultimediaId = id
+
+  const modal    = document.getElementById('modalBorrarMultimedia')
   const tieneFoto = item?.foto && item.tipo === 'foto'
 
-  let borrarDrive = false
+  // Si no tiene foto, mostrar solo opción de eliminar de la web
+  document.getElementById('btnBorrarConDrive').style.display = tieneFoto ? 'flex' : 'none'
+  document.querySelector('#modalBorrarMultimedia h3').innerText = tieneFoto ? '🗑 Eliminar foto' : '🗑 Eliminar video'
 
-  if(tieneFoto){
-    const opcion = confirm(
-      '¿Qué querés eliminar?\n\n' +
-      '• OK = Eliminar de la web Y del Drive\n' +
-      '• Cancelar = Solo eliminar de la web'
-    )
-    borrarDrive = opcion
-  } else {
-    if(!confirm('¿Eliminar este item de multimedia?')) return
-  }
+  document.getElementById('btnBorrarConDrive').onclick = () => ejecutarBorrar(id, true)
+  document.getElementById('btnBorrarSoloWeb').onclick  = () => ejecutarBorrar(id, false)
 
+  modal.style.display = 'flex'
+}
+
+function cerrarModalBorrar(e){
+  if(e && e.target !== document.getElementById('modalBorrarMultimedia')) return
+  document.getElementById('modalBorrarMultimedia').style.display = 'none'
+  borrarMultimediaId = null
+}
+
+async function ejecutarBorrar(id, borrarDrive){
+  cerrarModalBorrar()
+  const item = multimediaData.find(m => m.id === id)
   try {
     const sesion = getSesion()
     const action = borrarDrive ? 'eliminarConFoto' : 'eliminar'
@@ -1433,6 +1444,10 @@ async function borrarMultimedia(id){
       toast(borrarDrive ? '🗑 Eliminado de la web y del Drive' : '🗑 Eliminado de la web', 'ok')
     }
   } catch(e) { toast('❌ Error', 'err') }
+}
+
+async function borrarMultimedia(id){
+  abrirModalBorrar(id)
 }
 
 // ─────────────────────────────────────────────
