@@ -65,6 +65,9 @@
 
       <div class="sidebar-seccion">
         <span class="sidebar-label">Alumnos</span>
+        <button class="sidebar-item" onclick="setSeccion('cursos')" id="nav-cursos">
+          <i class="fa-solid fa-chalkboard-teacher"></i> Cursos
+        </button>
         <button class="sidebar-item" onclick="setSeccion('usuarios')" id="nav-usuarios">
           <i class="fa-solid fa-users"></i> Usuarios
           <span class="badge-pendientes" id="badgePendientes" style="display:none">0</span>
@@ -124,6 +127,18 @@
         </div>
         <div class="items-grid" id="grid-moldes"></div>
         <div class="loading" id="loading-moldes" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
+
+      <!-- CURSOS -->
+      <div class="seccion" id="seccion-cursos" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>🎓 Cursos</h2>
+            <p>Gestioná el estado de cada curso — los cambios se reflejan en la web pública</p>
+          </div>
+        </div>
+        <div class="cursos-admin-lista" id="lista-cursos"></div>
+        <div class="loading" id="loading-cursos" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
       </div>
 
       <!-- USUARIOS -->
