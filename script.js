@@ -88,3 +88,41 @@ window.addEventListener("scroll", () => {
     scrollIndicator.classList.remove("oculto")
   }
 })
+
+// ─────────────────────────────────────────────
+// GALERÍA DINÁMICA
+// ─────────────────────────────────────────────
+
+const API_GALERIA = "https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec"
+
+async function cargarGaleria(){
+  const grid = document.getElementById("galeriaGrid")
+  if(!grid) return
+
+  try {
+    const res   = await fetch(`${API_GALERIA}?action=getGaleria`)
+    const data  = await res.json()
+    const slots = (data.data || []).filter(s => s.foto)
+
+    if(slots.length === 0) return // mantener placeholders si no hay fotos
+
+    grid.innerHTML = ''
+    const ordenados = [1,2,3,4].map(n =>
+      slots.find(s => String(s.slot) === String(n) || s.id === 'GAL-' + n)
+    ).filter(Boolean)
+
+    ordenados.forEach(slot => {
+      const img = document.createElement('img')
+      img.src     = slot.foto
+      img.alt     = slot.alt || 'Foto de galería YCA Cerámica'
+      img.loading = 'lazy'
+      img.onerror = () => img.style.display = 'none'
+      grid.appendChild(img)
+    })
+
+  } catch(e) {
+    // Si falla silenciosamente — los placeholders se quedan
+  }
+}
+
+cargarGaleria()
