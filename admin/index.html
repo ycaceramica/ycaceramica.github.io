@@ -61,6 +61,11 @@
         <button class="sidebar-item" onclick="setSeccion('moldes')" id="nav-moldes">
           <i class="fa-solid fa-layer-group"></i> Moldes
         </button>
+        <!-- Inventarios dinámicos -->
+        <div id="inventariosSidebar"></div>
+        <button class="sidebar-item sidebar-item-nuevo" onclick="abrirModalInventario()">
+          <i class="fa-solid fa-plus"></i> Nuevo inventario
+        </button>
       </div>
 
       <div class="sidebar-seccion">
@@ -196,6 +201,37 @@
         <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
         <button class="btn-guardar-modal" id="btnGuardarModal" onclick="guardarModal()">
           <i class="fa-solid fa-floppy-disk"></i> Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NUEVO INVENTARIO -->
+  <div class="modal-overlay" id="modalInventario" style="display:none" onclick="cerrarModalInventario(event)">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>📦 Nuevo inventario privado</h3>
+        <button class="modal-cerrar" onclick="cerrarModalInventario()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="mform-grupo">
+          <label>Nombre del inventario *</label>
+          <input id="invNombre" placeholder="Ej: Herramientas, Pigmentos, Stock...">
+        </div>
+        <div class="mform-grupo">
+          <label>Código de referencia <small style="opacity:0.5;font-weight:400">(se genera automático, podés editarlo)</small></label>
+          <input id="invPrefijo" placeholder="Ej: HER, PIG, STK" maxlength="4" style="text-transform:uppercase">
+        </div>
+        <div style="background:var(--color-fondo);border-radius:10px;padding:12px 14px;font-size:13px;opacity:0.7;line-height:1.6">
+          💡 Los items de este inventario tendrán códigos como <strong id="invPreviewCodigo">HER-001</strong>, <strong id="invPreviewCodigo2">HER-002</strong>...
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="cerrarModalInventario()">Cancelar</button>
+        <button class="btn-guardar-modal" onclick="crearInventario()">
+          <i class="fa-solid fa-plus"></i> Crear inventario
         </button>
       </div>
     </div>
