@@ -388,3 +388,18 @@ footer{
 .boton-blanco:hover{
   background: var(--color-fondo) !important;
 }
+
+/* ── GALERÍA PLACEHOLDER ── */
+
+.galeria-placeholder{
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--color-fondo);
+  border-radius: 12px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse{
+  0%, 100%{ opacity: 0.4; }
+  50%{ opacity: 0.7; }
+}
