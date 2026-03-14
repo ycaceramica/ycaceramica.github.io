@@ -1353,7 +1353,7 @@ async function guardarMultimedia(){
     return
   }
 
-  // Es foto — primero guardar el item, después subir foto
+  // Es foto — esperar subida antes de cerrar
   const btn = document.querySelector('#modalMultimedia .btn-guardar-modal')
   btn.classList.add('cargando')
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'
@@ -1373,26 +1373,22 @@ async function guardarMultimedia(){
     const data = await res.json()
     if(!data.ok){ toast('❌ Error al guardar', 'err'); btn.classList.remove('cargando'); btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar'; return }
 
-    cerrarModalMultimedia()
-    multimediaData = []
-    await cargarMultimedia()
-    toast('✅ Guardado — subiendo foto...', 'ok')
-
-    // 2. Subir foto en segundo plano
-    fetch(API, {
+    // 2. Subir foto y esperar
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo foto...'
+    const resF = await fetch(API, {
       method: 'POST',
       body: JSON.stringify({
         action: 'subirFoto', hoja: 'multimedia', id,
         b64: fotoMultimediaB64, nombre: 'multimedia_' + id,
         token: sesion.token
       })
-    }).then(r => r.json()).then(d => {
-      if(d.ok){
-        multimediaData = []
-        cargarMultimedia()
-        toast('✅ Foto subida correctamente', 'ok')
-      }
     })
+    const dataF = await resF.json()
+
+    cerrarModalMultimedia()
+    multimediaData = []
+    await cargarMultimedia()
+    toast(dataF.ok ? '✅ Foto agregada correctamente' : '⚠️ Guardado pero error al subir foto', dataF.ok ? 'ok' : 'err')
 
   } catch(e) { toast('❌ Error de conexión', 'err') }
 
@@ -1401,15 +1397,41 @@ async function guardarMultimedia(){
 }
 
 async function borrarMultimedia(id){
-  if(!confirm('¿Eliminar este item de multimedia?')) return
+  const item     = multimediaData.find(m => m.id === id)
+  const tieneFoto = item?.foto && item.tipo === 'foto'
+
+  let borrarDrive = false
+
+  if(tieneFoto){
+    const opcion = confirm(
+      '¿Qué querés eliminar?\n\n' +
+      '• OK = Eliminar de la web Y del Drive\n' +
+      '• Cancelar = Solo eliminar de la web'
+    )
+    borrarDrive = opcion
+  } else {
+    if(!confirm('¿Eliminar este item de multimedia?')) return
+  }
+
   try {
     const sesion = getSesion()
+    const action = borrarDrive ? 'eliminarConFoto' : 'eliminar'
     const res    = await fetch(API, {
       method: 'POST',
-      body: JSON.stringify({ action: 'eliminar', hoja: 'multimedia', id, token: sesion.token })
+      body: JSON.stringify({
+        action,
+        hoja:    'multimedia',
+        id,
+        fotoUrl: item?.foto || '',
+        token:   sesion.token
+      })
     })
     const data = await res.json()
-    if(data.ok){ multimediaData = []; await cargarMultimedia(); toast('🗑 Eliminado', 'ok') }
+    if(data.ok){
+      multimediaData = []
+      await cargarMultimedia()
+      toast(borrarDrive ? '🗑 Eliminado de la web y del Drive' : '🗑 Eliminado de la web', 'ok')
+    }
   } catch(e) { toast('❌ Error', 'err') }
 }
 
