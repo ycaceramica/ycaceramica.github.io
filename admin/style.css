@@ -194,6 +194,18 @@ footer{
   margin-left: auto;
 }
 
+.sidebar-item-nuevo{
+  opacity: 0.5;
+  border: 1.5px dashed rgba(139,111,86,0.4);
+  font-size: 13px;
+}
+
+.sidebar-item-nuevo:hover{
+  opacity: 1;
+  background: var(--color-fondo);
+  border-color: var(--color-primario);
+}
+
 /* ── OVERLAY — solo mobile ── */
 
 .sidebar-overlay{
