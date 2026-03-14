@@ -65,3 +65,45 @@ function filtrar(estado){
   document.getElementById("sinResultados").style.display = visibles === 0 ? "flex" : "none"
   document.getElementById("cursosGrid").style.display    = visibles === 0 ? "none" : "grid"
 }
+
+// ─────────────────────────────────────────────
+// SINCRONIZAR ESTADO DESDE APPS SCRIPT
+// Actualiza el data-estado de cada tarjeta
+// según lo que está guardado en Sheets
+// ─────────────────────────────────────────────
+
+const API_CURSOS = "https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec"
+
+async function sincronizarEstadoCursos(){
+  try {
+    const res  = await fetch(`${API_CURSOS}?action=getCursos`)
+    const data = await res.json()
+    const cursos = data.data || []
+
+    cursos.forEach(curso => {
+      // Buscar tarjeta por hojaId
+      const tarjeta = document.querySelector(`.curso-tarjeta[data-hoja="${curso.hojaId}"]`)
+      if(!tarjeta) return
+
+      const estadoAnterior = tarjeta.dataset.estado
+      const estadoNuevo    = curso.estado || 'proximamente'
+
+      if(estadoAnterior === estadoNuevo) return
+
+      // Actualizar data-estado
+      tarjeta.dataset.estado = estadoNuevo
+
+      // Actualizar badge
+      const badge = tarjeta.querySelector('.curso-estado-badge')
+      if(badge){
+        badge.className = `curso-estado-badge ${estadoNuevo}`
+        const labels = { activo: 'Activo', proximamente: 'Próximamente', finalizado: 'Finalizado' }
+        badge.innerText = labels[estadoNuevo] || estadoNuevo
+      }
+    })
+  } catch(e) {
+    // Silencioso — si falla, los estados hardcodeados siguen funcionando
+  }
+}
+
+sincronizarEstadoCursos()
