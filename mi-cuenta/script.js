@@ -90,12 +90,18 @@ window.addEventListener('DOMContentLoaded', async () => {
     height: 56px !important;
     min-width: 56px !important;
     min-height: 56px !important;
+    max-width: 56px !important;
+    max-height: 56px !important;
     border-radius: 50% !important;
-    aspect-ratio: 1/1 !important;
     flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    flex-basis: 56px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    overflow: hidden !important;
+    line-height: 1 !important;
+    padding: 0 !important;
   `
 
   document.getElementById('cuentaNombre').innerText = `Hola, ${nombre} 👋`
