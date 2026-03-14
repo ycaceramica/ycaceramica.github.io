@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Cuenta — YCA Cerámica</title>
+
+  <link rel="icon" type="image/png" href="../imagenes/logo.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+<body>
+
+  <!-- BARRA -->
+  <header class="header">
+    <div class="header-container">
+      <div class="logo">
+        <a href="../index.html">
+          <img src="../imagenes/logo.png" alt="YCA Cerámica" style="height:38px;width:38px;border-radius:50%;vertical-align:middle;margin-right:8px;">YCA Cerámica
+        </a>
+      </div>
+      <nav class="nav" id="nav">
+        <a href="../index.html">Inicio</a>
+        <a href="../index.html#productos">Productos</a>
+        <a href="../herramientas/index.html">Herramientas</a>
+        <a href="../cursos/index.html">Cursos y Talleres</a>
+        <a href="../index.html#galeria">Galería</a>
+        <a href="../index.html#contacto">Contacto</a>
+        <button id="toggleDark">🌙</button>
+      </nav>
+      <span class="hamburguesa" id="hamburguesa">☰</span>
+    </div>
+  </header>
+
+  <div class="cuenta-wrapper">
+
+    <!-- HEADER DE BIENVENIDA -->
+    <div class="cuenta-header">
+      <div class="cuenta-avatar" id="cuentaAvatar">?</div>
+      <div>
+        <h1 id="cuentaNombre">Cargando...</h1>
+        <p id="cuentaCurso">Mi curso</p>
+      </div>
+      <button class="btn-salir" onclick="cerrarSesion()">
+        <i class="fa-solid fa-right-from-bracket"></i> Salir
+      </button>
+    </div>
+
+    <!-- TABS -->
+    <div class="cuenta-tabs">
+      <button class="ctab activo" onclick="setTab('apuntes')" id="ctab-apuntes">
+        <i class="fa-solid fa-book-open"></i> Apuntes
+      </button>
+      <button class="ctab" onclick="setTab('materiales')" id="ctab-materiales">
+        <i class="fa-solid fa-file-pdf"></i> Materiales
+      </button>
+    </div>
+
+    <!-- APUNTES -->
+    <div class="cuenta-seccion" id="sec-apuntes">
+      <div class="apuntes-grid" id="apuntesGrid">
+        <div class="cuenta-loading">
+          <i class="fa-solid fa-spinner fa-spin"></i> Cargando apuntes...
+        </div>
+      </div>
+    </div>
+
+    <!-- MATERIALES -->
+    <div class="cuenta-seccion" id="sec-materiales" style="display:none">
+      <div class="materiales-lista" id="materialesLista">
+        <div class="cuenta-loading">
+          <i class="fa-solid fa-spinner fa-spin"></i> Cargando materiales...
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>© 2026 YCA Cerámica</p>
+  </footer>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
