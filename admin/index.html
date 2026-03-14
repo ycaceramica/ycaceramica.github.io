@@ -54,6 +54,9 @@
         <button class="sidebar-item" onclick="setSeccion('insumos')" id="nav-insumos">
           <i class="fa-solid fa-flask"></i> Insumos
         </button>
+        <button class="sidebar-item" onclick="setSeccion('galeria')" id="nav-galeria">
+          <i class="fa-solid fa-images"></i> Galería
+        </button>
       </div>
 
       <div class="sidebar-seccion">
@@ -88,6 +91,20 @@
     <main class="admin-main" id="adminMain">
 
       <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+      <!-- GALERÍA -->
+      <div class="seccion" id="seccion-galeria" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>🖼️ Galería</h2>
+            <p>4 fotos que aparecen en la página principal · Tamaño recomendado: 1200x675px (16:9) · JPG · máx 500kb</p>
+          </div>
+        </div>
+        <div class="galeria-admin-grid" id="grid-galeria"></div>
+        <div class="loading" id="loading-galeria" style="display:none">
+          <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+        </div>
+      </div>
 
       <!-- PIEZAS -->
       <div class="seccion" id="seccion-piezas">
