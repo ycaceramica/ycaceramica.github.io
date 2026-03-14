@@ -97,6 +97,7 @@ function limpiarCache(){
 
 async function cargarSeccion(nombre){
   if(nombre === 'usuarios'){ await cargarUsuarios(); return }
+  if(nombre === 'cursos')  { await cargarCursos();   return }
 
   const grid    = document.getElementById('grid-' + nombre)
   const loading = document.getElementById('loading-' + nombre)
@@ -609,6 +610,20 @@ async function borrarItem(hoja, id){
 }
 
 // ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+
+function formatearFecha(str){
+  if(!str) return ''
+  // Si es fecha ISO (2026-03-14T03:00:00.000Z)
+  if(String(str).includes('T')){
+    const d = new Date(str)
+    return d.toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' })
+  }
+  return str
+}
+
+// ─────────────────────────────────────────────
 // USUARIOS
 // ─────────────────────────────────────────────
 
@@ -619,8 +634,8 @@ async function cargarUsuarios(){
   document.getElementById('loading-usuarios').style.display = 'block'
   try {
     const sesion = getSesion()
-    const res  = await fetch(`${API}?action=getUsuarios&token=${encodeURIComponent(sesion.token)}`)
-    const data = await res.json()
+    const res    = await fetch(`${API}?action=getUsuarios&token=${encodeURIComponent(sesion.token)}`)
+    const data   = await res.json()
     usuariosData = data.data || []
     renderUsuarios()
   } catch(e) { toast('❌ Error al cargar usuarios', 'err') }
@@ -638,7 +653,7 @@ function renderUsuarios(){
   const lista      = document.getElementById('lista-usuarios')
   const pendientes = usuariosData.filter(u => u.estado === 'pendiente')
   const activos    = usuariosData.filter(u => u.estado === 'activo')
-  const rechazados = usuariosData.filter(u => u.estado === 'rechazado')
+  const rechazados = usuariosData.filter(u => u.estado === 'rechazado' || u.estado === 'pausado')
 
   document.getElementById('cnt-pendientes').innerText = pendientes.length
   document.getElementById('cnt-activos').innerText    = activos.length
@@ -659,39 +674,156 @@ function renderUsuarios(){
 
   filtrados.forEach(u => {
     const inicial = (u.nombre || '?')[0].toUpperCase()
+    const fecha   = formatearFecha(u.fechaRegistro)
     const card    = document.createElement('div')
     card.className = 'usuario-card'
+
+    let botones = `<span class="estado-badge ${u.estado}">${u.estado}</span>`
+
+    if(u.estado === 'pendiente'){
+      botones += `
+        <button class="btn-aprobar"  onclick="gestionarUsuario('${u.id}','aprobar')"><i class="fa-solid fa-check"></i> Aprobar</button>
+        <button class="btn-rechazar" onclick="gestionarUsuario('${u.id}','rechazar')"><i class="fa-solid fa-xmark"></i> Rechazar</button>
+        <button class="btn-eliminar-usr" onclick="eliminarUsuario('${u.id}')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+      `
+    } else if(u.estado === 'activo'){
+      botones += `
+        <button class="btn-pausar"   onclick="gestionarUsuario('${u.id}','pausar')"><i class="fa-solid fa-pause"></i> Pausar</button>
+        <button class="btn-rechazar" onclick="gestionarUsuario('${u.id}','rechazar')"><i class="fa-solid fa-xmark"></i> Revocar</button>
+        <button class="btn-eliminar-usr" onclick="eliminarUsuario('${u.id}')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+      `
+    } else {
+      botones += `
+        <button class="btn-reactivar" onclick="gestionarUsuario('${u.id}','aprobar')"><i class="fa-solid fa-rotate-left"></i> Reactivar</button>
+        <button class="btn-eliminar-usr" onclick="eliminarUsuario('${u.id}')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+      `
+    }
+
     card.innerHTML = `
       <div class="usuario-avatar">${inicial}</div>
       <div class="usuario-info">
         <div class="usuario-nombre">${u.nombre || ''}</div>
-        <div class="usuario-meta">${u.email || ''} · ${u.curso || 'Sin curso'} · ${u.fechaRegistro || ''}</div>
+        <div class="usuario-meta">${u.email || ''} · ${u.curso || 'Sin curso'} · ${fecha}</div>
       </div>
-      <div class="usuario-acciones">
-        <span class="estado-badge ${u.estado}">${u.estado}</span>
-        ${u.estado === 'pendiente' ? `
-          <button class="btn-aprobar" onclick="gestionarUsuario('${u.id}','aprobar')">✓ Aprobar</button>
-          <button class="btn-rechazar" onclick="gestionarUsuario('${u.id}','rechazar')">✗ Rechazar</button>` : ''}
-        ${u.estado === 'rechazado' ? `
-          <button class="btn-aprobar" onclick="gestionarUsuario('${u.id}','aprobar')">✓ Aprobar</button>` : ''}
-      </div>
+      <div class="usuario-acciones">${botones}</div>
     `
     lista.appendChild(card)
   })
 }
 
 async function gestionarUsuario(id, accion){
+  const acciones = {
+    aprobar:  'aprobarUsuario',
+    rechazar: 'rechazarUsuario',
+    pausar:   'pausarUsuario'
+  }
   try {
     const sesion = getSesion()
-    const res  = await fetch(API, {
+    const res    = await fetch(API, {
       method: 'POST',
-      body: JSON.stringify({
-        action: accion === 'aprobar' ? 'aprobarUsuario' : 'rechazarUsuario',
-        id, token: sesion.token
-      })
+      body: JSON.stringify({ action: acciones[accion], id, token: sesion.token })
     })
     const data = await res.json()
-    if(data.ok){ await cargarUsuarios(); toast(accion === 'aprobar' ? '✅ Usuario aprobado' : '✗ Rechazado', 'ok') }
+    if(data.ok){
+      await cargarUsuarios()
+      const msgs = { aprobar: '✅ Usuario aprobado', rechazar: '✗ Acceso revocado', pausar: '⏸ Usuario pausado' }
+      toast(msgs[accion], 'ok')
+    }
+  } catch(e) { toast('❌ Error', 'err') }
+}
+
+async function eliminarUsuario(id){
+  if(!confirm('¿Eliminar este usuario? Perderá el acceso y no podrá recuperar su cuenta.')) return
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'eliminarUsuario', id, token: sesion.token })
+    })
+    const data = await res.json()
+    if(data.ok){ await cargarUsuarios(); toast('🗑 Usuario eliminado', 'ok') }
+  } catch(e) { toast('❌ Error', 'err') }
+}
+
+// ─────────────────────────────────────────────
+// CURSOS
+// ─────────────────────────────────────────────
+
+let cursosData = []
+
+async function cargarCursos(){
+  const lista   = document.getElementById('lista-cursos')
+  const loading = document.getElementById('loading-cursos')
+  loading.style.display = 'block'
+  lista.innerHTML = ''
+
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(`${API}?action=getCursosAdmin&token=${encodeURIComponent(sesion.token)}`)
+    const data   = await res.json()
+    cursosData   = data.data || []
+    renderCursos()
+  } catch(e) { toast('❌ Error al cargar cursos', 'err') }
+  loading.style.display = 'none'
+}
+
+function renderCursos(){
+  const lista = document.getElementById('lista-cursos')
+  lista.innerHTML = ''
+
+  if(cursosData.length === 0){
+    lista.innerHTML = `<div class="vacio"><i class="fa-solid fa-chalkboard-teacher"></i><p>No hay cursos cargados todavía</p></div>`
+    return
+  }
+
+  cursosData.forEach(c => {
+    const estados = ['proximamente','activo','finalizado']
+    const labels  = { proximamente: '🟡 Próximamente', activo: '🟢 Activo', finalizado: '🔴 Finalizado' }
+    const estadoActual = c.estado || 'proximamente'
+
+    const botonesEstado = estados.map(est => `
+      <button
+        class="btn-estado-curso sel-${est} ${estadoActual === est ? 'activo' : ''}"
+        onclick="cambiarEstadoCurso('${c.id}', '${est}', this)">
+        ${labels[est]}
+      </button>
+    `).join('')
+
+    const card = document.createElement('div')
+    card.className = 'curso-admin-card'
+    card.id = 'curso-card-' + c.id
+    card.innerHTML = `
+      <div class="curso-admin-info">
+        <div class="curso-admin-nombre">${c.nombre || ''}</div>
+        <div class="curso-admin-meta">${c.dia || ''} ${c.horario || ''} · ${c.duracion || ''}</div>
+      </div>
+      <div class="curso-estado-selector">${botonesEstado}</div>
+    `
+    lista.appendChild(card)
+  })
+}
+
+async function cambiarEstadoCurso(id, nuevoEstado, btn){
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'actualizarEstadoCurso', id, estado: nuevoEstado, token: sesion.token })
+    })
+    const data = await res.json()
+    if(data.ok){
+      // Actualizar botones visualmente sin recargar todo
+      const card = btn.closest('.curso-admin-card')
+      card.querySelectorAll('.btn-estado-curso').forEach(b => b.classList.remove('activo'))
+      btn.classList.add('activo')
+
+      // Actualizar en cursosData
+      const curso = cursosData.find(c => c.id === id)
+      if(curso) curso.estado = nuevoEstado
+
+      const labels = { proximamente: 'Próximamente', activo: 'Activo', finalizado: 'Finalizado' }
+      toast(`✅ Curso marcado como: ${labels[nuevoEstado]}`, 'ok')
+    }
   } catch(e) { toast('❌ Error', 'err') }
 }
 
