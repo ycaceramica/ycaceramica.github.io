@@ -2,14 +2,8 @@
 // CONFIGURACIÓN
 // ─────────────────────────────────────────────
 
-const SHEET_URL = "https://sheetdb.io/api/v1/wm831yco2elqu?sheet=Publicadas"
-const WHATSAPP  = "5491160387535"
-
-// ¿Mostrar precios en la web?
-// Cambiá a true cuando quieras mostrarlos
-const MOSTRAR_PRECIO = false
-
-
+const API      = "https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec"
+const WHATSAPP = "5491160387535"
 
 // ─────────────────────────────────────────────
 // MODO OSCURO
@@ -36,8 +30,6 @@ if(toggleDark){
   })
 }
 
-
-
 // ─────────────────────────────────────────────
 // MENU HAMBURGUESA
 // ─────────────────────────────────────────────
@@ -57,10 +49,10 @@ window.addEventListener("scroll", () => {
   if(nav) nav.classList.remove("active")
 })
 
-
-
 // ─────────────────────────────────────────────
 // CREAR TARJETA
+// Solo muestra: foto, nombre, categoría, tipo, descripción
+// Precio, cantidad, stock solo en el admin
 // ─────────────────────────────────────────────
 
 function crearTarjeta(insumo){
@@ -72,19 +64,8 @@ function crearTarjeta(insumo){
   card.dataset.categoria = insumo.categoria || "Sin categoría"
 
   const fotoHTML = insumo.foto
-    ? `<img class="pieza-foto" src="${insumo.foto}" alt="${insumo.nombre}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-    : ""
-
-  const tipoHTML = insumo.tipo
-    ? `<p class="pieza-tipo">${insumo.tipo}</p>`
-    : ""
-
-  const unidadHTML = insumo.unidad
-    ? `<p class="pieza-unidad">📦 Se vende por: ${insumo.unidad}</p>`
-    : ""
-
-  const precioHTML = MOSTRAR_PRECIO && insumo.precio
-    ? `<p class="pieza-precio">$${Number(insumo.precio).toLocaleString("es-AR")}</p>`
+    ? `<img class="pieza-foto" src="${insumo.foto}" alt="${insumo.nombre}" loading="lazy"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
     : ""
 
   card.innerHTML = `
@@ -93,10 +74,8 @@ function crearTarjeta(insumo){
     <div class="pieza-info">
       ${insumo.categoria ? `<div class="pieza-categoria">${insumo.categoria}</div>` : ""}
       <h3 class="pieza-nombre">${insumo.nombre}</h3>
-      ${tipoHTML}
+      ${insumo.tipo ? `<p class="pieza-tipo">${insumo.tipo}</p>` : ""}
       ${insumo.descripcion ? `<p class="pieza-descripcion">${insumo.descripcion}</p>` : ""}
-      ${unidadHTML}
-      ${precioHTML}
       <a class="pieza-btn" href="${linkWA}" target="_blank">
         Consultar disponibilidad
       </a>
@@ -105,8 +84,6 @@ function crearTarjeta(insumo){
 
   return card
 }
-
-
 
 // ─────────────────────────────────────────────
 // FILTROS
@@ -126,14 +103,14 @@ function armarFiltros(insumos){
   })
 
   document.querySelector(".filtro[data-categoria='todas']")
-    .addEventListener("click", () => filtrar("todas"))
+    ?.addEventListener("click", () => filtrar("todas"))
 }
 
 function filtrar(categoria){
   document.querySelectorAll(".filtro").forEach(b => b.classList.remove("activo"))
   document.querySelector(`.filtro[data-categoria="${categoria}"]`)?.classList.add("activo")
 
-  const cards = document.querySelectorAll(".pieza-card")
+  const cards  = document.querySelectorAll(".pieza-card")
   let visibles = 0
 
   cards.forEach(card => {
@@ -153,10 +130,8 @@ function filtrar(categoria){
   }
 }
 
-
-
 // ─────────────────────────────────────────────
-// CARGAR INSUMOS
+// CARGAR INSUMOS — desde Apps Script
 // ─────────────────────────────────────────────
 
 async function cargarInsumos(){
@@ -164,20 +139,9 @@ async function cargarInsumos(){
   const grid   = document.getElementById("insumosGrid")
 
   try {
-    const res    = await fetch(SHEET_URL)
-    const datos  = await res.json()
-
-    const insumos = datos.map(d => ({
-      foto:       d.Foto        || "",
-      nombre:     d.Nombre      || "",
-      categoria:  d.Categoria   || "",
-      tipo:       d.Tipo        || "",
-      unidad:     d.Unidad      || "",
-      descripcion:d.Descripcion || "",
-      cantidad:   d.Cantidad    || "",
-      precio:     d.Precio      || "",
-      temperatura:d.Temperatura || ""
-    })).filter(p => p.nombre)
+    const res    = await fetch(`${API}?action=getInsumos`)
+    const data   = await res.json()
+    const insumos = (data.data || []).filter(p => p.nombre)
 
     estado.classList.add("oculto")
 
