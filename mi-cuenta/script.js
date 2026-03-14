@@ -66,25 +66,43 @@ function cerrarSesion(){
 // INIT
 // ─────────────────────────────────────────────
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   const sesion = getSesion()
 
-  // Si no está logueado → login
   if(!sesion){
     window.location.href = '../login/index.html'
     return
   }
 
-  // Si es admin → panel admin
   if(sesion.rol === 'admin'){
     window.location.href = '../admin/index.html'
     return
   }
 
-  // Es alumno — mostrar datos
+  // Mostrar nombre y avatar
   const nombre = sesion.nombre || 'Alumno'
-  document.getElementById('cuentaNombre').innerText  = `Hola, ${nombre} 👋`
-  document.getElementById('cuentaAvatar').innerText  = nombre[0].toUpperCase()
+  document.getElementById('cuentaNombre').innerText = `Hola, ${nombre} 👋`
+  document.getElementById('cuentaAvatar').innerText = nombre[0].toUpperCase()
+
+  // Mostrar nombre real del curso
+  const cursoId = sesion.curso || ''
+  if(cursoId){
+    try {
+      const resCursos = await fetch(`${API}?action=getCursos`)
+      const dataCursos = await resCursos.json()
+      const cursos = dataCursos.data || []
+      const cursoReal = cursos.find(c => c.hojaId === cursoId || c.id === cursoId)
+      if(cursoReal){
+        document.getElementById('cuentaCurso').innerText = `🎓 ${cursoReal.nombre}`
+      } else {
+        document.getElementById('cuentaCurso').innerText = `🎓 ${cursoId}`
+      }
+    } catch(e) {
+      document.getElementById('cuentaCurso').innerText = `🎓 ${cursoId}`
+    }
+  } else {
+    document.getElementById('cuentaCurso').innerText = 'Sin curso asignado'
+  }
 
   cargarApuntes(sesion)
 })
@@ -102,26 +120,24 @@ function setTab(tab){
 
 // ─────────────────────────────────────────────
 // CARGAR APUNTES
+// Usa acción pública getApuntesAlumno — no requiere token admin
 // ─────────────────────────────────────────────
 
 async function cargarApuntes(sesion){
   const grid = document.getElementById('apuntesGrid')
 
   try {
-    const res  = await fetch(`${API}?action=getAll&hoja=apuntes&token=${encodeURIComponent(sesion.token)}`)
+    const cursoId = sesion.curso || ''
+
+    // Usar acción pública para alumnos
+    const res  = await fetch(`${API}?action=getApuntesAlumno&curso=${encodeURIComponent(cursoId)}`)
     const data = await res.json()
-    const todos = data.data || []
 
-    // Filtrar por curso del alumno
-    const curso    = sesion.curso || ''
-    const apuntes  = todos.filter(a =>
-      !curso || a.curso === curso || a.curso === 'General' || a.curso === ''
-    )
-
-    // Actualizar subtítulo con el curso
-    if(curso){
-      document.getElementById('cuentaCurso').innerText = `📚 ${curso}`
+    if(!data.ok && data.error){
+      throw new Error(data.error)
     }
+
+    const apuntes = data.data || []
 
     grid.innerHTML = ''
 
@@ -131,28 +147,40 @@ async function cargarApuntes(sesion){
           <i class="fa-solid fa-book-open"></i>
           <p>Todavía no hay apuntes disponibles para tu curso.</p>
         </div>`
+      // También limpiar materiales
+      document.getElementById('materialesLista').innerHTML = `
+        <div class="cuenta-vacio">
+          <i class="fa-solid fa-images"></i>
+          <p>No hay contenido multimedia todavía.</p>
+        </div>`
       return
     }
 
-    // Separar apuntes con archivo (materiales) y sin archivo (apuntes de texto)
-    const conArchivo = apuntes.filter(a => a.archivoUrl)
     renderApuntes(apuntes)
-    renderMateriales(conArchivo)
 
   } catch(e) {
     grid.innerHTML = `
       <div class="cuenta-vacio">
         <i class="fa-solid fa-circle-exclamation"></i>
-        <p>Error al cargar. Intentá de nuevo más tarde.</p>
+        <p>Error al cargar. Intentá recargar la página.</p>
       </div>`
   }
 }
+
+// ─────────────────────────────────────────────
+// RENDER APUNTES
+// ─────────────────────────────────────────────
 
 function renderApuntes(apuntes){
   const grid = document.getElementById('apuntesGrid')
   grid.innerHTML = ''
 
-  if(apuntes.length === 0){
+  // Solo apuntes publicados
+  const visibles = apuntes.filter(a =>
+    a.publicado === 'true' || a.publicado === true || a.publicado === 'TRUE'
+  )
+
+  if(visibles.length === 0){
     grid.innerHTML = `
       <div class="cuenta-vacio">
         <i class="fa-solid fa-book-open"></i>
@@ -161,7 +189,7 @@ function renderApuntes(apuntes){
     return
   }
 
-  apuntes.forEach(a => {
+  visibles.forEach(a => {
     const card = document.createElement('div')
     card.className = 'apunte-card'
     card.innerHTML = `
@@ -177,34 +205,11 @@ function renderApuntes(apuntes){
     `
     grid.appendChild(card)
   })
-}
 
-function renderMateriales(materiales){
-  const lista = document.getElementById('materialesLista')
-  lista.innerHTML = ''
-
-  if(materiales.length === 0){
-    lista.innerHTML = `
-      <div class="cuenta-vacio">
-        <i class="fa-solid fa-file-pdf"></i>
-        <p>No hay materiales disponibles todavía.</p>
-      </div>`
-    return
-  }
-
-  materiales.forEach(m => {
-    const item = document.createElement('a')
-    item.className = 'material-item'
-    item.href      = m.archivoUrl
-    item.target    = '_blank'
-    item.innerHTML = `
-      <div class="material-icono"><i class="fa-solid fa-file-pdf"></i></div>
-      <div class="material-info">
-        <div class="material-nombre">${m.titulo || ''}</div>
-        <div class="material-curso">${m.curso || 'General'}</div>
-      </div>
-      <i class="fa-solid fa-arrow-up-right-from-square material-arrow"></i>
-    `
-    lista.appendChild(item)
-  })
+  // También actualizar materiales con lo mismo por ahora
+  document.getElementById('materialesLista').innerHTML = `
+    <div class="cuenta-vacio">
+      <i class="fa-solid fa-images"></i>
+      <p>Galería del curso próximamente.</p>
+    </div>`
 }
