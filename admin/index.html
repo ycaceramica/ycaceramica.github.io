@@ -342,6 +342,30 @@
   <!-- Input oculto foto multimedia -->
   <input type="file" id="inputFotoMultimedia" accept="image/*" style="display:none" onchange="previsualizarFotoMultimedia(event)">
 
+  <!-- MODAL BORRAR MULTIMEDIA -->
+  <div class="modal-overlay" id="modalBorrarMultimedia" style="display:none" onclick="cerrarModalBorrar(event)">
+    <div class="modal-card" style="max-width:400px">
+      <div class="modal-header">
+        <h3>🗑 Eliminar foto</h3>
+        <button class="modal-cerrar" onclick="cerrarModalBorrar()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:14px;opacity:0.7;margin:0">¿Cómo querés eliminar esta foto?</p>
+      </div>
+      <div class="modal-footer" style="flex-direction:column;gap:8px">
+        <button class="btn-guardar-modal" id="btnBorrarConDrive" style="background:#a85252">
+          <i class="fa-solid fa-trash"></i> Eliminar de la web y del Drive
+        </button>
+        <button class="btn-guardar-modal" id="btnBorrarSoloWeb" style="background:var(--color-primario)">
+          <i class="fa-solid fa-eye-slash"></i> Solo eliminar de la web
+        </button>
+        <button class="btn-cancelar" onclick="cerrarModalBorrar()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL NUEVO INVENTARIO -->
   <div class="modal-overlay" id="modalInventario" style="display:none" onclick="cerrarModalInventario(event)">
     <div class="modal-card">
