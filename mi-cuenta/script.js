@@ -85,21 +85,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('cuentaAvatar').innerText = nombre[0].toUpperCase()
 
   // Mostrar nombre real del curso
-  const cursoId = sesion.curso || ''
-  if(cursoId){
-    try {
-      const resCursos = await fetch(`${API}?action=getCursos`)
-      const dataCursos = await resCursos.json()
-      const cursos = dataCursos.data || []
-      const cursoReal = cursos.find(c => c.hojaId === cursoId || c.id === cursoId)
-      if(cursoReal){
-        document.getElementById('cuentaCurso').innerText = `🎓 ${cursoReal.nombre}`
-      } else {
-        document.getElementById('cuentaCurso').innerText = `🎓 ${cursoId}`
-      }
-    } catch(e) {
-      document.getElementById('cuentaCurso').innerText = `🎓 ${cursoId}`
-    }
+  const cursoId     = sesion.curso || ''
+  const cursoNombre = sesion.cursoNombre || cursoId
+
+  if(cursoNombre){
+    document.getElementById('cuentaCurso').innerText = `🎓 ${cursoNombre}`
   } else {
     document.getElementById('cuentaCurso').innerText = 'Sin curso asignado'
   }
