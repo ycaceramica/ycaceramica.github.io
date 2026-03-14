@@ -106,7 +106,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('cuentaNombre').innerText = `Hola, ${nombre} 👋`
 
-  // Mostrar nombre real del curso
+  // Mostrar nombre real del curso — soporta múltiples
   const cursoId     = sesion.curso || ''
   const cursoNombre = sesion.cursoNombre || cursoId
 
