@@ -2,9 +2,8 @@
 // CONFIGURACIÓN
 // ─────────────────────────────────────────────
 
-const SHEET_URL = "https://sheetdb.io/api/v1/or6tifw8jqcwq?sheet=Publicadas"
+const API      = "https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec"
 const WHATSAPP = "5491160387535"
-
 
 // ─────────────────────────────────────────────
 // MODO OSCURO
@@ -31,14 +30,12 @@ if(toggleDark){
   })
 }
 
-
-
 // ─────────────────────────────────────────────
 // MENU HAMBURGUESA
 // ─────────────────────────────────────────────
 
 const hamburguesa = document.getElementById("hamburguesa")
-const nav = document.getElementById("nav")
+const nav         = document.getElementById("nav")
 
 if(hamburguesa){
   hamburguesa.addEventListener("click", () => nav.classList.toggle("active"))
@@ -54,18 +51,21 @@ window.addEventListener("scroll", () => {
 
 // ─────────────────────────────────────────────
 // CREAR TARJETA
+// Solo muestra: foto, nombre, categoría, descripción
+// Precio y datos de stock solo en el admin
 // ─────────────────────────────────────────────
 
 function crearTarjeta(pieza){
-  const mensaje = encodeURIComponent(`Hola! Estoy interesado en la pieza: ${pieza.nombre}`)
-  const linkWA = `https://wa.me/${WHATSAPP}?text=${mensaje}`
+  const mensaje = encodeURIComponent(`Hola! Me interesa la pieza: ${pieza.nombre}`)
+  const linkWA  = `https://wa.me/${WHATSAPP}?text=${mensaje}`
 
   const card = document.createElement("div")
   card.className = "pieza-card"
   card.dataset.categoria = pieza.categoria || "Sin categoría"
 
   const fotoHTML = pieza.foto
-    ? `<img class="pieza-foto" src="${pieza.foto}" alt="${pieza.nombre}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+    ? `<img class="pieza-foto" src="${pieza.foto}" alt="${pieza.nombre}" loading="lazy"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
     : ""
 
   card.innerHTML = `
@@ -83,8 +83,6 @@ function crearTarjeta(pieza){
 
   return card
 }
-
-
 
 // ─────────────────────────────────────────────
 // FILTROS
@@ -104,14 +102,14 @@ function armarFiltros(piezas){
   })
 
   document.querySelector(".filtro[data-categoria='todas']")
-    .addEventListener("click", () => filtrar("todas"))
+    ?.addEventListener("click", () => filtrar("todas"))
 }
 
 function filtrar(categoria){
   document.querySelectorAll(".filtro").forEach(b => b.classList.remove("activo"))
   document.querySelector(`.filtro[data-categoria="${categoria}"]`)?.classList.add("activo")
 
-  const cards = document.querySelectorAll(".pieza-card")
+  const cards  = document.querySelectorAll(".pieza-card")
   let visibles = 0
 
   cards.forEach(card => {
@@ -131,26 +129,18 @@ function filtrar(categoria){
   }
 }
 
-
-
 // ─────────────────────────────────────────────
-// CARGAR PIEZAS — usa Google Visualization API
-// que no tiene restricciones CORS
+// CARGAR PIEZAS — desde Apps Script
 // ─────────────────────────────────────────────
 
 async function cargarPiezas(){
   const estado = document.getElementById("estado")
-  const grid = document.getElementById("piezasGrid")
+  const grid   = document.getElementById("piezasGrid")
 
   try {
-    const res = await fetch(SHEET_URL)
-const datos = await res.json()
-const piezas = datos.map(d => ({
-  foto: d.Foto || "",
-  nombre: d.Nombre || "",
-  categoria: d.Categoria || "",
-  descripcion: d["Descripción"] || ""
-})).filter(p => p.foto && p.nombre)
+    const res    = await fetch(`${API}?action=getPiezas`)
+    const data   = await res.json()
+    const piezas = (data.data || []).filter(p => p.nombre)
 
     estado.classList.add("oculto")
 
