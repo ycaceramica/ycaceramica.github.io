@@ -1,0 +1,251 @@
+@import url('../style.css');
+
+/* ── FONDO ── */
+
+.login-bg{
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background:
+    radial-gradient(ellipse 60% 60% at 20% 30%, rgba(139,111,86,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 70%, rgba(139,111,86,0.1) 0%, transparent 55%),
+    var(--color-fondo);
+}
+
+/* ── CARD ── */
+
+.login-card{
+  background: var(--color-superficie);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px var(--color-sombra);
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── LOGO ── */
+
+.login-logo{
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.login-logo img{
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 16px var(--color-sombra);
+}
+
+.login-logo h1{
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.login-logo p{
+  font-size: 13px;
+  opacity: 0.5;
+  margin: 0;
+}
+
+/* ── TABS ── */
+
+.login-tabs{
+  display: flex;
+  background: var(--color-fondo);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.tab-btn{
+  flex: 1;
+  padding: 9px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--color-texto);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  opacity: 0.5;
+}
+
+.tab-btn.activo{
+  background: var(--color-superficie);
+  opacity: 1;
+  box-shadow: 0 2px 8px var(--color-sombra);
+  color: var(--color-primario);
+}
+
+/* ── FORM ── */
+
+.login-form{
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-grupo{
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.form-grupo label{
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-grupo label i{
+  color: var(--color-primario);
+  width: 14px;
+}
+
+.form-grupo input,
+.form-grupo select{
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #d8cfc4;
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font-size: 14px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-grupo input:focus,
+.form-grupo select:focus{
+  outline: none;
+  border-color: var(--color-primario);
+}
+
+/* ── CONTRASEÑA ── */
+
+.pass-wrapper{
+  position: relative;
+}
+
+.pass-wrapper input{
+  padding-right: 44px;
+}
+
+.pass-toggle{
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--color-texto);
+  opacity: 0.4;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 15px;
+}
+
+.pass-toggle:hover{ opacity: 0.8; }
+
+/* ── ERROR / ÉXITO ── */
+
+.login-error{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(168, 82, 82, 0.1);
+  border: 1px solid rgba(168, 82, 82, 0.3);
+  color: #a85252;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.login-success{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(82, 168, 82, 0.1);
+  border: 1px solid rgba(82, 168, 82, 0.3);
+  color: #52a852;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ── BOTÓN ── */
+
+.login-btn{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px;
+  border: none;
+  border-radius: 30px;
+  background: var(--color-primario);
+  color: white;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  margin-top: 4px;
+}
+
+.login-btn:hover{
+  background: var(--color-primario-hover);
+  transform: translateY(-1px);
+}
+
+.login-btn:active{
+  transform: translateY(0);
+}
+
+.login-btn.cargando{
+  opacity: 0.7;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ── VOLVER ── */
+
+.login-volver{
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-primario);
+  text-decoration: none;
+  font-weight: 600;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.login-volver:hover{ opacity: 1; }
+
+/* ── RESPONSIVE ── */
+
+@media(max-width: 480px){
+  .login-card{
+    padding: 28px 20px;
+    border-radius: 18px;
+  }
+}
