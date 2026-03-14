@@ -416,6 +416,133 @@ footer{
 .btn-toggle-pub.publicado{ background: rgba(82,168,82,0.15); color: #52a852; }
 .btn-toggle-pub:hover{ opacity: 0.8; }
 
+/* ── GALERÍA ADMIN ── */
+
+.galeria-admin-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.galeria-slot{
+  background: var(--color-superficie);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px var(--color-sombra);
+  display: flex;
+  flex-direction: column;
+}
+
+.galeria-slot-img{
+  position: relative;
+  aspect-ratio: 16/9;
+  background: linear-gradient(135deg, #c9b49a, #a88b6e);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.galeria-slot-img img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s;
+}
+
+.galeria-slot-img:hover img{
+  transform: scale(1.03);
+}
+
+.galeria-slot-placeholder{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.6);
+}
+
+.galeria-slot-placeholder i{ font-size: 32px; }
+.galeria-slot-placeholder span{ font-size: 12px; font-weight: 600; }
+
+.galeria-slot-overlay{
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.galeria-slot-img:hover .galeria-slot-overlay{
+  background: rgba(0,0,0,0.4);
+}
+
+.galeria-slot-cambiar{
+  opacity: 0;
+  background: white;
+  color: var(--color-primario);
+  border: none;
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  transition: opacity 0.2s;
+}
+
+.galeria-slot-img:hover .galeria-slot-cambiar{
+  opacity: 1;
+}
+
+.galeria-slot-body{
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.galeria-slot-num{
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.4;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.galeria-slot-size{
+  font-size: 11px;
+  opacity: 0.4;
+  font-weight: 600;
+}
+
+.galeria-slot-btn{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1.5px solid var(--color-primario);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--color-primario);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.galeria-slot-btn:hover{
+  background: var(--color-primario);
+  color: white;
+}
+
 /* ── FILTROS Y BUSCADOR ADMIN ── */
 
 .admin-filtros-wrapper{
