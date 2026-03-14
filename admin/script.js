@@ -54,10 +54,11 @@ function cerrarSesion(){
 // ─────────────────────────────────────────────
 
 function toggleSidebar(){
-  const sidebar  = document.getElementById('adminSidebar')
-  const overlay  = document.getElementById('sidebarOverlay')
-  const abierto  = sidebar.classList.toggle('abierto')
+  const sidebar = document.getElementById('adminSidebar')
+  const overlay = document.getElementById('sidebarOverlay')
+  const abierto = sidebar.classList.toggle('abierto')
   overlay.classList.toggle('activo', abierto)
+  document.body.style.overflow = abierto ? 'hidden' : ''
 }
 
 // ─────────────────────────────────────────────
@@ -146,8 +147,9 @@ function renderGrid(hoja, items){
           : `<div class="item-card-img-placeholder"><i class="fa-solid ${icono}"></i></div>`
         }
         <button class="item-card-foto-btn" onclick="subirFotoItem('${hoja}','${item.id}','${item.codigo || item.id}')">
-          <i class="fa-solid fa-camera"></i> Foto
+          <i class="fa-solid fa-camera"></i> ${item.foto ? 'Cambiar foto' : 'Agregar foto'}
         </button>
+        ${!item.foto ? `<span class="item-card-foto-hint">📷 desde cámara o galería</span>` : ''}
       </div>
       <div class="item-card-body">
         <div class="item-card-codigo">${item.codigo || ''}</div>
@@ -159,8 +161,11 @@ function renderGrid(hoja, items){
             <i class="fa-solid fa-pen"></i> Editar
           </button>
           ${hoja !== 'moldes' ? `
-          <button class="btn-toggle-pub ${publicado ? 'publicado' : ''}" onclick="togglePublicado('${hoja}','${item.id}',${publicado})">
+          <button class="btn-toggle-pub ${publicado ? 'publicado' : ''}" 
+            onclick="togglePublicado('${hoja}','${item.id}',${publicado})"
+            title="${publicado ? 'Visible en la web — clic para ocultar' : 'Oculto — clic para publicar'}">
             <i class="fa-solid ${publicado ? 'fa-eye' : 'fa-eye-slash'}"></i>
+            ${publicado ? 'Publicado' : 'Oculto'}
           </button>` : ''}
           <button class="btn-borrar" onclick="borrarItem('${hoja}','${item.id}')">
             <i class="fa-solid fa-trash"></i>
