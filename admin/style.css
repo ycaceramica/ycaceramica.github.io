@@ -199,6 +199,8 @@ body{
   padding: 28px 24px;
   min-height: calc(100vh - 56px);
   background: var(--color-fondo);
+  position: relative;
+  z-index: 1;
 }
 
 /* ── SECCIÓN ── */
@@ -294,11 +296,11 @@ body{
   position: absolute;
   bottom: 8px;
   right: 8px;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.6);
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 5px 10px;
+  padding: 6px 10px;
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
@@ -306,9 +308,19 @@ body{
   align-items: center;
   gap: 5px;
   backdrop-filter: blur(4px);
+  transition: background 0.2s;
 }
 
-.item-card-foto-btn:hover{ background: rgba(0,0,0,0.7); }
+.item-card-foto-btn:hover{ background: rgba(0,0,0,0.85); }
+
+.item-card-foto-hint{
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.7);
+  font-weight: 600;
+}
 
 .item-card-body{
   padding: 14px;
@@ -355,8 +367,7 @@ body{
 .btn-editar,
 .btn-borrar,
 .btn-toggle-pub{
-  flex: 1;
-  padding: 7px 6px;
+  padding: 7px 8px;
   border: none;
   border-radius: 8px;
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -370,27 +381,22 @@ body{
   transition: 0.15s;
 }
 
-.btn-editar{
-  background: var(--color-fondo);
-  color: var(--color-texto);
-}
+.btn-editar{ flex: 1; background: var(--color-fondo); color: var(--color-texto); }
 .btn-editar:hover{ background: var(--color-primario); color: white; }
 
-.btn-borrar{
-  background: rgba(168,82,82,0.1);
-  color: #a85252;
-}
+.btn-borrar{ background: rgba(168,82,82,0.1); color: #a85252; padding: 7px 10px; }
 .btn-borrar:hover{ background: #a85252; color: white; }
 
 .btn-toggle-pub{
-  background: rgba(82,168,82,0.1);
-  color: #52a852;
+  flex: 1;
+  background: rgba(168,82,82,0.1);
+  color: #a85252;
 }
 .btn-toggle-pub.publicado{
-  background: #52a852;
-  color: white;
+  background: rgba(82,168,82,0.15);
+  color: #52a852;
 }
-.btn-toggle-pub:hover{ opacity: 0.85; }
+.btn-toggle-pub:hover{ opacity: 0.8; }
 
 /* ── LOADING ── */
 
@@ -767,10 +773,16 @@ body{
 @media(max-width: 768px){
   .admin-sidebar{
     transform: translateX(-100%);
+    z-index: 150;
   }
 
   .admin-sidebar.abierto{
     transform: translateX(0);
+    box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+  }
+
+  .sidebar-overlay{
+    display: none;
   }
 
   .sidebar-overlay.activo{
@@ -788,5 +800,10 @@ body{
 
   .mform-fila{
     grid-template-columns: 1fr;
+  }
+
+  .seccion-header{
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
