@@ -83,6 +83,9 @@
         <button class="sidebar-item" onclick="setSeccion('apuntes')" id="nav-apuntes">
           <i class="fa-solid fa-book-open"></i> Apuntes
         </button>
+        <button class="sidebar-item" onclick="setSeccion('multimedia')" id="nav-multimedia">
+          <i class="fa-solid fa-photo-film"></i> Multimedia
+        </button>
       </div>
 
     </aside>
@@ -207,6 +210,23 @@
         <div class="loading" id="loading-usuarios" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
       </div>
 
+      <!-- MULTIMEDIA -->
+      <div class="seccion" id="seccion-multimedia" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>🎬 Multimedia</h2>
+            <p>Fotos y videos de los cursos — visibles para los alumnos inscriptos</p>
+          </div>
+          <button class="btn-nuevo" onclick="abrirModalMultimedia()">
+            <i class="fa-solid fa-plus"></i> Agregar
+          </button>
+        </div>
+        <div class="multimedia-admin-grid" id="grid-multimedia"></div>
+        <div class="loading" id="loading-multimedia" style="display:none">
+          <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+        </div>
+      </div>
+
       <!-- APUNTES -->
       <div class="seccion" id="seccion-apuntes" style="display:none">
         <div class="seccion-header">
@@ -243,6 +263,84 @@
       </div>
     </div>
   </div>
+
+  <!-- MODAL MULTIMEDIA -->
+  <div class="modal-overlay" id="modalMultimedia" style="display:none" onclick="cerrarModalMultimedia(event)">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalMultimediaTitulo">Agregar multimedia</h3>
+        <button class="modal-cerrar" onclick="cerrarModalMultimedia()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Tipo -->
+        <div class="mform-grupo">
+          <label>Tipo *</label>
+          <div class="multimedia-tipo-selector">
+            <button class="mtipo-btn activo" id="mtipo-foto" onclick="setTipoMultimedia('foto')">
+              <i class="fa-solid fa-image"></i> Foto
+            </button>
+            <button class="mtipo-btn" id="mtipo-video" onclick="setTipoMultimedia('video')">
+              <i class="fa-brands fa-youtube"></i> Video
+            </button>
+          </div>
+        </div>
+
+        <!-- Foto -->
+        <div id="mMultimediaFotoBloque">
+          <div class="mform-grupo">
+            <label>Foto <small style="opacity:0.5;font-weight:400">(cualquier proporción)</small></label>
+            <div class="mform-foto-area" id="mMultimediaFotoArea" onclick="elegirFotoMultimedia()">
+              <div class="mform-foto-placeholder">
+                <i class="fa-solid fa-camera"></i>
+                <strong>Tocá para agregar foto</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video -->
+        <div id="mMultimediaVideoBloque" style="display:none">
+          <div class="mform-grupo">
+            <label>Link del video *</label>
+            <input id="mMultimediaUrl" placeholder="https://youtube.com/... o instagram.com/...">
+          </div>
+          <div class="multimedia-video-preview" id="mMultimediaPreview" style="display:none"></div>
+        </div>
+
+        <!-- Campos comunes -->
+        <div class="mform-grupo">
+          <label>Título (opcional)</label>
+          <input id="mMultimediaTitulo" placeholder="Ej: Clase del 17 de abril">
+        </div>
+
+        <div class="mform-grupo">
+          <label>Curso</label>
+          <select id="mMultimediaCurso">
+            <option value="">Seleccioná</option>
+            <option value="General">General (todos los alumnos)</option>
+          </select>
+        </div>
+
+        <label class="publicado-toggle">
+          <input type="checkbox" id="mMultimediaPublicado" checked>
+          <span>✅ Visible para los alumnos</span>
+        </label>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="cerrarModalMultimedia()">Cancelar</button>
+        <button class="btn-guardar-modal" onclick="guardarMultimedia()">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input oculto foto multimedia -->
+  <input type="file" id="inputFotoMultimedia" accept="image/*" style="display:none" onchange="previsualizarFotoMultimedia(event)">
 
   <!-- MODAL NUEVO INVENTARIO -->
   <div class="modal-overlay" id="modalInventario" style="display:none" onclick="cerrarModalInventario(event)">
