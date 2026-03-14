@@ -736,8 +736,9 @@ function toggleCursoSelector(userId){
 }
 
 async function asignarCurso(userId){
-  const select   = document.getElementById('cselect-' + userId)
-  const nuevoCurso = select?.value || ''
+  const checks     = document.querySelectorAll(`#cchecks-${userId} input[type="checkbox"]:checked`)
+  const cursosSeleccionados = Array.from(checks).map(c => c.value).join(',')
+
   try {
     const sesion = getSesion()
     const res    = await fetch(API, {
@@ -747,18 +748,22 @@ async function asignarCurso(userId){
         hoja:   'usuarios',
         id:     userId,
         campo:  'curso',
-        valor:  nuevoCurso,
+        valor:  cursosSeleccionados,
         token:  sesion.token
       })
     })
     const data = await res.json()
     if(data.ok){
-      // Actualizar en memoria
       const u = usuariosData.find(u => u.id === userId)
-      if(u) u.curso = nuevoCurso
+      if(u) u.curso = cursosSeleccionados
       renderUsuarios()
-      const nombre = cursosData.find(c => c.hojaId === nuevoCurso)?.nombre || 'Sin curso'
-      toast(`✅ Curso actualizado: ${nombre}`, 'ok')
+      const nombres = cursosSeleccionados
+        ? cursosSeleccionados.split(',').map(c => {
+            const obj = cursosData.find(x => x.hojaId === c.trim())
+            return obj ? obj.nombre : c
+          }).join(', ')
+        : 'Sin curso'
+      toast(`✅ Cursos actualizados: ${nombres}`, 'ok')
     }
   } catch(e) { toast('❌ Error', 'err') }
 }
@@ -827,10 +832,15 @@ function renderUsuarios(){
       `
     }
 
-    // Selector de curso
-    const opsCurso = cursosData.map(c =>
-      `<option value="${c.hojaId}" ${c.hojaId === cursoActual ? 'selected' : ''}>${c.nombre}</option>`
-    ).join('')
+    // Selector de cursos — múltiple con checkboxes
+    const cursosActuales = cursoActual ? cursoActual.split(',').map(c => c.trim()) : []
+    const checkboxes = cursosData.map(c => `
+      <label class="curso-check-item">
+        <input type="checkbox" value="${c.hojaId}"
+          ${cursosActuales.includes(c.hojaId) ? 'checked' : ''}>
+        <span>${c.nombre}</span>
+      </label>
+    `).join('')
 
     card.innerHTML = `
       <div class="usuario-avatar">${inicial}</div>
@@ -838,22 +848,31 @@ function renderUsuarios(){
         <div class="usuario-nombre">${u.nombre || ''}</div>
         <div class="usuario-meta">${u.email || ''} · ${fecha}</div>
         <div class="usuario-curso-row">
-          <span class="usuario-curso-label"><i class="fa-solid fa-graduation-cap"></i> ${cursoNombre}</span>
+          <span class="usuario-curso-label">
+            <i class="fa-solid fa-graduation-cap"></i>
+            ${cursosActuales.length > 0
+              ? cursosActuales.map(c => {
+                  const obj = cursosData.find(x => x.hojaId === c)
+                  return obj ? obj.nombre : c
+                }).join(', ')
+              : 'Sin curso'}
+          </span>
           <button class="btn-cambiar-curso" onclick="toggleCursoSelector('${u.id}')">
-            <i class="fa-solid fa-pen"></i> Cambiar
+            <i class="fa-solid fa-pen"></i> Editar
           </button>
         </div>
         <div class="usuario-curso-selector" id="cselector-${u.id}" style="display:none">
-          <select id="cselect-${u.id}">
-            <option value="">Sin curso</option>
-            ${opsCurso}
-          </select>
-          <button class="btn-guardar-curso" onclick="asignarCurso('${u.id}')">
-            <i class="fa-solid fa-check"></i> Guardar
-          </button>
-          <button class="btn-cancelar-curso" onclick="toggleCursoSelector('${u.id}')">
-            Cancelar
-          </button>
+          <div class="curso-checks-lista" id="cchecks-${u.id}">
+            ${checkboxes}
+          </div>
+          <div class="curso-checks-acciones">
+            <button class="btn-guardar-curso" onclick="asignarCurso('${u.id}')">
+              <i class="fa-solid fa-check"></i> Guardar
+            </button>
+            <button class="btn-cancelar-curso" onclick="toggleCursoSelector('${u.id}')">
+              Cancelar
+            </button>
+          </div>
         </div>
       </div>
       <div class="usuario-acciones">${botones}</div>
