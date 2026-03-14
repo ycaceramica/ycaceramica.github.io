@@ -42,6 +42,7 @@ window.addEventListener('DOMContentLoaded', () => {
     return
   }
   cargarSeccion('piezas')
+  cargarInventarios()
 })
 
 function cerrarSesion(){
@@ -828,8 +829,165 @@ async function cambiarEstadoCurso(id, nuevoEstado, btn){
 }
 
 // ─────────────────────────────────────────────
-// TOAST
+// INVENTARIOS PRIVADOS
 // ─────────────────────────────────────────────
+
+let inventariosData = []
+
+async function cargarInventarios(){
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(`${API}?action=getInventarios&token=${encodeURIComponent(sesion.token)}`)
+    const data   = await res.json()
+    inventariosData = (data.data || []).filter(i => i.hojaId !== 'moldes') // moldes ya está fijo
+    renderSidebarInventarios()
+  } catch(e) {}
+}
+
+function renderSidebarInventarios(){
+  const contenedor = document.getElementById('inventariosSidebar')
+  contenedor.innerHTML = ''
+
+  inventariosData.forEach(inv => {
+    const btn = document.createElement('button')
+    btn.className = 'sidebar-item'
+    btn.id = 'nav-inv-' + inv.hojaId
+    btn.innerHTML = `<i class="fa-solid fa-box"></i> ${inv.nombre}`
+    btn.onclick = () => setSeccionInventario(inv)
+    contenedor.appendChild(btn)
+  })
+}
+
+function setSeccionInventario(inv){
+  // Quitar activo de todos
+  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('activo'))
+  document.getElementById('nav-inv-' + inv.hojaId)?.classList.add('activo')
+
+  // Ocultar todas las secciones
+  document.querySelectorAll('.seccion').forEach(s => s.style.display = 'none')
+
+  // Crear o mostrar sección dinámica
+  let sec = document.getElementById('seccion-inv-' + inv.hojaId)
+  if(!sec){
+    sec = document.createElement('div')
+    sec.className = 'seccion'
+    sec.id = 'seccion-inv-' + inv.hojaId
+    sec.innerHTML = `
+      <div class="seccion-header">
+        <div>
+          <h2>📦 ${inv.nombre}</h2>
+          <p>Inventario privado — solo visible en el panel admin</p>
+        </div>
+        <button class="btn-nuevo" onclick="abrirModal('${inv.hojaId}')">
+          <i class="fa-solid fa-plus"></i> Nuevo item
+        </button>
+      </div>
+      <div class="items-grid" id="grid-${inv.hojaId}"></div>
+      <div class="loading" id="loading-${inv.hojaId}"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+    `
+    document.getElementById('adminMain').appendChild(sec)
+
+    // Registrar categorías para este inventario
+    CATEGORIAS[inv.hojaId] = ['General', 'Otros']
+  }
+
+  sec.style.display = 'block'
+  seccionActual = inv.hojaId
+  cerrarSidebar()
+
+  // Cargar datos si no están en caché
+  if(!cache[inv.hojaId]) cargarSeccion(inv.hojaId)
+}
+
+// ─────────────────────────────────────────────
+// MODAL NUEVO INVENTARIO
+// ─────────────────────────────────────────────
+
+function abrirModalInventario(){
+  document.getElementById('invNombre').value  = ''
+  document.getElementById('invPrefijo').value = ''
+  document.getElementById('invPreviewCodigo').innerText  = 'XXX-001'
+  document.getElementById('invPreviewCodigo2').innerText = 'XXX-002'
+  document.getElementById('modalInventario').style.display = 'flex'
+}
+
+function cerrarModalInventario(e){
+  if(e && e.target !== document.getElementById('modalInventario')) return
+  document.getElementById('modalInventario').style.display = 'none'
+}
+
+// Preview del código mientras escribe
+document.addEventListener('DOMContentLoaded', () => {
+  const inputNombre  = document.getElementById('invNombre')
+  const inputPrefijo = document.getElementById('invPrefijo')
+
+  if(inputNombre){
+    inputNombre.addEventListener('input', () => {
+      if(!inputPrefijo.value){
+        const auto = inputNombre.value.trim().substring(0,3).toUpperCase()
+        inputPrefijo.value = auto
+        actualizarPreviewCodigo(auto)
+      }
+    })
+  }
+
+  if(inputPrefijo){
+    inputPrefijo.addEventListener('input', () => {
+      inputPrefijo.value = inputPrefijo.value.toUpperCase()
+      actualizarPreviewCodigo(inputPrefijo.value)
+    })
+  }
+})
+
+function actualizarPreviewCodigo(prefijo){
+  const p = prefijo || 'XXX'
+  document.getElementById('invPreviewCodigo').innerText  = p + '-001'
+  document.getElementById('invPreviewCodigo2').innerText = p + '-002'
+}
+
+async function crearInventario(){
+  const nombre  = document.getElementById('invNombre').value.trim()
+  const prefijo = document.getElementById('invPrefijo').value.trim().toUpperCase()
+
+  if(!nombre){ toast('El nombre es obligatorio', 'err'); return }
+  if(!prefijo || prefijo.length < 2){ toast('El código debe tener al menos 2 letras', 'err'); return }
+
+  const btn = document.querySelector('#modalInventario .btn-guardar-modal')
+  btn.classList.add('cargando')
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creando...'
+
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({
+        action:  'crearInventario',
+        nombre,
+        prefijo,
+        privado: true,
+        token:   sesion.token
+      })
+    })
+    const data = await res.json()
+
+    if(data.ok){
+      cerrarModalInventario()
+      await cargarInventarios()
+      toast(`✅ Inventario "${nombre}" creado`, 'ok')
+
+      // Abrir el inventario recién creado
+      const nuevo = inventariosData.find(i => i.prefijo === prefijo)
+      if(nuevo) setSeccionInventario(nuevo)
+    } else {
+      toast('❌ ' + (data.error || 'Error al crear'), 'err')
+    }
+  } catch(e) {
+    toast('❌ Error de conexión', 'err')
+  }
+
+  btn.classList.remove('cargando')
+  btn.innerHTML = '<i class="fa-solid fa-plus"></i> Crear inventario'
+}
 
 function toast(msg, tipo){
   const t = document.getElementById('toast')
