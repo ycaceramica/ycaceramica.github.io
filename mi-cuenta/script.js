@@ -81,8 +81,24 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // Mostrar nombre y avatar
   const nombre = sesion.nombre || 'Alumno'
+  const avatar = document.getElementById('cuentaAvatar')
+  avatar.innerText = nombre[0].toUpperCase()
+
+  // Forzar círculo — sobreescribe cualquier CSS heredado
+  avatar.style.cssText = `
+    width: 56px !important;
+    height: 56px !important;
+    min-width: 56px !important;
+    min-height: 56px !important;
+    border-radius: 50% !important;
+    aspect-ratio: 1/1 !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  `
+
   document.getElementById('cuentaNombre').innerText = `Hola, ${nombre} 👋`
-  document.getElementById('cuentaAvatar').innerText = nombre[0].toUpperCase()
 
   // Mostrar nombre real del curso
   const cursoId     = sesion.curso || ''
