@@ -460,26 +460,130 @@ footer{
 }
 
 .usuario-avatar{
-  width: 42px; height: 42px;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
   border-radius: 50%;
   background: var(--color-primario);
   color: white;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; font-weight: 700; flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+  aspect-ratio: 1/1;
 }
 
 .usuario-info{ flex: 1; min-width: 0; }
 .usuario-nombre{ font-size: 14px; font-weight: 700; margin-bottom: 3px; }
 .usuario-meta{ font-size: 12px; opacity: 0.5; }
-.usuario-acciones{ display: flex; gap: 8px; flex-wrap: wrap; }
+.usuario-acciones{ display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
-.btn-aprobar{ padding: 7px 14px; border: none; border-radius: 20px; background: #52a852; color: white; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; }
-.btn-rechazar{ padding: 7px 14px; border: none; border-radius: 20px; background: rgba(168,82,82,0.1); color: #a85252; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; }
+/* Estado badge — mismo estilo que los botones */
+.estado-badge{
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: none;
+  cursor: default;
+}
+.estado-badge.pendiente  { background: rgba(201,162,39,0.15); color: #c9a227; border: 1.5px solid rgba(201,162,39,0.3); }
+.estado-badge.activo     { background: rgba(82,168,82,0.15);  color: #52a852; border: 1.5px solid rgba(82,168,82,0.3); }
+.estado-badge.rechazado  { background: rgba(168,82,82,0.15);  color: #a85252; border: 1.5px solid rgba(168,82,82,0.3); }
+.estado-badge.pausado    { background: rgba(100,100,200,0.15); color: #6464c8; border: 1.5px solid rgba(100,100,200,0.3); }
 
-.estado-badge{ font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
-.estado-badge.pendiente { background: rgba(201,162,39,0.15); color: #c9a227; }
-.estado-badge.activo    { background: rgba(82,168,82,0.15);  color: #52a852; }
-.estado-badge.rechazado { background: rgba(168,82,82,0.15);  color: #a85252; }
+/* Botones de acción de usuario */
+.btn-aprobar, .btn-rechazar, .btn-pausar, .btn-reactivar, .btn-eliminar-usr{
+  padding: 6px 14px;
+  border: none;
+  border-radius: 20px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-aprobar   { background: rgba(82,168,82,0.15);  color: #52a852; border: 1.5px solid rgba(82,168,82,0.3); }
+.btn-aprobar:hover { background: #52a852; color: white; }
+
+.btn-rechazar  { background: rgba(168,82,82,0.15);  color: #a85252; border: 1.5px solid rgba(168,82,82,0.3); }
+.btn-rechazar:hover { background: #a85252; color: white; }
+
+.btn-pausar    { background: rgba(100,100,200,0.15); color: #6464c8; border: 1.5px solid rgba(100,100,200,0.3); }
+.btn-pausar:hover { background: #6464c8; color: white; }
+
+.btn-reactivar { background: rgba(82,168,82,0.15);  color: #52a852; border: 1.5px solid rgba(82,168,82,0.3); }
+.btn-reactivar:hover { background: #52a852; color: white; }
+
+.btn-eliminar-usr { background: rgba(168,82,82,0.08); color: #a85252; border: 1.5px solid rgba(168,82,82,0.2); opacity: 0.7; }
+.btn-eliminar-usr:hover { background: #a85252; color: white; opacity: 1; }
+
+/* ── CURSOS ADMIN ── */
+
+.cursos-admin-lista{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.curso-admin-card{
+  background: var(--color-superficie);
+  border-radius: 14px;
+  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 16px var(--color-sombra);
+  flex-wrap: wrap;
+}
+
+.curso-admin-info{ flex: 1; min-width: 0; }
+
+.curso-admin-nombre{
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.curso-admin-meta{
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+.curso-estado-selector{
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-estado-curso{
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 2px solid transparent;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.15s;
+  opacity: 0.5;
+}
+
+.btn-estado-curso.sel-activo       { border-color: #52a852; color: #52a852; background: transparent; }
+.btn-estado-curso.sel-activo.activo{ background: #52a852; color: white; opacity: 1; }
+
+.btn-estado-curso.sel-proximamente       { border-color: #c9a227; color: #c9a227; background: transparent; }
+.btn-estado-curso.sel-proximamente.activo{ background: #c9a227; color: white; opacity: 1; }
+
+.btn-estado-curso.sel-finalizado       { border-color: #a85252; color: #a85252; background: transparent; }
+.btn-estado-curso.sel-finalizado.activo{ background: #a85252; color: white; opacity: 1; }
+
+.btn-estado-curso:not(.activo):hover{ opacity: 1; }
 
 /* ── MODAL ── */
 
