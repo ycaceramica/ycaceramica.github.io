@@ -100,6 +100,13 @@
             <i class="fa-solid fa-plus"></i> Nueva pieza
           </button>
         </div>
+        <div class="admin-filtros-wrapper">
+          <div class="admin-buscador-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input class="admin-buscador" id="buscar-piezas" placeholder="Buscar por nombre..." oninput="filtrarGrid('piezas')">
+          </div>
+          <div class="admin-filtros-cats" id="filtros-piezas"></div>
+        </div>
         <div class="items-grid" id="grid-piezas"></div>
         <div class="loading" id="loading-piezas"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
       </div>
@@ -115,6 +122,13 @@
             <i class="fa-solid fa-plus"></i> Nuevo insumo
           </button>
         </div>
+        <div class="admin-filtros-wrapper">
+          <div class="admin-buscador-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input class="admin-buscador" id="buscar-insumos" placeholder="Buscar por nombre..." oninput="filtrarGrid('insumos')">
+          </div>
+          <div class="admin-filtros-cats" id="filtros-insumos"></div>
+        </div>
         <div class="items-grid" id="grid-insumos"></div>
         <div class="loading" id="loading-insumos" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
       </div>
@@ -129,6 +143,13 @@
           <button class="btn-nuevo" onclick="abrirModal('moldes')">
             <i class="fa-solid fa-plus"></i> Nuevo molde
           </button>
+        </div>
+        <div class="admin-filtros-wrapper">
+          <div class="admin-buscador-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input class="admin-buscador" id="buscar-moldes" placeholder="Buscar por nombre..." oninput="filtrarGrid('moldes')">
+          </div>
+          <div class="admin-filtros-cats" id="filtros-moldes"></div>
         </div>
         <div class="items-grid" id="grid-moldes"></div>
         <div class="loading" id="loading-moldes" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
