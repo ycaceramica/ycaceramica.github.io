@@ -54,6 +54,9 @@
         <button class="sidebar-item" onclick="setSeccion('galeria')" id="nav-galeria">
           <i class="fa-solid fa-images"></i> Galería
         </button>
+        <button class="sidebar-item" onclick="setSeccion('elaboracion')" id="nav-elaboracion">
+          <i class="fa-solid fa-hands"></i> Elaboración
+        </button>
       </div>
 
       <div class="sidebar-seccion">
@@ -92,7 +95,45 @@
       <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
       <!-- GALERÍA -->
-      <div class="seccion" id="seccion-galeria" style="display:none">
+      <!-- ELABORACIÓN -->
+      <div class="seccion" id="seccion-elaboracion" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>🏺 Elaboración</h2>
+            <p>Fotos del proceso y del taller · Se muestran en la página "Así nacen nuestras piezas"</p>
+          </div>
+        </div>
+
+        <!-- Switch visibilidad en el index -->
+        <div class="elaboracion-config-card">
+          <div>
+            <div class="elaboracion-config-titulo">Tarjeta en el inicio</div>
+            <div class="elaboracion-config-desc">Mostrá u ocultá la sección "Así nacen nuestras piezas" en la página principal</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="switchElaboracionVisible" onchange="toggleElaboracionVisible(this.checked)" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- Etapas del proceso -->
+        <div class="elaboracion-subtitulo">
+          <i class="fa-solid fa-list-ol"></i> Fotos del proceso (6 etapas)
+        </div>
+        <div class="elaboracion-grid" id="grid-elaboracion-etapas"></div>
+
+        <!-- Galería del taller -->
+        <div class="elaboracion-subtitulo" style="margin-top:32px">
+          <i class="fa-solid fa-store"></i> Fotos del taller (6 imágenes libres)
+        </div>
+        <div class="elaboracion-grid" id="grid-elaboracion-taller"></div>
+
+        <div class="loading" id="loading-elaboracion" style="display:none">
+          <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+        </div>
+      </div>
+
+      <!-- GALERÍA -->
         <div class="seccion-header">
           <div>
             <h2>🖼️ Galería</h2>
