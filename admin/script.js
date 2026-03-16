@@ -1347,13 +1347,14 @@ function renderCursos(){
   const lista = document.getElementById('lista-cursos')
   lista.innerHTML = ''
   if(cursosData.length === 0){
-    lista.innerHTML = `<div class="vacio"><i class="fa-solid fa-chalkboard-teacher"></i><p>No hay cursos cargados todavía</p></div>`
+    lista.innerHTML = `<div class="vacio"><i class="fa-solid fa-chalkboard-teacher"></i><p>No hay cursos todavía. ¡Creá el primero!</p></div>`
     return
   }
   const estados = ['proximamente','activo','finalizado']
   const labels  = { proximamente: '🟡 Próximamente', activo: '🟢 Activo', finalizado: '🔴 Finalizado' }
   cursosData.forEach(c => {
     const estadoActual = c.estado || 'proximamente'
+    const visible      = c.visible !== 'false'
     const botonesEstado = estados.map(est => `
       <button class="btn-estado-curso sel-${est} ${estadoActual === est ? 'activo' : ''}"
         onclick="cambiarEstadoCurso('${c.id}', '${est}', this)">
@@ -1363,11 +1364,25 @@ function renderCursos(){
     card.className = 'curso-admin-card'
     card.id = 'curso-card-' + c.id
     card.innerHTML = `
+      ${c.foto ? `<img src="${c.foto}" style="width:80px;height:45px;object-fit:cover;border-radius:8px;flex-shrink:0">` : `<div style="width:80px;height:45px;background:var(--color-fondo);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🎓</div>`}
       <div class="curso-admin-info">
         <div class="curso-admin-nombre">${c.nombre || ''}</div>
         <div class="curso-admin-meta">${c.dia || ''} ${c.horario || ''} · ${c.duracion || ''}</div>
       </div>
-      <div class="curso-estado-selector">${botonesEstado}</div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+        <div class="curso-estado-selector">${botonesEstado}</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn-toggle-pub ${visible ? 'publicado' : ''}"
+            onclick="toggleVisibleCurso('${c.id}', ${visible})"
+            title="${visible ? 'Visible en cursos — clic para ocultar' : 'Oculto — clic para mostrar'}">
+            <i class="fa-solid ${visible ? 'fa-eye' : 'fa-eye-slash'}"></i>
+            ${visible ? 'Visible' : 'Oculto'}
+          </button>
+          <button class="btn-editar" onclick="abrirModalCurso('${c.id}')">
+            <i class="fa-solid fa-pen"></i> Editar
+          </button>
+        </div>
+      </div>
     `
     lista.appendChild(card)
   })
@@ -1376,17 +1391,180 @@ function renderCursos(){
 async function cambiarEstadoCurso(id, nuevoEstado, btn){
   try {
     const sesion = getSesion()
-    const res    = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'actualizarEstadoCurso', id, estado: nuevoEstado, token: sesion.token }) })
+    const res    = await fetch(API, { method:'POST', body:JSON.stringify({ action:'actualizarEstadoCurso', id, estado:nuevoEstado, token:sesion.token }) })
     const data   = await res.json()
     if(data.ok){
       btn.closest('.curso-admin-card').querySelectorAll('.btn-estado-curso').forEach(b => b.classList.remove('activo'))
       btn.classList.add('activo')
       const curso = cursosData.find(c => c.id === id)
       if(curso) curso.estado = nuevoEstado
-      const labels = { proximamente: 'Próximamente', activo: 'Activo', finalizado: 'Finalizado' }
+      const labels = { proximamente:'Próximamente', activo:'Activo', finalizado:'Finalizado' }
       toast(`✅ Curso: ${labels[nuevoEstado]}`, 'ok')
     }
   } catch(e) { toast('❌ Error', 'err') }
+}
+
+async function toggleVisibleCurso(id, visibleActual){
+  const nuevoValor = visibleActual ? 'false' : 'true'
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(API, { method:'POST', body:JSON.stringify({ action:'actualizarCampo', hoja:'cursos', id, campo:'visible', valor:nuevoValor, token:sesion.token }) })
+    const data   = await res.json()
+    if(data.ok){
+      const curso = cursosData.find(c => c.id === id)
+      if(curso) curso.visible = nuevoValor
+      renderCursos()
+      toast(nuevoValor === 'true' ? '✅ Visible en cursos' : '👁 Oculto de cursos', 'ok')
+    }
+  } catch(e) { toast('❌ Error', 'err') }
+}
+
+// ─────────────────────────────────────────────
+// MODAL NUEVO/EDITAR CURSO
+// ─────────────────────────────────────────────
+
+let fotoCursoBase64 = null
+let editandoCursoId = null
+
+function abrirModalCurso(id = null){
+  editandoCursoId = id
+  fotoCursoBase64 = null
+
+  const curso = id ? cursosData.find(c => c.id === id) : null
+  document.getElementById('modalCursoTitulo').innerText = curso ? '✏️ Editar curso' : '🎓 Nuevo curso'
+
+  // Rellenar campos
+  document.getElementById('mCursoNombre').value      = curso?.nombre      || ''
+  document.getElementById('mCursoSubtitulo').value   = curso?.subtitulo   || ''
+  document.getElementById('mCursoDescripcion').value = curso?.descripcion || ''
+  document.getElementById('mCursoDia').value         = curso?.dia         || ''
+  document.getElementById('mCursoHorario').value     = curso?.horario     || ''
+  document.getElementById('mCursoDuracion').value    = curso?.duracion    || ''
+  document.getElementById('mCursoCupo').value        = curso?.cupo        || ''
+  document.getElementById('mCursoHojaId').value      = curso?.hojaId      || ''
+  document.getElementById('mCursoEstado').value      = curso?.estado      || 'proximamente'
+  document.getElementById('mCursoVisible').checked   = curso?.visible !== 'false'
+
+  // Chips y proceso
+  const chips = curso?.chips ? curso.chips.split('|').join('\n') : ''
+  document.getElementById('mCursoChips').value   = chips
+
+  const proceso = curso?.proceso ? curso.proceso.split('||').map(p => p.replace('|', '|')).join('\n') : ''
+  document.getElementById('mCursoProceso').value = proceso
+
+  // Foto
+  const fotoActual = curso?.foto || ''
+  const fotoArea   = document.getElementById('mCursoFotoArea')
+  fotoArea.innerHTML = fotoActual
+    ? `<img src="${fotoActual}" style="width:100%;height:100%;object-fit:cover">
+       <button class="mform-foto-cambiar" onclick="elegirFotoCurso()" type="button">
+         <i class="fa-solid fa-camera"></i> Cambiar
+       </button>`
+    : `<div class="mform-foto-placeholder" style="aspect-ratio:16/9">
+         <i class="fa-solid fa-camera"></i>
+         <strong>Tocá para agregar foto</strong>
+         <small>Recomendado: 1200×675px (16:9)</small>
+       </div>`
+
+  document.getElementById('modalCurso').style.display = 'flex'
+}
+
+function cerrarModalCurso(e){
+  if(e && e.target !== document.getElementById('modalCurso')) return
+  document.getElementById('modalCurso').style.display = 'none'
+  fotoCursoBase64 = null
+  editandoCursoId = null
+}
+
+function elegirFotoCurso(){ document.getElementById('inputFotoCurso').click() }
+
+function previsualizarFotoCurso(e){
+  const file = e.target.files[0]
+  if(!file) return
+  const reader = new FileReader()
+  reader.onload = (ev) => {
+    fotoCursoBase64 = ev.target.result
+    const area = document.getElementById('mCursoFotoArea')
+    area.innerHTML = `
+      <img src="${fotoCursoBase64}" style="width:100%;height:100%;object-fit:cover">
+      <button class="mform-foto-cambiar" onclick="elegirFotoCurso()" type="button">
+        <i class="fa-solid fa-camera"></i> Cambiar
+      </button>`
+  }
+  reader.readAsDataURL(file)
+}
+
+function generarHojaId(){
+  const nombre = document.getElementById('mCursoNombre').value.trim()
+  if(!editandoCursoId && nombre){
+    const id = nombre.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim().replace(/\s+/g, '-')
+    document.getElementById('mCursoHojaId').value = id
+  }
+}
+
+async function guardarCurso(){
+  const nombre  = document.getElementById('mCursoNombre').value.trim()
+  const hojaId  = document.getElementById('mCursoHojaId').value.trim()
+  if(!nombre){ toast('El nombre es obligatorio', 'err'); return }
+  if(!hojaId){ toast('El ID es obligatorio', 'err'); return }
+
+  const btn = document.getElementById('btnGuardarCurso')
+  btn.classList.add('cargando')
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'
+
+  // Armar chips — convertir líneas a pipe-separated
+  const chipsRaw   = document.getElementById('mCursoChips').value.trim()
+  const chips      = chipsRaw ? chipsRaw.split('\n').filter(l => l.trim()).join('|') : ''
+
+  // Armar proceso — convertir líneas a doble-pipe-separated
+  const procesoRaw = document.getElementById('mCursoProceso').value.trim()
+  const proceso    = procesoRaw ? procesoRaw.split('\n').filter(l => l.trim()).join('||') : ''
+
+  const curso = cursosData.find(c => c.id === editandoCursoId)
+  const fila  = {
+    id:          editandoCursoId || 'CUR-' + Date.now(),
+    nombre,
+    subtitulo:   document.getElementById('mCursoSubtitulo').value.trim(),
+    descripcion: document.getElementById('mCursoDescripcion').value.trim(),
+    dia:         document.getElementById('mCursoDia').value.trim(),
+    horario:     document.getElementById('mCursoHorario').value.trim(),
+    duracion:    document.getElementById('mCursoDuracion').value.trim(),
+    cupo:        document.getElementById('mCursoCupo').value.trim(),
+    estado:      document.getElementById('mCursoEstado').value,
+    hojaId,
+    foto:        curso?.foto || '',
+    chips,
+    proceso,
+    visible:     document.getElementById('mCursoVisible').checked ? 'true' : 'false',
+    creadoEn:    curso?.creadoEn || new Date().toLocaleDateString('es-AR')
+  }
+
+  try {
+    const sesion = getSesion()
+
+    // 1. Guardar datos
+    const res  = await fetch(API, { method:'POST', body:JSON.stringify({ action:'guardar', hoja:'cursos', fila, token:sesion.token }) })
+    const data = await res.json()
+    if(!data.ok){ toast('❌ Error al guardar', 'err'); btn.classList.remove('cargando'); btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Guardar curso'; return }
+
+    // 2. Subir foto si hay nueva
+    if(fotoCursoBase64){
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo foto...'
+      await fetch(API, { method:'POST', body:JSON.stringify({ action:'subirFoto', hoja:'cursos', id:fila.id, b64:fotoCursoBase64, nombre:'curso_'+hojaId+'_'+Date.now(), categoria:nombre, token:sesion.token }) })
+    }
+
+    cerrarModalCurso()
+    cursosData = []
+    await cargarCursos()
+    toast('✅ Curso guardado correctamente', 'ok')
+
+  } catch(e) { toast('❌ Error de conexión', 'err') }
+
+  btn.classList.remove('cargando')
+  btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar curso'
 }
 
 // ─────────────────────────────────────────────
