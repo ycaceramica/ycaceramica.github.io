@@ -87,16 +87,6 @@
         </button>
       </div>
 
-      <div class="sidebar-seccion">
-        <span class="sidebar-label">Comunicación</span>
-        <button class="sidebar-item" onclick="setSeccion('suscriptores')" id="nav-suscriptores">
-          <i class="fa-solid fa-users"></i> Suscriptores
-        </button>
-        <button class="sidebar-item" onclick="setSeccion('emails')" id="nav-emails">
-          <i class="fa-solid fa-envelope"></i> Enviar email
-        </button>
-      </div>
-
     </aside>
 
     <!-- MAIN -->
@@ -393,127 +383,16 @@
             <i class="fa-solid fa-plus"></i> Agregar
           </button>
         </div>
-        <div class="multimedia-admin-grid" id="grid-multimedia"></div>
-        <div class="loading" id="loading-multimedia" style="display:none">
-          <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
-        </div>
-      </div>
-
-      <!-- SUSCRIPTORES -->
-      <div class="seccion" id="seccion-suscriptores" style="display:none">
-        <div class="seccion-header">
-          <div>
-            <h2>👥 Suscriptores</h2>
-            <p>Personas que se suscribieron desde el inicio del sitio</p>
-          </div>
-        </div>
         <div class="admin-filtros-wrapper">
           <div class="admin-buscador-wrapper">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input class="admin-buscador" id="buscar-suscriptores" placeholder="Buscar por nombre o email..." oninput="filtrarSuscriptores()">
+            <input class="admin-buscador" id="buscar-multimedia" placeholder="Buscar por título..." oninput="filtrarGrid('multimedia')">
           </div>
-          <div class="admin-filtros-cats" id="filtros-suscriptores"></div>
+          <div class="admin-filtros-cats" id="filtros-multimedia"></div>
         </div>
-        <div class="suscriptores-lista" id="lista-suscriptores"></div>
-        <div class="loading" id="loading-suscriptores" style="display:none">
+        <div class="multimedia-admin-grid" id="grid-multimedia"></div>
+        <div class="loading" id="loading-multimedia" style="display:none">
           <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
-        </div>
-      </div>
-
-      <!-- EMAILS -->
-      <div class="seccion" id="seccion-emails" style="display:none">
-        <div class="seccion-header">
-          <div>
-            <h2>📧 Enviar email</h2>
-            <p>Enviá novedades a suscriptores y alumnos</p>
-          </div>
-        </div>
-
-        <div class="email-composer">
-
-          <!-- Tipo de plantilla -->
-          <div class="email-campo">
-            <label>Tipo de email</label>
-            <div class="email-tipos">
-              <button class="email-tipo-btn activo" id="etipo-oferta" onclick="setTipoEmail('oferta')">
-                🧪 Oferta
-              </button>
-              <button class="email-tipo-btn" id="etipo-curso" onclick="setTipoEmail('curso')">
-                🎓 Curso nuevo
-              </button>
-              <button class="email-tipo-btn" id="etipo-libre" onclick="setTipoEmail('libre')">
-                ✏️ Novedad libre
-              </button>
-            </div>
-          </div>
-
-          <!-- Destinatarios -->
-          <div class="email-campo">
-            <label>Enviar a</label>
-            <div class="email-tipos">
-              <button class="email-tipo-btn activo" id="edest-todos" onclick="setDestinatario('todos')">
-                👥 Todos
-              </button>
-              <button class="email-tipo-btn" id="edest-cursos" onclick="setDestinatario('cursos')">
-                🎓 Interesados en cursos
-              </button>
-              <button class="email-tipo-btn" id="edest-insumos" onclick="setDestinatario('insumos')">
-                🧪 Interesados en insumos
-              </button>
-              <button class="email-tipo-btn" id="edest-piezas" onclick="setDestinatario('piezas')">
-                🏺 Interesados en piezas
-              </button>
-              <button class="email-tipo-btn" id="edest-alumnos" onclick="setDestinatario('alumnos')">
-                📚 Solo alumnos
-              </button>
-            </div>
-          </div>
-
-          <!-- Campos dinámicos según tipo -->
-          <div id="email-campos-oferta">
-            <div class="email-campo">
-              <label>Título de la oferta *</label>
-              <input id="eOfertaTitulo" placeholder="Ej: 20% OFF en arcillas este mes">
-            </div>
-            <div class="email-campo">
-              <label>Descripción</label>
-              <textarea id="eOfertaDesc" rows="4" placeholder="Contá los detalles de la oferta..."></textarea>
-            </div>
-          </div>
-
-          <div id="email-campos-curso" style="display:none">
-            <div class="email-campo">
-              <label>Curso a promocionar *</label>
-              <select id="eCursoSelect">
-                <option value="">Seleccioná un curso</option>
-              </select>
-            </div>
-            <div class="email-campo">
-              <label>Mensaje adicional</label>
-              <textarea id="eCursoMensaje" rows="3" placeholder="Agregá info extra si querés..."></textarea>
-            </div>
-          </div>
-
-          <div id="email-campos-libre" style="display:none">
-            <div class="email-campo">
-              <label>Asunto *</label>
-              <input id="eLibreAsunto" placeholder="Asunto del email">
-            </div>
-            <div class="email-campo">
-              <label>Mensaje *</label>
-              <textarea id="eLibreMensaje" rows="6" placeholder="Escribí tu mensaje..."></textarea>
-            </div>
-          </div>
-
-          <div class="email-info" id="emailInfo">
-            <i class="fa-solid fa-circle-info"></i>
-            <span id="emailInfoMsg">Cargando cantidad de destinatarios...</span>
-          </div>
-
-          <button class="btn-enviar-email" onclick="enviarEmailMasivo()" id="btnEnviarEmail">
-            <i class="fa-solid fa-paper-plane"></i> Enviar email
-          </button>
-
         </div>
       </div>
 
