@@ -221,7 +221,12 @@
             <h2>👥 Usuarios</h2>
             <p>Gestión de alumnos registrados</p>
           </div>
+          <button class="btn-nuevo" onclick="abrirModalExportarLista()">
+            <i class="fa-solid fa-file-pdf"></i> Exportar lista
+          </button>
         </div>
+
+        <!-- Tabs de estado -->
         <div class="usuarios-tabs">
           <button class="utab activo" onclick="setUsuarioTab('pendientes')" id="utab-pendientes">
             Pendientes <span id="cnt-pendientes">0</span>
@@ -229,12 +234,71 @@
           <button class="utab" onclick="setUsuarioTab('activos')" id="utab-activos">
             Activos <span id="cnt-activos">0</span>
           </button>
+          <button class="utab" onclick="setUsuarioTab('pausados')" id="utab-pausados">
+            Pausados <span id="cnt-pausados">0</span>
+          </button>
           <button class="utab" onclick="setUsuarioTab('rechazados')" id="utab-rechazados">
             Rechazados <span id="cnt-rechazados">0</span>
           </button>
         </div>
+
+        <!-- Filtro por curso -->
+        <div class="usuarios-filtro-curso">
+          <i class="fa-solid fa-graduation-cap"></i>
+          <select id="filtroCursoUsuarios" onchange="renderUsuarios()">
+            <option value="">Todos los cursos</option>
+          </select>
+        </div>
+
         <div class="usuarios-lista" id="lista-usuarios"></div>
         <div class="loading" id="loading-usuarios" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
+
+      <!-- MODAL EXPORTAR LISTA -->
+      <div class="modal-overlay" id="modalExportar" style="display:none" onclick="cerrarModalExportar(event)">
+        <div class="modal-card" style="max-width:420px">
+          <div class="modal-header">
+            <h3>📋 Exportar lista de alumnos</h3>
+            <button class="modal-cerrar" onclick="cerrarModalExportar()"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div class="modal-body">
+            <div class="mform-grupo">
+              <label>Curso</label>
+              <select id="exportCurso">
+                <option value="">Todos los cursos</option>
+              </select>
+            </div>
+            <div class="mform-grupo">
+              <label>¿Qué alumnos incluir?</label>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+                <label class="curso-check-item">
+                  <input type="checkbox" id="expActivos" checked>
+                  <span>✅ Activos</span>
+                </label>
+                <label class="curso-check-item">
+                  <input type="checkbox" id="expPausados" checked>
+                  <span>⏸ Pausados</span>
+                </label>
+              </div>
+            </div>
+            <div class="mform-grupo">
+              <label>Columnas a incluir</label>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+                <label class="curso-check-item"><input type="checkbox" id="expNombre"  checked><span>Nombre</span></label>
+                <label class="curso-check-item"><input type="checkbox" id="expEmail"   checked><span>Email</span></label>
+                <label class="curso-check-item"><input type="checkbox" id="expCursos"  checked><span>Curso/s</span></label>
+                <label class="curso-check-item"><input type="checkbox" id="expEstado"  checked><span>Estado</span></label>
+                <label class="curso-check-item"><input type="checkbox" id="expFecha"        ><span>Fecha de registro</span></label>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-cancelar" onclick="cerrarModalExportar()">Cancelar</button>
+            <button class="btn-guardar-modal" onclick="exportarListaPDF()">
+              <i class="fa-solid fa-file-pdf"></i> Generar PDF
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- APUNTES -->
