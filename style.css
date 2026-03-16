@@ -233,6 +233,31 @@ section h2{
   color:var(--color-texto);
 }
 
+.contacto-email{
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.contacto-email a{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-primario);
+  text-decoration: none;
+  padding: 12px 24px;
+  border: 1.5px solid var(--color-primario);
+  border-radius: 30px;
+  transition: 0.2s;
+}
+
+.contacto-email a:hover{
+  background: var(--color-primario);
+  color: white;
+}
+
 /* WHATSAPP */
 
 .whatsapp{
@@ -403,3 +428,41 @@ footer{
   0%, 100%{ opacity: 0.4; }
   50%{ opacity: 0.7; }
 }
+
+/* ── BUSCADOR PÚBLICO (piezas / insumos) ── */
+
+.buscador-wrapper{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--color-superficie);
+  border-radius: 30px;
+  padding: 12px 20px;
+  border: 1.5px solid rgba(139,111,86,0.2);
+  max-width: 400px;
+  margin: 0 auto 20px auto;
+  transition: border-color 0.2s;
+}
+
+.buscador-wrapper:focus-within{
+  border-color: var(--color-primario);
+}
+
+.buscador-wrapper i{
+  color: var(--color-texto);
+  opacity: 0.4;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.buscador-input{
+  border: none;
+  background: transparent;
+  color: var(--color-texto);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  width: 100%;
+}
+
+.buscador-input:focus{ outline: none; }
+.buscador-input::placeholder{ opacity: 0.4; }
