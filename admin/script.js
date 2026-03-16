@@ -100,7 +100,8 @@ function limpiarCache(){
 async function cargarSeccion(nombre){
   if(nombre === 'usuarios')   { await cargarUsuarios();   return }
   if(nombre === 'cursos')     { await cargarCursos();     return }
-  if(nombre === 'galeria')    { await cargarGaleria();    return }
+  if(nombre === 'galeria')      { await cargarGaleria();      return }
+  if(nombre === 'elaboracion')  { await cargarElaboracion();  return }
   if(nombre === 'multimedia') { await cargarMultimedia(); return }
 
   const grid    = document.getElementById('grid-' + nombre)
@@ -778,6 +779,160 @@ async function togglePublicado(hoja, id, publicadoActual){
       await cargarSeccion(hoja)
       toast(nuevoValor === 'true' ? '✅ Publicado' : '👁 Ocultado', 'ok')
     }
+  } catch(e) { toast('❌ Error', 'err') }
+}
+
+// ─────────────────────────────────────────────
+// ELABORACIÓN
+// ─────────────────────────────────────────────
+
+let elaboracionData = []
+
+async function cargarElaboracion(){
+  const loading = document.getElementById('loading-elaboracion')
+  loading.style.display = 'block'
+
+  try {
+    const sesion = getSesion()
+
+    // Cargar slots y config en paralelo
+    const [resSlots, resConfig] = await Promise.all([
+      fetch(`${API}?action=getAll&hoja=elaboracion&token=${encodeURIComponent(sesion.token)}`),
+      fetch(`${API}?action=getConfigIndex`)
+    ])
+
+    const dataSlots  = await resSlots.json()
+    const dataConfig = await resConfig.json()
+
+    elaboracionData = dataSlots.data || []
+
+    // Actualizar switch de visibilidad
+    const visible = dataConfig.data?.elaboracion_visible !== 'false'
+    document.getElementById('switchElaboracionVisible').checked = visible
+
+    renderElaboracion()
+  } catch(e) { toast('❌ Error al cargar elaboración', 'err') }
+
+  loading.style.display = 'none'
+}
+
+function renderElaboracion(){
+  const gridEtapas = document.getElementById('grid-elaboracion-etapas')
+  const gridTaller = document.getElementById('grid-elaboracion-taller')
+  gridEtapas.innerHTML = ''
+  gridTaller.innerHTML = ''
+
+  const etapas = [1,2,3,4,5,6].map(n =>
+    elaboracionData.find(s => s.seccion === 'etapa' && String(s.slot) === String(n)) ||
+    { id: 'ELAB-' + n, seccion: 'etapa', slot: n, foto: '', descripcion: '' }
+  )
+
+  const taller = [1,2,3,4,5,6].map(n =>
+    elaboracionData.find(s => s.seccion === 'taller' && String(s.slot) === String(n)) ||
+    { id: 'TALL-' + n, seccion: 'taller', slot: n, foto: '', descripcion: '' }
+  )
+
+  const titulos = [
+    'Preparación de la arcilla',
+    'Modelado en torno',
+    'Trabajo con moldes',
+    'Secado y retoque',
+    'Esmaltado y decoración',
+    'Horneado'
+  ]
+
+  etapas.forEach((slot, i) => {
+    gridEtapas.appendChild(crearSlotElaboracion(slot, `Etapa ${i+1} — ${titulos[i]}`))
+  })
+
+  taller.forEach((slot, i) => {
+    gridTaller.appendChild(crearSlotElaboracion(slot, `Foto del taller ${i+1}`))
+  })
+}
+
+function crearSlotElaboracion(slot, label){
+  const div = document.createElement('div')
+  div.className = 'elaboracion-slot'
+  div.innerHTML = `
+    <div class="elaboracion-slot-img" onclick="subirFotoElaboracion('${slot.id}', '${slot.seccion}', ${slot.slot})">
+      ${slot.foto
+        ? `<img src="${slot.foto}" alt="${label}" loading="lazy">`
+        : `<div class="elaboracion-slot-placeholder">
+             <i class="fa-solid fa-camera"></i>
+             <span>${slot.descripcion || 'Sin foto — tocá para agregar'}</span>
+           </div>`
+      }
+      <div class="elaboracion-slot-overlay">
+        <button class="elaboracion-slot-cambiar" type="button">
+          <i class="fa-solid fa-camera"></i>
+          ${slot.foto ? 'Cambiar foto' : 'Agregar foto'}
+        </button>
+      </div>
+    </div>
+    <div class="elaboracion-slot-body">
+      <div class="elaboracion-slot-num">${label}</div>
+      ${slot.descripcion ? `<div class="elaboracion-slot-desc">📸 ${slot.descripcion}</div>` : ''}
+    </div>
+  `
+  return div
+}
+
+function subirFotoElaboracion(id, seccion, slot){
+  const input  = document.createElement('input')
+  input.type   = 'file'
+  input.accept = 'image/*'
+  input.onchange = async (e) => {
+    const file = e.target.files[0]
+    if(!file) return
+
+    if(file.size > 1.5 * 1024 * 1024){
+      toast('⚠️ La foto pesa más de 1.5MB — puede cargar lento', '')
+    }
+
+    toast('⏳ Subiendo foto...', '')
+    const b64 = await fileToBase64(file)
+
+    try {
+      const sesion = getSesion()
+      const res    = await fetch(API, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'subirFoto',
+          hoja:   'elaboracion',
+          id,
+          b64,
+          nombre: 'elaboracion_' + seccion + '_' + slot + '_' + Date.now(),
+          token:  sesion.token
+        })
+      })
+      const data = await res.json()
+      if(data.ok){
+        elaboracionData = []
+        await cargarElaboracion()
+        toast('✅ Foto actualizada', 'ok')
+      } else {
+        toast('❌ Error al subir foto', 'err')
+      }
+    } catch(e) { toast('❌ Error de conexión', 'err') }
+  }
+  input.click()
+}
+
+async function toggleElaboracionVisible(visible){
+  try {
+    const sesion = getSesion()
+    await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'actualizarCampo',
+        hoja:   'config_index',
+        id:     'CFG-elaboracion',
+        campo:  'valor',
+        valor:  visible ? 'true' : 'false',
+        token:  sesion.token
+      })
+    })
+    toast(visible ? '✅ Sección visible en el inicio' : '👁 Sección oculta del inicio', 'ok')
   } catch(e) { toast('❌ Error', 'err') }
 }
 
