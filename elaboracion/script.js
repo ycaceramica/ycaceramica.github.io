@@ -41,3 +41,48 @@ document.querySelectorAll(".nav a").forEach(link => {
 window.addEventListener("scroll", () => {
   if(nav) nav.classList.remove("active")
 })
+
+// ─────────────────────────────────────────────
+// FOTOS DINÁMICAS DESDE APPS SCRIPT
+// ─────────────────────────────────────────────
+
+const API_ELAB = 'https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec'
+
+async function cargarFotosElaboracion(){
+  try {
+    const res  = await fetch(`${API_ELAB}?action=getElaboracion`)
+    const data = await res.json()
+    const slots = data.data || []
+
+    slots.forEach(slot => {
+      if(!slot.foto) return
+
+      if(slot.seccion === 'etapa'){
+        const contenedor = document.getElementById('foto-etapa-' + slot.slot)
+        if(contenedor){
+          const img = document.createElement('img')
+          img.src     = slot.foto
+          img.alt     = 'Etapa ' + slot.slot
+          img.loading = 'lazy'
+          contenedor.replaceWith(img)
+        }
+      }
+
+      if(slot.seccion === 'taller'){
+        const contenedor = document.getElementById('foto-taller-' + slot.slot)
+        if(contenedor){
+          const img = document.createElement('img')
+          img.src     = slot.foto
+          img.alt     = 'Taller ' + slot.slot
+          img.loading = 'lazy'
+          img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:12px;'
+          contenedor.replaceWith(img)
+        }
+      }
+    })
+  } catch(e) {
+    // Silencioso — si falla quedan los placeholders
+  }
+}
+
+cargarFotosElaboracion()
