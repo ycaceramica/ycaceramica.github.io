@@ -355,3 +355,79 @@
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   }
 }
+
+/* ── CAMBIAR CONTRASEÑA ── */
+
+.pass-cambiar-card{
+  background: var(--color-superficie);
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 8px 24px var(--color-sombra);
+  max-width: 480px;
+}
+
+.pass-cambiar-card h3{
+  font-size: 17px;
+  margin: 0 0 22px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pass-cambiar-card .form-grupo{
+  margin-bottom: 16px;
+}
+
+.pass-cambiar-card .form-grupo label{
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.6;
+  margin-bottom: 6px;
+}
+
+.pass-error{
+  background: rgba(168,82,82,0.1);
+  border: 1.5px solid rgba(168,82,82,0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #a85252;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.pass-success{
+  background: rgba(82,168,82,0.1);
+  border: 1.5px solid rgba(82,168,82,0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #52a852;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.btn-cambiar-pass{
+  width: 100%;
+  padding: 13px;
+  background: var(--color-primario);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.2s;
+}
+
+.btn-cambiar-pass:hover{ opacity: 0.85; }
