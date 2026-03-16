@@ -436,6 +436,7 @@
           </div>
         </div>
         <div class="email-composer">
+
           <div class="email-campo">
             <label>Tipo de email</label>
             <div class="email-tipos">
@@ -444,6 +445,7 @@
               <button class="email-tipo-btn" id="etipo-libre" onclick="setTipoEmail('libre')">✏️ Novedad libre</button>
             </div>
           </div>
+
           <div class="email-campo">
             <label>Enviar a</label>
             <div class="email-tipos">
@@ -454,6 +456,8 @@
               <button class="email-tipo-btn" id="edest-alumnos" onclick="setDestinatario('alumnos')">📚 Solo alumnos</button>
             </div>
           </div>
+
+          <!-- Campos por tipo -->
           <div id="email-campos-oferta" style="display:flex;flex-direction:column;gap:16px">
             <div class="email-campo">
               <label>Título de la oferta *</label>
@@ -464,6 +468,7 @@
               <textarea id="eOfertaDesc" rows="4" placeholder="Contá los detalles..."></textarea>
             </div>
           </div>
+
           <div id="email-campos-curso" style="display:none;flex-direction:column;gap:16px">
             <div class="email-campo">
               <label>Curso a promocionar *</label>
@@ -474,6 +479,7 @@
               <textarea id="eCursoMensaje" rows="3" placeholder="Info extra opcional..."></textarea>
             </div>
           </div>
+
           <div id="email-campos-libre" style="display:none;flex-direction:column;gap:16px">
             <div class="email-campo">
               <label>Asunto *</label>
@@ -484,13 +490,48 @@
               <textarea id="eLibreMensaje" rows="6" placeholder="Escribí tu mensaje..."></textarea>
             </div>
           </div>
+
+          <!-- Imagen opcional -->
+          <div class="email-campo">
+            <label>Imagen <span class="email-opcional">(opcional — se muestra dentro del email)</span></label>
+            <div class="email-img-area" id="emailImgArea" onclick="elegirImagenEmail()">
+              <div class="email-img-placeholder" id="emailImgPlaceholder">
+                <i class="fa-solid fa-image"></i>
+                <span>Tocá para subir una imagen</span>
+              </div>
+            </div>
+            <button class="email-quitar-btn" id="emailImgQuitar" style="display:none" onclick="quitarImagenEmail()">
+              <i class="fa-solid fa-xmark"></i> Quitar imagen
+            </button>
+          </div>
+
+          <!-- PDF opcional -->
+          <div class="email-campo">
+            <label>PDF adjunto <span class="email-opcional">(opcional)</span></label>
+            <div class="email-pdf-opciones">
+              <div class="email-pdf-opcion">
+                <span class="email-pdf-label">📎 Subir desde PC</span>
+                <button class="email-pdf-btn" onclick="elegirPdfEmail()" id="emailPdfBtn">
+                  <i class="fa-solid fa-upload"></i> Elegir PDF
+                </button>
+                <span class="email-pdf-nombre" id="emailPdfNombre"></span>
+              </div>
+              <div class="email-pdf-opcion">
+                <span class="email-pdf-label">🔗 O pegar link de Drive</span>
+                <input id="emailPdfLink" placeholder="https://drive.google.com/...">
+              </div>
+            </div>
+          </div>
+
           <div class="email-info">
             <i class="fa-solid fa-circle-info"></i>
             <span id="emailInfoMsg">Cargando destinatarios...</span>
           </div>
+
           <button class="btn-enviar-email" onclick="enviarEmailMasivo()" id="btnEnviarEmail">
             <i class="fa-solid fa-paper-plane"></i> Enviar email
           </button>
+
         </div>
       </div>
 
@@ -532,38 +573,6 @@
           <i class="fa-solid fa-eye-slash"></i> Solo eliminar de la web
         </button>
         <button class="btn-cancelar" onclick="cerrarModalBorrarItem()">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL CONFIRMAR EMAIL -->
-  <div class="modal-overlay" id="modalConfirmarEmail" style="display:none" onclick="cerrarModalConfirmarEmail(event)">
-    <div class="modal-card" style="max-width:460px">
-      <div class="modal-header">
-        <h3>📧 Confirmar envío</h3>
-        <button class="modal-cerrar" onclick="cerrarModalConfirmarEmail()">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-      <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
-        <div class="email-confirm-fila">
-          <span class="email-confirm-label">Asunto</span>
-          <span class="email-confirm-valor" id="confirmAsunto"></span>
-        </div>
-        <div class="email-confirm-fila">
-          <span class="email-confirm-label">Destinatarios</span>
-          <span class="email-confirm-valor" id="confirmDestinatarios"></span>
-        </div>
-        <div class="email-confirm-aviso">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-          Esta acción no se puede deshacer. Los emails se enviarán inmediatamente.
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-cancelar" onclick="cerrarModalConfirmarEmail()">Cancelar</button>
-        <button class="btn-guardar-modal" id="btnConfirmarEnvio" onclick="confirmarEnvioEmail()">
-          <i class="fa-solid fa-paper-plane"></i> Confirmar y enviar
-        </button>
       </div>
     </div>
   </div>
@@ -792,6 +801,48 @@
   <!-- Inputs ocultos -->
   <input type="file" id="inputFotoModal" accept="image/*" style="display:none" onchange="previsualizarFoto(event)">
   <input type="file" id="inputFotoMultimedia" accept="image/*" style="display:none" onchange="previsualizarFotoMultimedia(event)">
+  <input type="file" id="inputImagenEmail" accept="image/*" style="display:none" onchange="previsualizarImagenEmail(event)">
+  <input type="file" id="inputPdfEmail" accept=".pdf" style="display:none" onchange="seleccionarPdfEmail(event)">
+
+  <!-- MODAL CONFIRMAR EMAIL -->
+  <div class="modal-overlay" id="modalConfirmarEmail" style="display:none" onclick="cerrarModalConfirmarEmail(event)">
+    <div class="modal-card" style="max-width:460px">
+      <div class="modal-header">
+        <h3>📧 Confirmar envío</h3>
+        <button class="modal-cerrar" onclick="cerrarModalConfirmarEmail()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+        <div class="email-confirm-fila">
+          <span class="email-confirm-label">Asunto</span>
+          <span class="email-confirm-valor" id="confirmAsunto"></span>
+        </div>
+        <div class="email-confirm-fila">
+          <span class="email-confirm-label">Destinatarios</span>
+          <span class="email-confirm-valor" id="confirmDestinatarios"></span>
+        </div>
+        <div class="email-confirm-fila" id="confirmImagenFila" style="display:none">
+          <span class="email-confirm-label">Imagen</span>
+          <span class="email-confirm-valor">✅ Incluida</span>
+        </div>
+        <div class="email-confirm-fila" id="confirmPdfFila" style="display:none">
+          <span class="email-confirm-label">PDF</span>
+          <span class="email-confirm-valor" id="confirmPdfNombre"></span>
+        </div>
+        <div class="email-confirm-aviso">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          Esta acción no se puede deshacer. Los emails se enviarán inmediatamente.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="cerrarModalConfirmarEmail()">Cancelar</button>
+        <button class="btn-guardar-modal" id="btnConfirmarEnvio" onclick="confirmarEnvioEmail()">
+          <i class="fa-solid fa-paper-plane"></i> Confirmar y enviar
+        </button>
+      </div>
+    </div>
+  </div>
 
   <div class="toast" id="toast"></div>
 
