@@ -191,7 +191,6 @@ function armarFiltrosAdmin(hoja, items){
 
   const campo = (hoja === 'apuntes' || hoja === 'multimedia') ? 'curso' : 'categoria'
   const vals  = ['Todos', ...new Set(items.map(i => i[campo]).filter(Boolean))]
-
   contenedor.innerHTML = ''
   if(!filtroActivo[hoja]) filtroActivo[hoja] = 'Todos'
 
@@ -2180,8 +2179,7 @@ function filtrarSuscriptores(filtro = 'Todos'){
   }
   if(busqueda){
     filtrados = filtrados.filter(s =>
-      (s.nombre||'').toLowerCase().includes(busqueda)||(s.email||'').toLowerCase().includes(busqueda)
-    )
+      (s.nombre||'').toLowerCase().includes(busqueda)||(s.email||'').toLowerCase().includes(busqueda))
   }
   renderSuscriptores(filtrados)
 }
@@ -2206,8 +2204,7 @@ function renderSuscriptores(lista){
         <div class="suscriptor-nombre">${s.nombre||''}</div>
         <div class="suscriptor-meta">${s.email||''} ${s.instagram?'· @'+s.instagram:''} · ${s.fecha||''}</div>
       </div>
-      <div class="suscriptor-intereses">${tags}</div>
-    `
+      <div class="suscriptor-intereses">${tags}</div>`
     contenedor.appendChild(card)
   })
 }
@@ -2224,15 +2221,21 @@ let emailPdfB64        = null
 let emailPdfNombreStr  = ''
 
 async function cargarEmails(){
-  if(cursosData.length === 0) await cargarCursosSilencioso()
+  // Siempre recargar cursos para que el selector esté actualizado
+  cursosData = []
+  await cargarCursosSilencioso()
+
   const sel = document.getElementById('eCursoSelect')
-  sel.innerHTML = '<option value="">Seleccioná un curso</option>'
-  cursosData.forEach(c => {
-    const opt = document.createElement('option')
-    opt.value = c.hojaId || c.id
-    opt.textContent = c.nombre
-    sel.appendChild(opt)
-  })
+  if(sel){
+    sel.innerHTML = '<option value="">Seleccioná un curso</option>'
+    cursosData.forEach(c => {
+      const opt = document.createElement('option')
+      opt.value = c.hojaId || c.id
+      opt.textContent = c.nombre
+      sel.appendChild(opt)
+    })
+  }
+
   setTipoEmail('oferta')
   actualizarInfoDestinatarios()
 }
@@ -2240,7 +2243,8 @@ async function cargarEmails(){
 function setTipoEmail(tipo){
   tipoEmailActual = tipo
   document.querySelectorAll('.email-tipo-btn[id^="etipo"]').forEach(b => b.classList.remove('activo'))
-  document.getElementById('etipo-' + tipo).classList.add('activo')
+  const btnTipo = document.getElementById('etipo-' + tipo)
+  if(btnTipo) btnTipo.classList.add('activo')
   ;['oferta','curso','libre'].forEach(b => {
     const el = document.getElementById('email-campos-' + b)
     if(el){ el.style.display = b === tipo ? 'flex' : 'none'; if(b===tipo) el.style.flexDirection='column' }
@@ -2250,7 +2254,8 @@ function setTipoEmail(tipo){
 function setDestinatario(dest){
   destinatarioActual = dest
   document.querySelectorAll('.email-tipo-btn[id^="edest"]').forEach(b => b.classList.remove('activo'))
-  document.getElementById('edest-' + dest).classList.add('activo')
+  const btnDest = document.getElementById('edest-' + dest)
+  if(btnDest) btnDest.classList.add('activo')
   actualizarInfoDestinatarios()
 }
 
@@ -2279,7 +2284,6 @@ async function actualizarInfoDestinatarios(){
   } catch(e) { if(infoMsg) infoMsg.innerText = 'No se pudo calcular destinatarios' }
 }
 
-// Imagen email
 function elegirImagenEmail(){ document.getElementById('inputImagenEmail').click() }
 
 function previsualizarImagenEmail(e){
@@ -2289,7 +2293,7 @@ function previsualizarImagenEmail(e){
   reader.onload = ev => {
     emailImgB64 = ev.target.result
     const area = document.getElementById('emailImgArea')
-    area.innerHTML = `<img src="${emailImgB64}" alt="Preview">`
+    area.innerHTML = `<img src="${emailImgB64}" alt="Preview" style="width:100%;height:100%;object-fit:cover;">`
     document.getElementById('emailImgQuitar').style.display = 'flex'
   }
   reader.readAsDataURL(file)
@@ -2306,7 +2310,6 @@ function quitarImagenEmail(){
   document.getElementById('inputImagenEmail').value = ''
 }
 
-// PDF email
 function elegirPdfEmail(){ document.getElementById('inputPdfEmail').click() }
 
 function seleccionarPdfEmail(e){
@@ -2319,7 +2322,6 @@ function seleccionarPdfEmail(e){
   reader.readAsDataURL(file)
 }
 
-// Enviar
 async function enviarEmailMasivo(){
   let asunto = '', cuerpo = ''
 
@@ -2329,7 +2331,6 @@ async function enviarEmailMasivo(){
     if(!titulo){ toast('Ingresá el título de la oferta', 'err'); return }
     asunto = '🧪 Oferta especial — YCA Cerámica: ' + titulo
     cuerpo = desc || ''
-
   } else if(tipoEmailActual === 'curso'){
     const hojaId  = document.getElementById('eCursoSelect').value
     const mensaje = document.getElementById('eCursoMensaje').value.trim()
@@ -2337,7 +2338,6 @@ async function enviarEmailMasivo(){
     const curso = cursosData.find(c => (c.hojaId||c.id) === hojaId)
     asunto = '🎓 Nuevo curso disponible — ' + (curso?.nombre || hojaId)
     cuerpo = mensaje || ''
-
   } else {
     asunto = document.getElementById('eLibreAsunto').value.trim()
     cuerpo = document.getElementById('eLibreMensaje').value.trim()
@@ -2363,12 +2363,11 @@ async function enviarEmailMasivo(){
 
   const imgFila = document.getElementById('confirmImagenFila')
   const pdfFila = document.getElementById('confirmPdfFila')
-  imgFila.style.display = emailImgB64 ? 'flex' : 'none'
-  if(emailPdfB64 || pdfLink){
-    pdfFila.style.display = 'flex'
-    document.getElementById('confirmPdfNombre').innerText = emailPdfB64 ? emailPdfNombreStr : '🔗 Link de Drive'
-  } else {
-    pdfFila.style.display = 'none'
+  if(imgFila) imgFila.style.display = emailImgB64 ? 'flex' : 'none'
+  if(pdfFila){
+    pdfFila.style.display = (emailPdfB64 || pdfLink) ? 'flex' : 'none'
+    const pdfNomEl = document.getElementById('confirmPdfNombre')
+    if(pdfNomEl) pdfNomEl.innerText = emailPdfB64 ? emailPdfNombreStr : '🔗 Link de Drive'
   }
 
   document.getElementById('modalConfirmarEmail').style.display = 'flex'
@@ -2385,35 +2384,18 @@ async function confirmarEnvioEmail(){
   const btn = document.getElementById('btnConfirmarEnvio')
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...'
   btn.disabled  = true
-
   try {
     const sesion = getSesion()
     const res    = await fetch(API, {
       method: 'POST',
-      body: JSON.stringify({
-        action:       'enviarEmailMasivo',
-        asunto:       emailPayload.asunto,
-        cuerpo:       emailPayload.cuerpo,
-        destinatario: emailPayload.destinatario,
-        tipoEmail:    emailPayload.tipoEmail,
-        cursoHojaId:  emailPayload.cursoHojaId,
-        imgB64:       emailPayload.imgB64,
-        pdfB64:       emailPayload.pdfB64,
-        pdfNombre:    emailPayload.pdfNombre,
-        pdfLink:      emailPayload.pdfLink,
-        token:        sesion.token
-      })
+      body: JSON.stringify({ action: 'enviarEmailMasivo', ...emailPayload, token: sesion.token })
     })
     const data = await res.json()
     document.getElementById('modalConfirmarEmail').style.display = 'none'
     emailPayload = null
-    if(data.ok){
-      toast(`✅ Email enviado a ${data.enviados} destinatarios`, 'ok')
-    } else {
-      toast('❌ ' + (data.error || 'Error al enviar'), 'err')
-    }
+    if(data.ok) toast(`✅ Email enviado a ${data.enviados} destinatarios`, 'ok')
+    else toast('❌ ' + (data.error || 'Error al enviar'), 'err')
   } catch(e) { toast('❌ Error de conexión', 'err') }
-
   btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Confirmar y enviar'
   btn.disabled  = false
 }
