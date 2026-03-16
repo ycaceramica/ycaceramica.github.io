@@ -701,10 +701,11 @@ body.dark #exportCurso option{
   color: rgba(255,255,255,0.7);
   padding: 16px;
   text-align: center;
+  box-sizing: border-box;
 }
 
-.elaboracion-slot-placeholder i{ font-size: 28px; }
-.elaboracion-slot-placeholder span{ font-size: 11px; font-weight: 600; line-height: 1.4; }
+.elaboracion-slot-placeholder i{ font-size: 28px; flex-shrink: 0; }
+.elaboracion-slot-placeholder span{ font-size: 11px; font-weight: 600; line-height: 1.4; text-align: center; width: 100%; }
 
 .elaboracion-slot-overlay{
   position: absolute;
