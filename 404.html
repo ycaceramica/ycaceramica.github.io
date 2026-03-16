@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Página no encontrada — YCA Cerámica</title>
+  <link rel="icon" type="image/png" href="/imagenes/logo.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .error-wrapper{
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+      gap: 20px;
+    }
+
+    .error-logo{
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin-bottom: 8px;
+    }
+
+    .error-codigo{
+      font-size: 80px;
+      font-weight: 700;
+      color: var(--color-primario);
+      opacity: 0.3;
+      line-height: 1;
+      margin: 0;
+    }
+
+    .error-titulo{
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .error-desc{
+      font-size: 15px;
+      opacity: 0.6;
+      max-width: 400px;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .error-links{
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 8px;
+    }
+
+    .error-btn{
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+
+    .error-btn-primary{
+      background: var(--color-primario);
+      color: white;
+      border: none;
+    }
+
+    .error-btn-secondary{
+      border: 1.5px solid var(--color-primario);
+      color: var(--color-primario);
+      background: transparent;
+    }
+
+    .error-btn:hover{ opacity: 0.85; }
+  </style>
+</head>
+<body>
+
+  <div class="error-wrapper">
+    <img src="/imagenes/logo.png" alt="YCA Cerámica" class="error-logo">
+    <p class="error-codigo">404</p>
+    <h1 class="error-titulo">Página no encontrada 🏺</h1>
+    <p class="error-desc">
+      La página que buscás no existe o fue movida.<br>
+      Pero hay mucho más para explorar en YCA Cerámica.
+    </p>
+    <div class="error-links">
+      <a href="/" class="error-btn error-btn-primary">
+        <i class="fa-solid fa-house"></i> Ir al inicio
+      </a>
+      <a href="/cursos/" class="error-btn error-btn-secondary">
+        Ver cursos
+      </a>
+    </div>
+  </div>
+
+  <script>
+    if(localStorage.getItem("dark") === "true") document.body.classList.add("dark")
+  </script>
+
+</body>
+</html>
