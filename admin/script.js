@@ -98,11 +98,13 @@ function limpiarCache(){
 }
 
 async function cargarSeccion(nombre){
-  if(nombre === 'usuarios')   { await cargarUsuarios();   return }
-  if(nombre === 'cursos')     { await cargarCursos();     return }
+  if(nombre === 'usuarios')     { await cargarUsuarios();     return }
+  if(nombre === 'cursos')       { await cargarCursos();       return }
   if(nombre === 'galeria')      { await cargarGaleria();      return }
   if(nombre === 'elaboracion')  { await cargarElaboracion();  return }
-  if(nombre === 'multimedia') { await cargarMultimedia(); return }
+  if(nombre === 'multimedia')   { await cargarMultimedia();   return }
+  if(nombre === 'suscriptores') { await cargarSuscriptores(); return }
+  if(nombre === 'emails')       { await cargarEmails();       return }
 
   const grid    = document.getElementById('grid-' + nombre)
   const loading = document.getElementById('loading-' + nombre)
@@ -2116,4 +2118,257 @@ function toast(msg, tipo){
   t.innerText = msg
   t.className = 'toast show' + (tipo ? ' ' + tipo : '')
   setTimeout(() => t.classList.remove('show'), 3000)
+}
+
+// ─────────────────────────────────────────────
+// SUSCRIPTORES
+// ─────────────────────────────────────────────
+
+let suscriptoresData = []
+
+async function cargarSuscriptores(){
+  const lista   = document.getElementById('lista-suscriptores')
+  const loading = document.getElementById('loading-suscriptores')
+  loading.style.display = 'block'
+  lista.innerHTML = ''
+
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(`${API}?action=getAll&hoja=suscriptores&token=${encodeURIComponent(sesion.token)}`)
+    const data   = await res.json()
+    suscriptoresData = data.data || []
+    renderSuscriptores(suscriptoresData)
+    armarFiltrosSuscriptores()
+  } catch(e) { toast('❌ Error al cargar suscriptores', 'err') }
+
+  loading.style.display = 'none'
+}
+
+function armarFiltrosSuscriptores(){
+  const contenedor = document.getElementById('filtros-suscriptores')
+  contenedor.innerHTML = ''
+  const intereses = ['Todos', 'cursos', 'insumos', 'piezas', 'todo', 'alumnos']
+  const labels    = { Todos: 'Todos', cursos: '🎓 Cursos', insumos: '🧪 Insumos', piezas: '🏺 Piezas', todo: '✨ Todo', alumnos: '📚 Alumnos' }
+
+  intereses.forEach(int => {
+    const btn = document.createElement('button')
+    btn.className = 'admin-filtro-btn' + (int === 'Todos' ? ' activo' : '')
+    btn.innerText = labels[int]
+    btn.onclick = () => {
+      contenedor.querySelectorAll('.admin-filtro-btn').forEach(b => b.classList.remove('activo'))
+      btn.classList.add('activo')
+      filtrarSuscriptores(int)
+    }
+    contenedor.appendChild(btn)
+  })
+}
+
+function filtrarSuscriptores(filtro = 'Todos'){
+  const busqueda = document.getElementById('buscar-suscriptores')?.value.toLowerCase() || ''
+  let filtrados  = suscriptoresData
+
+  if(filtro && filtro !== 'Todos'){
+    if(filtro === 'alumnos'){
+      filtrados = filtrados.filter(s => s.esAlumno)
+    } else {
+      filtrados = filtrados.filter(s =>
+        (s.intereses || '').includes(filtro) || (s.intereses || '').includes('todo')
+      )
+    }
+  }
+
+  if(busqueda){
+    filtrados = filtrados.filter(s =>
+      (s.nombre || '').toLowerCase().includes(busqueda) ||
+      (s.email  || '').toLowerCase().includes(busqueda)
+    )
+  }
+
+  renderSuscriptores(filtrados)
+}
+
+function renderSuscriptores(lista){
+  const contenedor = document.getElementById('lista-suscriptores')
+  contenedor.innerHTML = ''
+
+  if(lista.length === 0){
+    contenedor.innerHTML = `<div class="vacio"><i class="fa-solid fa-users"></i><p>No hay suscriptores en esta categoría</p></div>`
+    return
+  }
+
+  lista.forEach(s => {
+    const inicial   = (s.nombre || '?')[0].toUpperCase()
+    const intereses = (s.intereses || '').split(',').filter(Boolean)
+    const tags      = intereses.map(i => {
+      const labels = { cursos: '🎓 Cursos', insumos: '🧪 Insumos', piezas: '🏺 Piezas', todo: '✨ Todo' }
+      return `<span class="suscriptor-tag">${labels[i.trim()] || i}</span>`
+    }).join('')
+
+    const card = document.createElement('div')
+    card.className = 'suscriptor-card'
+    card.innerHTML = `
+      <div class="suscriptor-avatar">${inicial}</div>
+      <div class="suscriptor-info">
+        <div class="suscriptor-nombre">${s.nombre || ''}</div>
+        <div class="suscriptor-meta">${s.email || ''} ${s.instagram ? '· @'+s.instagram : ''} · ${s.fecha || ''}</div>
+      </div>
+      <div class="suscriptor-intereses">${tags}</div>
+    `
+    contenedor.appendChild(card)
+  })
+}
+
+// ─────────────────────────────────────────────
+// EMAILS
+// ─────────────────────────────────────────────
+
+let tipoEmailActual    = 'oferta'
+let destinatarioActual = 'todos'
+
+async function cargarEmails(){
+  // Cargar cursos en el selector
+  if(cursosData.length === 0) await cargarCursosSilencioso()
+
+  const sel = document.getElementById('eCursoSelect')
+  sel.innerHTML = '<option value="">Seleccioná un curso</option>'
+  cursosData.forEach(c => {
+    const opt = document.createElement('option')
+    opt.value = c.hojaId || c.id
+    opt.textContent = c.nombre
+    sel.appendChild(opt)
+  })
+
+  actualizarInfoDestinatarios()
+}
+
+function setTipoEmail(tipo){
+  tipoEmailActual = tipo
+  document.querySelectorAll('.email-tipo-btn[id^="etipo"]').forEach(b => b.classList.remove('activo'))
+  document.getElementById('etipo-' + tipo).classList.add('activo')
+  document.getElementById('email-campos-oferta').style.display = tipo === 'oferta' ? 'flex' : 'none'
+  document.getElementById('email-campos-curso').style.display  = tipo === 'curso'  ? 'flex' : 'none'
+  document.getElementById('email-campos-libre').style.display  = tipo === 'libre'  ? 'flex' : 'none'
+
+  // Hacer flex column los bloques
+  ;['email-campos-oferta','email-campos-curso','email-campos-libre'].forEach(id => {
+    const el = document.getElementById(id)
+    if(el.style.display === 'flex') el.style.flexDirection = 'column'
+  })
+}
+
+function setDestinatario(dest){
+  destinatarioActual = dest
+  document.querySelectorAll('.email-tipo-btn[id^="edest"]').forEach(b => b.classList.remove('activo'))
+  document.getElementById('edest-' + dest).classList.add('activo')
+  actualizarInfoDestinatarios()
+}
+
+async function actualizarInfoDestinatarios(){
+  const infoMsg = document.getElementById('emailInfoMsg')
+  if(!infoMsg) return
+
+  try {
+    const sesion = getSesion()
+
+    // Contar suscriptores
+    if(suscriptoresData.length === 0){
+      const res  = await fetch(`${API}?action=getAll&hoja=suscriptores&token=${encodeURIComponent(sesion.token)}`)
+      const data = await res.json()
+      suscriptoresData = data.data || []
+    }
+
+    // Contar alumnos activos
+    let alumnos = []
+    if(usuariosData.length === 0){
+      const res  = await fetch(`${API}?action=getUsuarios&token=${encodeURIComponent(sesion.token)}`)
+      const data = await res.json()
+      alumnos = (data.data || []).filter(u => u.estado === 'activo')
+    } else {
+      alumnos = usuariosData.filter(u => u.estado === 'activo')
+    }
+
+    let count = 0
+    if(destinatarioActual === 'todos'){
+      const sus = suscriptoresData.length
+      const alu = alumnos.length
+      count = sus + alu
+      infoMsg.innerText = `Se enviará a ${sus} suscriptores + ${alu} alumnos activos = ${count} destinatarios`
+    } else if(destinatarioActual === 'alumnos'){
+      count = alumnos.length
+      infoMsg.innerText = `Se enviará a ${count} alumnos activos`
+    } else {
+      const sus = suscriptoresData.filter(s =>
+        (s.intereses || '').includes(destinatarioActual) || (s.intereses || '').includes('todo')
+      ).length
+      infoMsg.innerText = `Se enviará a ${sus} suscriptores interesados en "${destinatarioActual}"`
+    }
+  } catch(e) {
+    infoMsg.innerText = 'No se pudo calcular la cantidad de destinatarios'
+  }
+}
+
+async function enviarEmailMasivo(){
+  const btn = document.getElementById('btnEnviarEmail')
+  let asunto  = ''
+  let cuerpo  = ''
+  let linkUrl = ''
+
+  if(tipoEmailActual === 'oferta'){
+    const titulo = document.getElementById('eOfertaTitulo').value.trim()
+    const desc   = document.getElementById('eOfertaDesc').value.trim()
+    if(!titulo){ toast('Ingresá el título de la oferta', 'err'); return }
+    asunto = '🧪 Oferta especial — YCA Cerámica: ' + titulo
+    cuerpo = '¡Hola!\n\nTenemos una oferta especial para vos:\n\n' +
+             '🔥 ' + titulo + '\n\n' +
+             (desc ? desc + '\n\n' : '') +
+             'Visitanos en: https://ycaceramica.github.io\n\n— YCA Cerámica'
+
+  } else if(tipoEmailActual === 'curso'){
+    const hojaId  = document.getElementById('eCursoSelect').value
+    const mensaje = document.getElementById('eCursoMensaje').value.trim()
+    if(!hojaId){ toast('Seleccioná un curso', 'err'); return }
+    const curso = cursosData.find(c => (c.hojaId || c.id) === hojaId)
+    const nombreCurso = curso?.nombre || hojaId
+    linkUrl = 'https://ycaceramica.github.io/cursos/' + hojaId + '/'
+    asunto  = '🎓 Nuevo curso disponible — ' + nombreCurso
+    cuerpo  = '¡Hola!\n\nQueremos contarte sobre nuestro curso:\n\n' +
+              '🎓 ' + nombreCurso + '\n\n' +
+              (mensaje ? mensaje + '\n\n' : '') +
+              '🔗 Conocé todos los detalles acá:\n' + linkUrl + '\n\n— YCA Cerámica'
+
+  } else {
+    asunto = document.getElementById('eLibreAsunto').value.trim()
+    cuerpo = document.getElementById('eLibreMensaje').value.trim()
+    if(!asunto){ toast('Ingresá el asunto', 'err'); return }
+    if(!cuerpo){ toast('Ingresá el mensaje', 'err'); return }
+    cuerpo += '\n\n— YCA Cerámica'
+  }
+
+  if(!confirm(`¿Confirmar envío?\n\nAsunto: ${asunto}\nDestinatarios: ${document.getElementById('emailInfoMsg').innerText}`)) return
+
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...'
+  btn.disabled  = true
+
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({
+        action:       'enviarEmailMasivo',
+        asunto,
+        cuerpo,
+        destinatario: destinatarioActual,
+        token:        sesion.token
+      })
+    })
+    const data = await res.json()
+    if(data.ok){
+      toast(`✅ Email enviado a ${data.enviados} destinatarios`, 'ok')
+    } else {
+      toast('❌ ' + (data.error || 'Error al enviar'), 'err')
+    }
+  } catch(e) { toast('❌ Error de conexión', 'err') }
+
+  btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar email'
+  btn.disabled  = false
 }
