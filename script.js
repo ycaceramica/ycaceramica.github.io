@@ -93,14 +93,14 @@ window.addEventListener("scroll", () => {
 // GALERÍA DINÁMICA
 // ─────────────────────────────────────────────
 
-const API_GALERIA = "https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec"
+const API = "https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec"
 
 async function cargarGaleria(){
   const grid = document.getElementById("galeriaGrid")
   if(!grid) return
 
   try {
-    const res   = await fetch(`${API_GALERIA}?action=getGaleria`)
+    const res   = await fetch(`${API}?action=getGaleria`)
     const data  = await res.json()
     const slots = (data.data || []).filter(s => s.foto)
 
