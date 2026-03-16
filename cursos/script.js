@@ -1,4 +1,10 @@
 // ─────────────────────────────────────────────
+// CONFIGURACIÓN
+// ─────────────────────────────────────────────
+
+const API = "https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec"
+
+// ─────────────────────────────────────────────
 // MODO OSCURO
 // ─────────────────────────────────────────────
 
@@ -47,13 +53,11 @@ window.addEventListener("scroll", () => {
 // ─────────────────────────────────────────────
 
 function filtrar(estado){
-  // Actualizar botones
   document.querySelectorAll(".filtro-btn").forEach(b => b.classList.remove("activo"))
   document.getElementById(`f-${estado}`).classList.add("activo")
 
-  // Filtrar tarjetas
   const tarjetas = document.querySelectorAll(".curso-tarjeta")
-  let visibles = 0
+  let visibles   = 0
 
   tarjetas.forEach(t => {
     const mostrar = estado === "todos" || t.dataset.estado === estado
@@ -61,49 +65,72 @@ function filtrar(estado){
     if(mostrar) visibles++
   })
 
-  // Mensaje sin resultados
   document.getElementById("sinResultados").style.display = visibles === 0 ? "flex" : "none"
   document.getElementById("cursosGrid").style.display    = visibles === 0 ? "none" : "grid"
 }
 
 // ─────────────────────────────────────────────
-// SINCRONIZAR ESTADO DESDE APPS SCRIPT
-// Actualiza el data-estado de cada tarjeta
-// según lo que está guardado en Sheets
+// CURSOS CON PÁGINA PROPIA
+// Al agregar un curso con página dedicada, añadí su hojaId acá
 // ─────────────────────────────────────────────
 
-const API_CURSOS = "https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec"
+const CURSOS_CON_PAGINA_PROPIA = ['taller-inicial', 'arcilla-y-luna']
 
-async function sincronizarEstadoCursos(){
+// ─────────────────────────────────────────────
+// CARGAR CURSOS DINÁMICAMENTE
+// ─────────────────────────────────────────────
+
+async function cargarCursos(){
+  const grid = document.getElementById("cursosGrid")
+
   try {
-    const res  = await fetch(`${API_CURSOS}?action=getCursos`)
-    const data = await res.json()
-    const cursos = data.data || []
+    const res    = await fetch(`${API}?action=getCursos`)
+    const data   = await res.json()
+    const cursos = (data.data || []).filter(c =>
+      c.visible !== 'false' && c.visible !== false
+    )
 
-    cursos.forEach(curso => {
-      // Buscar tarjeta por hojaId
-      const tarjeta = document.querySelector(`.curso-tarjeta[data-hoja="${curso.hojaId}"]`)
-      if(!tarjeta) return
+    if(cursos.length === 0) return
 
-      const estadoAnterior = tarjeta.dataset.estado
-      const estadoNuevo    = curso.estado || 'proximamente'
+    grid.innerHTML = ''
 
-      if(estadoAnterior === estadoNuevo) return
+    cursos.forEach(c => {
+      const estado  = c.estado || 'proximamente'
+      const labels  = { activo:'Activo', proximamente:'Próximamente', finalizado:'Finalizado' }
+      const href    = CURSOS_CON_PAGINA_PROPIA.includes(c.hojaId)
+        ? `${c.hojaId}/index.html`
+        : `detalle.html?curso=${c.hojaId}`
 
-      // Actualizar data-estado
-      tarjeta.dataset.estado = estadoNuevo
+      const imgHTML = c.foto
+        ? `<img src="${c.foto}" alt="${c.nombre}">`
+        : `<div class="curso-tarjeta-placeholder"><i class="fa-solid fa-graduation-cap"></i></div>`
 
-      // Actualizar badge
-      const badge = tarjeta.querySelector('.curso-estado-badge')
-      if(badge){
-        badge.className = `curso-estado-badge ${estadoNuevo}`
-        const labels = { activo: 'Activo', proximamente: 'Próximamente', finalizado: 'Finalizado' }
-        badge.innerText = labels[estadoNuevo] || estadoNuevo
-      }
+      const div = document.createElement('div')
+      div.className      = 'curso-tarjeta'
+      div.dataset.estado = estado
+      div.dataset.hoja   = c.hojaId
+      div.innerHTML = `
+        <div class="curso-tarjeta-img">
+          ${imgHTML}
+          <span class="curso-estado-badge ${estado}">${labels[estado] || estado}</span>
+        </div>
+        <div class="curso-tarjeta-body">
+          <h3>${c.nombre || ''}</h3>
+          <div class="curso-tarjeta-meta">
+            ${c.dia     ? `<span><i class="fa-regular fa-calendar"></i> ${c.dia}${c.horario ? ' ' + c.horario : ''}</span>` : ''}
+            ${c.duracion ? `<span><i class="fa-regular fa-clock"></i> ${c.duracion}</span>` : ''}
+          </div>
+          <p>${c.descripcion || c.subtitulo || ''}</p>
+          <a class="curso-tarjeta-btn" href="${href}">Ver más →</a>
+        </div>
+      `
+      grid.appendChild(div)
     })
+
   } catch(e) {
-    // Silencioso — si falla, los estados hardcodeados siguen funcionando
+    // Silencioso — si falla, el grid queda vacío
+    console.error('Error al cargar cursos:', e)
   }
 }
 
-sincronizarEstadoCursos()
+cargarCursos()
