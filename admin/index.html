@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel Admin — YCA Cerámica</title>
-
   <link rel="icon" type="image/png" href="../imagenes/logo.png">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 </head>
 <body>
 
@@ -26,9 +23,9 @@
       </div>
     </div>
     <div class="topbar-der">
-      <button class="btn-cache" onclick="limpiarCache()" title="Forzar recarga de datos">
+      <button class="btn-cache" onclick="limpiarCache()" title="Actualizar datos">
         <i class="fa-solid fa-rotate"></i>
-        <span>Actualizar datos</span>
+        <span>Actualizar</span>
       </button>
       <button class="topbar-btn" onclick="toggleDark()" id="btnDark">🌙</button>
       <a class="topbar-btn" href="../index.html" target="_blank" title="Ver sitio público">
@@ -64,7 +61,6 @@
         <button class="sidebar-item" onclick="setSeccion('moldes')" id="nav-moldes">
           <i class="fa-solid fa-layer-group"></i> Moldes
         </button>
-        <!-- Inventarios dinámicos -->
         <div id="inventariosSidebar"></div>
         <button class="sidebar-item sidebar-item-nuevo" onclick="abrirModalInventario()">
           <i class="fa-solid fa-plus"></i> Nuevo inventario
@@ -100,7 +96,7 @@
         <div class="seccion-header">
           <div>
             <h2>🖼️ Galería</h2>
-            <p>4 fotos que aparecen en la página principal · Tamaño recomendado: 1200x675px (16:9) · JPG · máx 500kb</p>
+            <p>4 fotos del index principal · 1200×675px (16:9) · JPG · máx 500kb</p>
           </div>
         </div>
         <div class="galeria-admin-grid" id="grid-galeria"></div>
@@ -123,9 +119,20 @@
         <div class="admin-filtros-wrapper">
           <div class="admin-buscador-wrapper">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input class="admin-buscador" id="buscar-piezas" placeholder="Buscar por nombre..." oninput="filtrarGrid('piezas')">
+            <input class="admin-buscador" id="buscar-piezas" placeholder="Buscar por nombre o código..." oninput="filtrarGrid('piezas')">
           </div>
-          <div class="admin-filtros-cats" id="filtros-piezas"></div>
+          <div class="admin-controles-row">
+            <div class="admin-filtros-cats" id="filtros-piezas"></div>
+            <div class="admin-pub-filtros">
+              <button class="admin-pub-btn activo" onclick="setFiltroPublicado('piezas','todos',this)">Todos</button>
+              <button class="admin-pub-btn" onclick="setFiltroPublicado('piezas','publicado',this)">Publicados</button>
+              <button class="admin-pub-btn" onclick="setFiltroPublicado('piezas','oculto',this)">Ocultos</button>
+            </div>
+            <div class="admin-orden-btns">
+              <button class="activo" onclick="setOrden('piezas','az',this)">A→Z</button>
+              <button onclick="setOrden('piezas','za',this)">Z→A</button>
+            </div>
+          </div>
         </div>
         <div class="items-grid" id="grid-piezas"></div>
         <div class="loading" id="loading-piezas"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
@@ -145,9 +152,20 @@
         <div class="admin-filtros-wrapper">
           <div class="admin-buscador-wrapper">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input class="admin-buscador" id="buscar-insumos" placeholder="Buscar por nombre..." oninput="filtrarGrid('insumos')">
+            <input class="admin-buscador" id="buscar-insumos" placeholder="Buscar por nombre o código..." oninput="filtrarGrid('insumos')">
           </div>
-          <div class="admin-filtros-cats" id="filtros-insumos"></div>
+          <div class="admin-controles-row">
+            <div class="admin-filtros-cats" id="filtros-insumos"></div>
+            <div class="admin-pub-filtros">
+              <button class="admin-pub-btn activo" onclick="setFiltroPublicado('insumos','todos',this)">Todos</button>
+              <button class="admin-pub-btn" onclick="setFiltroPublicado('insumos','publicado',this)">Publicados</button>
+              <button class="admin-pub-btn" onclick="setFiltroPublicado('insumos','oculto',this)">Ocultos</button>
+            </div>
+            <div class="admin-orden-btns">
+              <button class="activo" onclick="setOrden('insumos','az',this)">A→Z</button>
+              <button onclick="setOrden('insumos','za',this)">Z→A</button>
+            </div>
+          </div>
         </div>
         <div class="items-grid" id="grid-insumos"></div>
         <div class="loading" id="loading-insumos" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
@@ -167,9 +185,15 @@
         <div class="admin-filtros-wrapper">
           <div class="admin-buscador-wrapper">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input class="admin-buscador" id="buscar-moldes" placeholder="Buscar por nombre..." oninput="filtrarGrid('moldes')">
+            <input class="admin-buscador" id="buscar-moldes" placeholder="Buscar por nombre o código..." oninput="filtrarGrid('moldes')">
           </div>
-          <div class="admin-filtros-cats" id="filtros-moldes"></div>
+          <div class="admin-controles-row">
+            <div class="admin-filtros-cats" id="filtros-moldes"></div>
+            <div class="admin-orden-btns">
+              <button class="activo" onclick="setOrden('moldes','az',this)">A→Z</button>
+              <button onclick="setOrden('moldes','za',this)">Z→A</button>
+            </div>
+          </div>
         </div>
         <div class="items-grid" id="grid-moldes"></div>
         <div class="loading" id="loading-moldes" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
@@ -180,7 +204,7 @@
         <div class="seccion-header">
           <div>
             <h2>🎓 Cursos</h2>
-            <p>Gestioná el estado de cada curso — los cambios se reflejan en la web pública</p>
+            <p>Gestioná el estado de cada curso</p>
           </div>
         </div>
         <div class="cursos-admin-lista" id="lista-cursos"></div>
@@ -210,23 +234,6 @@
         <div class="loading" id="loading-usuarios" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
       </div>
 
-      <!-- MULTIMEDIA -->
-      <div class="seccion" id="seccion-multimedia" style="display:none">
-        <div class="seccion-header">
-          <div>
-            <h2>🎬 Multimedia</h2>
-            <p>Fotos y videos de los cursos — visibles para los alumnos inscriptos</p>
-          </div>
-          <button class="btn-nuevo" onclick="abrirModalMultimedia()">
-            <i class="fa-solid fa-plus"></i> Agregar
-          </button>
-        </div>
-        <div class="multimedia-admin-grid" id="grid-multimedia"></div>
-        <div class="loading" id="loading-multimedia" style="display:none">
-          <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
-        </div>
-      </div>
-
       <!-- APUNTES -->
       <div class="seccion" id="seccion-apuntes" style="display:none">
         <div class="seccion-header">
@@ -238,21 +245,50 @@
             <i class="fa-solid fa-plus"></i> Nuevo apunte
           </button>
         </div>
+        <div class="admin-filtros-wrapper">
+          <div class="admin-buscador-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input class="admin-buscador" id="buscar-apuntes" placeholder="Buscar apunte..." oninput="filtrarGrid('apuntes')">
+          </div>
+          <div class="admin-controles-row">
+            <div class="admin-filtros-cats" id="filtros-apuntes"></div>
+            <div class="admin-pub-filtros">
+              <button class="admin-pub-btn activo" onclick="setFiltroPublicado('apuntes','todos',this)">Todos</button>
+              <button class="admin-pub-btn" onclick="setFiltroPublicado('apuntes','publicado',this)">Visibles</button>
+              <button class="admin-pub-btn" onclick="setFiltroPublicado('apuntes','oculto',this)">Ocultos</button>
+            </div>
+          </div>
+        </div>
         <div class="items-grid" id="grid-apuntes"></div>
         <div class="loading" id="loading-apuntes" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
+
+      <!-- MULTIMEDIA -->
+      <div class="seccion" id="seccion-multimedia" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>🎬 Multimedia</h2>
+            <p>Fotos y videos de los cursos</p>
+          </div>
+          <button class="btn-nuevo" onclick="abrirModalMultimedia()">
+            <i class="fa-solid fa-plus"></i> Agregar
+          </button>
+        </div>
+        <div class="multimedia-admin-grid" id="grid-multimedia"></div>
+        <div class="loading" id="loading-multimedia" style="display:none">
+          <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+        </div>
       </div>
 
     </main>
   </div>
 
-  <!-- MODAL -->
+  <!-- MODAL UNIVERSAL -->
   <div class="modal-overlay" id="modalOverlay" style="display:none" onclick="cerrarModal(event)">
     <div class="modal-card" id="modalCard">
       <div class="modal-header">
         <h3 id="modalTitulo">Nuevo ítem</h3>
-        <button class="modal-cerrar" onclick="cerrarModal()">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+        <button class="modal-cerrar" onclick="cerrarModal()"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body" id="modalBody"></div>
       <div class="modal-footer">
@@ -264,95 +300,37 @@
     </div>
   </div>
 
-  <!-- MODAL MULTIMEDIA -->
-  <div class="modal-overlay" id="modalMultimedia" style="display:none" onclick="cerrarModalMultimedia(event)">
-    <div class="modal-card">
+  <!-- MODAL BORRAR ITEM (universal) -->
+  <div class="modal-overlay" id="modalBorrarItem" style="display:none" onclick="cerrarModalBorrarItem(event)">
+    <div class="modal-card" style="max-width:400px">
       <div class="modal-header">
-        <h3 id="modalMultimediaTitulo">Agregar multimedia</h3>
-        <button class="modal-cerrar" onclick="cerrarModalMultimedia()">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+        <h3>🗑 Eliminar</h3>
+        <button class="modal-cerrar" onclick="cerrarModalBorrarItem()"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
-
-        <!-- Tipo -->
-        <div class="mform-grupo">
-          <label>Tipo *</label>
-          <div class="multimedia-tipo-selector">
-            <button class="mtipo-btn activo" id="mtipo-foto" onclick="setTipoMultimedia('foto')">
-              <i class="fa-solid fa-image"></i> Foto
-            </button>
-            <button class="mtipo-btn" id="mtipo-video" onclick="setTipoMultimedia('video')">
-              <i class="fa-brands fa-youtube"></i> Video
-            </button>
-          </div>
-        </div>
-
-        <!-- Foto -->
-        <div id="mMultimediaFotoBloque">
-          <div class="mform-grupo">
-            <label>Foto <small style="opacity:0.5;font-weight:400">(cualquier proporción)</small></label>
-            <div class="mform-foto-area" id="mMultimediaFotoArea" onclick="elegirFotoMultimedia()">
-              <div class="mform-foto-placeholder">
-                <i class="fa-solid fa-camera"></i>
-                <strong>Tocá para agregar foto</strong>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Video -->
-        <div id="mMultimediaVideoBloque" style="display:none">
-          <div class="mform-grupo">
-            <label>Link del video *</label>
-            <input id="mMultimediaUrl" placeholder="https://youtube.com/... o instagram.com/...">
-          </div>
-          <div class="multimedia-video-preview" id="mMultimediaPreview" style="display:none"></div>
-        </div>
-
-        <!-- Campos comunes -->
-        <div class="mform-grupo">
-          <label>Título (opcional)</label>
-          <input id="mMultimediaTitulo" placeholder="Ej: Clase del 17 de abril">
-        </div>
-
-        <div class="mform-grupo">
-          <label>Curso</label>
-          <select id="mMultimediaCurso">
-            <option value="">Seleccioná</option>
-            <option value="General">General (todos los alumnos)</option>
-          </select>
-        </div>
-
-        <label class="publicado-toggle">
-          <input type="checkbox" id="mMultimediaPublicado" checked>
-          <span>✅ Visible para los alumnos</span>
-        </label>
-
+        <p style="font-size:14px;opacity:0.7;margin:0">¿Cómo querés eliminar este item?</p>
       </div>
-      <div class="modal-footer">
-        <button class="btn-cancelar" onclick="cerrarModalMultimedia()">Cancelar</button>
-        <button class="btn-guardar-modal" onclick="guardarMultimedia()">
-          <i class="fa-solid fa-floppy-disk"></i> Guardar
+      <div class="modal-footer" style="flex-direction:column;gap:8px">
+        <button class="btn-guardar-modal" id="btnBorrarItemDrive" style="background:#a85252">
+          <i class="fa-solid fa-trash"></i> Eliminar de la web y del Drive
         </button>
+        <button class="btn-guardar-modal" id="btnBorrarItemWeb" style="background:var(--color-primario)">
+          <i class="fa-solid fa-eye-slash"></i> Solo eliminar de la web
+        </button>
+        <button class="btn-cancelar" onclick="cerrarModalBorrarItem()">Cancelar</button>
       </div>
     </div>
   </div>
-
-  <!-- Input oculto foto multimedia -->
-  <input type="file" id="inputFotoMultimedia" accept="image/*" style="display:none" onchange="previsualizarFotoMultimedia(event)">
 
   <!-- MODAL BORRAR MULTIMEDIA -->
   <div class="modal-overlay" id="modalBorrarMultimedia" style="display:none" onclick="cerrarModalBorrar(event)">
     <div class="modal-card" style="max-width:400px">
       <div class="modal-header">
-        <h3>🗑 Eliminar foto</h3>
-        <button class="modal-cerrar" onclick="cerrarModalBorrar()">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+        <h3>🗑 Eliminar multimedia</h3>
+        <button class="modal-cerrar" onclick="cerrarModalBorrar()"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
-        <p style="font-size:14px;opacity:0.7;margin:0">¿Cómo querés eliminar esta foto?</p>
+        <p style="font-size:14px;opacity:0.7;margin:0">¿Cómo querés eliminar este item?</p>
       </div>
       <div class="modal-footer" style="flex-direction:column;gap:8px">
         <button class="btn-guardar-modal" id="btnBorrarConDrive" style="background:#a85252">
@@ -366,14 +344,74 @@
     </div>
   </div>
 
+  <!-- MODAL MULTIMEDIA -->
+  <div class="modal-overlay" id="modalMultimedia" style="display:none" onclick="cerrarModalMultimedia(event)">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Agregar multimedia</h3>
+        <button class="modal-cerrar" onclick="cerrarModalMultimedia()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="mform-grupo">
+          <label>Tipo *</label>
+          <div class="multimedia-tipo-selector">
+            <button class="mtipo-btn activo" id="mtipo-foto" onclick="setTipoMultimedia('foto')">
+              <i class="fa-solid fa-image"></i> Foto
+            </button>
+            <button class="mtipo-btn" id="mtipo-video" onclick="setTipoMultimedia('video')">
+              <i class="fa-brands fa-youtube"></i> Video
+            </button>
+          </div>
+        </div>
+        <div id="mMultimediaFotoBloque">
+          <div class="mform-grupo">
+            <label>Foto</label>
+            <div class="mform-foto-area" id="mMultimediaFotoArea" onclick="elegirFotoMultimedia()">
+              <div class="mform-foto-placeholder">
+                <i class="fa-solid fa-camera"></i>
+                <strong>Tocá para agregar foto</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="mMultimediaVideoBloque" style="display:none">
+          <div class="mform-grupo">
+            <label>Link del video *</label>
+            <input id="mMultimediaUrl" placeholder="https://youtube.com/... o instagram.com/...">
+          </div>
+          <div class="multimedia-video-preview" id="mMultimediaPreview" style="display:none"></div>
+        </div>
+        <div class="mform-grupo">
+          <label>Título (opcional)</label>
+          <input id="mMultimediaTitulo" placeholder="Ej: Clase del 17 de abril">
+        </div>
+        <div class="mform-grupo">
+          <label>Curso</label>
+          <select id="mMultimediaCurso">
+            <option value="">Seleccioná</option>
+            <option value="General">General (todos los alumnos)</option>
+          </select>
+        </div>
+        <label class="publicado-toggle">
+          <input type="checkbox" id="mMultimediaPublicado" checked>
+          <span>✅ Visible para los alumnos</span>
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="cerrarModalMultimedia()">Cancelar</button>
+        <button class="btn-guardar-modal" onclick="guardarMultimedia()">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL NUEVO INVENTARIO -->
   <div class="modal-overlay" id="modalInventario" style="display:none" onclick="cerrarModalInventario(event)">
     <div class="modal-card">
       <div class="modal-header">
         <h3>📦 Nuevo inventario privado</h3>
-        <button class="modal-cerrar" onclick="cerrarModalInventario()">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+        <button class="modal-cerrar" onclick="cerrarModalInventario()"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
         <div class="mform-grupo">
@@ -381,11 +419,11 @@
           <input id="invNombre" placeholder="Ej: Herramientas, Pigmentos, Stock...">
         </div>
         <div class="mform-grupo">
-          <label>Código de referencia <small style="opacity:0.5;font-weight:400">(se genera automático, podés editarlo)</small></label>
-          <input id="invPrefijo" placeholder="Ej: HER, PIG, STK" maxlength="4" style="text-transform:uppercase">
+          <label>Código <small style="opacity:0.5;font-weight:400">(se genera automático)</small></label>
+          <input id="invPrefijo" placeholder="Ej: HER" maxlength="4" style="text-transform:uppercase">
         </div>
-        <div style="background:var(--color-fondo);border-radius:10px;padding:12px 14px;font-size:13px;opacity:0.7;line-height:1.6">
-          💡 Los items de este inventario tendrán códigos como <strong id="invPreviewCodigo">HER-001</strong>, <strong id="invPreviewCodigo2">HER-002</strong>...
+        <div style="background:var(--color-fondo);border-radius:10px;padding:12px 14px;font-size:13px;opacity:0.7">
+          💡 Los items tendrán códigos como <strong id="invPreviewCodigo">HER-001</strong>, <strong id="invPreviewCodigo2">HER-002</strong>...
         </div>
       </div>
       <div class="modal-footer">
@@ -397,12 +435,12 @@
     </div>
   </div>
 
-  <!-- Input oculto para foto en modal -->
+  <!-- Inputs ocultos -->
   <input type="file" id="inputFotoModal" accept="image/*" style="display:none" onchange="previsualizarFoto(event)">
+  <input type="file" id="inputFotoMultimedia" accept="image/*" style="display:none" onchange="previsualizarFotoMultimedia(event)">
 
   <div class="toast" id="toast"></div>
 
   <script src="script.js"></script>
-
 </body>
 </html>
