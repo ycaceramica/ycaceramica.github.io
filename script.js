@@ -133,7 +133,7 @@ cargarGaleria()
 
 async function verificarVisibilidadElaboracion(){
   try {
-    const res    = await fetch(`${API_GALERIA}?action=getConfigIndex`)
+    const res    = await fetch(`${API}?action=getConfigIndex`)
     const data   = await res.json()
     const config = data.data || {}
 
