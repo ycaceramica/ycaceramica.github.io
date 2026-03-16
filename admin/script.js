@@ -667,20 +667,33 @@ async function guardarModal(){
 
     if(!data.ok){ toast('❌ ' + (data.error || 'Error al guardar'), 'err'); btn.classList.remove('cargando'); btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar'; return }
 
-    // Subir foto si hay
+    // Subir foto en segundo plano — el modal se cierra al instante
     if(fotoModalBase64 && modalHoja !== 'apuntes'){
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo foto...'
-      const nombre = (fila.codigo || fila.id) + '_' + Date.now()
-      await fetch(API, {
+      const nombre    = (fila.codigo || fila.id) + '_' + Date.now()
+      const b64       = fotoModalBase64
+      const hojaGuard = modalHoja
+      const idGuard   = fila.id
+      const catGuard  = fila.categoria || ''
+      const sesionTok = sesion.token
+
+      // No esperamos — se sube en background
+      fetch(API, {
         method: 'POST',
-        body: JSON.stringify({ action: 'subirFoto', hoja: modalHoja, id: fila.id, b64: fotoModalBase64, nombre, categoria: fila.categoria || '', token: sesion.token })
-      })
+        body: JSON.stringify({ action: 'subirFoto', hoja: hojaGuard, id: idGuard, b64, nombre, categoria: catGuard, token: sesionTok })
+      }).then(r => r.json()).then(d => {
+        if(d.ok){
+          // Actualizar la tarjeta con la foto cuando esté lista
+          delete cache[hojaGuard]
+          cargarSeccion(hojaGuard)
+          toast('✅ Foto subida correctamente', 'ok')
+        }
+      }).catch(() => {})
     }
 
     delete cache[modalHoja]
     cerrarModal()
     await cargarSeccion(modalHoja)
-    toast('✅ Guardado correctamente', 'ok')
+    toast('✅ Guardado — la foto se sube en segundo plano', 'ok')
 
   } catch(e) {
     toast('❌ Error de conexión', 'err')
