@@ -204,8 +204,11 @@
         <div class="seccion-header">
           <div>
             <h2>🎓 Cursos</h2>
-            <p>Gestioná el estado de cada curso</p>
+            <p>Gestioná el estado y creá nuevos cursos sin tocar código</p>
           </div>
+          <button class="btn-nuevo" onclick="abrirModalCurso()">
+            <i class="fa-solid fa-plus"></i> Nuevo curso
+          </button>
         </div>
         <div class="cursos-admin-lista" id="lista-cursos"></div>
         <div class="loading" id="loading-cursos" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
@@ -405,6 +408,114 @@
       </div>
     </div>
   </div>
+
+  <!-- MODAL NUEVO CURSO -->
+  <div class="modal-overlay" id="modalCurso" style="display:none" onclick="cerrarModalCurso(event)">
+    <div class="modal-card" style="max-width:600px">
+      <div class="modal-header">
+        <h3 id="modalCursoTitulo">🎓 Nuevo curso</h3>
+        <button class="modal-cerrar" onclick="cerrarModalCurso()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Foto -->
+        <div class="mform-grupo">
+          <label>📷 Foto del curso <small style="opacity:0.5;font-weight:400">(16:9 recomendado)</small></label>
+          <div class="mform-foto-area" id="mCursoFotoArea" style="aspect-ratio:16/9" onclick="elegirFotoCurso()">
+            <div class="mform-foto-placeholder" style="aspect-ratio:16/9">
+              <i class="fa-solid fa-camera"></i>
+              <strong>Tocá para agregar foto</strong>
+              <small>Recomendado: 1200×675px (16:9)</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nombre y subtítulo -->
+        <div class="mform-grupo">
+          <label>Nombre del curso *</label>
+          <input id="mCursoNombre" placeholder="Ej: Arcilla y Luna" oninput="generarHojaId()">
+        </div>
+        <div class="mform-grupo">
+          <label>Subtítulo</label>
+          <input id="mCursoSubtitulo" placeholder="Ej: Encuentros de cerámica ritual">
+        </div>
+        <div class="mform-grupo">
+          <label>Descripción intro</label>
+          <textarea id="mCursoDescripcion" rows="3" placeholder="Un párrafo de bienvenida al curso..."></textarea>
+        </div>
+
+        <!-- Info -->
+        <div class="mform-fila">
+          <div class="mform-grupo">
+            <label>Día</label>
+            <input id="mCursoDia" placeholder="Ej: Lunes, Una vez al mes">
+          </div>
+          <div class="mform-grupo">
+            <label>Horario</label>
+            <input id="mCursoHorario" placeholder="Ej: 14:00 hs">
+          </div>
+        </div>
+        <div class="mform-fila">
+          <div class="mform-grupo">
+            <label>Duración</label>
+            <input id="mCursoDuracion" placeholder="Ej: 2 horas">
+          </div>
+          <div class="mform-grupo">
+            <label>Cupo</label>
+            <input id="mCursoCupo" placeholder="Ej: Limitado — 8 personas">
+          </div>
+        </div>
+
+        <!-- Chips "En este encuentro" -->
+        <div class="mform-grupo">
+          <label>
+            Chips "En este curso" 
+            <small style="opacity:0.5;font-weight:400">(uno por línea, podés usar emojis)</small>
+          </label>
+          <textarea id="mCursoChips" rows="4" placeholder="🏺 Pieza cerámica incluida&#10;🎨 Engobes y crayones&#10;🔥 Esmaltado y horneado"></textarea>
+        </div>
+
+        <!-- Proceso / items -->
+        <div class="mform-grupo">
+          <label>
+            Pasos del proceso
+            <small style="opacity:0.5;font-weight:400">(formato: Título|Descripción, uno por línea)</small>
+          </label>
+          <textarea id="mCursoProceso" rows="4" placeholder="🌑 Intención|Conectás con tu intención personal&#10;🌓 Crecimiento|Intervenís la pieza con engobes&#10;🌕 Expansión|La pieza queda para esmaltado"></textarea>
+        </div>
+
+        <!-- Estado y visibilidad -->
+        <div class="mform-fila">
+          <div class="mform-grupo">
+            <label>Estado inicial</label>
+            <select id="mCursoEstado">
+              <option value="proximamente">🟡 Próximamente</option>
+              <option value="activo">🟢 Activo</option>
+              <option value="finalizado">🔴 Finalizado</option>
+            </select>
+          </div>
+          <div class="mform-grupo">
+            <label>ID único (se genera solo)</label>
+            <input id="mCursoHojaId" placeholder="arcilla-y-luna">
+          </div>
+        </div>
+
+        <label class="publicado-toggle">
+          <input type="checkbox" id="mCursoVisible" checked>
+          <span>✅ Mostrar en la página de cursos</span>
+        </label>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="cerrarModalCurso()">Cancelar</button>
+        <button class="btn-guardar-modal" id="btnGuardarCurso" onclick="guardarCurso()">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar curso
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="inputFotoCurso" accept="image/*" style="display:none" onchange="previsualizarFotoCurso(event)">
 
   <!-- MODAL NUEVO INVENTARIO -->
   <div class="modal-overlay" id="modalInventario" style="display:none" onclick="cerrarModalInventario(event)">
