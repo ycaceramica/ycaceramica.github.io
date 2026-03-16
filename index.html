@@ -187,6 +187,72 @@
 
 </section>
 
+<section id="suscripcion" class="reveal">
+
+  <div class="suscripcion-card">
+
+    <div class="suscripcion-header">
+      <span class="suscripcion-emoji">🔔</span>
+      <h2>¡No te pierdas nada!</h2>
+      <p>Sumate a nuestra comunidad y enterate de cursos, novedades y ofertas especiales.</p>
+    </div>
+
+    <div class="suscripcion-form" id="suscripcionForm">
+
+      <div class="suscripcion-fila">
+        <div class="suscripcion-grupo">
+          <label>Nombre *</label>
+          <input type="text" id="susNombre" placeholder="Tu nombre">
+        </div>
+        <div class="suscripcion-grupo">
+          <label>Email *</label>
+          <input type="email" id="susEmail" placeholder="tu@email.com">
+        </div>
+      </div>
+
+      <div class="suscripcion-grupo">
+        <label>Instagram <span class="opcional">(opcional)</span></label>
+        <input type="text" id="susInstagram" placeholder="@tu_usuario">
+      </div>
+
+      <div class="suscripcion-intereses">
+        <label class="intereses-label">Me interesa recibir novedades sobre:</label>
+        <div class="intereses-checks">
+          <label class="check-item">
+            <input type="checkbox" value="cursos"> 🎓 Cursos
+          </label>
+          <label class="check-item">
+            <input type="checkbox" value="insumos"> 🧪 Ofertas en insumos
+          </label>
+          <label class="check-item">
+            <input type="checkbox" value="piezas"> 🏺 Piezas nuevas
+          </label>
+          <label class="check-item">
+            <input type="checkbox" value="todo"> ✨ Todo
+          </label>
+        </div>
+      </div>
+
+      <div class="suscripcion-error" id="susError" style="display:none">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="susErrorMsg"></span>
+      </div>
+
+      <button class="suscripcion-btn" onclick="suscribirse()" id="btnSuscribirse">
+        Suscribirme 🔔
+      </button>
+
+    </div>
+
+    <div class="suscripcion-exito" id="suscripcionExito" style="display:none">
+      <i class="fa-solid fa-circle-check"></i>
+      <p>¡Gracias! Te vamos a mantener al tanto de todo. 🎉</p>
+    </div>
+
+  </div>
+
+</section>
+
 
 
 <section id="contacto" class="reveal">
