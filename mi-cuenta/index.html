@@ -57,6 +57,9 @@
       <button class="ctab" onclick="setTab('multimedia')" id="ctab-multimedia">
         <i class="fa-solid fa-photo-film"></i> Multimedia
       </button>
+      <button class="ctab" onclick="setTab('contrasena')" id="ctab-contrasena">
+        <i class="fa-solid fa-lock"></i> Contraseña
+      </button>
     </div>
 
     <!-- APUNTES -->
@@ -74,6 +77,57 @@
         <div class="cuenta-loading">
           <i class="fa-solid fa-spinner fa-spin"></i> Cargando multimedia...
         </div>
+      </div>
+    </div>
+
+    <!-- CAMBIAR CONTRASEÑA -->
+    <div class="cuenta-seccion" id="sec-contrasena" style="display:none">
+      <div class="pass-cambiar-card">
+        <h3><i class="fa-solid fa-lock"></i> Cambiar contraseña</h3>
+
+        <div class="form-grupo">
+          <label>Contraseña actual</label>
+          <div class="pass-wrapper">
+            <input type="password" id="passActual" placeholder="Tu contraseña actual">
+            <button class="pass-toggle" onclick="togglePassCuenta('passActual', this)" type="button">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-grupo">
+          <label>Nueva contraseña</label>
+          <div class="pass-wrapper">
+            <input type="password" id="passNueva" placeholder="Mínimo 6 caracteres">
+            <button class="pass-toggle" onclick="togglePassCuenta('passNueva', this)" type="button">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-grupo">
+          <label>Repetir nueva contraseña</label>
+          <div class="pass-wrapper">
+            <input type="password" id="passRepetir" placeholder="Repetí la nueva contraseña">
+            <button class="pass-toggle" onclick="togglePassCuenta('passRepetir', this)" type="button">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="pass-error" id="passError" style="display:none">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span id="passErrorMsg"></span>
+        </div>
+
+        <div class="pass-success" id="passSuccess" style="display:none">
+          <i class="fa-solid fa-circle-check"></i>
+          <span>¡Contraseña actualizada correctamente!</span>
+        </div>
+
+        <button class="btn-cambiar-pass" onclick="cambiarContrasena()" id="btnCambiarPass">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar nueva contraseña
+        </button>
       </div>
     </div>
 
