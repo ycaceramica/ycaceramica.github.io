@@ -126,3 +126,24 @@ async function cargarGaleria(){
 }
 
 cargarGaleria()
+
+// ─────────────────────────────────────────────
+// VISIBILIDAD SECCIÓN ELABORACIÓN
+// ─────────────────────────────────────────────
+
+async function verificarVisibilidadElaboracion(){
+  try {
+    const res    = await fetch(`${API_GALERIA}?action=getConfigIndex`)
+    const data   = await res.json()
+    const config = data.data || {}
+
+    if(config.elaboracion_visible === 'false'){
+      const banner = document.getElementById('banner-elaboracion')
+      if(banner) banner.style.display = 'none'
+    }
+  } catch(e) {
+    // Silencioso — si falla queda visible por defecto
+  }
+}
+
+verificarVisibilidadElaboracion()
