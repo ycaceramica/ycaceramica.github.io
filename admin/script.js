@@ -806,9 +806,8 @@ async function cargarElaboracion(){
 
     elaboracionData = dataSlots.data || []
 
-    // Actualizar switch — maneja 'false', '0', false, 0
-    const val = String(dataConfig.data?.elaboracion_visible)
-    const visible = val !== 'false' && val !== '0'
+    // Actualizar switch de visibilidad
+    const visible = dataConfig.data?.elaboracion_visible !== 'false'
     document.getElementById('switchElaboracionVisible').checked = visible
 
     renderElaboracion()
@@ -824,12 +823,12 @@ function renderElaboracion(){
   gridTaller.innerHTML = ''
 
   const etapas = [1,2,3,4,5,6].map(n =>
-    elaboracionData.find(s => s.seccion === 'etapa' && Math.round(parseFloat(s.slot)) === n) ||
+    elaboracionData.find(s => s.seccion === 'etapa' && String(s.slot) === String(n)) ||
     { id: 'ELAB-' + n, seccion: 'etapa', slot: n, foto: '', descripcion: '' }
   )
 
   const taller = [1,2,3,4,5,6].map(n =>
-    elaboracionData.find(s => s.seccion === 'taller' && Math.round(parseFloat(s.slot)) === n) ||
+    elaboracionData.find(s => s.seccion === 'taller' && String(s.slot) === String(n)) ||
     { id: 'TALL-' + n, seccion: 'taller', slot: n, foto: '', descripcion: '' }
   )
 
@@ -898,11 +897,19 @@ async function ejecutarBorrarElaboracion(id, fotoUrl, borrarDrive){
   document.getElementById('modalBorrarMultimedia').style.display = 'none'
   try {
     const sesion = getSesion()
-    const body   = borrarDrive
-      ? { action: 'eliminarConFoto', hoja: 'elaboracion', id, fotoUrl, token: sesion.token }
-      : { action: 'actualizarCampo', hoja: 'elaboracion', id, campo: 'foto', valor: '', token: sesion.token }
-
-    const res  = await fetch(API, { method: 'POST', body: JSON.stringify(body) })
+    // Siempre usamos borrarFotoSlot — solo vacía el campo foto, nunca borra la fila
+    const res  = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({
+        action:  borrarDrive ? 'borrarFotoSlot' : 'actualizarCampo',
+        hoja:    'elaboracion',
+        id,
+        fotoUrl, // usado por borrarFotoSlot para borrar del Drive
+        campo:   'foto', // usado por actualizarCampo
+        valor:   '',     // usado por actualizarCampo
+        token:   sesion.token
+      })
+    })
     const data = await res.json()
     if(data.ok){
       elaboracionData = []
