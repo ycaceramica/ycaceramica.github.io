@@ -87,6 +87,16 @@
         </button>
       </div>
 
+      <div class="sidebar-seccion">
+        <span class="sidebar-label">Comunicación</span>
+        <button class="sidebar-item" onclick="setSeccion('suscriptores')" id="nav-suscriptores">
+          <i class="fa-solid fa-users"></i> Suscriptores
+        </button>
+        <button class="sidebar-item" onclick="setSeccion('emails')" id="nav-emails">
+          <i class="fa-solid fa-envelope"></i> Enviar email
+        </button>
+      </div>
+
     </aside>
 
     <!-- MAIN -->
@@ -396,6 +406,94 @@
         </div>
       </div>
 
+      <!-- SUSCRIPTORES -->
+      <div class="seccion" id="seccion-suscriptores" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>👥 Suscriptores</h2>
+            <p>Personas suscriptas desde el sitio</p>
+          </div>
+        </div>
+        <div class="admin-filtros-wrapper">
+          <div class="admin-buscador-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input class="admin-buscador" id="buscar-suscriptores" placeholder="Buscar por nombre o email..." oninput="filtrarSuscriptores()">
+          </div>
+          <div class="admin-filtros-cats" id="filtros-suscriptores"></div>
+        </div>
+        <div class="suscriptores-lista" id="lista-suscriptores"></div>
+        <div class="loading" id="loading-suscriptores" style="display:none">
+          <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+        </div>
+      </div>
+
+      <!-- EMAILS -->
+      <div class="seccion" id="seccion-emails" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>📧 Enviar email</h2>
+            <p>Enviá novedades a suscriptores y alumnos</p>
+          </div>
+        </div>
+        <div class="email-composer">
+          <div class="email-campo">
+            <label>Tipo de email</label>
+            <div class="email-tipos">
+              <button class="email-tipo-btn activo" id="etipo-oferta" onclick="setTipoEmail('oferta')">🧪 Oferta</button>
+              <button class="email-tipo-btn" id="etipo-curso" onclick="setTipoEmail('curso')">🎓 Curso nuevo</button>
+              <button class="email-tipo-btn" id="etipo-libre" onclick="setTipoEmail('libre')">✏️ Novedad libre</button>
+            </div>
+          </div>
+          <div class="email-campo">
+            <label>Enviar a</label>
+            <div class="email-tipos">
+              <button class="email-tipo-btn activo" id="edest-todos" onclick="setDestinatario('todos')">👥 Todos</button>
+              <button class="email-tipo-btn" id="edest-cursos" onclick="setDestinatario('cursos')">🎓 Interesados en cursos</button>
+              <button class="email-tipo-btn" id="edest-insumos" onclick="setDestinatario('insumos')">🧪 Interesados en insumos</button>
+              <button class="email-tipo-btn" id="edest-piezas" onclick="setDestinatario('piezas')">🏺 Interesados en piezas</button>
+              <button class="email-tipo-btn" id="edest-alumnos" onclick="setDestinatario('alumnos')">📚 Solo alumnos</button>
+            </div>
+          </div>
+          <div id="email-campos-oferta" style="display:flex;flex-direction:column;gap:16px">
+            <div class="email-campo">
+              <label>Título de la oferta *</label>
+              <input id="eOfertaTitulo" placeholder="Ej: 20% OFF en arcillas este mes">
+            </div>
+            <div class="email-campo">
+              <label>Descripción</label>
+              <textarea id="eOfertaDesc" rows="4" placeholder="Contá los detalles..."></textarea>
+            </div>
+          </div>
+          <div id="email-campos-curso" style="display:none;flex-direction:column;gap:16px">
+            <div class="email-campo">
+              <label>Curso a promocionar *</label>
+              <select id="eCursoSelect"><option value="">Seleccioná un curso</option></select>
+            </div>
+            <div class="email-campo">
+              <label>Mensaje adicional</label>
+              <textarea id="eCursoMensaje" rows="3" placeholder="Info extra opcional..."></textarea>
+            </div>
+          </div>
+          <div id="email-campos-libre" style="display:none;flex-direction:column;gap:16px">
+            <div class="email-campo">
+              <label>Asunto *</label>
+              <input id="eLibreAsunto" placeholder="Asunto del email">
+            </div>
+            <div class="email-campo">
+              <label>Mensaje *</label>
+              <textarea id="eLibreMensaje" rows="6" placeholder="Escribí tu mensaje..."></textarea>
+            </div>
+          </div>
+          <div class="email-info">
+            <i class="fa-solid fa-circle-info"></i>
+            <span id="emailInfoMsg">Cargando destinatarios...</span>
+          </div>
+          <button class="btn-enviar-email" onclick="enviarEmailMasivo()" id="btnEnviarEmail">
+            <i class="fa-solid fa-paper-plane"></i> Enviar email
+          </button>
+        </div>
+      </div>
+
     </main>
   </div>
 
@@ -434,6 +532,38 @@
           <i class="fa-solid fa-eye-slash"></i> Solo eliminar de la web
         </button>
         <button class="btn-cancelar" onclick="cerrarModalBorrarItem()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CONFIRMAR EMAIL -->
+  <div class="modal-overlay" id="modalConfirmarEmail" style="display:none" onclick="cerrarModalConfirmarEmail(event)">
+    <div class="modal-card" style="max-width:460px">
+      <div class="modal-header">
+        <h3>📧 Confirmar envío</h3>
+        <button class="modal-cerrar" onclick="cerrarModalConfirmarEmail()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+        <div class="email-confirm-fila">
+          <span class="email-confirm-label">Asunto</span>
+          <span class="email-confirm-valor" id="confirmAsunto"></span>
+        </div>
+        <div class="email-confirm-fila">
+          <span class="email-confirm-label">Destinatarios</span>
+          <span class="email-confirm-valor" id="confirmDestinatarios"></span>
+        </div>
+        <div class="email-confirm-aviso">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          Esta acción no se puede deshacer. Los emails se enviarán inmediatamente.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="cerrarModalConfirmarEmail()">Cancelar</button>
+        <button class="btn-guardar-modal" id="btnConfirmarEnvio" onclick="confirmarEnvioEmail()">
+          <i class="fa-solid fa-paper-plane"></i> Confirmar y enviar
+        </button>
       </div>
     </div>
   </div>
