@@ -1381,6 +1381,9 @@ function renderCursos(){
           <button class="btn-editar" onclick="abrirModalCurso('${c.id}')">
             <i class="fa-solid fa-pen"></i> Editar
           </button>
+          <button class="btn-borrar" onclick="eliminarCurso('${c.id}','${c.nombre?.replace(/'/g,"\\'")}','${c.foto || ''}')" title="Eliminar">
+            <i class="fa-solid fa-trash"></i>
+          </button>
         </div>
       </div>
     `
@@ -1565,6 +1568,45 @@ async function guardarCurso(){
 
   btn.classList.remove('cargando')
   btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar curso'
+}
+
+function eliminarCurso(id, nombre, fotoUrl){
+  borrarItemData = { hoja: 'cursos', id, fotoUrl: fotoUrl || '' }
+  const modal    = document.getElementById('modalBorrarItem')
+  const btnDrive = document.getElementById('btnBorrarItemDrive')
+
+  // Mostrar opción Drive solo si tiene foto
+  btnDrive.style.display = fotoUrl ? 'flex' : 'none'
+  document.querySelector('#modalBorrarItem h3').innerText = `🗑 Eliminar "${nombre}"`
+
+  btnDrive.onclick  = () => ejecutarBorrarCurso(id, true)
+  document.getElementById('btnBorrarItemWeb').onclick = () => ejecutarBorrarCurso(id, false)
+
+  modal.style.display = 'flex'
+}
+
+async function ejecutarBorrarCurso(id, borrarDrive){
+  cerrarModalBorrarItem()
+  try {
+    const sesion = getSesion()
+    const curso  = cursosData.find(c => c.id === id)
+    const res    = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({
+        action:  borrarDrive ? 'eliminarConFoto' : 'eliminar',
+        hoja:    'cursos',
+        id,
+        fotoUrl: curso?.foto || '',
+        token:   sesion.token
+      })
+    })
+    const data = await res.json()
+    if(data.ok){
+      cursosData = []
+      await cargarCursos()
+      toast(borrarDrive ? '🗑 Curso eliminado de la web y del Drive' : '🗑 Curso eliminado', 'ok')
+    }
+  } catch(e) { toast('❌ Error', 'err') }
 }
 
 // ─────────────────────────────────────────────
