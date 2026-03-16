@@ -882,25 +882,31 @@ function crearSlotElaboracion(slot, label){
 }
 
 async function borrarFotoElaboracion(id, fotoUrl){
-  const usarDrive = confirm(
-    '¿Cómo querés borrar esta foto?\n\nOK = Borrar de la web y del Drive\nCancelar = Solo borrar de la web'
-  )
+  // Reusar el modal de borrar multimedia
+  const modal = document.getElementById('modalBorrarMultimedia')
+  document.querySelector('#modalBorrarMultimedia h3').innerText = '🗑 Borrar foto'
+  document.getElementById('btnBorrarConDrive').style.display = 'flex'
 
-  // Para elaboracion no usamos el modal personalizado todavía,
-  // pero al menos hacemos la acción correcta
+  document.getElementById('btnBorrarConDrive').onclick = () => ejecutarBorrarElaboracion(id, fotoUrl, true)
+  document.getElementById('btnBorrarSoloWeb').onclick  = () => ejecutarBorrarElaboracion(id, fotoUrl, false)
+
+  modal.style.display = 'flex'
+}
+
+async function ejecutarBorrarElaboracion(id, fotoUrl, borrarDrive){
+  document.getElementById('modalBorrarMultimedia').style.display = 'none'
   try {
     const sesion = getSesion()
-    const action = usarDrive ? 'eliminarConFoto' : 'actualizarCampo'
-    const body   = usarDrive
-      ? { action, hoja: 'elaboracion', id, fotoUrl, token: sesion.token }
-      : { action, hoja: 'elaboracion', id, campo: 'foto', valor: '', token: sesion.token }
+    const body   = borrarDrive
+      ? { action: 'eliminarConFoto', hoja: 'elaboracion', id, fotoUrl, token: sesion.token }
+      : { action: 'actualizarCampo', hoja: 'elaboracion', id, campo: 'foto', valor: '', token: sesion.token }
 
     const res  = await fetch(API, { method: 'POST', body: JSON.stringify(body) })
     const data = await res.json()
     if(data.ok){
       elaboracionData = []
       await cargarElaboracion()
-      toast(usarDrive ? '🗑 Foto borrada de la web y del Drive' : '🗑 Foto borrada de la web', 'ok')
+      toast(borrarDrive ? '🗑 Foto borrada de la web y del Drive' : '🗑 Foto borrada de la web', 'ok')
     }
   } catch(e) { toast('❌ Error', 'err') }
 }
