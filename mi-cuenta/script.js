@@ -318,3 +318,84 @@ function abrirFotoFullscreen(src){
   overlay.onclick   = () => overlay.remove()
   document.body.appendChild(overlay)
 }
+
+// ─────────────────────────────────────────────
+// CAMBIAR CONTRASEÑA
+// ─────────────────────────────────────────────
+
+function togglePassCuenta(inputId, btn){
+  const input = document.getElementById(inputId)
+  const icono = btn.querySelector('i')
+  if(input.type === 'password'){
+    input.type = 'text'
+    icono.className = 'fa-regular fa-eye-slash'
+  } else {
+    input.type = 'password'
+    icono.className = 'fa-regular fa-eye'
+  }
+}
+
+async function cambiarContrasena(){
+  const actual   = document.getElementById('passActual').value.trim()
+  const nueva    = document.getElementById('passNueva').value.trim()
+  const repetir  = document.getElementById('passRepetir').value.trim()
+  const errorDiv = document.getElementById('passError')
+  const errorMsg = document.getElementById('passErrorMsg')
+  const succDiv  = document.getElementById('passSuccess')
+
+  errorDiv.style.display = 'none'
+  succDiv.style.display  = 'none'
+
+  if(!actual || !nueva || !repetir){
+    errorMsg.innerText = 'Completá todos los campos'
+    errorDiv.style.display = 'flex'
+    return
+  }
+
+  if(nueva.length < 6){
+    errorMsg.innerText = 'La nueva contraseña debe tener al menos 6 caracteres'
+    errorDiv.style.display = 'flex'
+    return
+  }
+
+  if(nueva !== repetir){
+    errorMsg.innerText = 'Las contraseñas nuevas no coinciden'
+    errorDiv.style.display = 'flex'
+    return
+  }
+
+  const btn = document.getElementById('btnCambiarPass')
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'
+  btn.disabled  = true
+
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({
+        action:   'cambiarContrasena',
+        id:       sesion.id,
+        actual,
+        nueva,
+        token:    sesion.token
+      })
+    })
+    const data = await res.json()
+
+    if(data.ok){
+      succDiv.style.display = 'flex'
+      document.getElementById('passActual').value  = ''
+      document.getElementById('passNueva').value   = ''
+      document.getElementById('passRepetir').value = ''
+    } else {
+      errorMsg.innerText = data.error || 'Error al cambiar la contraseña'
+      errorDiv.style.display = 'flex'
+    }
+  } catch(e) {
+    errorMsg.innerText = 'Error de conexión. Intentá de nuevo.'
+    errorDiv.style.display = 'flex'
+  }
+
+  btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar nueva contraseña'
+  btn.disabled  = false
+}
