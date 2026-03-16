@@ -62,12 +62,62 @@ async function cargarCursosRegistro(){
 // ─────────────────────────────────────────────
 
 function setTab(tab){
-  const esIngresar = tab === 'ingresar'
+  const esIngresar    = tab === 'ingresar'
+  const esRegistrarse = tab === 'registrarse'
+  const esOlvide      = tab === 'olvide'
+
   document.getElementById('tabIngresar').classList.toggle('activo',    esIngresar)
-  document.getElementById('tabRegistrarse').classList.toggle('activo', !esIngresar)
-  document.getElementById('formIngresar').style.display    = esIngresar ? 'flex' : 'none'
-  document.getElementById('formRegistrarse').style.display = esIngresar ? 'none' : 'flex'
+  document.getElementById('tabRegistrarse').classList.toggle('activo', esRegistrarse)
+  document.getElementById('loginTabs').style.display = esOlvide ? 'none' : 'flex'
+
+  document.getElementById('formIngresar').style.display    = esIngresar    ? 'flex' : 'none'
+  document.getElementById('formRegistrarse').style.display = esRegistrarse ? 'flex' : 'none'
+  document.getElementById('formOlvide').style.display      = esOlvide      ? 'flex' : 'none'
   ocultarErrores()
+}
+
+// ─────────────────────────────────────────────
+// OLVIDÉ MI CONTRASEÑA
+// ─────────────────────────────────────────────
+
+async function recuperarContrasena(){
+  const email    = document.getElementById('olvideEmail').value.trim()
+  const errorDiv = document.getElementById('olvideError')
+  const errorMsg = document.getElementById('olvideErrorMsg')
+  const succDiv  = document.getElementById('olvideSuccess')
+
+  errorDiv.style.display = 'none'
+  succDiv.style.display  = 'none'
+
+  if(!email){
+    errorMsg.innerText = 'Ingresá tu email'
+    errorDiv.style.display = 'flex'
+    return
+  }
+
+  setBtnCargando('btnOlvide', true)
+
+  try {
+    const res  = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'recuperarContrasena', email })
+    })
+    const data = await res.json()
+
+    if(data.ok){
+      succDiv.style.display = 'flex'
+      document.getElementById('olvideEmail').value = ''
+      document.getElementById('btnOlvide').style.display = 'none'
+    } else {
+      errorMsg.innerText = data.error || 'No encontramos ese email'
+      errorDiv.style.display = 'flex'
+    }
+  } catch(e) {
+    errorMsg.innerText = 'Error de conexión. Intentá de nuevo.'
+    errorDiv.style.display = 'flex'
+  }
+
+  setBtnCargando('btnOlvide', false)
 }
 
 // ─────────────────────────────────────────────
@@ -199,15 +249,24 @@ function mostrarError(divId, spanId, msg){
 }
 
 function ocultarErrores(){
-  document.getElementById('loginError').style.display  = 'none'
-  document.getElementById('regError').style.display    = 'none'
-  document.getElementById('regSuccess').style.display  = 'none'
+  document.getElementById('loginError').style.display   = 'none'
+  document.getElementById('regError').style.display     = 'none'
+  document.getElementById('regSuccess').style.display   = 'none'
+  document.getElementById('olvideError').style.display  = 'none'
+  document.getElementById('olvideSuccess').style.display = 'none'
 }
 
 function setBtnCargando(id, cargando){
   const btn = document.getElementById(id)
+  if(!btn) return
   btn.classList.toggle('cargando', cargando)
-  btn.querySelector('span').innerText = cargando ? 'Cargando...' : (id === 'btnIngresar' ? 'Ingresar' : 'Solicitar acceso')
+  const textos = {
+    btnIngresar:    { on: 'Cargando...',  off: 'Ingresar' },
+    btnRegistrarse: { on: 'Cargando...',  off: 'Solicitar acceso' },
+    btnOlvide:      { on: 'Enviando...', off: 'Enviar contraseña temporal' }
+  }
+  const t = textos[id]
+  if(t) btn.querySelector('span').innerText = cargando ? t.on : t.off
 }
 
 // Enter para enviar
