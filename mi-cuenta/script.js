@@ -160,8 +160,8 @@ async function cargarApuntes(sesion){
           <i class="fa-solid fa-book-open"></i>
           <p>Todavía no hay apuntes disponibles para tu curso.</p>
         </div>`
-      // También limpiar materiales
-      document.getElementById('materialesLista').innerHTML = `
+      // También limpiar multimedia
+      document.getElementById('multimediaLista').innerHTML = `
         <div class="cuenta-vacio">
           <i class="fa-solid fa-images"></i>
           <p>No hay contenido multimedia todavía.</p>
@@ -225,7 +225,7 @@ function renderApuntes(apuntes){
 // ─────────────────────────────────────────────
 
 async function cargarMultimediaCuenta(sesion){
-  const lista = document.getElementById('materialesLista')
+  const lista = document.getElementById('multimediaLista')
 
   try {
     const cursoId = sesion.curso || ''
