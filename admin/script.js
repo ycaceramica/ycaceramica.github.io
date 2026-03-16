@@ -806,8 +806,9 @@ async function cargarElaboracion(){
 
     elaboracionData = dataSlots.data || []
 
-    // Actualizar switch de visibilidad
-    const visible = dataConfig.data?.elaboracion_visible !== 'false'
+    // Actualizar switch — maneja 'true','false','0','1',true,false
+    const val     = String(dataConfig.data?.elaboracion_visible ?? 'true')
+    const visible = val !== 'false' && val !== '0'
     document.getElementById('switchElaboracionVisible').checked = visible
 
     renderElaboracion()
@@ -971,7 +972,7 @@ async function toggleElaboracionVisible(visible){
         hoja:   'config_index',
         id:     'CFG-elaboracion',
         campo:  'valor',
-        valor:  visible ? 'true' : 'false',
+        valor:  visible ? 'true' : 'false',  // siempre string, nunca booleano
         token:  sesion.token
       })
     })
@@ -1101,7 +1102,7 @@ async function ejecutarBorrarGaleria(borrarDrive){
     await fetch(API, {
       method: 'POST',
       body: JSON.stringify({
-        action:  borrarDrive ? 'eliminarConFoto' : 'actualizarCampo',
+        action:  borrarDrive ? 'borrarFotoSlot' : 'actualizarCampo',
         hoja:    'galeria', id,
         campo:   'foto', valor: '',
         fotoUrl, token: sesion.token
