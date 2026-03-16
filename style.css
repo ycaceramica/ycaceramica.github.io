@@ -466,3 +466,172 @@ footer{
 
 .buscador-input:focus{ outline: none; }
 .buscador-input::placeholder{ opacity: 0.4; }
+
+/* ── SUSCRIPCIÓN ── */
+
+.suscripcion-card{
+  background: var(--color-superficie);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 8px 32px var(--color-sombra);
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.suscripcion-header{
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.suscripcion-emoji{
+  font-size: 36px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.suscripcion-header h2{
+  font-size: 26px;
+  margin: 0 0 10px 0;
+}
+
+.suscripcion-header p{
+  opacity: 0.6;
+  font-size: 15px;
+  margin: 0;
+}
+
+.suscripcion-form{
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.suscripcion-fila{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.suscripcion-grupo{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.suscripcion-grupo label{
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.6;
+}
+
+.opcional{
+  font-weight: 400;
+  opacity: 0.5;
+  font-size: 12px;
+}
+
+.suscripcion-grupo input{
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #d8cfc4;
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.suscripcion-grupo input:focus{
+  outline: none;
+  border-color: var(--color-primario);
+}
+
+.suscripcion-intereses{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.intereses-label{
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.6;
+}
+
+.intereses-checks{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.check-item{
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--color-fondo);
+  border: 1.5px solid #d8cfc4;
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s;
+  user-select: none;
+}
+
+.check-item:hover{
+  border-color: var(--color-primario);
+}
+
+.check-item input[type="checkbox"]{
+  accent-color: var(--color-primario);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.suscripcion-error{
+  background: rgba(168,82,82,0.1);
+  border: 1.5px solid rgba(168,82,82,0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #a85252;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.suscripcion-btn{
+  padding: 14px;
+  background: var(--color-primario);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  width: 100%;
+}
+
+.suscripcion-btn:hover{ opacity: 0.85; }
+
+.suscripcion-exito{
+  text-align: center;
+  padding: 20px;
+  color: #52a852;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.suscripcion-exito i{ font-size: 40px; }
+.suscripcion-exito p{ font-size: 16px; font-weight: 600; margin: 0; }
+
+@media(max-width: 600px){
+  .suscripcion-card{ padding: 24px 18px; }
+  .suscripcion-fila{ grid-template-columns: 1fr; }
+}
