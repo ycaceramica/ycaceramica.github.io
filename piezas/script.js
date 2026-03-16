@@ -108,12 +108,20 @@ function armarFiltros(piezas){
 function filtrar(categoria){
   document.querySelectorAll(".filtro").forEach(b => b.classList.remove("activo"))
   document.querySelector(`.filtro[data-categoria="${categoria}"]`)?.classList.add("activo")
+  filtrarPiezas()
+}
 
-  const cards  = document.querySelectorAll(".pieza-card")
-  let visibles = 0
+function filtrarPiezas(){
+  const categoriaActiva = document.querySelector(".filtro.activo")?.dataset.categoria || "todas"
+  const busqueda        = (document.getElementById("buscadorPiezas")?.value || "").toLowerCase().trim()
+  const cards           = document.querySelectorAll(".pieza-card")
+  let visibles          = 0
 
   cards.forEach(card => {
-    const mostrar = categoria === "todas" || card.dataset.categoria === categoria
+    const matchCat  = categoriaActiva === "todas" || card.dataset.categoria === categoriaActiva
+    const nombre    = (card.querySelector(".pieza-nombre")?.innerText || "").toLowerCase()
+    const matchBus  = !busqueda || nombre.includes(busqueda)
+    const mostrar   = matchCat && matchBus
     card.style.display = mostrar ? "flex" : "none"
     if(mostrar) visibles++
   })
@@ -124,10 +132,16 @@ function filtrar(categoria){
   if(visibles === 0){
     const msg = document.createElement("div")
     msg.className = "sin-resultados"
-    msg.innerHTML = `<p>No hay piezas en esta categoría todavía.</p>`
+    msg.innerHTML = `<p>No hay piezas que coincidan con tu búsqueda.</p>`
     document.getElementById("piezasGrid").appendChild(msg)
   }
 }
+
+// Conectar buscador
+document.addEventListener("DOMContentLoaded", () => {
+  const buscador = document.getElementById("buscadorPiezas")
+  if(buscador) buscador.addEventListener("input", filtrarPiezas)
+})
 
 // ─────────────────────────────────────────────
 // CARGAR PIEZAS — desde Apps Script
