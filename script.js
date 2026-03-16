@@ -149,3 +149,64 @@ async function verificarVisibilidadElaboracion(){
 }
 
 verificarVisibilidadElaboracion()
+
+// ─────────────────────────────────────────────
+// SUSCRIPCIÓN A NOVEDADES
+// ─────────────────────────────────────────────
+
+async function suscribirse(){
+  const nombre    = document.getElementById('susNombre').value.trim()
+  const email     = document.getElementById('susEmail').value.trim()
+  const instagram = document.getElementById('susInstagram').value.trim()
+  const checks    = document.querySelectorAll('.intereses-checks input[type="checkbox"]:checked')
+  const intereses = Array.from(checks).map(c => c.value).join(',')
+
+  const errorDiv = document.getElementById('susError')
+  const errorMsg = document.getElementById('susErrorMsg')
+  errorDiv.style.display = 'none'
+
+  if(!nombre){
+    errorMsg.innerText = 'Ingresá tu nombre'
+    errorDiv.style.display = 'flex'
+    return
+  }
+
+  if(!email || !email.includes('@')){
+    errorMsg.innerText = 'Ingresá un email válido'
+    errorDiv.style.display = 'flex'
+    return
+  }
+
+  const btn = document.getElementById('btnSuscribirse')
+  btn.innerText = 'Enviando...'
+  btn.disabled  = true
+
+  try {
+    const res  = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'suscribirse',
+        nombre,
+        email,
+        instagram: instagram.replace('@','').trim(),
+        intereses: intereses || 'todo'
+      })
+    })
+    const data = await res.json()
+
+    if(data.ok){
+      document.getElementById('suscripcionForm').style.display  = 'none'
+      document.getElementById('suscripcionExito').style.display = 'flex'
+    } else {
+      errorMsg.innerText = data.error || 'Error al suscribirse'
+      errorDiv.style.display = 'flex'
+      btn.innerText = 'Suscribirme 🔔'
+      btn.disabled  = false
+    }
+  } catch(e) {
+    errorMsg.innerText = 'Error de conexión. Intentá de nuevo.'
+    errorDiv.style.display = 'flex'
+    btn.innerText = 'Suscribirme 🔔'
+    btn.disabled  = false
+  }
+}
