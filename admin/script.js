@@ -1203,24 +1203,49 @@ function renderUsuarios(){
   const lista      = document.getElementById('lista-usuarios')
   const pendientes = usuariosData.filter(u => u.estado === 'pendiente')
   const activos    = usuariosData.filter(u => u.estado === 'activo')
-  const rechazados = usuariosData.filter(u => u.estado === 'rechazado' || u.estado === 'pausado')
+  const pausados   = usuariosData.filter(u => u.estado === 'pausado')
+  const rechazados = usuariosData.filter(u => u.estado === 'rechazado')
 
   document.getElementById('cnt-pendientes').innerText = pendientes.length
   document.getElementById('cnt-activos').innerText    = activos.length
+  document.getElementById('cnt-pausados').innerText   = pausados.length || 0
   document.getElementById('cnt-rechazados').innerText = rechazados.length
 
   const badge = document.getElementById('badgePendientes')
   badge.style.display = pendientes.length > 0 ? 'inline' : 'none'
   badge.innerText = pendientes.length
 
+  // Actualizar selector de curso en filtro
+  const selFiltro = document.getElementById('filtroCursoUsuarios')
+  const cursoSeleccionado = selFiltro?.value || ''
+  if(selFiltro && cursosData.length > 0 && selFiltro.options.length === 1){
+    cursosData.forEach(c => {
+      const opt = document.createElement('option')
+      opt.value = c.hojaId; opt.textContent = c.nombre
+      selFiltro.appendChild(opt)
+    })
+  }
+
   lista.innerHTML = ''
-  const filtrados = tabUsuarioActual === 'pendientes' ? pendientes
-                  : tabUsuarioActual === 'activos'    ? activos : rechazados
+  let filtrados = tabUsuarioActual === 'pendientes'  ? pendientes
+                : tabUsuarioActual === 'activos'     ? activos
+                : tabUsuarioActual === 'pausados'    ? pausados
+                : rechazados
+
+  // Filtrar por curso
+  if(cursoSeleccionado){
+    filtrados = filtrados.filter(u => {
+      const cursosU = (u.curso || '').split(',').map(c => c.trim())
+      return cursosU.includes(cursoSeleccionado)
+    })
+  }
 
   if(filtrados.length === 0){
     lista.innerHTML = `<div class="vacio"><i class="fa-solid fa-users"></i><p>No hay usuarios en esta categoría</p></div>`
     return
   }
+
+  const estadoLabels = { pendiente:'Pendiente', activo:'Activo', pausado:'Pausado', rechazado:'Rechazado' }
 
   filtrados.forEach(u => {
     const inicial      = (u.nombre || '?')[0].toUpperCase()
@@ -1231,7 +1256,7 @@ function renderUsuarios(){
     const card         = document.createElement('div')
     card.className = 'usuario-card'
 
-    let botones = `<span class="estado-badge ${u.estado}">${u.estado}</span>`
+    let botones = `<span class="estado-badge ${u.estado}">${estadoLabels[u.estado] || u.estado}</span>`
     if(u.estado === 'pendiente'){
       botones += `
         <button class="btn-aprobar"  onclick="gestionarUsuario('${u.id}','aprobar')"><i class="fa-solid fa-check"></i> Aprobar</button>
@@ -1241,6 +1266,11 @@ function renderUsuarios(){
       botones += `
         <button class="btn-pausar"   onclick="gestionarUsuario('${u.id}','pausar')"><i class="fa-solid fa-pause"></i> Pausar</button>
         <button class="btn-rechazar" onclick="gestionarUsuario('${u.id}','rechazar')"><i class="fa-solid fa-xmark"></i> Revocar</button>
+        <button class="btn-eliminar-usr" onclick="eliminarUsuario('${u.id}')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>`
+    } else if(u.estado === 'pausado'){
+      botones += `
+        <button class="btn-reactivar" onclick="gestionarUsuario('${u.id}','aprobar')"><i class="fa-solid fa-rotate-left"></i> Reactivar</button>
+        <button class="btn-rechazar"  onclick="gestionarUsuario('${u.id}','rechazar')"><i class="fa-solid fa-xmark"></i> Revocar</button>
         <button class="btn-eliminar-usr" onclick="eliminarUsuario('${u.id}')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>`
     } else {
       botones += `
@@ -1275,6 +1305,125 @@ function renderUsuarios(){
     `
     lista.appendChild(card)
   })
+}
+
+// ─────────────────────────────────────────────
+// EXPORTAR LISTA PDF
+// ─────────────────────────────────────────────
+
+function abrirModalExportarLista(){
+  const sel = document.getElementById('exportCurso')
+  sel.innerHTML = '<option value="">Todos los cursos</option>'
+  cursosData.forEach(c => {
+    const opt = document.createElement('option')
+    opt.value = c.hojaId; opt.textContent = c.nombre
+    sel.appendChild(opt)
+  })
+  document.getElementById('modalExportar').style.display = 'flex'
+}
+
+function cerrarModalExportar(e){
+  if(e && e.target !== document.getElementById('modalExportar')) return
+  document.getElementById('modalExportar').style.display = 'none'
+}
+
+function exportarListaPDF(){
+  const cursoFiltro = document.getElementById('exportCurso').value
+  const incActivos  = document.getElementById('expActivos').checked
+  const incPausados = document.getElementById('expPausados').checked
+  const colNombre   = document.getElementById('expNombre').checked
+  const colEmail    = document.getElementById('expEmail').checked
+  const colCursos   = document.getElementById('expCursos').checked
+  const colEstado   = document.getElementById('expEstado').checked
+  const colFecha    = document.getElementById('expFecha').checked
+
+  let alumnos = usuariosData.filter(u => {
+    if(u.estado === 'pendiente' || u.estado === 'rechazado') return false
+    if(u.estado === 'activo'  && !incActivos)  return false
+    if(u.estado === 'pausado' && !incPausados) return false
+    if(cursoFiltro){
+      const cursosU = (u.curso || '').split(',').map(c => c.trim())
+      if(!cursosU.includes(cursoFiltro)) return false
+    }
+    return true
+  })
+
+  if(alumnos.length === 0){ toast('No hay alumnos para exportar', 'err'); return }
+
+  const activos  = alumnos.filter(u => u.estado === 'activo')
+  const pausados = alumnos.filter(u => u.estado === 'pausado')
+
+  const nombreCurso = cursoFiltro
+    ? (cursosData.find(c => c.hojaId === cursoFiltro)?.nombre || cursoFiltro)
+    : 'Todos los cursos'
+
+  const cols = []
+  if(colNombre) cols.push({ key:'nombre',        label:'Nombre' })
+  if(colEmail)  cols.push({ key:'email',          label:'Email' })
+  if(colCursos) cols.push({ key:'cursos_nombres', label:'Curso/s' })
+  if(colEstado) cols.push({ key:'estado',         label:'Estado' })
+  if(colFecha)  cols.push({ key:'fechaRegistro',  label:'Registro' })
+
+  const estadoLabels = { activo:'Activo', pausado:'Pausado' }
+
+  function buildTable(lista, titulo){
+    if(lista.length === 0) return ''
+    const rows = lista.map(u => {
+      const cursosNombres = (u.curso || '').split(',').map(c => {
+        const obj = cursosData.find(x => x.hojaId === c.trim())
+        return obj ? obj.nombre : c
+      }).join(', ')
+      const item = { ...u, cursos_nombres: cursosNombres }
+      return `<tr>${cols.map(col => {
+        let val = item[col.key] || ''
+        if(col.key === 'estado') val = estadoLabels[val] || val
+        if(col.key === 'fechaRegistro') val = formatearFecha(val)
+        return `<td>${val}</td>`
+      }).join('')}</tr>`
+    }).join('')
+    return `
+      <tr class="sec-row"><td colspan="${cols.length}">${titulo} (${lista.length})</td></tr>
+      <tr class="col-headers">${cols.map(c => `<th>${c.label}</th>`).join('')}</tr>
+      ${rows}
+    `
+  }
+
+  const fecha  = new Date().toLocaleDateString('es-AR')
+  const tablas = buildTable(activos, 'Activos') + buildTable(pausados, 'Pausados')
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+    body{ font-family:'Plus Jakarta Sans',Arial,sans-serif; margin:0; padding:32px; color:#2d2016; }
+    .header{ display:flex; align-items:center; gap:16px; border-bottom:2px solid #8b6f56; padding-bottom:16px; margin-bottom:24px; }
+    .header img{ width:52px; height:52px; border-radius:50%; }
+    .header h1{ margin:0; font-size:20px; color:#8b6f56; }
+    .header p{ margin:4px 0 0; font-size:13px; opacity:0.6; }
+    table{ width:100%; border-collapse:collapse; }
+    .sec-row td{ background:#8b6f56; color:white; font-weight:700; font-size:13px; padding:8px 12px; margin-top:16px; }
+    .col-headers th{ background:#f0e8df; color:#8b6f56; font-weight:700; font-size:12px; padding:8px 12px; text-align:left; border-bottom:1px solid #d8cfc4; }
+    td{ padding:10px 12px; font-size:13px; border-bottom:1px solid #f5f0ea; }
+    .footer{ margin-top:24px; font-size:11px; opacity:0.4; text-align:right; }
+    @media print{ body{ padding:0; } }
+  </style></head><body>
+  <div class="header">
+    <img src="../imagenes/logo.png" alt="YCA">
+    <div>
+      <h1>YCA Cerámica — Lista de alumnos</h1>
+      <p>${nombreCurso} · ${fecha}</p>
+    </div>
+  </div>
+  <table>${tablas}</table>
+  <div class="footer">YCA Cerámica · ycaceramica.github.io</div>
+  </body></html>`
+
+  const ventana = window.open('', '_blank')
+  ventana.document.write(html)
+  ventana.document.close()
+  ventana.focus()
+  setTimeout(() => ventana.print(), 600)
+  cerrarModalExportar()
+  toast('✅ PDF generado', 'ok')
 }
 
 function toggleCursoSelector(userId){
