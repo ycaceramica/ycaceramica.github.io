@@ -972,3 +972,40 @@ body.dark #exportCurso option{
 
 .btn-enviar-email:hover{ opacity: 0.85; }
 .btn-enviar-email:disabled{ opacity: 0.5; cursor: not-allowed; }
+
+/* ── MODAL CONFIRMAR EMAIL ── */
+
+.email-confirm-fila{
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--color-fondo);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.email-confirm-label{
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.4;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.email-confirm-valor{
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.email-confirm-aviso{
+  background: rgba(201,162,39,0.1);
+  border: 1.5px solid rgba(201,162,39,0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #c9a227;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.4;
+}
