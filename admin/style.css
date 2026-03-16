@@ -408,6 +408,21 @@ body{ margin:0; overflow-x:hidden; }
   font-weight: 600;
   cursor: pointer;
   flex: 1;
+  color-scheme: light dark;
+}
+
+/* Fix select options en dark mode */
+.mform-grupo select,
+.usuarios-filtro-curso select,
+#exportCurso{
+  color-scheme: light dark;
+}
+
+body.dark .mform-grupo select option,
+body.dark .usuarios-filtro-curso select option,
+body.dark #exportCurso option{
+  background: #2a2a2a;
+  color: #f0e8df;
 }
 
 .usuarios-filtro-curso select:focus{ outline: none; }
