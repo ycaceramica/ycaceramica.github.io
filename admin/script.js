@@ -806,8 +806,9 @@ async function cargarElaboracion(){
 
     elaboracionData = dataSlots.data || []
 
-    // Actualizar switch de visibilidad
-    const visible = dataConfig.data?.elaboracion_visible !== 'false'
+    // Actualizar switch — maneja 'false', '0', false, 0
+    const val = String(dataConfig.data?.elaboracion_visible)
+    const visible = val !== 'false' && val !== '0'
     document.getElementById('switchElaboracionVisible').checked = visible
 
     renderElaboracion()
@@ -823,12 +824,12 @@ function renderElaboracion(){
   gridTaller.innerHTML = ''
 
   const etapas = [1,2,3,4,5,6].map(n =>
-    elaboracionData.find(s => s.seccion === 'etapa' && String(s.slot) === String(n)) ||
+    elaboracionData.find(s => s.seccion === 'etapa' && Math.round(parseFloat(s.slot)) === n) ||
     { id: 'ELAB-' + n, seccion: 'etapa', slot: n, foto: '', descripcion: '' }
   )
 
   const taller = [1,2,3,4,5,6].map(n =>
-    elaboracionData.find(s => s.seccion === 'taller' && String(s.slot) === String(n)) ||
+    elaboracionData.find(s => s.seccion === 'taller' && Math.round(parseFloat(s.slot)) === n) ||
     { id: 'TALL-' + n, seccion: 'taller', slot: n, foto: '', descripcion: '' }
   )
 
