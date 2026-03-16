@@ -23,7 +23,39 @@ window.addEventListener('DOMContentLoaded', () => {
     if(sesion.rol === 'admin') window.location.href = '../admin/index.html'
     else                       window.location.href = '../mi-cuenta/index.html'
   }
+  cargarCursosRegistro()
 })
+
+// ─────────────────────────────────────────────
+// CURSOS DINÁMICOS EN EL REGISTRO
+// ─────────────────────────────────────────────
+
+async function cargarCursosRegistro(){
+  const select = document.getElementById('regCurso')
+  try {
+    const res  = await fetch(`${API}?action=getCursos`)
+    const data = await res.json()
+    const cursos = (data.data || []).filter(c =>
+      c.estado !== 'finalizado' && c.visible !== 'false' && c.visible !== false
+    )
+
+    select.innerHTML = '<option value="">Seleccioná un curso</option>'
+
+    if(cursos.length === 0){
+      select.innerHTML = '<option value="">No hay cursos disponibles</option>'
+      return
+    }
+
+    cursos.forEach(c => {
+      const opt   = document.createElement('option')
+      opt.value   = c.hojaId || c.id
+      opt.textContent = c.nombre + (c.estado === 'proximamente' ? ' — Próximamente' : '')
+      select.appendChild(opt)
+    })
+  } catch(e) {
+    select.innerHTML = '<option value="">Seleccioná un curso</option>'
+  }
+}
 
 // ─────────────────────────────────────────────
 // TABS
