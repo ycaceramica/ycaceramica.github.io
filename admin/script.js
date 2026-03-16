@@ -872,9 +872,37 @@ function crearSlotElaboracion(slot, label){
     <div class="elaboracion-slot-body">
       <div class="elaboracion-slot-num">${label}</div>
       ${slot.descripcion ? `<div class="elaboracion-slot-desc">📸 ${slot.descripcion}</div>` : ''}
+      ${slot.foto ? `
+        <button class="btn-borrar-elab" onclick="borrarFotoElaboracion('${slot.id}', '${slot.foto}')">
+          <i class="fa-solid fa-trash"></i> Borrar foto
+        </button>` : ''}
     </div>
   `
   return div
+}
+
+async function borrarFotoElaboracion(id, fotoUrl){
+  const usarDrive = confirm(
+    '¿Cómo querés borrar esta foto?\n\nOK = Borrar de la web y del Drive\nCancelar = Solo borrar de la web'
+  )
+
+  // Para elaboracion no usamos el modal personalizado todavía,
+  // pero al menos hacemos la acción correcta
+  try {
+    const sesion = getSesion()
+    const action = usarDrive ? 'eliminarConFoto' : 'actualizarCampo'
+    const body   = usarDrive
+      ? { action, hoja: 'elaboracion', id, fotoUrl, token: sesion.token }
+      : { action, hoja: 'elaboracion', id, campo: 'foto', valor: '', token: sesion.token }
+
+    const res  = await fetch(API, { method: 'POST', body: JSON.stringify(body) })
+    const data = await res.json()
+    if(data.ok){
+      elaboracionData = []
+      await cargarElaboracion()
+      toast(usarDrive ? '🗑 Foto borrada de la web y del Drive' : '🗑 Foto borrada de la web', 'ok')
+    }
+  } catch(e) { toast('❌ Error', 'err') }
 }
 
 function subirFotoElaboracion(id, seccion, slot){
@@ -919,9 +947,10 @@ function subirFotoElaboracion(id, seccion, slot){
 }
 
 async function toggleElaboracionVisible(visible){
+  const switchEl = document.getElementById('switchElaboracionVisible')
   try {
     const sesion = getSesion()
-    await fetch(API, {
+    const res    = await fetch(API, {
       method: 'POST',
       body: JSON.stringify({
         action: 'actualizarCampo',
@@ -932,8 +961,18 @@ async function toggleElaboracionVisible(visible){
         token:  sesion.token
       })
     })
-    toast(visible ? '✅ Sección visible en el inicio' : '👁 Sección oculta del inicio', 'ok')
-  } catch(e) { toast('❌ Error', 'err') }
+    const data = await res.json()
+    if(data.ok){
+      toast(visible ? '✅ Sección visible en el inicio' : '👁 Sección oculta del inicio', 'ok')
+    } else {
+      // Revertir el switch si falló
+      switchEl.checked = !visible
+      toast('❌ Error al guardar: ' + (data.error || 'desconocido'), 'err')
+    }
+  } catch(e) {
+    switchEl.checked = !visible
+    toast('❌ Error de conexión', 'err')
+  }
 }
 
 // ─────────────────────────────────────────────
