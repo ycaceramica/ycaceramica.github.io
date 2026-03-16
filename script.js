@@ -137,7 +137,9 @@ async function verificarVisibilidadElaboracion(){
     const data   = await res.json()
     const config = data.data || {}
 
-    if(config.elaboracion_visible === 'false'){
+    // El valor puede llegar como 'false', '0', false o 0
+    const val = String(config.elaboracion_visible)
+    if(val === 'false' || val === '0'){
       const banner = document.getElementById('banner-elaboracion')
       if(banner) banner.style.display = 'none'
     }
