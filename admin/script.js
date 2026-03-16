@@ -146,12 +146,31 @@ async function cargarCursosSilencioso(){
 
 let ordenActual = {} // hoja -> 'az' | 'za'
 
-function ordenarItems(items, orden){
+function ordenarItems(items, orden, hoja){
+  // Para inventarios privados ordenar por código
+  const porCodigo = hoja === 'moldes' || (hoja && hoja.endsWith('_inv'))
+
   return [...items].sort((a, b) => {
-    const catA  = (a.categoria || '').toLowerCase()
-    const catB  = (b.categoria || '').toLowerCase()
-    const nomA  = (a.nombre || a.titulo || '').toLowerCase()
-    const nomB  = (b.nombre || b.titulo || '').toLowerCase()
+    if(porCodigo){
+      // Ordenar por prefijo luego por número
+      const codA = String(a.codigo || '').toUpperCase()
+      const codB = String(b.codigo || '').toUpperCase()
+      const matchA = codA.match(/^([A-Z]+)-?(\d+)$/)
+      const matchB = codB.match(/^([A-Z]+)-?(\d+)$/)
+      if(matchA && matchB){
+        if(matchA[1] !== matchB[1]) return matchA[1] < matchB[1] ? -1 : 1
+        const numA = parseInt(matchA[2])
+        const numB = parseInt(matchB[2])
+        return orden === 'za' ? numB - numA : numA - numB
+      }
+      return orden === 'za' ? codB.localeCompare(codA) : codA.localeCompare(codB)
+    }
+
+    // Para catálogos públicos ordenar por categoría + nombre
+    const catA = (a.categoria || '').toLowerCase()
+    const catB = (b.categoria || '').toLowerCase()
+    const nomA = (a.nombre || a.titulo || '').toLowerCase()
+    const nomB = (b.nombre || b.titulo || '').toLowerCase()
     if(catA !== catB) return catA < catB ? -1 : 1
     if(orden === 'za') return nomA < nomB ? 1 : -1
     return nomA < nomB ? -1 : 1
@@ -235,7 +254,7 @@ function setOrden(hoja, orden, btn){
   btn.closest('.admin-orden-btns').querySelectorAll('button').forEach(b => b.classList.remove('activo'))
   btn.classList.add('activo')
   const items = cache[hoja] || []
-  renderGrid(hoja, ordenarItems(items, orden))
+  renderGrid(hoja, ordenarItems(items, orden, hoja))
 }
 
 // ─────────────────────────────────────────────
@@ -264,7 +283,7 @@ function renderGrid(hoja, items){
   }
 
   const orden     = ordenActual[hoja] || 'az'
-  const ordenados = ordenarItems(items, orden)
+  const ordenados = ordenarItems(items, orden, hoja)
 
   ordenados.forEach(item => {
     const publicado = item.publicado === true || item.publicado === 'TRUE' || item.publicado === 'true'
