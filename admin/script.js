@@ -639,9 +639,8 @@ async function generarCodigo(){
   const cat = catEl.value
   if(!cat) return
   try {
-    const sesion = getSesion()
-    const res    = await fetch(`${API}?action=siguienteCodigo&hoja=${modalHoja}&categoria=${encodeURIComponent(cat)}&token=${encodeURIComponent(sesion.token)}`)
-    const data   = await res.json()
+    const res  = await fetch(`${API}?action=siguienteCodigo&hoja=${modalHoja}&categoria=${encodeURIComponent(cat)}`)
+    const data = await res.json()
     if(data.codigo) codEl.value = data.codigo
   } catch(e) {}
 }
