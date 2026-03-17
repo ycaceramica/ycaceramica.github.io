@@ -2221,19 +2221,28 @@ let emailPdfB64        = null
 let emailPdfNombreStr  = ''
 
 async function cargarEmails(){
-  // Siempre recargar cursos para que el selector esté actualizado
-  cursosData = []
-  await cargarCursosSilencioso()
-
   const sel = document.getElementById('eCursoSelect')
+  if(sel) sel.innerHTML = '<option value="">Cargando cursos...</option>'
+
+  try {
+    // Cargar directamente sin depender del caché
+    const sesion = getSesion()
+    const res    = await fetch(`${API}?action=getCursosAdmin&token=${encodeURIComponent(sesion.token)}`)
+    const data   = await res.json()
+    cursosData   = data.data || []
+  } catch(e) {}
+
   if(sel){
     sel.innerHTML = '<option value="">Seleccioná un curso</option>'
     cursosData.forEach(c => {
       const opt = document.createElement('option')
-      opt.value = c.hojaId || c.id
+      opt.value       = c.hojaId || c.id
       opt.textContent = c.nombre
       sel.appendChild(opt)
     })
+    if(cursosData.length === 0){
+      sel.innerHTML = '<option value="">No hay cursos disponibles</option>'
+    }
   }
 
   setTipoEmail('oferta')
