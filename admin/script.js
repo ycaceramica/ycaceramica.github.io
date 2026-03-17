@@ -148,8 +148,8 @@ async function cargarCursosSilencioso(){
 let ordenActual = {} // hoja -> 'az' | 'za'
 
 function ordenarItems(items, orden, hoja){
-  // Para inventarios y catálogos con código ordenar por código
-  const porCodigo = hoja === 'moldes' || hoja === 'piezas' || hoja === 'insumos' || (hoja && hoja.endsWith('_inv'))
+  // Para inventarios privados ordenar por código
+  const porCodigo = hoja === 'moldes' || (hoja && hoja.endsWith('_inv'))
 
   return [...items].sort((a, b) => {
     if(porCodigo){
@@ -304,26 +304,25 @@ function renderGrid(hoja, items){
     const card = document.createElement('div')
     card.className = 'item-card'
     card.dataset.publicado = publicado
-    card.dataset.curso     = item.curso || ''
 
     card.innerHTML = `
-      <div class="item-card-img" onclick="abrirDetalleItem('${hoja}', '${item.id}')" style="cursor:pointer">
+      <div class="item-card-img">
         ${item.foto
           ? `<img src="${item.foto}" alt="${item.nombre || ''}" loading="lazy">`
           : `<div class="item-card-img-placeholder"><i class="fa-solid ${icono}"></i></div>`
         }
         ${!esApunte ? `
-        <button class="item-card-foto-btn" onclick="event.stopPropagation();subirFotoItem('${hoja}','${item.id}','${item.codigo || item.id}','${item.categoria || ''}')">
+        <button class="item-card-foto-btn" onclick="subirFotoItem('${hoja}','${item.id}','${item.codigo || item.id}','${item.categoria || ''}')">
           <i class="fa-solid fa-camera"></i> ${item.foto ? 'Cambiar' : 'Agregar foto'}
         </button>
         ${!item.foto ? `<span class="item-card-foto-hint">📐 1:1 para verse mejor</span>` : ''}
         ` : ''}
       </div>
-      <div class="item-card-body" onclick="abrirDetalleItem('${hoja}', '${item.id}')" style="cursor:pointer">
+      <div class="item-card-body">
         <div class="item-card-codigo">${item.codigo || (esApunte ? item.curso || '' : '')}</div>
         <div class="item-card-nombre">${item.nombre || item.titulo || ''}</div>
         <div class="item-card-cat">${item.categoria || ''}</div>
-        <div class="item-card-acciones" onclick="event.stopPropagation()">
+        <div class="item-card-acciones">
           <button class="btn-editar" onclick='editarItem("${hoja}", ${JSON.stringify(item).replace(/'/g,"&#39;").replace(/"/g,'&quot;')})'>
             <i class="fa-solid fa-pen"></i>
           </button>
@@ -521,8 +520,30 @@ function abrirModal(hoja, item = null){
         <textarea id="mContenido" rows="5" placeholder="Escribí el contenido...">${item?.contenido || ''}</textarea>
       </div>
       <div class="mform-grupo">
-        <label>URL de archivo (PDF, video, etc.)</label>
-        <input id="mArchivoUrl" value="${item?.archivoUrl || ''}" placeholder="https://...">
+        <label>📎 PDF</label>
+        <div class="apunte-pdf-area">
+          <div class="apunte-pdf-fila">
+            <span class="apunte-pdf-label">Subir desde PC</span>
+            <button class="email-pdf-btn" type="button" onclick="elegirPdfApunte()">
+              <i class="fa-solid fa-upload"></i> Elegir PDF
+            </button>
+            <span class="email-pdf-nombre" id="apuntePdfNombre">${item?.archivoUrl ? '✅ PDF cargado' : ''}</span>
+          </div>
+          <div class="apunte-pdf-fila">
+            <span class="apunte-pdf-label">O pegar link</span>
+            <input id="mArchivoUrl" value="${item?.archivoUrl || ''}" placeholder="https://drive.google.com/...">
+          </div>
+        </div>
+      </div>
+      <div class="mform-grupo">
+        <label>🖼 Miniatura <span style="font-weight:400;opacity:0.5;font-size:12px">(opcional — si no elegís se muestra el PDF)</span></label>
+        <div class="apunte-miniatura-area" id="apunteMiniaturaArea" onclick="elegirMiniaturaApunte()">
+          ${item?.miniatura
+            ? `<img src="${item.miniatura}" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`
+            : `<div class="email-img-placeholder"><i class="fa-solid fa-image"></i><span>Tocá para subir miniatura</span></div>`
+          }
+        </div>
+        ${item?.miniatura ? `<button class="email-quitar-btn" id="apunteMiniaturaQuitar" onclick="quitarMiniaturaApunte()"><i class="fa-solid fa-xmark"></i> Quitar miniatura</button>` : `<button class="email-quitar-btn" id="apunteMiniaturaQuitar" style="display:none" onclick="quitarMiniaturaApunte()"><i class="fa-solid fa-xmark"></i> Quitar miniatura</button>`}
       </div>
       <label class="publicado-toggle">
         <input type="checkbox" id="mPublicado" ${(item?.publicado === true || item?.publicado === 'TRUE' || item?.publicado === 'true') ? 'checked' : ''}>
@@ -680,6 +701,36 @@ async function guardarModal(){
     const fila   = construirFila()
     if(!fila){ btn.classList.remove('cargando'); btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar'; return }
 
+    // Si es apunte — subir PDF y/o miniatura antes de guardar
+    if(modalHoja === 'apuntes'){
+      if(apuntePdfB64){
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo PDF...'
+        try {
+          const resPdf = await fetch(API, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'subirPdfApunte', b64: apuntePdfB64, nombre: apuntePdfNombreStr, token: sesion.token })
+          })
+          const dataPdf = await resPdf.json()
+          if(dataPdf.ok && dataPdf.url) fila.archivoUrl = dataPdf.url
+        } catch(e) {}
+        apuntePdfB64 = null
+        apuntePdfNombreStr = ''
+      }
+      if(apunteMiniaturaB64){
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo miniatura...'
+        try {
+          const resMin = await fetch(API, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'subirMiniaturaApunte', b64: apunteMiniaturaB64, nombre: 'miniatura_' + Date.now(), token: sesion.token })
+          })
+          const dataMin = await resMin.json()
+          if(dataMin.ok && dataMin.url) fila.miniatura = dataMin.url
+        } catch(e) {}
+        apunteMiniaturaB64 = null
+      }
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'
+    }
+
     const res  = await fetch(API, {
       method: 'POST',
       body: JSON.stringify({ action: 'guardar', hoja: modalHoja, fila, token: sesion.token })
@@ -736,6 +787,7 @@ function construirFila(){
       curso:      document.getElementById('mCategoria')?.value || '',
       contenido:  document.getElementById('mContenido')?.value.trim() || '',
       archivoUrl: document.getElementById('mArchivoUrl')?.value.trim() || '',
+      miniatura:  modalItem?.miniatura || '',
       publicado:  document.getElementById('mPublicado')?.checked ? 'true' : 'false',
       creadoEn:   modalItem?.creadoEn || new Date().toLocaleDateString('es-AR')
     }
@@ -2072,7 +2124,6 @@ function setSeccionInventario(inv){
     // Usar prefijo del inventario como código automático
     CATEGORIAS[inv.hojaId] = ['General', 'Otros']
     PREFIJOS_CUSTOM[inv.hojaId] = inv.prefijo || inv.hojaId.replace('_inv','').toUpperCase()
-    CATEGORIAS[inv.hojaId] = [inv.nombre, 'Otros']
   }
 
   sec.style.display = 'block'
@@ -2272,6 +2323,10 @@ let emailPayload       = null
 let emailImgB64        = null
 let emailPdfB64        = null
 let emailPdfNombreStr  = ''
+let apuntePdfB64       = null
+let apuntePdfNombreStr = ''
+let apunteMiniaturaB64 = null
+let emailPdfNombreStr  = ''
 
 async function cargarEmails(){
   // Siempre recargar cursos para que el selector esté actualizado
@@ -2454,72 +2509,47 @@ async function confirmarEnvioEmail(){
 }
 
 // ─────────────────────────────────────────────
-// MODAL DETALLE ITEM
+// PDF Y MINIATURA EN APUNTES
 // ─────────────────────────────────────────────
 
-function abrirDetalleItem(hoja, id){
-  const items = cache[hoja] || []
-  const item  = items.find(i => String(i.id) === String(id))
-  if(!item) return
-
-  const esMolde  = hoja === 'moldes' || hoja.endsWith('_inv')
-  const esPieza  = hoja === 'piezas'
-  const esInsumo = hoja === 'insumos'
-
-  // Campos a mostrar según el tipo
-  const campos = []
-  if(item.codigo)      campos.push({ label: 'Código',      valor: item.codigo })
-  if(item.categoria)   campos.push({ label: 'Categoría',   valor: item.categoria })
-  if(item.descripcion) campos.push({ label: 'Descripción', valor: item.descripcion })
-  if(esPieza || esInsumo){
-    if(item.precio)    campos.push({ label: 'Precio',      valor: '$ ' + item.precio })
-    if(item.cantidad)  campos.push({ label: 'Stock',       valor: item.cantidad })
-    if(item.tecnica)   campos.push({ label: 'Técnica',     valor: item.tecnica })
-    if(item.esmalte)   campos.push({ label: 'Esmalte',     valor: item.esmalte })
-    if(item.medidas)   campos.push({ label: 'Medidas',     valor: item.medidas })
-  }
-  if(esMolde){
-    if(item.material)    campos.push({ label: 'Material',    valor: item.material })
-    if(item.dimensiones) campos.push({ label: 'Dimensiones', valor: item.dimensiones })
-    if(item.cantidad)    campos.push({ label: 'Cantidad',    valor: item.cantidad })
-  }
-  if(item.notas)       campos.push({ label: 'Notas',        valor: item.notas })
-
-  const camposHTML = campos.map(c => `
-    <div class="detalle-campo">
-      <span class="detalle-label">${c.label}</span>
-      <span class="detalle-valor">${c.valor}</span>
-    </div>`).join('')
-
-  const fotoHTML = item.foto
-    ? `<img src="${item.foto}" alt="${item.nombre||''}" class="detalle-foto">`
-    : ''
-
-  const pubBadge = (hoja !== 'moldes' && !hoja.endsWith('_inv'))
-    ? `<span class="detalle-badge ${item.publicado === true || item.publicado === 'TRUE' || item.publicado === 'true' ? 'pub' : 'ocul'}">${item.publicado === true || item.publicado === 'TRUE' || item.publicado === 'true' ? '👁 Visible' : '🚫 Oculto'}</span>`
-    : ''
-
-  document.getElementById('detalleItemTitulo').innerText = item.nombre || item.titulo || ''
-  document.getElementById('detalleItemBody').innerHTML = `
-    ${fotoHTML}
-    ${pubBadge}
-    <div class="detalle-campos">${camposHTML}</div>
-  `
-
-  // Botones de acción
-  document.getElementById('detalleItemEditar').onclick = () => {
-    cerrarDetalleItem()
-    editarItem(hoja, item)
-  }
-  document.getElementById('detalleItemBorrar').onclick = () => {
-    cerrarDetalleItem()
-    abrirModalBorrarItem(hoja, item.id, item.foto || '')
-  }
-
-  document.getElementById('modalDetalleItem').style.display = 'flex'
+function elegirPdfApunte(){
+  document.getElementById('inputPdfApunte').click()
 }
 
-function cerrarDetalleItem(e){
-  if(e && e.target !== document.getElementById('modalDetalleItem')) return
-  document.getElementById('modalDetalleItem').style.display = 'none'
+function seleccionarPdfApunte(e){
+  const file = e.target.files[0]
+  if(!file) return
+  apuntePdfNombreStr = file.name
+  document.getElementById('apuntePdfNombre').innerText = '📎 ' + file.name
+  const reader = new FileReader()
+  reader.onload = ev => { apuntePdfB64 = ev.target.result }
+  reader.readAsDataURL(file)
+}
+
+function elegirMiniaturaApunte(){
+  document.getElementById('inputMiniaturaApunte').click()
+}
+
+function previsualizarMiniaturaApunte(e){
+  const file = e.target.files[0]
+  if(!file) return
+  const reader = new FileReader()
+  reader.onload = ev => {
+    apunteMiniaturaB64 = ev.target.result
+    const area = document.getElementById('apunteMiniaturaArea')
+    area.innerHTML = `<img src="${apunteMiniaturaB64}" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`
+    document.getElementById('apunteMiniaturaQuitar').style.display = 'flex'
+  }
+  reader.readAsDataURL(file)
+}
+
+function quitarMiniaturaApunte(){
+  apunteMiniaturaB64 = null
+  // Si había miniatura guardada, marcar para borrar
+  if(modalItem) modalItem.miniatura = ''
+  const area = document.getElementById('apunteMiniaturaArea')
+  if(area) area.innerHTML = `<div class="email-img-placeholder"><i class="fa-solid fa-image"></i><span>Tocá para subir miniatura</span></div>`
+  const btn = document.getElementById('apunteMiniaturaQuitar')
+  if(btn) btn.style.display = 'none'
+  document.getElementById('inputMiniaturaApunte').value = ''
 }
