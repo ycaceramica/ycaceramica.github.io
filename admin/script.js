@@ -2225,24 +2225,26 @@ async function cargarEmails(){
   if(sel) sel.innerHTML = '<option value="">Cargando cursos...</option>'
 
   try {
-    // Cargar directamente sin depender del caché
     const sesion = getSesion()
     const res    = await fetch(`${API}?action=getCursosAdmin&token=${encodeURIComponent(sesion.token)}`)
     const data   = await res.json()
-    cursosData   = data.data || []
-  } catch(e) {}
+    const cursos = data.data || []
+    cursosData   = cursos
 
-  if(sel){
-    sel.innerHTML = '<option value="">Seleccioná un curso</option>'
-    cursosData.forEach(c => {
-      const opt = document.createElement('option')
-      opt.value       = c.hojaId || c.id
-      opt.textContent = c.nombre
-      sel.appendChild(opt)
-    })
-    if(cursosData.length === 0){
-      sel.innerHTML = '<option value="">No hay cursos disponibles</option>'
+    if(sel){
+      sel.innerHTML = '<option value="">Seleccioná un curso</option>'
+      cursos.forEach(c => {
+        const opt = document.createElement('option')
+        opt.value       = c.hojaId || c.id
+        opt.textContent = c.nombre
+        sel.appendChild(opt)
+      })
+      if(cursos.length === 0){
+        sel.innerHTML = '<option value="">No hay cursos disponibles</option>'
+      }
     }
+  } catch(e) {
+    if(sel) sel.innerHTML = '<option value="">Error al cargar cursos</option>'
   }
 
   setTipoEmail('oferta')
