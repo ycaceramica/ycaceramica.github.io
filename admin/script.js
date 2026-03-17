@@ -2221,9 +2221,6 @@ let emailPdfB64        = null
 let emailPdfNombreStr  = ''
 
 async function cargarEmails(){
-  // Pequeño delay para asegurar que el DOM esté listo
-  await new Promise(r => setTimeout(r, 100))
-
   const sel = document.getElementById('eCursoSelect')
   if(sel) sel.innerHTML = '<option value="">Cargando cursos...</option>'
 
@@ -2263,6 +2260,20 @@ function setTipoEmail(tipo){
     const el = document.getElementById('email-campos-' + b)
     if(el){ el.style.display = b === tipo ? 'flex' : 'none'; if(b===tipo) el.style.flexDirection='column' }
   })
+
+  // Si cambia a curso, rellenar el selector con los cursos disponibles
+  if(tipo === 'curso' && cursosData.length > 0){
+    const sel = document.getElementById('eCursoSelect')
+    if(sel && sel.options.length <= 1){
+      sel.innerHTML = '<option value="">Seleccioná un curso</option>'
+      cursosData.forEach(c => {
+        const opt = document.createElement('option')
+        opt.value       = c.hojaId || c.id
+        opt.textContent = c.nombre
+        sel.appendChild(opt)
+      })
+    }
+  }
 }
 
 function setDestinatario(dest){
