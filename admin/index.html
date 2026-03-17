@@ -555,28 +555,6 @@
     </div>
   </div>
 
-  <!-- MODAL DETALLE ITEM -->
-  <div class="modal-overlay" id="modalDetalleItem" style="display:none" onclick="cerrarDetalleItem(event)">
-    <div class="modal-card" style="max-width:480px">
-      <div class="modal-header">
-        <h3 id="detalleItemTitulo"></h3>
-        <button class="modal-cerrar" onclick="cerrarDetalleItem()">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-      <div class="modal-body" id="detalleItemBody" style="display:flex;flex-direction:column;gap:12px">
-      </div>
-      <div class="modal-footer">
-        <button class="btn-cancelar" id="detalleItemBorrar" style="color:#a85252;border-color:rgba(168,82,82,0.3)">
-          <i class="fa-solid fa-trash"></i> Eliminar
-        </button>
-        <button class="btn-guardar-modal" id="detalleItemEditar">
-          <i class="fa-solid fa-pen"></i> Editar
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- MODAL BORRAR ITEM (universal) -->
   <div class="modal-overlay" id="modalBorrarItem" style="display:none" onclick="cerrarModalBorrarItem(event)">
     <div class="modal-card" style="max-width:400px">
@@ -853,6 +831,8 @@
   <input type="file" id="inputFotoMultimedia" accept="image/*" style="display:none" onchange="previsualizarFotoMultimedia(event)">
   <input type="file" id="inputImagenEmail" accept="image/*" style="display:none" onchange="previsualizarImagenEmail(event)">
   <input type="file" id="inputPdfEmail" accept=".pdf" style="display:none" onchange="seleccionarPdfEmail(event)">
+  <input type="file" id="inputPdfApunte" accept=".pdf" style="display:none" onchange="seleccionarPdfApunte(event)">
+  <input type="file" id="inputMiniaturaApunte" accept="image/*" style="display:none" onchange="previsualizarMiniaturaApunte(event)">
 
   <!-- MODAL CONFIRMAR EMAIL -->
   <div class="modal-overlay" id="modalConfirmarEmail" style="display:none" onclick="cerrarModalConfirmarEmail(event)">
