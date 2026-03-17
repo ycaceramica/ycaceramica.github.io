@@ -769,6 +769,34 @@
 
   <input type="file" id="inputFotoCurso" accept="image/*" style="display:none" onchange="previsualizarFotoCurso(event)">
 
+  <!-- MODAL ELIMINAR INVENTARIO -->
+  <div class="modal-overlay" id="modalEliminarInventario" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal-card" style="max-width:420px">
+      <div class="modal-header">
+        <h3>🗑 Eliminar inventario</h3>
+        <button class="modal-cerrar" onclick="document.getElementById('modalEliminarInventario').style.display='none'">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+        <p style="font-size:14px;margin:0">¿Eliminar el inventario <strong id="elimInvNombre"></strong>?</p>
+        <div class="email-confirm-aviso">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          Esta acción no se puede deshacer. Se eliminarán todos los items.
+        </div>
+      </div>
+      <div class="modal-footer" style="flex-direction:column;gap:8px">
+        <button class="btn-guardar-modal" id="btnElimInvConDrive" style="background:#a85252">
+          <i class="fa-solid fa-trash"></i> Eliminar inventario y fotos del Drive
+        </button>
+        <button class="btn-guardar-modal" id="btnElimInvSolo" style="background:var(--color-primario)">
+          <i class="fa-solid fa-table"></i> Eliminar solo el inventario
+        </button>
+        <button class="btn-cancelar" onclick="document.getElementById('modalEliminarInventario').style.display='none'">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL NUEVO INVENTARIO -->
   <div class="modal-overlay" id="modalInventario" style="display:none" onclick="cerrarModalInventario(event)">
     <div class="modal-card">
