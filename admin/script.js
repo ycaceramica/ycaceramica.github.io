@@ -148,8 +148,8 @@ async function cargarCursosSilencioso(){
 let ordenActual = {} // hoja -> 'az' | 'za'
 
 function ordenarItems(items, orden, hoja){
-  // Para inventarios privados ordenar por código
-  const porCodigo = hoja === 'moldes' || (hoja && hoja.endsWith('_inv'))
+  // Para inventarios y catálogos con código ordenar por código
+  const porCodigo = hoja === 'moldes' || hoja === 'piezas' || hoja === 'insumos' || (hoja && hoja.endsWith('_inv'))
 
   return [...items].sort((a, b) => {
     if(porCodigo){
@@ -304,25 +304,26 @@ function renderGrid(hoja, items){
     const card = document.createElement('div')
     card.className = 'item-card'
     card.dataset.publicado = publicado
+    card.dataset.curso     = item.curso || ''
 
     card.innerHTML = `
-      <div class="item-card-img">
+      <div class="item-card-img" onclick="abrirDetalleItem('${hoja}', '${item.id}')" style="cursor:pointer">
         ${item.foto
           ? `<img src="${item.foto}" alt="${item.nombre || ''}" loading="lazy">`
           : `<div class="item-card-img-placeholder"><i class="fa-solid ${icono}"></i></div>`
         }
         ${!esApunte ? `
-        <button class="item-card-foto-btn" onclick="subirFotoItem('${hoja}','${item.id}','${item.codigo || item.id}','${item.categoria || ''}')">
+        <button class="item-card-foto-btn" onclick="event.stopPropagation();subirFotoItem('${hoja}','${item.id}','${item.codigo || item.id}','${item.categoria || ''}')">
           <i class="fa-solid fa-camera"></i> ${item.foto ? 'Cambiar' : 'Agregar foto'}
         </button>
         ${!item.foto ? `<span class="item-card-foto-hint">📐 1:1 para verse mejor</span>` : ''}
         ` : ''}
       </div>
-      <div class="item-card-body">
+      <div class="item-card-body" onclick="abrirDetalleItem('${hoja}', '${item.id}')" style="cursor:pointer">
         <div class="item-card-codigo">${item.codigo || (esApunte ? item.curso || '' : '')}</div>
         <div class="item-card-nombre">${item.nombre || item.titulo || ''}</div>
         <div class="item-card-cat">${item.categoria || ''}</div>
-        <div class="item-card-acciones">
+        <div class="item-card-acciones" onclick="event.stopPropagation()">
           <button class="btn-editar" onclick='editarItem("${hoja}", ${JSON.stringify(item).replace(/'/g,"&#39;").replace(/"/g,'&quot;')})'>
             <i class="fa-solid fa-pen"></i>
           </button>
@@ -2071,6 +2072,7 @@ function setSeccionInventario(inv){
     // Usar prefijo del inventario como código automático
     CATEGORIAS[inv.hojaId] = ['General', 'Otros']
     PREFIJOS_CUSTOM[inv.hojaId] = inv.prefijo || inv.hojaId.replace('_inv','').toUpperCase()
+    CATEGORIAS[inv.hojaId] = [inv.nombre, 'Otros']
   }
 
   sec.style.display = 'block'
@@ -2449,4 +2451,75 @@ async function confirmarEnvioEmail(){
   } catch(e) { toast('❌ Error de conexión', 'err') }
   btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Confirmar y enviar'
   btn.disabled  = false
+}
+
+// ─────────────────────────────────────────────
+// MODAL DETALLE ITEM
+// ─────────────────────────────────────────────
+
+function abrirDetalleItem(hoja, id){
+  const items = cache[hoja] || []
+  const item  = items.find(i => String(i.id) === String(id))
+  if(!item) return
+
+  const esMolde  = hoja === 'moldes' || hoja.endsWith('_inv')
+  const esPieza  = hoja === 'piezas'
+  const esInsumo = hoja === 'insumos'
+
+  // Campos a mostrar según el tipo
+  const campos = []
+  if(item.codigo)      campos.push({ label: 'Código',      valor: item.codigo })
+  if(item.categoria)   campos.push({ label: 'Categoría',   valor: item.categoria })
+  if(item.descripcion) campos.push({ label: 'Descripción', valor: item.descripcion })
+  if(esPieza || esInsumo){
+    if(item.precio)    campos.push({ label: 'Precio',      valor: '$ ' + item.precio })
+    if(item.cantidad)  campos.push({ label: 'Stock',       valor: item.cantidad })
+    if(item.tecnica)   campos.push({ label: 'Técnica',     valor: item.tecnica })
+    if(item.esmalte)   campos.push({ label: 'Esmalte',     valor: item.esmalte })
+    if(item.medidas)   campos.push({ label: 'Medidas',     valor: item.medidas })
+  }
+  if(esMolde){
+    if(item.material)    campos.push({ label: 'Material',    valor: item.material })
+    if(item.dimensiones) campos.push({ label: 'Dimensiones', valor: item.dimensiones })
+    if(item.cantidad)    campos.push({ label: 'Cantidad',    valor: item.cantidad })
+  }
+  if(item.notas)       campos.push({ label: 'Notas',        valor: item.notas })
+
+  const camposHTML = campos.map(c => `
+    <div class="detalle-campo">
+      <span class="detalle-label">${c.label}</span>
+      <span class="detalle-valor">${c.valor}</span>
+    </div>`).join('')
+
+  const fotoHTML = item.foto
+    ? `<img src="${item.foto}" alt="${item.nombre||''}" class="detalle-foto">`
+    : ''
+
+  const pubBadge = (hoja !== 'moldes' && !hoja.endsWith('_inv'))
+    ? `<span class="detalle-badge ${item.publicado === true || item.publicado === 'TRUE' || item.publicado === 'true' ? 'pub' : 'ocul'}">${item.publicado === true || item.publicado === 'TRUE' || item.publicado === 'true' ? '👁 Visible' : '🚫 Oculto'}</span>`
+    : ''
+
+  document.getElementById('detalleItemTitulo').innerText = item.nombre || item.titulo || ''
+  document.getElementById('detalleItemBody').innerHTML = `
+    ${fotoHTML}
+    ${pubBadge}
+    <div class="detalle-campos">${camposHTML}</div>
+  `
+
+  // Botones de acción
+  document.getElementById('detalleItemEditar').onclick = () => {
+    cerrarDetalleItem()
+    editarItem(hoja, item)
+  }
+  document.getElementById('detalleItemBorrar').onclick = () => {
+    cerrarDetalleItem()
+    abrirModalBorrarItem(hoja, item.id, item.foto || '')
+  }
+
+  document.getElementById('modalDetalleItem').style.display = 'flex'
+}
+
+function cerrarDetalleItem(e){
+  if(e && e.target !== document.getElementById('modalDetalleItem')) return
+  document.getElementById('modalDetalleItem').style.display = 'none'
 }
