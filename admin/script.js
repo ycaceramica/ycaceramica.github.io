@@ -2221,6 +2221,9 @@ let emailPdfB64        = null
 let emailPdfNombreStr  = ''
 
 async function cargarEmails(){
+  // Pequeño delay para asegurar que el DOM esté listo
+  await new Promise(r => setTimeout(r, 100))
+
   const sel = document.getElementById('eCursoSelect')
   if(sel) sel.innerHTML = '<option value="">Cargando cursos...</option>'
 
