@@ -1021,3 +1021,26 @@ body.dark #exportCurso option{
   font-size:12px; color:#c9a227;
   display:flex; align-items:center; gap:8px; line-height:1.4;
 }
+
+/* ── BOTÓN ELIMINAR INVENTARIO ── */
+
+.btn-eliminar-inventario{
+  padding: 8px 12px;
+  border: 1.5px solid rgba(168,82,82,0.3);
+  border-radius: 10px;
+  background: rgba(168,82,82,0.08);
+  color: #a85252;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: 0.15s;
+}
+
+.btn-eliminar-inventario:hover{
+  background: #a85252;
+  color: white;
+  border-color: #a85252;
+}
