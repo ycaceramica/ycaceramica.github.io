@@ -647,6 +647,17 @@ async function generarCodigo(){
   if(!catEl || !codEl) return
   const cat = catEl.value
   if(!cat) return
+
+  // Si el inventario tiene prefijo custom, usarlo directamente
+  if(PREFIJOS_CUSTOM[modalHoja]){
+    try {
+      const res  = await fetch(`${API}?action=siguienteCodigo&hoja=${modalHoja}&categoria=${encodeURIComponent(PREFIJOS_CUSTOM[modalHoja])}`)
+      const data = await res.json()
+      if(data.codigo) codEl.value = data.codigo
+    } catch(e) {}
+    return
+  }
+
   try {
     const res  = await fetch(`${API}?action=siguienteCodigo&hoja=${modalHoja}&categoria=${encodeURIComponent(cat)}`)
     const data = await res.json()
@@ -1995,6 +2006,7 @@ async function ejecutarBorrarCurso(id, borrarDrive){
 // ─────────────────────────────────────────────
 
 let inventariosData = []
+const PREFIJOS_CUSTOM = {}
 
 async function cargarInventarios(){
   if(inventariosData.length > 0){ renderSidebarInventarios(); return }
@@ -2036,9 +2048,14 @@ function setSeccionInventario(inv){
           <h2>📦 ${inv.nombre}</h2>
           <p>Inventario privado — solo visible en el panel admin</p>
         </div>
-        <button class="btn-nuevo" onclick="abrirModal('${inv.hojaId}')">
-          <i class="fa-solid fa-plus"></i> Nuevo item
-        </button>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="btn-nuevo" onclick="abrirModal('${inv.hojaId}')">
+            <i class="fa-solid fa-plus"></i> Nuevo item
+          </button>
+          <button class="btn-eliminar-inventario" onclick="confirmarEliminarInventario('${inv.hojaId}', '${inv.nombre}')" title="Eliminar inventario">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
       </div>
       <div class="admin-filtros-wrapper">
         <div class="admin-buscador-wrapper">
@@ -2051,13 +2068,47 @@ function setSeccionInventario(inv){
       <div class="loading" id="loading-${inv.hojaId}"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
     `
     document.getElementById('adminMain').appendChild(sec)
-    CATEGORIAS[inv.hojaId] = ['General','Otros']
+    // Usar prefijo del inventario como código automático
+    CATEGORIAS[inv.hojaId] = ['General', 'Otros']
+    PREFIJOS_CUSTOM[inv.hojaId] = inv.prefijo || inv.hojaId.replace('_inv','').toUpperCase()
   }
 
   sec.style.display = 'block'
   seccionActual = inv.hojaId
   cerrarSidebar()
   if(!cache[inv.hojaId]) cargarSeccion(inv.hojaId)
+}
+
+async function confirmarEliminarInventario(hojaId, nombre){
+  const modal = document.getElementById('modalEliminarInventario')
+  document.getElementById('elimInvNombre').innerText = nombre
+  document.getElementById('btnElimInvSolo').onclick      = () => ejecutarEliminarInventario(hojaId, false)
+  document.getElementById('btnElimInvConDrive').onclick  = () => ejecutarEliminarInventario(hojaId, true)
+  modal.style.display = 'flex'
+}
+
+async function ejecutarEliminarInventario(hojaId, borrarDrive){
+  document.getElementById('modalEliminarInventario').style.display = 'none'
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'eliminarInventario', hojaId, borrarDrive, token: sesion.token })
+    })
+    const data = await res.json()
+    if(data.ok){
+      // Quitar del sidebar y recargar inventarios
+      const btn = document.getElementById('nav-inv-' + hojaId)
+      if(btn) btn.remove()
+      const sec = document.getElementById('seccion-inv-' + hojaId)
+      if(sec) sec.remove()
+      inventariosData = inventariosData.filter(i => i.hojaId !== hojaId)
+      setSeccion('piezas')
+      toast('🗑 Inventario eliminado', 'ok')
+    } else {
+      toast('❌ ' + (data.error || 'Error al eliminar'), 'err')
+    }
+  } catch(e) { toast('❌ Error de conexión', 'err') }
 }
 
 // Modal nuevo inventario
@@ -2221,30 +2272,19 @@ let emailPdfB64        = null
 let emailPdfNombreStr  = ''
 
 async function cargarEmails(){
+  // Siempre recargar cursos para que el selector esté actualizado
+  cursosData = []
+  await cargarCursosSilencioso()
+
   const sel = document.getElementById('eCursoSelect')
-  if(sel) sel.innerHTML = '<option value="">Cargando cursos...</option>'
-
-  try {
-    const sesion = getSesion()
-    const res    = await fetch(`${API}?action=getCursosAdmin&token=${encodeURIComponent(sesion.token)}`)
-    const data   = await res.json()
-    const cursos = data.data || []
-    cursosData   = cursos
-
-    if(sel){
-      sel.innerHTML = '<option value="">Seleccioná un curso</option>'
-      cursos.forEach(c => {
-        const opt = document.createElement('option')
-        opt.value       = c.hojaId || c.id
-        opt.textContent = c.nombre
-        sel.appendChild(opt)
-      })
-      if(cursos.length === 0){
-        sel.innerHTML = '<option value="">No hay cursos disponibles</option>'
-      }
-    }
-  } catch(e) {
-    if(sel) sel.innerHTML = '<option value="">Error al cargar cursos</option>'
+  if(sel){
+    sel.innerHTML = '<option value="">Seleccioná un curso</option>'
+    cursosData.forEach(c => {
+      const opt = document.createElement('option')
+      opt.value = c.hojaId || c.id
+      opt.textContent = c.nombre
+      sel.appendChild(opt)
+    })
   }
 
   setTipoEmail('oferta')
@@ -2260,20 +2300,6 @@ function setTipoEmail(tipo){
     const el = document.getElementById('email-campos-' + b)
     if(el){ el.style.display = b === tipo ? 'flex' : 'none'; if(b===tipo) el.style.flexDirection='column' }
   })
-
-  // Si cambia a curso, rellenar el selector con los cursos disponibles
-  if(tipo === 'curso' && cursosData.length > 0){
-    const sel = document.getElementById('eCursoSelect')
-    if(sel && sel.options.length <= 1){
-      sel.innerHTML = '<option value="">Seleccioná un curso</option>'
-      cursosData.forEach(c => {
-        const opt = document.createElement('option')
-        opt.value       = c.hojaId || c.id
-        opt.textContent = c.nombre
-        sel.appendChild(opt)
-      })
-    }
-  }
 }
 
 function setDestinatario(dest){
