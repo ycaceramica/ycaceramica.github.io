@@ -205,16 +205,37 @@ function renderApuntes(apuntes){
   visibles.forEach(a => {
     const card = document.createElement('div')
     card.className = 'apunte-card'
+
+    // Preview: miniatura subida, o primera página del PDF como iframe, o ícono
+    let previewHTML = ''
+    if(a.miniatura){
+      previewHTML = `<div class="apunte-preview"><img src="${a.miniatura}" alt="${a.titulo || ''}"></div>`
+    } else if(a.archivoUrl){
+      previewHTML = `
+        <div class="apunte-preview apunte-preview-pdf">
+          <iframe src="${a.archivoUrl}" scrolling="no" frameborder="0"></iframe>
+          <div class="apunte-preview-overlay">
+            <i class="fa-solid fa-file-pdf"></i>
+          </div>
+        </div>`
+    } else {
+      previewHTML = `<div class="apunte-preview apunte-preview-icon"><i class="fa-solid fa-book-open"></i></div>`
+    }
+
     card.innerHTML = `
-      <div class="apunte-icono"><i class="fa-solid fa-book-open"></i></div>
-      <div class="apunte-curso">${a.curso || 'General'}</div>
-      <h3 class="apunte-titulo">${a.titulo || ''}</h3>
-      ${a.contenido ? `<p class="apunte-contenido">${a.contenido}</p>` : ''}
-      ${a.archivoUrl ? `
-        <a class="apunte-btn" href="${a.archivoUrl}" target="_blank">
-          <i class="fa-solid fa-file-pdf"></i> Ver archivo
-        </a>` : ''}
-      <span class="apunte-fecha">${a.creadoEn || ''}</span>
+      ${previewHTML}
+      <div class="apunte-card-body">
+        <div class="apunte-curso">${a.curso || 'General'}</div>
+        <h3 class="apunte-titulo">${a.titulo || ''}</h3>
+        ${a.contenido ? `<p class="apunte-contenido">${a.contenido}</p>` : ''}
+        <div class="apunte-footer">
+          <span class="apunte-fecha">${a.creadoEn || ''}</span>
+          ${a.archivoUrl ? `
+            <a class="apunte-btn" href="${a.archivoUrl}" target="_blank">
+              <i class="fa-solid fa-file-pdf"></i> Ver PDF
+            </a>` : ''}
+        </div>
+      </div>
     `
     grid.appendChild(card)
   })
