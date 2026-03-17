@@ -2326,7 +2326,6 @@ let emailPdfNombreStr  = ''
 let apuntePdfB64       = null
 let apuntePdfNombreStr = ''
 let apunteMiniaturaB64 = null
-let emailPdfNombreStr  = ''
 
 async function cargarEmails(){
   // Siempre recargar cursos para que el selector esté actualizado
