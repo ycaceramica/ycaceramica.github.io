@@ -2375,6 +2375,17 @@ async function cargarPastas(){
   const grid    = document.getElementById('grid-pastas')
   const loading = document.getElementById('loading-pastas')
   if(!grid) return
+
+  // Cargar toggle de acceso libre
+  try {
+    const sesion    = getSesion()
+    const resConfig = await fetch(`${API}?action=getConfigIndex`)
+    const dataConfig = await resConfig.json()
+    const val = String(dataConfig.data?.pastas_acceso_libre ?? 'true')
+    const sw  = document.getElementById('switchPastasAcceso')
+    if(sw) sw.checked = val !== 'false'
+  } catch(e){}
+
   if(cache['pastas']){
     renderGrid('pastas', cache['pastas'])
     return
@@ -2391,6 +2402,34 @@ async function cargarPastas(){
     grid.innerHTML = '<p style="opacity:0.5;padding:20px;grid-column:1/-1">Error al cargar. Revisá tu conexión.</p>'
   }
   if(loading) loading.style.display = 'none'
+}
+
+async function togglePastasAcceso(activo){
+  const sw = document.getElementById('switchPastasAcceso')
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'actualizarCampo',
+        hoja:   'config_index',
+        id:     'CFG-pastas',
+        campo:  'valor',
+        valor:  activo ? 'true' : 'false',
+        token:  sesion.token
+      })
+    })
+    const data = await res.json()
+    if(data.ok){
+      toast(activo ? '🔓 Calculadora libre abierta para todos' : '🔒 Calculadora libre restringida a ceramistas', 'ok')
+    } else {
+      toast('❌ Error al actualizar', 'err')
+      if(sw) sw.checked = !activo
+    }
+  } catch(e) {
+    toast('❌ Error de conexión', 'err')
+    if(sw) sw.checked = !activo
+  }
 }
 
 let suscriptoresData = []
