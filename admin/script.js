@@ -2239,19 +2239,21 @@ function toast(msg, tipo){
 let suscriptoresData = []
 
 async function cargarSuscriptores(){
-  const lista   = document.getElementById('lista-suscriptores')
-  const loading = document.getElementById('loading-suscriptores')
-  loading.style.display = 'block'
-  lista.innerHTML = ''
-  try {
-    const sesion = getSesion()
-    const res    = await fetch(`${API}?action=getAll&hoja=suscriptores&token=${encodeURIComponent(sesion.token)}`)
-    const data   = await res.json()
-    suscriptoresData = data.data || []
-    renderSuscriptores(suscriptoresData)
-    armarFiltrosSuscriptores()
-  } catch(e) { toast('❌ Error al cargar suscriptores', 'err') }
-  loading.style.display = 'none'
+  document.getElementById('loading-suscriptores').style.display = 'block'
+  document.getElementById('lista-suscriptores').innerHTML = ''
+  const sesion = getSesion()
+  fetch(`${API}?action=getAll&hoja=suscriptores&token=${encodeURIComponent(sesion.token)}`)
+    .then(r => r.json())
+    .then(data => {
+      suscriptoresData = data.data || []
+      document.getElementById('loading-suscriptores').style.display = 'none'
+      renderSuscriptores(suscriptoresData)
+      armarFiltrosSuscriptores()
+    })
+    .catch(() => {
+      document.getElementById('loading-suscriptores').style.display = 'none'
+      toast('❌ Error al cargar suscriptores', 'err')
+    })
 }
 
 function armarFiltrosSuscriptores(){
@@ -2315,6 +2317,39 @@ function renderSuscriptores(lista){
     contenedor.appendChild(card)
   })
 }
+
+// ─────────────────────────────────────────────
+// ELIMINAR SUSCRIPTOR
+// ─────────────────────────────────────────────
+
+async function eliminarSuscriptor(id){
+  const sus = suscriptoresData.find(s => s.id === id)
+  document.getElementById('elimSusNombre').innerText = sus ? sus.nombre : 'este suscriptor'
+  document.getElementById('modalEliminarSuscriptor').style.display = 'flex'
+
+  const btn  = document.getElementById('btnConfirmarElimSus')
+  const nuevo = btn.cloneNode(true)
+  btn.parentNode.replaceChild(nuevo, btn)
+  nuevo.onclick = async () => {
+    document.getElementById('modalEliminarSuscriptor').style.display = 'none'
+    try {
+      const sesion = getSesion()
+      const res    = await fetch(API, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'eliminar', hoja: 'suscriptores', id, token: sesion.token })
+      })
+      const data = await res.json()
+      if(data.ok){
+        suscriptoresData = suscriptoresData.filter(s => s.id !== id)
+        renderSuscriptores(suscriptoresData)
+        toast('🗑 Suscriptor eliminado', 'ok')
+      } else {
+        toast('❌ ' + (data.error || 'Error al eliminar'), 'err')
+      }
+    } catch(e) { toast('❌ Error de conexión', 'err') }
+  }
+}
+
 
 // ─────────────────────────────────────────────
 // EMAILS
