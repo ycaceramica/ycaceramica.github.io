@@ -114,3 +114,73 @@ a.herramienta-card:hover{
     grid-template-columns:1fr;
   }
 }
+
+/* ── BANNER CERAMISTA ── */
+.ceramista-banner{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  background:var(--color-primario);
+  color:white;
+  border-radius:16px;
+  padding:20px 24px;
+  margin-bottom:32px;
+  box-shadow:0 6px 24px rgba(139,111,86,0.25);
+}
+
+.ceramista-banner-icono{
+  font-size:36px;
+  flex-shrink:0;
+}
+
+.ceramista-banner-texto{
+  flex:1;
+}
+
+.ceramista-banner-texto strong{
+  font-size:16px;
+  font-weight:700;
+  display:block;
+  margin-bottom:4px;
+}
+
+.ceramista-banner-texto p{
+  font-size:13px;
+  opacity:0.88;
+  margin:0;
+  line-height:1.5;
+}
+
+.ceramista-banner-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:10px 20px;
+  background:white;
+  color:var(--color-primario);
+  border-radius:30px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:13px;
+  font-weight:700;
+  text-decoration:none;
+  white-space:nowrap;
+  transition:0.2s;
+  flex-shrink:0;
+}
+
+.ceramista-banner-btn:hover{
+  background:rgba(255,255,255,0.9);
+  transform:translateX(2px);
+}
+
+@media(max-width:600px){
+  .ceramista-banner{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:14px;
+  }
+  .ceramista-banner-btn{
+    align-self:stretch;
+    justify-content:center;
+  }
+}
