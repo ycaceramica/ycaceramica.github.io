@@ -237,6 +237,19 @@
             <i class="fa-solid fa-plus"></i> Nueva pasta
           </button>
         </div>
+
+        <!-- TOGGLE CALCULADORA LIBRE -->
+        <div class="elaboracion-config-box" style="margin-bottom:20px">
+          <div>
+            <div class="elaboracion-config-titulo">🔓 Calculadora libre</div>
+            <div class="elaboracion-config-desc">Cuando está activa, todos pueden usarla. Cuando está desactivada, solo los ceramistas registrados.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="switchPastasAcceso" onchange="togglePastasAcceso(this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
         <div class="admin-filtros-wrapper">
           <div class="admin-buscador-wrapper">
             <i class="fa-solid fa-magnifying-glass"></i>
