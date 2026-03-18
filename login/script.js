@@ -20,8 +20,9 @@ aplicarModoOscuro()
 window.addEventListener('DOMContentLoaded', () => {
   const sesion = getSesion()
   if(sesion){
-    if(sesion.rol === 'admin') window.location.href = '../admin/index.html'
-    else                       window.location.href = '../mi-cuenta/index.html'
+    if(sesion.rol === 'admin')      window.location.href = '../admin/index.html'
+    else if(sesion.rol === 'ceramista') window.location.href = '../mi-taller/index.html'
+    else                            window.location.href = '../mi-cuenta/index.html'
   }
   cargarCursosRegistro()
 })
@@ -64,14 +65,17 @@ async function cargarCursosRegistro(){
 function setTab(tab){
   const esIngresar    = tab === 'ingresar'
   const esRegistrarse = tab === 'registrarse'
+  const esCeramista   = tab === 'ceramista'
   const esOlvide      = tab === 'olvide'
 
   document.getElementById('tabIngresar').classList.toggle('activo',    esIngresar)
   document.getElementById('tabRegistrarse').classList.toggle('activo', esRegistrarse)
+  document.getElementById('tabCeramista').classList.toggle('activo',   esCeramista)
   document.getElementById('loginTabs').style.display = esOlvide ? 'none' : 'flex'
 
   document.getElementById('formIngresar').style.display    = esIngresar    ? 'flex' : 'none'
   document.getElementById('formRegistrarse').style.display = esRegistrarse ? 'flex' : 'none'
+  document.getElementById('formCeramista').style.display   = esCeramista   ? 'flex' : 'none'
   document.getElementById('formOlvide').style.display      = esOlvide      ? 'flex' : 'none'
   ocultarErrores()
 }
@@ -158,8 +162,9 @@ async function ingresar(){
 
     if(data.ok){
       guardarSesion(data)
-      if(data.rol === 'admin') window.location.href = '../admin/index.html'
-      else                     window.location.href = '../mi-cuenta/index.html'
+      if(data.rol === 'admin')          window.location.href = '../admin/index.html'
+      else if(data.rol === 'ceramista') window.location.href = '../mi-taller/index.html'
+      else                              window.location.href = '../mi-cuenta/index.html'
     } else {
       mostrarError('loginError', 'loginErrorMsg', data.error || 'Error al ingresar')
     }
@@ -217,8 +222,54 @@ async function registrarse(){
 }
 
 // ─────────────────────────────────────────────
-// SESIÓN
+// REGISTRARSE COMO CERAMISTA
 // ─────────────────────────────────────────────
+
+async function registrarseCeramista(){
+  const nombre = document.getElementById('cerNombre').value.trim()
+  const email  = document.getElementById('cerEmail').value.trim()
+  const pass   = document.getElementById('cerPass').value.trim()
+
+  if(!nombre || !email || !pass){
+    mostrarError('cerError', 'cerErrorMsg', 'Completá nombre, email y contraseña')
+    return
+  }
+  if(pass.length < 6){
+    mostrarError('cerError', 'cerErrorMsg', 'La contraseña debe tener al menos 6 caracteres')
+    return
+  }
+
+  // Recolectar intereses
+  const checks = document.querySelectorAll('.interes-check input:checked')
+  const intereses = checks.length > 0
+    ? Array.from(checks).map(c => c.value).join(',')
+    : 'todo'
+
+  setBtnCargando('btnRegistrarseCeramista', true)
+  ocultarErrores()
+
+  try {
+    const res  = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'registroCeramista', nombre, email, pass, intereses })
+    })
+    const data = await res.json()
+
+    if(data.ok){
+      document.getElementById('cerSuccess').style.display = 'flex'
+      document.getElementById('btnRegistrarseCeramista').style.display = 'none'
+      document.getElementById('cerNombre').value = ''
+      document.getElementById('cerEmail').value  = ''
+      document.getElementById('cerPass').value   = ''
+    } else {
+      mostrarError('cerError', 'cerErrorMsg', data.error || 'Error al registrarse')
+    }
+  } catch(e) {
+    mostrarError('cerError', 'cerErrorMsg', 'Error de conexión. Intentá de nuevo.')
+  }
+
+  setBtnCargando('btnRegistrarseCeramista', false)
+}
 
 function guardarSesion(data){
   sessionStorage.setItem('yca_sesion', JSON.stringify({
@@ -249,11 +300,13 @@ function mostrarError(divId, spanId, msg){
 }
 
 function ocultarErrores(){
-  document.getElementById('loginError').style.display   = 'none'
-  document.getElementById('regError').style.display     = 'none'
-  document.getElementById('regSuccess').style.display   = 'none'
-  document.getElementById('olvideError').style.display  = 'none'
+  document.getElementById('loginError').style.display    = 'none'
+  document.getElementById('regError').style.display      = 'none'
+  document.getElementById('regSuccess').style.display    = 'none'
+  document.getElementById('olvideError').style.display   = 'none'
   document.getElementById('olvideSuccess').style.display = 'none'
+  document.getElementById('cerError').style.display      = 'none'
+  document.getElementById('cerSuccess').style.display    = 'none'
 }
 
 function setBtnCargando(id, cargando){
@@ -261,9 +314,10 @@ function setBtnCargando(id, cargando){
   if(!btn) return
   btn.classList.toggle('cargando', cargando)
   const textos = {
-    btnIngresar:    { on: 'Cargando...',  off: 'Ingresar' },
-    btnRegistrarse: { on: 'Cargando...',  off: 'Solicitar acceso' },
-    btnOlvide:      { on: 'Enviando...', off: 'Enviar contraseña temporal' }
+    btnIngresar:              { on: 'Cargando...',  off: 'Ingresar' },
+    btnRegistrarse:           { on: 'Cargando...',  off: 'Solicitar acceso' },
+    btnOlvide:                { on: 'Enviando...',  off: 'Enviar contraseña temporal' },
+    btnRegistrarseCeramista:  { on: 'Cargando...',  off: 'Crear cuenta gratis' }
   }
   const t = textos[id]
   if(t) btn.querySelector('span').innerText = cargando ? t.on : t.off
