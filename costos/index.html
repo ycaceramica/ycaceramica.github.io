@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Costos — YCA Cerámica</title>
+  <link rel="icon" type="image/png" href="../imagenes/logo.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-container">
+      <div class="logo">
+        <a href="../index.html">
+          <img src="../imagenes/logo.png" alt="YCA Cerámica" style="height:38px;width:38px;border-radius:50%;vertical-align:middle;margin-right:8px;">YCA Cerámica
+        </a>
+      </div>
+      <nav class="nav" id="nav">
+        <a href="../index.html">Inicio</a>
+        <a href="../index.html#productos">Productos</a>
+        <a href="../herramientas/index.html">Herramientas</a>
+        <a href="../cursos/index.html">Cursos y Talleres</a>
+        <a href="../index.html#galeria">Galería</a>
+        <a href="../index.html#contacto">Contacto</a>
+        <button id="toggleDark">🌙</button>
+      </nav>
+      <span class="hamburguesa" id="hamburguesa">☰</span>
+    </div>
+  </header>
+
+  <div class="calc-wrapper">
+
+    <div class="calc-header">
+      <a class="calc-volver" href="../herramientas/index.html">← Herramientas</a>
+      <h1>💰 Calculadora de Costos</h1>
+      <p>¿Cuánto vale mi pieza? Calculá el costo real y el precio de venta sugerido.</p>
+      <div class="calc-tips">
+        <span>💾 Guardá tus cálculos en el historial</span>
+        <span>📄 Descargalos todos en un PDF</span>
+      </div>
+    </div>
+
+    <!-- INFO -->
+    <div class="calc-info-box">
+      <button class="calc-info-toggle" onclick="toggleInfo()">
+        <i class="fa-solid fa-circle-info"></i> ¿Cómo usar esta calculadora?
+        <i class="fa-solid fa-chevron-down" id="infoChevron"></i>
+      </button>
+      <div class="calc-info-content" id="infoContent" style="display:none">
+        <p>Esta calculadora te ayuda a conocer el costo real de cada pieza y fijar un precio de venta justo.</p>
+        <ol>
+          <li><strong>Nombre de la pieza</strong> — opcional, para identificarla en el historial.</li>
+          <li><strong>Materiales</strong> — agregá cada material (arcilla, esmaltes, óxidos, etc.) con su cantidad y precio por unidad. El costo se calcula automáticamente.</li>
+          <li><strong>Horas de trabajo</strong> — ingresá cuántas horas dedicaste y tu valor por hora. Si no sabés cuánto cobrar por hora, una referencia habitual es el salario mínimo de tu zona.</li>
+          <li><strong>Costos fijos</strong> — estimá los gastos proporcionales de horno, gas, luz, etc. para esta pieza.</li>
+          <li><strong>Técnicas</strong> — informativo, se muestra en el historial y PDF.</li>
+          <li><strong>% de ganancia</strong> — elegí el porcentaje que querés ganar sobre el costo total. Para cerámica artesanal se recomiendan entre 40% y 70%. Recordá: en piezas únicas el valor está principalmente en las horas de trabajo.</li>
+        </ol>
+        <p><strong>Precio sugerido</strong> = (Materiales + Horas + Costos fijos) × (1 + % ganancia / 100)</p>
+      </div>
+    </div>
+
+    <div class="calc-layout">
+      <div class="calc-card">
+
+        <!-- PASO 1: NOMBRE -->
+        <div class="calc-paso">
+          <div class="calc-paso-titulo">
+            <span class="calc-paso-num">1</span>
+            <span>Nombre de la pieza <span style="font-weight:400;opacity:0.5;font-size:13px">(opcional)</span></span>
+          </div>
+          <input class="input-nombre-arcilla" type="text" id="nombrePieza" placeholder="Ej: Taza con asa, Cuenco mediano...">
+        </div>
+
+        <!-- PASO 2: MATERIALES -->
+        <div class="calc-paso">
+          <div class="calc-paso-titulo">
+            <span class="calc-paso-num">2</span>
+            <span>Materiales</span>
+          </div>
+          <div id="materialesLista"></div>
+          <button class="btn-agregar" onclick="agregarMaterial()">
+            <i class="fa-solid fa-plus"></i> Agregar material
+          </button>
+          <div class="costos-subtotal" id="subtotalMateriales" style="display:none">
+            <span>Subtotal materiales</span>
+            <span id="subtotalMatValor">$0</span>
+          </div>
+        </div>
+
+        <!-- PASO 3: HORAS -->
+        <div class="calc-paso">
+          <div class="calc-paso-titulo">
+            <span class="calc-paso-num">3</span>
+            <span>Horas de trabajo <span style="font-weight:400;opacity:0.5;font-size:13px">(opcional)</span></span>
+          </div>
+          <div class="horas-grid">
+            <div class="dim-grupo">
+              <label>Horas dedicadas</label>
+              <div class="dim-input-wrapper">
+                <input type="number" id="horasCantidad" placeholder="0" min="0" step="0.5" oninput="calcular()">
+                <span class="dim-unidad">hs</span>
+              </div>
+            </div>
+            <div class="dim-grupo">
+              <label>Valor por hora</label>
+              <div class="dim-input-wrapper">
+                <span class="dim-unidad">$</span>
+                <input type="number" id="horasValor" placeholder="0" min="0" oninput="calcular()">
+              </div>
+            </div>
+          </div>
+          <div class="costos-subtotal" id="subtotalHoras" style="display:none">
+            <span>Subtotal horas</span>
+            <span id="subtotalHorasValor">$0</span>
+          </div>
+        </div>
+
+        <!-- PASO 4: COSTOS FIJOS -->
+        <div class="calc-paso">
+          <div class="calc-paso-titulo">
+            <span class="calc-paso-num">4</span>
+            <span>Costos fijos estimados <span style="font-weight:400;opacity:0.5;font-size:13px">(horno, gas, luz...)</span></span>
+          </div>
+          <div class="dim-input-wrapper" style="max-width:200px">
+            <span class="dim-unidad">$</span>
+            <input type="number" id="costosFijos" placeholder="0" min="0" oninput="calcular()">
+          </div>
+        </div>
+
+        <!-- PASO 5: TÉCNICAS -->
+        <div class="calc-paso">
+          <div class="calc-paso-titulo">
+            <span class="calc-paso-num">5</span>
+            <span>Técnicas utilizadas <span style="font-weight:400;opacity:0.5;font-size:13px">(informativo)</span></span>
+          </div>
+          <div class="tecnicas-grid">
+            <label class="tecnica-check"><input type="checkbox" value="Torno"> <span>🏺 Torno</span></label>
+            <label class="tecnica-check"><input type="checkbox" value="Molde"> <span>🔲 Molde</span></label>
+            <label class="tecnica-check"><input type="checkbox" value="Pellizco"> <span>🤏 Pellizco</span></label>
+            <label class="tecnica-check"><input type="checkbox" value="Planchas"> <span>📐 Planchas</span></label>
+            <label class="tecnica-check"><input type="checkbox" value="Colombín"> <span>🐍 Colombín</span></label>
+            <label class="tecnica-check"><input type="checkbox" value="Esmaltado"> <span>🎨 Esmaltado</span></label>
+            <label class="tecnica-check"><input type="checkbox" value="Engobes"> <span>🖌️ Engobes</span></label>
+            <label class="tecnica-check"><input type="checkbox" value="Tallado"> <span>✂️ Tallado</span></label>
+          </div>
+        </div>
+
+        <!-- PASO 6: GANANCIA -->
+        <div class="calc-paso">
+          <div class="calc-paso-titulo">
+            <span class="calc-paso-num">6</span>
+            <span>Porcentaje de ganancia</span>
+          </div>
+          <div class="ganancia-wrapper">
+            <div class="ganancia-presets">
+              <button class="preset-btn" onclick="setGanancia(30)">30%</button>
+              <button class="preset-btn" onclick="setGanancia(40)">40%</button>
+              <button class="preset-btn activo" onclick="setGanancia(50)">50%</button>
+              <button class="preset-btn" onclick="setGanancia(60)">60%</button>
+              <button class="preset-btn" onclick="setGanancia(70)">70%</button>
+            </div>
+            <div class="ganancia-custom">
+              <div class="dim-input-wrapper" style="max-width:120px">
+                <input type="number" id="ganancia" value="50" min="0" max="999" oninput="actualizarPresets();calcular()">
+                <span class="dim-unidad">%</span>
+              </div>
+            </div>
+          </div>
+          <div class="ganancia-tip">
+            💡 Para cerámica artesanal se recomienda entre <strong>40% y 70%</strong>. En piezas únicas, el mayor valor está en las horas de dedicación.
+          </div>
+        </div>
+
+        <!-- RESULTADO -->
+        <div class="calc-resultado" id="resultadoCostos" style="display:none">
+          <h3>📋 Resultado</h3>
+          <div class="costos-desglose">
+            <div class="costos-fila"><span>🧱 Materiales</span><span id="resMateriales">$0</span></div>
+            <div class="costos-fila"><span>⏱ Horas de trabajo</span><span id="resHoras">$0</span></div>
+            <div class="costos-fila"><span>🔥 Costos fijos</span><span id="resFijos">$0</span></div>
+            <div class="costos-fila costos-fila-total"><span>Costo total</span><span id="resCostoTotal">$0</span></div>
+          </div>
+          <div class="costos-precio-venta">
+            <div class="precio-venta-label">Precio de venta sugerido</div>
+            <div class="precio-venta-valor" id="resPrecioVenta">$0</div>
+            <div class="precio-venta-ganancia" id="resGananciaValor"></div>
+          </div>
+          <div class="resultado-acciones">
+            <button class="btn-accion btn-guardar" onclick="guardarCosto()">
+              <i class="fa-solid fa-floppy-disk"></i> Guardar en historial
+            </button>
+            <button class="btn-accion btn-copiar" onclick="copiarResultado()">
+              <i class="fa-regular fa-copy"></i> Copiar
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- HISTORIAL -->
+      <div class="historial-panel">
+        <div class="historial-header">
+          <h3>📚 Historial</h3>
+          <div class="historial-acciones">
+            <button class="btn-pdf" onclick="descargarPDF()" id="btnPDF" disabled>
+              <i class="fa-solid fa-file-pdf"></i> PDF
+            </button>
+            <button class="btn-limpiar-todo" onclick="pedirLimpiarHistorial()" id="btnLimpiar" style="display:none">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="historial-lista" id="historialLista">
+          <p class="historial-vacio">Guardá un cálculo para verlo aquí.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL GENÉRICO -->
+  <div class="cont-modal-overlay" id="contModal" style="display:none" onclick="if(event.target===this)cerrarModal()">
+    <div class="cont-modal">
+      <div class="cont-modal-header">
+        <h3 id="contModalTitulo"></h3>
+        <button onclick="cerrarModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="cont-modal-body">
+        <p id="contModalTexto"></p>
+      </div>
+      <div class="cont-modal-footer">
+        <button class="btn-accion btn-copiar" id="contModalCancelar" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn-accion btn-guardar" id="contModalConfirmar"></button>
+      </div>
+    </div>
+  </div>
+
+  <a class="whatsapp" href="https://wa.me/5491160387535" target="_blank">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <footer><p>© 2026 YCA Cerámica</p></footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

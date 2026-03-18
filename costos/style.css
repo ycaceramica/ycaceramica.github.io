@@ -1,0 +1,311 @@
+@import url('../style.css');
+
+.logo a{
+  text-decoration:none !important;
+  color:inherit !important;
+  display:flex;
+  align-items:center;
+}
+
+/* ── WRAPPER ── */
+.calc-wrapper{
+  max-width:1100px;
+  margin:auto;
+  padding:100px 20px 60px;
+}
+
+/* ── HEADER ── */
+.calc-header{ text-align:center; margin-bottom:40px; }
+.calc-volver{ display:inline-block; font-size:14px; color:var(--color-primario); text-decoration:none; font-weight:600; margin-bottom:16px; }
+.calc-volver:hover{ text-decoration:underline; }
+.calc-header h1{ font-size:32px; margin-bottom:8px; }
+.calc-header p{ font-size:15px; opacity:0.7; margin-bottom:0; }
+.calc-tips{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:12px; }
+.calc-tips span{ background:var(--color-superficie); border-radius:30px; padding:6px 16px; font-size:13px; font-weight:600; box-shadow:0 2px 8px var(--color-sombra); }
+
+/* ── LAYOUT ── */
+.calc-layout{ display:grid; grid-template-columns:1fr 360px; gap:24px; align-items:start; }
+
+/* ── CARD ── */
+.calc-card{ background:var(--color-superficie); border-radius:18px; box-shadow:0 10px 30px var(--color-sombra); padding:32px; display:flex; flex-direction:column; gap:28px; }
+
+/* ── PASOS ── */
+.calc-paso{ display:flex; flex-direction:column; gap:14px; }
+.calc-paso-titulo{ display:flex; align-items:center; gap:10px; font-size:15px; font-weight:700; }
+.calc-paso-num{ background:var(--color-primario); color:white; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; flex-shrink:0; }
+
+/* ── INPUTS ── */
+.input-nombre-arcilla{ width:100%; box-sizing:border-box; padding:11px 14px; border-radius:10px; border:1.5px solid #d8cfc4; background:var(--color-fondo); color:var(--color-texto); font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; transition:border-color 0.2s; }
+.input-nombre-arcilla:focus{ outline:none; border-color:var(--color-primario); }
+
+.dim-grupo{ display:flex; flex-direction:column; gap:6px; }
+.dim-grupo label{ font-size:13px; font-weight:700; opacity:0.7; }
+.dim-input-wrapper{ display:flex; align-items:center; gap:6px; background:var(--color-fondo); border-radius:8px; border:1.5px solid #d8cfc4; padding:8px 12px; transition:border-color 0.2s; }
+.dim-input-wrapper:focus-within{ border-color:var(--color-primario); }
+.dim-input-wrapper input{ flex:1; border:none; background:transparent; color:var(--color-texto); font-size:15px; font-weight:700; font-family:'Plus Jakarta Sans',sans-serif; width:100%; min-width:0; }
+.dim-input-wrapper input:focus{ outline:none; }
+.dim-unidad{ font-size:12px; font-weight:700; opacity:0.4; flex-shrink:0; }
+
+/* ── MATERIALES ── */
+.material-fila{
+  display:grid;
+  grid-template-columns:1fr 90px 90px 32px;
+  gap:8px;
+  align-items:center;
+  margin-bottom:8px;
+}
+
+.material-fila input{
+  width:100%;
+  box-sizing:border-box;
+  padding:9px 12px;
+  border-radius:8px;
+  border:1.5px solid #d8cfc4;
+  background:var(--color-fondo);
+  color:var(--color-texto);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:13px;
+  transition:border-color 0.2s;
+}
+
+.material-fila input:focus{ outline:none; border-color:var(--color-primario); }
+
+.material-fila input::placeholder{ opacity:0.4; }
+
+.material-fila-subtotal{
+  font-size:12px;
+  font-weight:700;
+  color:var(--color-primario);
+  text-align:right;
+  padding-right:4px;
+  min-width:60px;
+}
+
+.material-fila-headers{
+  display:grid;
+  grid-template-columns:1fr 90px 90px 32px;
+  gap:8px;
+  margin-bottom:4px;
+}
+
+.material-fila-headers span{
+  font-size:11px;
+  font-weight:700;
+  opacity:0.5;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+}
+
+.btn-eliminar-material{
+  background:none;
+  border:none;
+  color:var(--color-texto);
+  opacity:0.3;
+  cursor:pointer;
+  font-size:16px;
+  padding:4px;
+  border-radius:6px;
+  transition:0.2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.btn-eliminar-material:hover{ opacity:1; color:#c85028; }
+
+.btn-agregar{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 16px;
+  border:1.5px dashed var(--color-primario);
+  border-radius:10px;
+  background:transparent;
+  color:var(--color-primario);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.2s;
+  align-self:flex-start;
+}
+.btn-agregar:hover{ background:rgba(139,111,86,0.08); }
+
+.costos-subtotal{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:8px 12px;
+  background:rgba(139,111,86,0.08);
+  border-radius:8px;
+  font-size:13px;
+  font-weight:700;
+  color:var(--color-primario);
+}
+
+/* ── HORAS ── */
+.horas-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+/* ── TÉCNICAS ── */
+.tecnicas-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(130px,1fr));
+  gap:8px;
+}
+
+.tecnica-check{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 12px;
+  border-radius:10px;
+  background:var(--color-fondo);
+  border:1.5px solid transparent;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:600;
+  transition:0.2s;
+  user-select:none;
+}
+
+.tecnica-check:hover{ border-color:var(--color-primario); }
+.tecnica-check input[type="checkbox"]{ display:none; }
+.tecnica-check:has(input:checked){
+  border-color:var(--color-primario);
+  background:rgba(139,111,86,0.1);
+  color:var(--color-primario);
+}
+
+/* ── GANANCIA ── */
+.ganancia-wrapper{ display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+
+.ganancia-presets{ display:flex; gap:8px; flex-wrap:wrap; }
+
+.preset-btn{
+  padding:8px 14px;
+  border-radius:20px;
+  border:1.5px solid var(--color-primario);
+  background:transparent;
+  color:var(--color-primario);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  transition:0.2s;
+}
+.preset-btn.activo{
+  background:var(--color-primario);
+  color:white;
+}
+.preset-btn:hover{ opacity:0.8; }
+
+.ganancia-tip{
+  font-size:12px;
+  opacity:0.65;
+  line-height:1.5;
+  background:var(--color-fondo);
+  border-radius:8px;
+  padding:10px 14px;
+}
+
+/* ── RESULTADO ── */
+.calc-resultado{ background:var(--color-fondo); border-radius:12px; padding:20px; }
+.calc-resultado h3{ font-size:16px; margin:0 0 16px 0; }
+
+.costos-desglose{
+  background:var(--color-superficie);
+  border-radius:10px;
+  overflow:hidden;
+  margin-bottom:16px;
+  box-shadow:0 2px 8px var(--color-sombra);
+}
+
+.costos-fila{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 16px;
+  font-size:14px;
+  border-bottom:1px solid rgba(139,111,86,0.08);
+}
+.costos-fila:last-child{ border-bottom:none; }
+
+.costos-fila-total{
+  font-weight:700;
+  font-size:15px;
+  background:rgba(139,111,86,0.08);
+  color:var(--color-primario);
+}
+
+.costos-precio-venta{
+  background:var(--color-primario);
+  color:white;
+  border-radius:12px;
+  padding:18px 20px;
+  text-align:center;
+  margin-bottom:16px;
+}
+.precio-venta-label{ font-size:12px; font-weight:600; opacity:0.8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
+.precio-venta-valor{ font-size:36px; font-weight:700; line-height:1.1; }
+.precio-venta-ganancia{ font-size:12px; opacity:0.75; margin-top:4px; }
+
+.resultado-acciones{ display:flex; gap:10px; }
+.btn-accion{ flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px; border:none; border-radius:30px; font-family:'Plus Jakarta Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:0.2s; }
+.btn-guardar{ background:var(--color-primario); color:white; }
+.btn-guardar:hover{ background:var(--color-primario-hover); }
+.btn-copiar{ background:var(--color-fondo); color:var(--color-texto); border:1px solid #d8cfc4; }
+.btn-copiar:hover{ background:var(--color-superficie); }
+
+/* ── HISTORIAL ── */
+.historial-panel{ background:var(--color-superficie); border-radius:18px; box-shadow:0 10px 30px var(--color-sombra); padding:24px; position:sticky; top:90px; }
+.historial-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.historial-header h3{ font-size:16px; margin:0; }
+.historial-acciones{ display:flex; gap:8px; align-items:center; }
+.btn-pdf{ display:flex; align-items:center; gap:6px; padding:7px 14px; border:none; border-radius:20px; background:var(--color-primario); color:white; font-family:'Plus Jakarta Sans',sans-serif; font-size:12px; font-weight:600; cursor:pointer; transition:0.2s; }
+.btn-pdf:hover{ background:var(--color-primario-hover); }
+.btn-pdf:disabled{ opacity:0.4; cursor:default; }
+.btn-limpiar-todo{ background:none; border:1px solid #d8cfc4; border-radius:20px; padding:6px 10px; color:var(--color-texto); font-size:12px; cursor:pointer; opacity:0.6; }
+.btn-limpiar-todo:hover{ opacity:1; }
+.historial-lista{ display:flex; flex-direction:column; gap:10px; max-height:520px; overflow-y:auto; }
+.historial-vacio{ font-size:13px; opacity:0.5; text-align:center; padding:20px 0; }
+.historial-item{ background:var(--color-fondo); border-radius:10px; padding:12px 14px; position:relative; }
+.historial-item-tipo{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--color-primario); margin-bottom:4px; }
+.historial-item-valores{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:4px; }
+.historial-chip{ font-size:12px; background:var(--color-superficie); border-radius:20px; padding:3px 10px; font-weight:600; }
+.historial-chip-precio{ font-size:12px; background:var(--color-primario); color:white; border-radius:20px; padding:3px 10px; font-weight:700; }
+.historial-item-meta{ font-size:11px; opacity:0.4; margin-top:4px; }
+.historial-item-borrar{ position:absolute; top:10px; right:10px; background:none; border:none; font-size:14px; cursor:pointer; opacity:0.4; padding:2px 6px; }
+.historial-item-borrar:hover{ opacity:1; }
+
+/* ── INFO BOX ── */
+.calc-info-box{ max-width:900px; margin:0 auto 24px; background:var(--color-superficie); border-radius:14px; overflow:hidden; box-shadow:0 4px 16px var(--color-sombra); }
+.calc-info-toggle{ width:100%; padding:16px 20px; background:none; border:none; display:flex; align-items:center; gap:10px; font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; font-weight:700; color:var(--color-texto); cursor:pointer; }
+.calc-info-toggle i:last-child{ margin-left:auto; transition:transform 0.2s; color:var(--color-primario); }
+.calc-info-content{ padding:0 20px 18px; font-size:13px; line-height:1.7; opacity:0.8; }
+.calc-info-content p{ margin:0 0 10px; }
+.calc-info-content ol{ margin:0 0 10px; padding-left:20px; }
+.calc-info-content li{ margin-bottom:4px; }
+
+/* ── MODAL ── */
+.cont-modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:999; padding:20px; }
+.cont-modal{ background:var(--color-superficie); border-radius:16px; padding:0; max-width:400px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.3); overflow:hidden; }
+.cont-modal-header{ display:flex; align-items:center; justify-content:space-between; padding:18px 20px 0; }
+.cont-modal-header h3{ font-size:16px; margin:0; }
+.cont-modal-header button{ background:none; border:none; font-size:18px; cursor:pointer; opacity:0.5; color:var(--color-texto); }
+.cont-modal-header button:hover{ opacity:1; }
+.cont-modal-body{ padding:14px 20px 18px; }
+.cont-modal-body p{ font-size:14px; margin:0; opacity:0.8; line-height:1.5; }
+.cont-modal-footer{ display:flex; justify-content:flex-end; gap:10px; padding:0 20px 20px; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .calc-layout{ grid-template-columns:1fr; }
+  .historial-panel{ position:static; }
+}
+@media(max-width:600px){
+  .calc-card{ padding:20px; }
+  .calc-header h1{ font-size:24px; }
+  .horas-grid{ grid-template-columns:1fr; }
+  .resultado-acciones{ flex-direction:column; }
+  .material-fila{ grid-template-columns:1fr 80px 80px 28px; gap:6px; }
+  .ganancia-wrapper{ flex-direction:column; align-items:flex-start; }
+}
