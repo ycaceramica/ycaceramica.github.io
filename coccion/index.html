@@ -43,6 +43,23 @@
       <p>Consultá temperaturas, tiempos y curvas de cocción según el tipo de arcilla.</p>
     </div>
 
+    <!-- INFO -->
+    <div class="calc-info-box">
+      <button class="calc-info-toggle" onclick="toggleInfo()">
+        <i class="fa-solid fa-circle-info"></i> ¿Cómo usar esta calculadora?
+        <i class="fa-solid fa-chevron-down" id="infoChevron"></i>
+      </button>
+      <div class="calc-info-content" id="infoContent" style="display:none">
+        <p>Consultá la temperatura, el tiempo y la curva de cocción recomendada para tu tipo de arcilla.</p>
+        <ol>
+          <li><strong>Tipo de arcilla</strong> — seleccioná el material que usás (loza, gres, porcelana, etc.). Cada uno tiene un rango de temperatura específico.</li>
+          <li><strong>Tipo de cocción</strong> — primera cocción (bizcocho) o segunda cocción (con esmalte).</li>
+          <li><strong>Horno</strong> — indicá si usás horno eléctrico o a gas, ya que los tiempos pueden variar.</li>
+        </ol>
+        <p>El resultado te muestra la temperatura ideal, el tiempo estimado y recomendaciones para esa cocción. Podés descargarlo en PDF para tenerlo a mano en el taller.</p>
+      </div>
+    </div>
+
     <div class="calc-layout">
 
       <!-- COLUMNA IZQUIERDA -->
