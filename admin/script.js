@@ -102,7 +102,9 @@ async function cargarSeccion(nombre){
   if(nombre === 'cursos')     { await cargarCursos();     return }
   if(nombre === 'galeria')      { await cargarGaleria();      return }
   if(nombre === 'elaboracion')  { await cargarElaboracion();  return }
-  if(nombre === 'multimedia') { await cargarMultimedia(); return }
+  if(nombre === 'multimedia')   { await cargarMultimedia();   return }
+  if(nombre === 'suscriptores') { await cargarSuscriptores(); return }
+  if(nombre === 'emails')       { await cargarEmails();       return }
 
   const grid    = document.getElementById('grid-' + nombre)
   const loading = document.getElementById('loading-' + nombre)
@@ -2326,7 +2328,6 @@ async function eliminarSuscriptor(id){
   const sus = suscriptoresData.find(s => s.id === id)
   document.getElementById('elimSusNombre').innerText = sus ? sus.nombre : 'este suscriptor'
   document.getElementById('modalEliminarSuscriptor').style.display = 'flex'
-
   const btn  = document.getElementById('btnConfirmarElimSus')
   const nuevo = btn.cloneNode(true)
   btn.parentNode.replaceChild(nuevo, btn)
