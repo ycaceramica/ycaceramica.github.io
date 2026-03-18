@@ -2594,35 +2594,3 @@ function quitarMiniaturaApunte(){
 
 // ─────────────────────────────────────────────
 // ELIMINAR SUSCRIPTOR
-// ─────────────────────────────────────────────
-
-async function eliminarSuscriptor(id){
-  const sus    = suscriptoresData.find(s => s.id === id)
-  const nombre = sus ? sus.nombre : 'este suscriptor'
-
-  document.getElementById('elimSusNombre').innerText = nombre
-  document.getElementById('modalEliminarSuscriptor').style.display = 'flex'
-
-  const btn  = document.getElementById('btnConfirmarElimSus')
-  const nuevo = btn.cloneNode(true)
-  btn.parentNode.replaceChild(nuevo, btn)
-
-  nuevo.onclick = async () => {
-    document.getElementById('modalEliminarSuscriptor').style.display = 'none'
-    try {
-      const sesion = getSesion()
-      const res    = await fetch(API, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'eliminar', hoja: 'suscriptores', id, token: sesion.token })
-      })
-      const data = await res.json()
-      if(data.ok){
-        suscriptoresData = suscriptoresData.filter(s => s.id !== id)
-        renderSuscriptores(suscriptoresData)
-        toast('🗑 Suscriptor eliminado', 'ok')
-      } else {
-        toast('❌ ' + (data.error || 'Error al eliminar'), 'err')
-      }
-    } catch(e) { toast('❌ Error de conexión', 'err') }
-  }
-}
