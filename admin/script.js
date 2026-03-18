@@ -1760,13 +1760,18 @@ async function gestionarUsuario(id, accion){
 }
 
 async function eliminarUsuario(id){
-  if(!confirm('¿Eliminar este usuario? Perderá el acceso permanentemente.')) return
-  try {
-    const sesion = getSesion()
-    const res    = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'eliminarUsuario', id, token: sesion.token }) })
-    const data   = await res.json()
-    if(data.ok){ await cargarUsuarios(); toast('🗑 Usuario eliminado', 'ok') }
-  } catch(e) { toast('❌ Error', 'err') }
+  abrirModalConfirmarAccion(
+    '¿Eliminar este usuario?',
+    'Perderá el acceso permanentemente. Esta acción no se puede deshacer.',
+    async () => {
+      try {
+        const sesion = getSesion()
+        const res    = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'eliminarUsuario', id, token: sesion.token }) })
+        const data   = await res.json()
+        if(data.ok){ await cargarUsuarios(); toast('🗑 Usuario eliminado', 'ok') }
+      } catch(e) { toast('❌ Error', 'err') }
+    }
+  )
 }
 
 // ─────────────────────────────────────────────
@@ -2594,3 +2599,28 @@ function quitarMiniaturaApunte(){
 
 // ─────────────────────────────────────────────
 // ELIMINAR SUSCRIPTOR
+
+// ─────────────────────────────────────────────
+// MODAL CONFIRMACIÓN SIMPLE (para acciones destructivas)
+// ─────────────────────────────────────────────
+let _accionConfirmarModal = null
+
+function abrirModalConfirmarAccion(titulo, texto, accion){
+  document.getElementById('modalConfirmarAccionTitulo').innerText = titulo
+  document.getElementById('modalConfirmarAccionTexto').innerText  = texto
+  _accionConfirmarModal = accion || null
+  document.getElementById('modalConfirmarAccion').style.display = 'flex'
+}
+
+function cerrarModalConfirmarAccion(e){
+  if(e && e.target !== document.getElementById('modalConfirmarAccion')) return
+  document.getElementById('modalConfirmarAccion').style.display = 'none'
+  _accionConfirmarModal = null
+}
+
+function ejecutarModalConfirmarAccion(){
+  const cb = _accionConfirmarModal
+  document.getElementById('modalConfirmarAccion').style.display = 'none'
+  _accionConfirmarModal = null
+  if(cb) cb()
+}
