@@ -39,7 +39,7 @@ function mostrarModal({ titulo, texto, confirmar, accion, cancelar = true }){
   btnConfirmar.innerText   = confirmar
   btnCancelar.style.display = cancelar ? "inline-flex" : "none"
   modalCallback = accion || null
-  btnConfirmar.onclick = () => { cerrarModal(); if(modalCallback) modalCallback() }
+  btnConfirmar.onclick = () => { const cb = modalCallback; cerrarModal(); if(cb) cb() }
   document.getElementById("contModal").style.display = "flex"
 }
 function cerrarModal(){ document.getElementById("contModal").style.display = "none"; modalCallback = null }
