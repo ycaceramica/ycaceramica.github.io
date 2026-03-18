@@ -47,6 +47,24 @@
       </div>
     </div>
 
+    <!-- INFO -->
+    <div class="calc-info-box">
+      <button class="calc-info-toggle" onclick="toggleInfo()">
+        <i class="fa-solid fa-circle-info"></i> ¿Cómo usar esta calculadora?
+        <i class="fa-solid fa-chevron-down" id="infoChevron"></i>
+      </button>
+      <div class="calc-info-content" id="infoContent" style="display:none">
+        <p>Calculá exactamente cuánta agua y yeso necesitás según el tamaño de tu molde.</p>
+        <ol>
+          <li><strong>Tipo de molde</strong> — elegí rectangular o circular.</li>
+          <li><strong>Proporción agua/yeso</strong> — la más común es 75/100 (750 ml de agua por cada kilo de yeso). Para moldes más duros usá menos agua; para modelos más blandos, más agua.</li>
+          <li><strong>Dimensiones</strong> — ingresá las medidas del molde en centímetros. El volumen se calcula automáticamente.</li>
+          <li><strong>Cantidad</strong> — si necesitás hacer más de un molde igual, indicalo aquí.</li>
+        </ol>
+        <p>El resultado te da los litros de agua y kilos de yeso exactos. Guardalo en el historial para consultarlo después o exportalo en PDF.</p>
+      </div>
+    </div>
+
     <div class="calc-layout">
 
       <!-- COLUMNA IZQUIERDA: CALCULADORA -->
@@ -193,6 +211,9 @@
               <i class="fa-regular fa-copy"></i> Copiar
             </button>
           </div>
+          <button class="btn-accion btn-taller" id="btnTaller" onclick="guardarEnTaller()" style="display:none">
+            <i class="fa-solid fa-store"></i> Guardar en mi taller
+          </button>
         </div>
 
       </div>
@@ -215,6 +236,23 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- MODAL GENÉRICO -->
+  <div class="cont-modal-overlay" id="contModal" style="display:none" onclick="if(event.target===this)cerrarModal()">
+    <div class="cont-modal">
+      <div class="cont-modal-header">
+        <h3 id="contModalTitulo"></h3>
+        <button onclick="cerrarModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="cont-modal-body">
+        <p id="contModalTexto"></p>
+      </div>
+      <div class="cont-modal-footer">
+        <button class="btn-accion btn-copiar" id="contModalCancelar" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn-accion btn-guardar" id="contModalConfirmar"></button>
+      </div>
     </div>
   </div>
 
