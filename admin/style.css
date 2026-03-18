@@ -1125,3 +1125,41 @@ body.dark #exportCurso option{
 .pasta-ingredientes-predefinidos{ display:flex; flex-wrap:wrap; gap:6px; }
 .pasta-ing-btn{ padding:5px 12px; border-radius:20px; border:1.5px solid var(--color-primario); background:transparent; color:var(--color-primario); font-family:'Plus Jakarta Sans',sans-serif; font-size:12px; font-weight:600; cursor:pointer; transition:0.15s; }
 .pasta-ing-btn:hover{ background:var(--color-primario); color:white; }
+
+/* ── PASTAS — botón agregar otro ── */
+.pasta-btn-agregar{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 14px;
+  border:1.5px solid var(--color-primario);
+  border-radius:20px;
+  background:transparent;
+  color:var(--color-primario);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.15s;
+  align-self:flex-start;
+}
+.pasta-btn-agregar:hover{ background:var(--color-primario); color:white; }
+
+/* ── PASTAS — botón quitar componente ── */
+.pasta-btn-quitar{
+  background:none;
+  border:none;
+  color:var(--color-texto);
+  opacity:0.3;
+  cursor:pointer;
+  font-size:13px;
+  padding:4px;
+  border-radius:6px;
+  transition:0.2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:28px;
+  height:28px;
+}
+.pasta-btn-quitar:hover{ opacity:1; color:#c85028; }
