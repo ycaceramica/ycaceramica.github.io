@@ -565,7 +565,7 @@ function abrirModal(hoja, item = null){
             <input class="pasta-comp-nombre" type="text" placeholder="Ej: Caolín" value="${c.nombre||''}" oninput="recalcularPorcentajes()">
             <input class="pasta-comp-pct" type="number" min="0" max="100" step="1" placeholder="%" value="${c.porcentaje||0}" oninput="recalcularPorcentajes()">
             <span class="pasta-comp-pct-label">%</span>
-            <button class="btn-eliminar-material" onclick="quitarComponente(this)" type="button"><i class="fa-solid fa-xmark"></i></button>
+            <button class="pasta-btn-quitar" onclick="quitarComponente(this)" type="button"><i class="fa-solid fa-xmark"></i></button>
           </div>`).join('')
       : ''
     html += `
@@ -589,7 +589,7 @@ function abrirModal(hoja, item = null){
               .map(ing => `<button class="pasta-ing-btn" onclick="agregarComponentePredefinido('${ing}')" type="button">${ing}</button>`)
               .join('')}
           </div>
-          <button class="btn-agregar" onclick="agregarComponenteLibre()" type="button">
+          <button class="pasta-btn-agregar" onclick="agregarComponenteLibre()" type="button">
             <i class="fa-solid fa-plus"></i> Agregar otro
           </button>
         </div>
@@ -915,7 +915,7 @@ function agregarComponentePredefinido(nombre){
     <input class="pasta-comp-nombre" type="text" placeholder="Ej: Caolín" value="${nombre}" oninput="recalcularPorcentajes()">
     <input class="pasta-comp-pct" type="number" min="0" max="100" step="1" placeholder="%" value="0" oninput="recalcularPorcentajes()">
     <span class="pasta-comp-pct-label">%</span>
-    <button class="btn-eliminar-material" onclick="quitarComponente(this)" type="button"><i class="fa-solid fa-xmark"></i></button>
+    <button class="pasta-btn-quitar" onclick="quitarComponente(this)" type="button"><i class="fa-solid fa-xmark"></i></button>
   `
   cont.appendChild(div)
   recalcularPorcentajes()
