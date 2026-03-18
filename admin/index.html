@@ -901,6 +901,25 @@
 
   <div class="toast" id="toast"></div>
 
+  <!-- MODAL CONFIRMACIÓN SIMPLE -->
+  <div class="modal-overlay" id="modalConfirmarAccion" style="display:none" onclick="cerrarModalConfirmarAccion(event)">
+    <div class="modal-card" style="max-width:400px">
+      <div class="modal-header">
+        <h3 id="modalConfirmarAccionTitulo">¿Confirmar acción?</h3>
+        <button class="modal-cerrar" onclick="document.getElementById('modalConfirmarAccion').style.display='none'">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="modalConfirmarAccionTexto" style="font-size:14px;opacity:0.8;line-height:1.5;margin:0"></p>
+      </div>
+      <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:10px;padding:0 20px 20px">
+        <button class="btn-cancelar" onclick="document.getElementById('modalConfirmarAccion').style.display='none'">Cancelar</button>
+        <button class="btn-eliminar" onclick="ejecutarModalConfirmarAccion()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
