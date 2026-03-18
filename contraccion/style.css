@@ -503,7 +503,7 @@
   .calc-header h1{ font-size:24px; }
 }
 
-/* ── CONTRACCIÓN ESPECÍFICO ── */
+/* ── CONTRACCIÓN ── */
 
 .calc-info-box{
   max-width: 900px;
@@ -527,7 +527,6 @@
   font-weight: 700;
   color: var(--color-texto);
   cursor: pointer;
-  text-align: left;
 }
 
 .calc-info-toggle i:last-child{
@@ -547,34 +546,70 @@
 .calc-info-content ol{ margin: 0 0 10px; padding-left: 20px; }
 .calc-info-content li{ margin-bottom: 4px; }
 
-.contraccion-grid{
-  grid-template-columns: repeat(3, 1fr) !important;
+.estado-badge{
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
 }
 
-.resultado-item-full{
-  grid-column: 1 / -1;
+.estado-badge.cuero   { background: rgba(139,111,86,0.15); color: #8b6f56; }
+.estado-badge.hueso   { background: rgba(200,190,170,0.3); color: #8a7a60; }
+.estado-badge.bizcocho{ background: rgba(200,80,40,0.12);  color: #c85028; }
+
+.cont-tabla{
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid rgba(139,111,86,0.15);
 }
 
-.guardar-perfil-wrapper{
-  display: flex;
-  gap: 10px;
-  margin: 12px 0;
-  flex-wrap: wrap;
+.cont-tabla-header{
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  background: var(--color-primario);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 12px;
+  gap: 8px;
 }
 
-.guardar-perfil-wrapper input{
-  flex: 1;
-  min-width: 180px;
-  padding: 10px 14px;
+.cont-tabla-fila{
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  padding: 10px 12px;
+  font-size: 13px;
+  gap: 8px;
+  border-top: 1px solid rgba(139,111,86,0.1);
+}
+
+.cont-tabla-fila span:first-child{ font-weight: 700; }
+
+.cont-tabla-fila.crudo     { background: rgba(139,111,86,0.05); }
+.cont-tabla-fila.cuero     { background: rgba(139,111,86,0.08); }
+.cont-tabla-fila.hueso     { background: rgba(200,190,170,0.1); }
+.cont-tabla-fila.bizcocho  { background: rgba(200,80,40,0.06);  }
+.cont-tabla-fila.contraccion{
+  background: rgba(139,111,86,0.12);
+  font-weight: 700;
+  color: var(--color-primario);
+}
+
+.input-nombre-arcilla{
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 14px;
   border-radius: 10px;
   border: 1.5px solid #d8cfc4;
   background: var(--color-fondo);
   color: var(--color-texto);
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 13px;
+  font-size: 14px;
+  transition: border-color 0.2s;
 }
 
-.guardar-perfil-wrapper input:focus{
+.input-nombre-arcilla:focus{
   outline: none;
   border-color: var(--color-primario);
 }
@@ -587,11 +622,31 @@
 
 .perfil-selector select{
   flex: 1;
-  padding: 10px 14px;
+  padding: 11px 14px;
   border-radius: 10px;
   border: 1.5px solid #d8cfc4;
   background: var(--color-fondo);
   color: var(--color-texto);
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 14px;
+}
+
+.perfil-info{
+  margin-top: 12px;
+}
+
+.perfil-detalle{
+  background: var(--color-fondo);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13px;
+}
+
+.perfil-detalle-grid{
+  display: flex;
+  gap: 16px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+  opacity: 0.7;
+  font-size: 12px;
 }
