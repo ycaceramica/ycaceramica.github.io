@@ -1,255 +1,906 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cumpleaños Cerámico — YCA Cerámica</title>
-
+  <title>Panel Admin — YCA Cerámica</title>
   <link rel="icon" type="image/png" href="../imagenes/logo.png">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 </head>
 <body>
 
-  <!-- BARRA -->
-  <header class="header">
-    <div class="header-container">
-
-      <div class="logo">
-        <a href="../index.html">
-          <img src="../imagenes/logo.png" alt="YCA Cerámica" style="height:38px;width:38px;border-radius:50%;vertical-align:middle;margin-right:8px;">YCA Cerámica
-        </a>
+  <!-- TOPBAR -->
+  <header class="admin-topbar">
+    <div class="topbar-izq">
+      <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div class="topbar-logo">
+        <img src="../imagenes/logo.png" alt="YCA">
+        <span>YCA Cerámica — Admin</span>
       </div>
-
-      <nav class="nav" id="nav">
-        <a href="../index.html">Inicio</a>
-        <a href="../index.html#productos">Productos</a>
-        <a href="../herramientas/index.html">Herramientas</a>
-        <a href="../cursos/index.html">Cursos y Talleres</a>
-        <a href="../index.html#galeria">Galería</a>
-        <a href="../index.html#contacto">Contacto</a>
-        <button id="toggleDark">🌙</button>
-      </nav>
-
-      <span class="hamburguesa" id="hamburguesa">☰</span>
-
+    </div>
+    <div class="topbar-der">
+      <button class="btn-cache" onclick="limpiarCache()" title="Actualizar datos">
+        <i class="fa-solid fa-rotate"></i>
+        <span>Actualizar</span>
+      </button>
+      <button class="topbar-btn" onclick="toggleDark()" id="btnDark">🌙</button>
+      <a class="topbar-btn" href="../index.html" target="_blank" title="Ver sitio público">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      </a>
+      <button class="topbar-btn topbar-logout" onclick="cerrarSesion()" title="Cerrar sesión">
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </button>
     </div>
   </header>
 
-  <!-- HERO -->
-  <section class="cumple-hero">
-    <div class="cumple-hero-contenido">
-      <div class="cumple-badge">🎨 Actividad artística</div>
-      <h1>Cumpleaños Cerámico</h1>
-      <p>Una experiencia creativa, divertida y mágica para niños y niñas.<br>Se llevan una pieza hecha por ellos mismos, ¡para siempre!</p>
-      <a class="boton" href="#consultar">Consultar disponibilidad</a>
-    </div>
-  </section>
-  <div class="scroll-indicator" id="scrollIndicator">∨</div>
+  <!-- LAYOUT -->
+  <div class="admin-layout">
 
-  <!-- COMO FUNCIONA -->
-  <section class="cumple-seccion" id="como-funciona">
-    <h2>¿Cómo funciona?</h2>
-    <div class="pasos">
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar" id="adminSidebar">
 
-      <div class="paso">
-        <div class="paso-icono">📋</div>
-        <h3>1. Elegís la propuesta</h3>
-        <p>Consultás disponibilidad, elegís el combo y coordinamos fecha y lugar.</p>
+      <div class="sidebar-seccion">
+        <span class="sidebar-label">Catálogo público</span>
+        <button class="sidebar-item activo" onclick="setSeccion('piezas')" id="nav-piezas">
+          <i class="fa-solid fa-jar"></i> Piezas
+        </button>
+        <button class="sidebar-item" onclick="setSeccion('insumos')" id="nav-insumos">
+          <i class="fa-solid fa-flask"></i> Insumos
+        </button>
+        <button class="sidebar-item" onclick="setSeccion('galeria')" id="nav-galeria">
+          <i class="fa-solid fa-images"></i> Galería
+        </button>
+        <button class="sidebar-item" onclick="setSeccion('elaboracion')" id="nav-elaboracion">
+          <i class="fa-solid fa-hands"></i> Elaboración
+        </button>
       </div>
 
-      <div class="paso">
-        <div class="paso-icono">🎨</div>
-        <h3>2. Los chicos pintan</h3>
-        <p>Llevamos todo al lugar o coordinamos el envío. Los niños y niñas decoran sus piezas con crayones cerámicos o engobes y guía paso a paso.</p>
+      <div class="sidebar-seccion">
+        <span class="sidebar-label">Inventarios privados</span>
+        <button class="sidebar-item" onclick="setSeccion('moldes')" id="nav-moldes">
+          <i class="fa-solid fa-layer-group"></i> Moldes
+        </button>
+        <div id="inventariosSidebar"></div>
+        <button class="sidebar-item sidebar-item-nuevo" onclick="abrirModalInventario()">
+          <i class="fa-solid fa-plus"></i> Nuevo inventario
+        </button>
       </div>
 
-      <div class="paso">
-        <div class="paso-icono">🔥</div>
-        <h3>3. Nosotros terminamos</h3>
-        <p>Retiramos las piezas o coordinamos el envío, las horneamos y esmaltamos. Las entregamos listas para usar y que duran para siempre.</p>
+      <div class="sidebar-seccion">
+        <span class="sidebar-label">Alumnos</span>
+        <button class="sidebar-item" onclick="setSeccion('cursos')" id="nav-cursos">
+          <i class="fa-solid fa-chalkboard-teacher"></i> Cursos
+        </button>
+        <button class="sidebar-item" onclick="setSeccion('usuarios')" id="nav-usuarios">
+          <i class="fa-solid fa-users"></i> Usuarios
+          <span class="badge-pendientes" id="badgePendientes" style="display:none">0</span>
+        </button>
+        <button class="sidebar-item" onclick="setSeccion('apuntes')" id="nav-apuntes">
+          <i class="fa-solid fa-book-open"></i> Apuntes
+        </button>
+        <button class="sidebar-item" onclick="setSeccion('multimedia')" id="nav-multimedia">
+          <i class="fa-solid fa-photo-film"></i> Multimedia
+        </button>
       </div>
 
-    </div>
-  </section>
-
-  <!-- QUE INCLUYE -->
-  <section class="cumple-seccion cumple-incluye">
-    <h2>¿Qué incluye?</h2>
-    <div class="incluye-grid">
-
-      <div class="incluye-item">
-        <span class="incluye-icono">🖍️</span>
-        <p>Crayones cerámicos o engobes de 10 colores</p>
+      <div class="sidebar-seccion">
+        <span class="sidebar-label">Comunicación</span>
+        <button class="sidebar-item" onclick="setSeccion('suscriptores')" id="nav-suscriptores">
+          <i class="fa-solid fa-users"></i> Suscriptores
+        </button>
+        <button class="sidebar-item" onclick="setSeccion('emails')" id="nav-emails">
+          <i class="fa-solid fa-envelope"></i> Enviar email
+        </button>
       </div>
 
-      <div class="incluye-item">
-        <span class="incluye-icono">✏️</span>
-        <p>Lápiz negro mágico que se borra en el horno</p>
-      </div>
+    </aside>
 
-      <div class="incluye-item">
-        <span class="incluye-icono">📖</span>
-        <p>Guía de diseño paso a paso</p>
-      </div>
+    <!-- MAIN -->
+    <main class="admin-main" id="adminMain">
 
-      <div class="incluye-item">
-        <span class="incluye-icono">🏺</span>
-        <p>Piezas bizcochadas listas para pintar</p>
-      </div>
+      <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-      <div class="incluye-item">
-        <span class="incluye-icono">🔥</span>
-        <p>Horneado doble y esmaltado profesional</p>
-      </div>
-
-      <div class="incluye-item">
-        <span class="incluye-icono">🎁</span>
-        <p>Entrega de piezas terminadas coordinada</p>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- PROPUESTAS -->
-  <section class="cumple-seccion" id="propuestas">
-    <h2>Propuestas</h2>
-    <p class="seccion-subtitulo">Cada niño y niña elige su pieza. Consultanos por precios y disponibilidad.</p>
-    <div class="propuestas-grid">
-
-      <div class="propuesta-card">
-        <div class="propuesta-icono">🍽️</div>
-        <h3>Platito artesanal</h3>
-        <p>Hecho por plancha contramolde. Formas disponibles: ovalada, tostada, corazón, estrella y más en distintas medidas.</p>
-        <ul>
-          <li>✅ Ideal para todas las edades</li>
-          <li>✅ Muy decorativo</li>
-          <li>✅ Fácil de personalizar</li>
-        </ul>
-      </div>
-
-      <div class="propuesta-card">
-        <div class="propuesta-icono">☕</div>
-        <h3>Taza cerámica</h3>
-        <p>Una pieza funcional y duradera. Los chicos la decoran y se la llevan para usar todos los días.</p>
-        <ul>
-          <li>✅ Para uso diario</li>
-          <li>✅ Recuerdo duradero</li>
-          <li>✅ Apta para lavavajillas</li>
-        </ul>
-      </div>
-
-      <div class="propuesta-card">
-        <div class="propuesta-icono">🎨</div>
-        <h3>Combo doble</h3>
-        <p>Una pieza más grande y otra más chica. Más variedad creativa para los más entusiastas y exigentes.</p>
-        <ul>
-          <li>✅ Doble experiencia</li>
-          <li>✅ Mayor creatividad</li>
-          <li>✅ Ideal para grupos mixtos</li>
-        </ul>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- GALERIA EVENTOS -->
-  <section class="cumple-seccion">
-    <h2>Nuestros eventos 📸</h2>
-    <p class="seccion-subtitulo">Algunos de los cumpleaños que fuimos parte.</p>
-    <div class="cumple-galeria">
-      <img src="../imagenes/cumple1.jpg" alt="Evento 1" onclick="abrirLightbox(this.src)">
-      <img src="../imagenes/cumple2.jpg" alt="Evento 2" onclick="abrirLightbox(this.src)">
-      <img src="../imagenes/cumple3.jpg" alt="Evento 3" onclick="abrirLightbox(this.src)">
-      <img src="../imagenes/cumple4.jpg" alt="Evento 4" onclick="abrirLightbox(this.src)">
-    </div>
-  </section>
-
-  <!-- LIGHTBOX -->
-  <div class="lightbox" id="lightbox">
-    <button class="lightbox-cerrar" onclick="cerrarLightbox()">✕ Cerrar</button>
-    <img id="lightbox-img" src="" alt="Foto ampliada">
-  </div>
-
-  <!-- FORMULARIO -->
-  <section class="cumple-seccion" id="consultar">
-    <h2>Consultar disponibilidad</h2>
-    <p class="seccion-subtitulo">Completá el formulario y te respondemos a la brevedad. El servicio es a partir de 7 años.</p>
-
-    <div class="formulario-wrapper">
-      <div class="formulario-card">
-
-        <div class="campo">
-          <label>Nombre y apellido *</label>
-          <input type="text" id="nombre" placeholder="Tu nombre completo">
+      <!-- GALERÍA -->
+      <!-- ELABORACIÓN -->
+      <div class="seccion" id="seccion-elaboracion" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>🏺 Elaboración</h2>
+            <p>Fotos del proceso y del taller · Se muestran en la página "Así nacen nuestras piezas"</p>
+          </div>
         </div>
 
-        <div class="campo">
-          <label>Teléfono *</label>
-          <input type="tel" id="telefono" placeholder="Ej: 11 1234-5678">
+        <!-- Switch visibilidad en el index -->
+        <div class="elaboracion-config-card">
+          <div>
+            <div class="elaboracion-config-titulo">Tarjeta en el inicio</div>
+            <div class="elaboracion-config-desc">Mostrá u ocultá la sección "Así nacen nuestras piezas" en la página principal</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="switchElaboracionVisible" onchange="toggleElaboracionVisible(this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
         </div>
 
-        <div class="campo">
-          <label>Email *</label>
-          <input type="email" id="email" placeholder="Tu email">
+        <!-- Etapas del proceso -->
+        <div class="elaboracion-subtitulo">
+          <i class="fa-solid fa-list-ol"></i> Fotos del proceso (6 etapas)
         </div>
+        <div class="elaboracion-grid" id="grid-elaboracion-etapas"></div>
 
-        <div class="campo">
-          <label>Cantidad de niños y niñas *</label>
-          <select id="cantidad">
-            <option value="">Seleccioná una opción</option>
-            <option value="Hasta 10">Hasta 10</option>
-            <option value="Entre 10 y 20">Entre 10 y 20</option>
-            <option value="Entre 20 y 30">Entre 20 y 30</option>
-            <option value="Más de 30">Más de 30</option>
-          </select>
+        <!-- Galería del taller -->
+        <div class="elaboracion-subtitulo" style="margin-top:32px">
+          <i class="fa-solid fa-store"></i> Fotos del taller (6 imágenes libres)
         </div>
+        <div class="elaboracion-grid" id="grid-elaboracion-taller"></div>
 
-        <div class="campo">
-          <label>Combo de interés *</label>
-          <select id="combo">
-            <option value="">Seleccioná una opción</option>
-            <option value="Platito artesanal">Platito artesanal</option>
-            <option value="Taza cerámica">Taza cerámica</option>
-            <option value="Combo doble">Combo doble</option>
-            <option value="No sé todavía">No sé todavía</option>
-          </select>
+        <div class="loading" id="loading-elaboracion" style="display:none">
+          <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
         </div>
+      </div>
 
-        <div class="campo">
-          <label>Fecha estimada del evento</label>
-          <input type="date" id="fecha">
+      <!-- GALERÍA -->
+      <div class="seccion" id="seccion-galeria" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>🖼️ Galería</h2>
+            <p>4 fotos del index principal · 1200×675px (16:9) · JPG · máx 500kb</p>
+          </div>
         </div>
-
-        <div class="campo">
-          <label>Mensaje adicional</label>
-          <textarea id="mensaje" placeholder="Contanos algo más sobre el evento, edad de los chicos, lugar, etc." rows="4"></textarea>
+        <div class="galeria-admin-grid" id="grid-galeria"></div>
+        <div class="loading" id="loading-galeria" style="display:none">
+          <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
         </div>
+      </div>
 
-        <div class="formulario-botones">
-          <button class="boton-formulario" onclick="enviarWhatsApp()">
-            <i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp
+      <!-- PIEZAS -->
+      <div class="seccion" id="seccion-piezas">
+        <div class="seccion-header">
+          <div>
+            <h2>🏺 Piezas</h2>
+            <p>Catálogo público — solo se muestran las marcadas como publicadas</p>
+          </div>
+          <button class="btn-nuevo" onclick="abrirModal('piezas')">
+            <i class="fa-solid fa-plus"></i> Nueva pieza
+          </button>
+        </div>
+        <div class="admin-filtros-wrapper">
+          <div class="admin-buscador-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input class="admin-buscador" id="buscar-piezas" placeholder="Buscar por nombre o código..." oninput="filtrarGrid('piezas')">
+          </div>
+          <div class="admin-controles-row">
+            <div class="admin-filtros-cats" id="filtros-piezas"></div>
+            <div class="admin-pub-filtros">
+              <button class="admin-pub-btn activo" onclick="setFiltroPublicado('piezas','todos',this)">Todos</button>
+              <button class="admin-pub-btn" onclick="setFiltroPublicado('piezas','publicado',this)">Publicados</button>
+              <button class="admin-pub-btn" onclick="setFiltroPublicado('piezas','oculto',this)">Ocultos</button>
+            </div>
+            <div class="admin-orden-btns">
+              <button class="activo" onclick="setOrden('piezas','az',this)">A→Z</button>
+              <button onclick="setOrden('piezas','za',this)">Z→A</button>
+            </div>
+          </div>
+        </div>
+        <div class="items-grid" id="grid-piezas"></div>
+        <div class="loading" id="loading-piezas"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
+
+      <!-- INSUMOS -->
+      <div class="seccion" id="seccion-insumos" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>🧪 Insumos</h2>
+            <p>Catálogo público — solo se muestran los marcados como publicados</p>
+          </div>
+          <button class="btn-nuevo" onclick="abrirModal('insumos')">
+            <i class="fa-solid fa-plus"></i> Nuevo insumo
+          </button>
+        </div>
+        <div class="admin-filtros-wrapper">
+          <div class="admin-buscador-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input class="admin-buscador" id="buscar-insumos" placeholder="Buscar por nombre o código..." oninput="filtrarGrid('insumos')">
+          </div>
+          <div class="admin-controles-row">
+            <div class="admin-filtros-cats" id="filtros-insumos"></div>
+            <div class="admin-pub-filtros">
+              <button class="admin-pub-btn activo" onclick="setFiltroPublicado('insumos','todos',this)">Todos</button>
+              <button class="admin-pub-btn" onclick="setFiltroPublicado('insumos','publicado',this)">Publicados</button>
+              <button class="admin-pub-btn" onclick="setFiltroPublicado('insumos','oculto',this)">Ocultos</button>
+            </div>
+            <div class="admin-orden-btns">
+              <button class="activo" onclick="setOrden('insumos','az',this)">A→Z</button>
+              <button onclick="setOrden('insumos','za',this)">Z→A</button>
+            </div>
+          </div>
+        </div>
+        <div class="items-grid" id="grid-insumos"></div>
+        <div class="loading" id="loading-insumos" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
+
+      <!-- MOLDES -->
+      <div class="seccion" id="seccion-moldes" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>🫙 Moldes</h2>
+            <p>Inventario privado — no se muestra en la web pública</p>
+          </div>
+          <button class="btn-nuevo" onclick="abrirModal('moldes')">
+            <i class="fa-solid fa-plus"></i> Nuevo molde
+          </button>
+        </div>
+        <div class="admin-filtros-wrapper">
+          <div class="admin-buscador-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input class="admin-buscador" id="buscar-moldes" placeholder="Buscar por nombre o código..." oninput="filtrarGrid('moldes')">
+          </div>
+          <div class="admin-controles-row">
+            <div class="admin-filtros-cats" id="filtros-moldes"></div>
+            <div class="admin-orden-btns">
+              <button class="activo" onclick="setOrden('moldes','az',this)">A→Z</button>
+              <button onclick="setOrden('moldes','za',this)">Z→A</button>
+            </div>
+          </div>
+        </div>
+        <div class="items-grid" id="grid-moldes"></div>
+        <div class="loading" id="loading-moldes" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
+
+      <!-- CURSOS -->
+      <div class="seccion" id="seccion-cursos" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>🎓 Cursos</h2>
+            <p>Gestioná el estado y creá nuevos cursos sin tocar código</p>
+          </div>
+          <button class="btn-nuevo" onclick="abrirModalCurso()">
+            <i class="fa-solid fa-plus"></i> Nuevo curso
+          </button>
+        </div>
+        <div class="cursos-admin-lista" id="lista-cursos"></div>
+        <div class="loading" id="loading-cursos" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
+
+      <!-- USUARIOS -->
+      <div class="seccion" id="seccion-usuarios" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>👥 Usuarios</h2>
+            <p>Gestión de alumnos registrados</p>
+          </div>
+          <button class="btn-nuevo" onclick="abrirModalExportarLista()">
+            <i class="fa-solid fa-file-pdf"></i> Exportar lista
           </button>
         </div>
 
-        <p class="formulario-nota">* Campos obligatorios. Te respondemos dentro de las 24hs.</p>
+        <!-- Tabs de estado -->
+        <div class="usuarios-tabs">
+          <button class="utab activo" onclick="setUsuarioTab('pendientes')" id="utab-pendientes">
+            Pendientes <span id="cnt-pendientes">0</span>
+          </button>
+          <button class="utab" onclick="setUsuarioTab('activos')" id="utab-activos">
+            Activos <span id="cnt-activos">0</span>
+          </button>
+          <button class="utab" onclick="setUsuarioTab('pausados')" id="utab-pausados">
+            Pausados <span id="cnt-pausados">0</span>
+          </button>
+          <button class="utab" onclick="setUsuarioTab('rechazados')" id="utab-rechazados">
+            Rechazados <span id="cnt-rechazados">0</span>
+          </button>
+        </div>
 
+        <!-- Filtro por curso -->
+        <div class="usuarios-filtro-curso">
+          <i class="fa-solid fa-graduation-cap"></i>
+          <select id="filtroCursoUsuarios" onchange="renderUsuarios()">
+            <option value="">Todos los cursos</option>
+          </select>
+        </div>
+
+        <div class="usuarios-lista" id="lista-usuarios"></div>
+        <div class="loading" id="loading-usuarios" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
+
+      <!-- MODAL EXPORTAR LISTA -->
+      <div class="modal-overlay" id="modalExportar" style="display:none" onclick="cerrarModalExportar(event)">
+        <div class="modal-card" style="max-width:420px">
+          <div class="modal-header">
+            <h3>📋 Exportar lista de alumnos</h3>
+            <button class="modal-cerrar" onclick="cerrarModalExportar()"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div class="modal-body">
+            <div class="mform-grupo">
+              <label>Curso</label>
+              <select id="exportCurso">
+                <option value="">Todos los cursos</option>
+              </select>
+            </div>
+            <div class="mform-grupo">
+              <label>¿Qué alumnos incluir?</label>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+                <label class="curso-check-item">
+                  <input type="checkbox" id="expActivos" checked>
+                  <span>✅ Activos</span>
+                </label>
+                <label class="curso-check-item">
+                  <input type="checkbox" id="expPausados" checked>
+                  <span>⏸ Pausados</span>
+                </label>
+              </div>
+            </div>
+            <div class="mform-grupo">
+              <label>Columnas a incluir</label>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+                <label class="curso-check-item"><input type="checkbox" id="expNombre"  checked><span>Nombre</span></label>
+                <label class="curso-check-item"><input type="checkbox" id="expEmail"   checked><span>Email</span></label>
+                <label class="curso-check-item"><input type="checkbox" id="expCursos"  checked><span>Curso/s</span></label>
+                <label class="curso-check-item"><input type="checkbox" id="expEstado"  checked><span>Estado</span></label>
+                <label class="curso-check-item"><input type="checkbox" id="expFecha"        ><span>Fecha de registro</span></label>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-cancelar" onclick="cerrarModalExportar()">Cancelar</button>
+            <button class="btn-guardar-modal" onclick="exportarListaPDF()">
+              <i class="fa-solid fa-file-pdf"></i> Generar PDF
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- APUNTES -->
+      <div class="seccion" id="seccion-apuntes" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>📚 Apuntes</h2>
+            <p>Material de cursos para alumnos</p>
+          </div>
+          <button class="btn-nuevo" onclick="abrirModal('apuntes')">
+            <i class="fa-solid fa-plus"></i> Nuevo apunte
+          </button>
+        </div>
+        <div class="admin-filtros-wrapper">
+          <div class="admin-buscador-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input class="admin-buscador" id="buscar-apuntes" placeholder="Buscar apunte..." oninput="filtrarGrid('apuntes')">
+          </div>
+          <div class="admin-controles-row">
+            <div class="admin-filtros-cats" id="filtros-apuntes"></div>
+            <div class="admin-pub-filtros">
+              <button class="admin-pub-btn activo" onclick="setFiltroPublicado('apuntes','todos',this)">Todos</button>
+              <button class="admin-pub-btn" onclick="setFiltroPublicado('apuntes','publicado',this)">Visibles</button>
+              <button class="admin-pub-btn" onclick="setFiltroPublicado('apuntes','oculto',this)">Ocultos</button>
+            </div>
+          </div>
+        </div>
+        <div class="items-grid" id="grid-apuntes"></div>
+        <div class="loading" id="loading-apuntes" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
+
+      <!-- MULTIMEDIA -->
+      <div class="seccion" id="seccion-multimedia" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>🎬 Multimedia</h2>
+            <p>Fotos y videos de los cursos</p>
+          </div>
+          <button class="btn-nuevo" onclick="abrirModalMultimedia()">
+            <i class="fa-solid fa-plus"></i> Agregar
+          </button>
+        </div>
+        <div class="admin-filtros-wrapper">
+          <div class="admin-buscador-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input class="admin-buscador" id="buscar-multimedia" placeholder="Buscar por título..." oninput="filtrarGrid('multimedia')">
+          </div>
+          <div class="admin-filtros-cats" id="filtros-multimedia"></div>
+        </div>
+        <div class="multimedia-admin-grid" id="grid-multimedia"></div>
+        <div class="loading" id="loading-multimedia" style="display:none">
+          <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+        </div>
+      </div>
+
+      <!-- SUSCRIPTORES -->
+      <div class="seccion" id="seccion-suscriptores" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>👥 Suscriptores</h2>
+            <p>Personas suscriptas desde el sitio</p>
+          </div>
+        </div>
+        <div class="admin-filtros-wrapper">
+          <div class="admin-buscador-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input class="admin-buscador" id="buscar-suscriptores" placeholder="Buscar por nombre o email..." oninput="filtrarSuscriptores()">
+          </div>
+          <div class="admin-filtros-cats" id="filtros-suscriptores"></div>
+        </div>
+        <div class="suscriptores-lista" id="lista-suscriptores"></div>
+        <div class="loading" id="loading-suscriptores" style="display:none">
+          <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+        </div>
+      </div>
+
+      <!-- EMAILS -->
+      <div class="seccion" id="seccion-emails" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>📧 Enviar email</h2>
+            <p>Enviá novedades a suscriptores y alumnos</p>
+          </div>
+        </div>
+        <div class="email-composer">
+
+          <div class="email-campo">
+            <label>Tipo de email</label>
+            <div class="email-tipos">
+              <button class="email-tipo-btn activo" id="etipo-oferta" onclick="setTipoEmail('oferta')">🧪 Oferta</button>
+              <button class="email-tipo-btn" id="etipo-curso" onclick="setTipoEmail('curso')">🎓 Curso nuevo</button>
+              <button class="email-tipo-btn" id="etipo-libre" onclick="setTipoEmail('libre')">✏️ Novedad libre</button>
+            </div>
+          </div>
+
+          <div class="email-campo">
+            <label>Enviar a</label>
+            <div class="email-tipos">
+              <button class="email-tipo-btn activo" id="edest-todos" onclick="setDestinatario('todos')">👥 Todos</button>
+              <button class="email-tipo-btn" id="edest-cursos" onclick="setDestinatario('cursos')">🎓 Interesados en cursos</button>
+              <button class="email-tipo-btn" id="edest-insumos" onclick="setDestinatario('insumos')">🧪 Interesados en insumos</button>
+              <button class="email-tipo-btn" id="edest-piezas" onclick="setDestinatario('piezas')">🏺 Interesados en piezas</button>
+              <button class="email-tipo-btn" id="edest-alumnos" onclick="setDestinatario('alumnos')">📚 Solo alumnos</button>
+            </div>
+          </div>
+
+          <!-- Campos por tipo -->
+          <div id="email-campos-oferta" style="display:flex;flex-direction:column;gap:16px">
+            <div class="email-campo">
+              <label>Título de la oferta *</label>
+              <input id="eOfertaTitulo" placeholder="Ej: 20% OFF en arcillas este mes">
+            </div>
+            <div class="email-campo">
+              <label>Descripción</label>
+              <textarea id="eOfertaDesc" rows="4" placeholder="Contá los detalles..."></textarea>
+            </div>
+          </div>
+
+          <div id="email-campos-curso" style="display:none;flex-direction:column;gap:16px">
+            <div class="email-campo">
+              <label>Curso a promocionar *</label>
+              <select id="eCursoSelect"><option value="">Seleccioná un curso</option></select>
+            </div>
+            <div class="email-campo">
+              <label>Mensaje adicional</label>
+              <textarea id="eCursoMensaje" rows="3" placeholder="Info extra opcional..."></textarea>
+            </div>
+          </div>
+
+          <div id="email-campos-libre" style="display:none;flex-direction:column;gap:16px">
+            <div class="email-campo">
+              <label>Asunto *</label>
+              <input id="eLibreAsunto" placeholder="Asunto del email">
+            </div>
+            <div class="email-campo">
+              <label>Mensaje *</label>
+              <textarea id="eLibreMensaje" rows="6" placeholder="Escribí tu mensaje..."></textarea>
+            </div>
+          </div>
+
+          <!-- Imagen opcional -->
+          <div class="email-campo">
+            <label>Imagen <span class="email-opcional">(opcional — se muestra dentro del email)</span></label>
+            <div class="email-img-area" id="emailImgArea" onclick="elegirImagenEmail()">
+              <div class="email-img-placeholder" id="emailImgPlaceholder">
+                <i class="fa-solid fa-image"></i>
+                <span>Tocá para subir una imagen</span>
+              </div>
+            </div>
+            <button class="email-quitar-btn" id="emailImgQuitar" style="display:none" onclick="quitarImagenEmail()">
+              <i class="fa-solid fa-xmark"></i> Quitar imagen
+            </button>
+          </div>
+
+          <!-- PDF opcional -->
+          <div class="email-campo">
+            <label>PDF adjunto <span class="email-opcional">(opcional)</span></label>
+            <div class="email-pdf-opciones">
+              <div class="email-pdf-opcion">
+                <span class="email-pdf-label">📎 Subir desde PC</span>
+                <button class="email-pdf-btn" onclick="elegirPdfEmail()" id="emailPdfBtn">
+                  <i class="fa-solid fa-upload"></i> Elegir PDF
+                </button>
+                <span class="email-pdf-nombre" id="emailPdfNombre"></span>
+              </div>
+              <div class="email-pdf-opcion">
+                <span class="email-pdf-label">🔗 O pegar link de Drive</span>
+                <input id="emailPdfLink" placeholder="https://drive.google.com/...">
+              </div>
+            </div>
+          </div>
+
+          <div class="email-info">
+            <i class="fa-solid fa-circle-info"></i>
+            <span id="emailInfoMsg">Cargando destinatarios...</span>
+          </div>
+
+          <button class="btn-enviar-email" onclick="enviarEmailMasivo()" id="btnEnviarEmail">
+            <i class="fa-solid fa-paper-plane"></i> Enviar email
+          </button>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- MODAL UNIVERSAL -->
+  <div class="modal-overlay" id="modalOverlay" style="display:none" onclick="cerrarModal(event)">
+    <div class="modal-card" id="modalCard">
+      <div class="modal-header">
+        <h3 id="modalTitulo">Nuevo ítem</h3>
+        <button class="modal-cerrar" onclick="cerrarModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn-guardar-modal" id="btnGuardarModal" onclick="guardarModal()">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar
+        </button>
       </div>
     </div>
-  </section>
+  </div>
 
-  <a class="whatsapp" href="https://wa.me/5491160387535" target="_blank">
-    <i class="fa-brands fa-whatsapp"></i>
-  </a>
+  <!-- MODAL ELIMINAR SUSCRIPTOR -->
+  <div class="modal-overlay" id="modalEliminarSuscriptor" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal-card" style="max-width:400px">
+      <div class="modal-header">
+        <h3>🗑 Eliminar suscriptor</h3>
+        <button class="modal-cerrar" onclick="document.getElementById('modalEliminarSuscriptor').style.display='none'">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+        <p style="font-size:14px;margin:0">¿Eliminar a <strong id="elimSusNombre"></strong> de la lista de suscriptores?</p>
+        <div class="email-confirm-aviso">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          Esta acción no se puede deshacer.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="document.getElementById('modalEliminarSuscriptor').style.display='none'">Cancelar</button>
+        <button class="btn-guardar-modal" id="btnConfirmarElimSus" style="background:#a85252">
+          <i class="fa-solid fa-trash"></i> Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
 
-  <footer>
-    <p>© 2026 YCA Cerámica</p>
-  </footer>
+  <!-- MODAL BORRAR ITEM (universal) -->
+  <div class="modal-overlay" id="modalBorrarItem" style="display:none" onclick="cerrarModalBorrarItem(event)">
+    <div class="modal-card" style="max-width:400px">
+      <div class="modal-header">
+        <h3>🗑 Eliminar</h3>
+        <button class="modal-cerrar" onclick="cerrarModalBorrarItem()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:14px;opacity:0.7;margin:0">¿Cómo querés eliminar este item?</p>
+      </div>
+      <div class="modal-footer" style="flex-direction:column;gap:8px">
+        <button class="btn-guardar-modal" id="btnBorrarItemDrive" style="background:#a85252">
+          <i class="fa-solid fa-trash"></i> Eliminar de la web y del Drive
+        </button>
+        <button class="btn-guardar-modal" id="btnBorrarItemWeb" style="background:var(--color-primario)">
+          <i class="fa-solid fa-eye-slash"></i> Solo eliminar de la web
+        </button>
+        <button class="btn-cancelar" onclick="cerrarModalBorrarItem()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL BORRAR MULTIMEDIA -->
+  <div class="modal-overlay" id="modalBorrarMultimedia" style="display:none" onclick="cerrarModalBorrar(event)">
+    <div class="modal-card" style="max-width:400px">
+      <div class="modal-header">
+        <h3>🗑 Eliminar multimedia</h3>
+        <button class="modal-cerrar" onclick="cerrarModalBorrar()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:14px;opacity:0.7;margin:0">¿Cómo querés eliminar este item?</p>
+      </div>
+      <div class="modal-footer" style="flex-direction:column;gap:8px">
+        <button class="btn-guardar-modal" id="btnBorrarConDrive" style="background:#a85252">
+          <i class="fa-solid fa-trash"></i> Eliminar de la web y del Drive
+        </button>
+        <button class="btn-guardar-modal" id="btnBorrarSoloWeb" style="background:var(--color-primario)">
+          <i class="fa-solid fa-eye-slash"></i> Solo eliminar de la web
+        </button>
+        <button class="btn-cancelar" onclick="cerrarModalBorrar()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL MULTIMEDIA -->
+  <div class="modal-overlay" id="modalMultimedia" style="display:none" onclick="cerrarModalMultimedia(event)">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Agregar multimedia</h3>
+        <button class="modal-cerrar" onclick="cerrarModalMultimedia()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="mform-grupo">
+          <label>Tipo *</label>
+          <div class="multimedia-tipo-selector">
+            <button class="mtipo-btn activo" id="mtipo-foto" onclick="setTipoMultimedia('foto')">
+              <i class="fa-solid fa-image"></i> Foto
+            </button>
+            <button class="mtipo-btn" id="mtipo-video" onclick="setTipoMultimedia('video')">
+              <i class="fa-brands fa-youtube"></i> Video
+            </button>
+          </div>
+        </div>
+        <div id="mMultimediaFotoBloque">
+          <div class="mform-grupo">
+            <label>Foto</label>
+            <div class="mform-foto-area" id="mMultimediaFotoArea" onclick="elegirFotoMultimedia()">
+              <div class="mform-foto-placeholder">
+                <i class="fa-solid fa-camera"></i>
+                <strong>Tocá para agregar foto</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="mMultimediaVideoBloque" style="display:none">
+          <div class="mform-grupo">
+            <label>Link del video *</label>
+            <input id="mMultimediaUrl" placeholder="https://youtube.com/... o instagram.com/...">
+          </div>
+          <div class="multimedia-video-preview" id="mMultimediaPreview" style="display:none"></div>
+        </div>
+        <div class="mform-grupo">
+          <label>Título (opcional)</label>
+          <input id="mMultimediaTitulo" placeholder="Ej: Clase del 17 de abril">
+        </div>
+        <div class="mform-grupo">
+          <label>Curso</label>
+          <select id="mMultimediaCurso">
+            <option value="">Seleccioná</option>
+            <option value="General">General (todos los alumnos)</option>
+          </select>
+        </div>
+        <label class="publicado-toggle">
+          <input type="checkbox" id="mMultimediaPublicado" checked>
+          <span>✅ Visible para los alumnos</span>
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="cerrarModalMultimedia()">Cancelar</button>
+        <button class="btn-guardar-modal" onclick="guardarMultimedia()">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NUEVO CURSO -->
+  <div class="modal-overlay" id="modalCurso" style="display:none" onclick="cerrarModalCurso(event)">
+    <div class="modal-card" style="max-width:600px">
+      <div class="modal-header">
+        <h3 id="modalCursoTitulo">🎓 Nuevo curso</h3>
+        <button class="modal-cerrar" onclick="cerrarModalCurso()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Foto -->
+        <div class="mform-grupo">
+          <label>📷 Foto del curso <small style="opacity:0.5;font-weight:400">(16:9 recomendado)</small></label>
+          <div class="mform-foto-area" id="mCursoFotoArea" style="aspect-ratio:16/9" onclick="elegirFotoCurso()">
+            <div class="mform-foto-placeholder" style="aspect-ratio:16/9">
+              <i class="fa-solid fa-camera"></i>
+              <strong>Tocá para agregar foto</strong>
+              <small>Recomendado: 1200×675px (16:9)</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nombre y subtítulo -->
+        <div class="mform-grupo">
+          <label>Nombre del curso *</label>
+          <input id="mCursoNombre" placeholder="Ej: Arcilla y Luna" oninput="generarHojaId()">
+        </div>
+        <div class="mform-grupo">
+          <label>Subtítulo</label>
+          <input id="mCursoSubtitulo" placeholder="Ej: Encuentros de cerámica ritual">
+        </div>
+        <div class="mform-grupo">
+          <label>Descripción intro</label>
+          <textarea id="mCursoDescripcion" rows="3" placeholder="Un párrafo de bienvenida al curso..."></textarea>
+        </div>
+
+        <!-- Info -->
+        <div class="mform-fila">
+          <div class="mform-grupo">
+            <label>Día</label>
+            <input id="mCursoDia" placeholder="Ej: Lunes, Una vez al mes">
+          </div>
+          <div class="mform-grupo">
+            <label>Horario</label>
+            <input id="mCursoHorario" placeholder="Ej: 14:00 hs">
+          </div>
+        </div>
+        <div class="mform-fila">
+          <div class="mform-grupo">
+            <label>Duración</label>
+            <input id="mCursoDuracion" placeholder="Ej: 2 horas">
+          </div>
+          <div class="mform-grupo">
+            <label>Cupo</label>
+            <input id="mCursoCupo" placeholder="Ej: Limitado — 8 personas">
+          </div>
+        </div>
+
+        <!-- Chips "En este encuentro" -->
+        <div class="mform-grupo">
+          <label>
+            Chips "En este curso" 
+            <small style="opacity:0.5;font-weight:400">(uno por línea, podés usar emojis)</small>
+          </label>
+          <textarea id="mCursoChips" rows="4" placeholder="🏺 Pieza cerámica incluida&#10;🎨 Engobes y crayones&#10;🔥 Esmaltado y horneado"></textarea>
+        </div>
+
+        <!-- Proceso / items -->
+        <div class="mform-grupo">
+          <label>
+            Pasos del proceso
+            <small style="opacity:0.5;font-weight:400">(formato: Título|Descripción, uno por línea)</small>
+          </label>
+          <textarea id="mCursoProceso" rows="4" placeholder="🌑 Intención|Conectás con tu intención personal&#10;🌓 Crecimiento|Intervenís la pieza con engobes&#10;🌕 Expansión|La pieza queda para esmaltado"></textarea>
+        </div>
+
+        <!-- Estado y visibilidad -->
+        <div class="mform-fila">
+          <div class="mform-grupo">
+            <label>Estado inicial</label>
+            <select id="mCursoEstado">
+              <option value="proximamente">🟡 Próximamente</option>
+              <option value="activo">🟢 Activo</option>
+              <option value="finalizado">🔴 Finalizado</option>
+            </select>
+          </div>
+          <div class="mform-grupo">
+            <label>ID único (se genera solo)</label>
+            <input id="mCursoHojaId" placeholder="arcilla-y-luna">
+          </div>
+        </div>
+
+        <label class="publicado-toggle">
+          <input type="checkbox" id="mCursoVisible" checked>
+          <span>✅ Mostrar en la página de cursos</span>
+        </label>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="cerrarModalCurso()">Cancelar</button>
+        <button class="btn-guardar-modal" id="btnGuardarCurso" onclick="guardarCurso()">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar curso
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="inputFotoCurso" accept="image/*" style="display:none" onchange="previsualizarFotoCurso(event)">
+
+  <!-- MODAL ELIMINAR INVENTARIO -->
+  <div class="modal-overlay" id="modalEliminarInventario" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal-card" style="max-width:420px">
+      <div class="modal-header">
+        <h3>🗑 Eliminar inventario</h3>
+        <button class="modal-cerrar" onclick="document.getElementById('modalEliminarInventario').style.display='none'">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+        <p style="font-size:14px;margin:0">¿Eliminar el inventario <strong id="elimInvNombre"></strong>?</p>
+        <div class="email-confirm-aviso">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          Esta acción no se puede deshacer. Se eliminarán todos los items.
+        </div>
+      </div>
+      <div class="modal-footer" style="flex-direction:column;gap:8px">
+        <button class="btn-guardar-modal" id="btnElimInvConDrive" style="background:#a85252">
+          <i class="fa-solid fa-trash"></i> Eliminar inventario y fotos del Drive
+        </button>
+        <button class="btn-guardar-modal" id="btnElimInvSolo" style="background:var(--color-primario)">
+          <i class="fa-solid fa-table"></i> Eliminar solo el inventario
+        </button>
+        <button class="btn-cancelar" onclick="document.getElementById('modalEliminarInventario').style.display='none'">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NUEVO INVENTARIO -->
+  <div class="modal-overlay" id="modalInventario" style="display:none" onclick="cerrarModalInventario(event)">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>📦 Nuevo inventario privado</h3>
+        <button class="modal-cerrar" onclick="cerrarModalInventario()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="mform-grupo">
+          <label>Nombre del inventario *</label>
+          <input id="invNombre" placeholder="Ej: Herramientas, Pigmentos, Stock...">
+        </div>
+        <div class="mform-grupo">
+          <label>Código <small style="opacity:0.5;font-weight:400">(se genera automático)</small></label>
+          <input id="invPrefijo" placeholder="Ej: HER" maxlength="4" style="text-transform:uppercase">
+        </div>
+        <div style="background:var(--color-fondo);border-radius:10px;padding:12px 14px;font-size:13px;opacity:0.7">
+          💡 Los items tendrán códigos como <strong id="invPreviewCodigo">HER-001</strong>, <strong id="invPreviewCodigo2">HER-002</strong>...
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="cerrarModalInventario()">Cancelar</button>
+        <button class="btn-guardar-modal" onclick="crearInventario()">
+          <i class="fa-solid fa-plus"></i> Crear inventario
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inputs ocultos -->
+  <input type="file" id="inputFotoModal" accept="image/*" style="display:none" onchange="previsualizarFoto(event)">
+  <input type="file" id="inputFotoMultimedia" accept="image/*" style="display:none" onchange="previsualizarFotoMultimedia(event)">
+  <input type="file" id="inputImagenEmail" accept="image/*" style="display:none" onchange="previsualizarImagenEmail(event)">
+  <input type="file" id="inputPdfEmail" accept=".pdf" style="display:none" onchange="seleccionarPdfEmail(event)">
+  <input type="file" id="inputPdfApunte" accept=".pdf" style="display:none" onchange="seleccionarPdfApunte(event)">
+  <input type="file" id="inputMiniaturaApunte" accept="image/*" style="display:none" onchange="previsualizarMiniaturaApunte(event)">
+
+  <!-- MODAL CONFIRMAR EMAIL -->
+  <div class="modal-overlay" id="modalConfirmarEmail" style="display:none" onclick="cerrarModalConfirmarEmail(event)">
+    <div class="modal-card" style="max-width:460px">
+      <div class="modal-header">
+        <h3>📧 Confirmar envío</h3>
+        <button class="modal-cerrar" onclick="cerrarModalConfirmarEmail()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+        <div class="email-confirm-fila">
+          <span class="email-confirm-label">Asunto</span>
+          <span class="email-confirm-valor" id="confirmAsunto"></span>
+        </div>
+        <div class="email-confirm-fila">
+          <span class="email-confirm-label">Destinatarios</span>
+          <span class="email-confirm-valor" id="confirmDestinatarios"></span>
+        </div>
+        <div class="email-confirm-fila" id="confirmImagenFila" style="display:none">
+          <span class="email-confirm-label">Imagen</span>
+          <span class="email-confirm-valor">✅ Incluida</span>
+        </div>
+        <div class="email-confirm-fila" id="confirmPdfFila" style="display:none">
+          <span class="email-confirm-label">PDF</span>
+          <span class="email-confirm-valor" id="confirmPdfNombre"></span>
+        </div>
+        <div class="email-confirm-aviso">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          Esta acción no se puede deshacer. Los emails se enviarán inmediatamente.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="cerrarModalConfirmarEmail()">Cancelar</button>
+        <button class="btn-guardar-modal" id="btnConfirmarEnvio" onclick="confirmarEnvioEmail()">
+          <i class="fa-solid fa-paper-plane"></i> Confirmar y enviar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
 
   <script src="script.js"></script>
-
 </body>
 </html>
