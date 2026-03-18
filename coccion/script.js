@@ -43,6 +43,16 @@ window.addEventListener("scroll", () => {
 })
 
 // ─────────────────────────────────────────────
+// INFO
+// ─────────────────────────────────────────────
+function toggleInfo(){
+  const c = document.getElementById("infoContent")
+  const v = c.style.display !== "none"
+  c.style.display = v ? "none" : "block"
+  document.getElementById("infoChevron").style.transform = v ? "rotate(0deg)" : "rotate(180deg)"
+}
+
+// ─────────────────────────────────────────────
 // DATOS DE COCCIÓN
 // ─────────────────────────────────────────────
 
