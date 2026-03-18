@@ -105,6 +105,7 @@ async function cargarSeccion(nombre){
   if(nombre === 'multimedia')   { await cargarMultimedia();   return }
   if(nombre === 'suscriptores') { await cargarSuscriptores(); return }
   if(nombre === 'emails')       { await cargarEmails();       return }
+  if(nombre === 'pastas')       { await cargarPastas();       return }
 
   const grid    = document.getElementById('grid-' + nombre)
   const loading = document.getElementById('loading-' + nombre)
@@ -276,7 +277,8 @@ const CATEGORIAS = {
   piezas:  ['Vasijas','Tazas','Platos','Decorativos','Macetas','Otros'],
   insumos: ['Arcillas','Engobes','Esmaltes','Óxidos','Herramientas','Otros'],
   moldes:  ['Decorativos','Macetas','Tazas / Vasos / Jarras','Platos / Bandejas','Otros'],
-  apuntes: ['General']
+  apuntes: ['General'],
+  pastas:  []   // Sin categorías fijas — se ordena por nombre
 }
 
 function renderGrid(hoja, items){
@@ -467,10 +469,11 @@ function abrirModal(hoja, item = null){
   const esMoldes  = hoja === 'moldes' || hoja.endsWith('_inv')
   const esPiezas  = hoja === 'piezas'
   const esInsumos = hoja === 'insumos'
+  const esPastas  = hoja === 'pastas'
 
   document.getElementById('modalTitulo').innerText = item
-    ? `Editar ${esApuntes ? 'apunte' : 'item'}`
-    : `Nuevo ${esApuntes ? 'apunte' : 'item'}`
+    ? `Editar ${esApuntes ? 'apunte' : esPastas ? 'pasta' : 'item'}`
+    : `Nueva ${esPastas ? 'pasta' : esApuntes ? 'apunte' : 'item'}`
 
   const cats   = CATEGORIAS[hoja] || ['General','Otros']
   const opsCat = cats.map(c =>
@@ -550,6 +553,50 @@ function abrirModal(hoja, item = null){
       <label class="publicado-toggle">
         <input type="checkbox" id="mPublicado" ${(item?.publicado === true || item?.publicado === 'TRUE' || item?.publicado === 'true') ? 'checked' : ''}>
         <span>✅ Visible para los alumnos</span>
+      </label>
+    `
+  } else if(esPastas){
+    // Parsear componentes existentes
+    let compExistentes = []
+    try { compExistentes = JSON.parse(item?.componentes || '[]') } catch(e){}
+    const compHtml = compExistentes.length > 0
+      ? compExistentes.map((c,i) => `
+          <div class="pasta-comp-fila" id="pcomp-${i}">
+            <input class="pasta-comp-nombre" type="text" placeholder="Ej: Caolín" value="${c.nombre||''}" oninput="recalcularPorcentajes()">
+            <input class="pasta-comp-pct" type="number" min="0" max="100" step="1" placeholder="%" value="${c.porcentaje||0}" oninput="recalcularPorcentajes()">
+            <span class="pasta-comp-pct-label">%</span>
+            <button class="btn-eliminar-material" onclick="quitarComponente(this)" type="button"><i class="fa-solid fa-xmark"></i></button>
+          </div>`).join('')
+      : ''
+    html += `
+      <div class="mform-grupo">
+        <label>Nombre de la pasta *</label>
+        <input id="mNombre" value="${item?.nombre || ''}" placeholder="Ej: Stoneware blanco, Porcelana...">
+      </div>
+      <div class="mform-grupo">
+        <label>Descripción <small style="opacity:0.5;font-weight:400">(opcional)</small></label>
+        <textarea id="mDescripcion" rows="2" placeholder="Características, temperatura de cocción...">${item?.descripcion || ''}</textarea>
+      </div>
+      <div class="mform-grupo">
+        <label>Componentes <span id="pastaTotalLabel" style="font-size:12px;font-weight:700;margin-left:8px;color:#c85028"></span></label>
+        <div class="pasta-comp-headers">
+          <span>Ingrediente</span><span>%</span>
+        </div>
+        <div id="pastaComponentes">${compHtml}</div>
+        <div class="pasta-comp-agregar">
+          <div class="pasta-ingredientes-predefinidos">
+            ${['Caolín','Talco','Tinkar','APM','Arena','Chamote','Perlita','Vermiculita','Hierro','Manganeso','Óxido de cobre','Feldespato','Cuarzo','Cobalto','Carbonato de calcio','Dolomita']
+              .map(ing => `<button class="pasta-ing-btn" onclick="agregarComponentePredefinido('${ing}')" type="button">${ing}</button>`)
+              .join('')}
+          </div>
+          <button class="btn-agregar" onclick="agregarComponenteLibre()" type="button">
+            <i class="fa-solid fa-plus"></i> Agregar otro
+          </button>
+        </div>
+      </div>
+      <label class="publicado-toggle">
+        <input type="checkbox" id="mPublicado" ${(item?.publicado === true || item?.publicado === 'TRUE' || item?.publicado === 'true') ? 'checked' : ''}>
+        <span>✅ Visible en la web</span>
       </label>
     `
   } else {
@@ -826,12 +873,89 @@ function construirFila(){
     publicado:   document.getElementById('mPublicado')?.checked ? 'true' : 'false'
   }
 
+  if(hoja === 'pastas'){
+    const componentes = leerComponentes()
+    const total = componentes.reduce((s, c) => s + c.porcentaje, 0)
+    if(total !== 100){
+      toast(`❌ Los porcentajes suman ${total}%, deben sumar exactamente 100%`, 'err')
+      return null
+    }
+    return {
+      id,
+      nombre,
+      descripcion: document.getElementById('mDescripcion')?.value.trim() || '',
+      componentes: JSON.stringify(componentes),
+      foto:        modalItem?.foto || '',
+      publicado:   document.getElementById('mPublicado')?.checked ? 'true' : 'false',
+      creadoEn:    modalItem?.creadoEn || new Date().toLocaleDateString('es-AR')
+    }
+  }
+
   // Moldes e inventarios privados
   return { ...base,
     cantidad:    document.getElementById('mCantidad')?.value || '',
     material:    document.getElementById('mMaterial')?.value.trim() || '',
     dimensiones: document.getElementById('mDimensiones')?.value.trim() || '',
     notas:       document.getElementById('mNotas')?.value.trim() || ''
+  }
+}
+
+// ─────────────────────────────────────────────
+// COMPONENTES DE PASTAS
+// ─────────────────────────────────────────────
+
+function agregarComponentePredefinido(nombre){
+  const cont = document.getElementById('pastaComponentes')
+  if(!cont) return
+  const idx = cont.children.length
+  const div = document.createElement('div')
+  div.className = 'pasta-comp-fila'
+  div.id = `pcomp-${idx}`
+  div.innerHTML = `
+    <input class="pasta-comp-nombre" type="text" placeholder="Ej: Caolín" value="${nombre}" oninput="recalcularPorcentajes()">
+    <input class="pasta-comp-pct" type="number" min="0" max="100" step="1" placeholder="%" value="0" oninput="recalcularPorcentajes()">
+    <span class="pasta-comp-pct-label">%</span>
+    <button class="btn-eliminar-material" onclick="quitarComponente(this)" type="button"><i class="fa-solid fa-xmark"></i></button>
+  `
+  cont.appendChild(div)
+  recalcularPorcentajes()
+}
+
+function agregarComponenteLibre(){
+  agregarComponentePredefinido('')
+  // Enfocar el input de nombre del último componente
+  const cont  = document.getElementById('pastaComponentes')
+  const filas = cont?.querySelectorAll('.pasta-comp-nombre')
+  if(filas?.length) filas[filas.length - 1].focus()
+}
+
+function quitarComponente(btn){
+  btn.closest('.pasta-comp-fila').remove()
+  recalcularPorcentajes()
+}
+
+function leerComponentes(){
+  const filas = document.querySelectorAll('#pastaComponentes .pasta-comp-fila')
+  const comp  = []
+  filas.forEach(fila => {
+    const nombre = fila.querySelector('.pasta-comp-nombre')?.value.trim()
+    const pct    = parseFloat(fila.querySelector('.pasta-comp-pct')?.value) || 0
+    if(nombre) comp.push({ nombre, porcentaje: pct })
+  })
+  return comp
+}
+
+function recalcularPorcentajes(){
+  const comp  = leerComponentes()
+  const total = comp.reduce((s, c) => s + c.porcentaje, 0)
+  const label = document.getElementById('pastaTotalLabel')
+  if(!label) return
+  if(total === 100){
+    label.style.color = '#2d7a2d'
+    label.innerText   = '✅ 100%'
+  } else {
+    label.style.color = '#c85028'
+    label.innerText   = `⚠️ ${total}% (falta ${100 - total}%)`
   }
 }
 
@@ -2242,6 +2366,32 @@ function toast(msg, tipo){
 // ─────────────────────────────────────────────
 // SUSCRIPTORES
 // ─────────────────────────────────────────────
+
+// ─────────────────────────────────────────────
+// PASTAS
+// ─────────────────────────────────────────────
+
+async function cargarPastas(){
+  const grid    = document.getElementById('grid-pastas')
+  const loading = document.getElementById('loading-pastas')
+  if(!grid) return
+  if(cache['pastas']){
+    renderGrid('pastas', cache['pastas'])
+    return
+  }
+  if(loading) loading.style.display = 'block'
+  grid.innerHTML = ''
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(`${API}?action=getPastasAdmin&token=${encodeURIComponent(sesion.token)}`)
+    const data   = await res.json()
+    cache['pastas'] = data.data || []
+    renderGrid('pastas', cache['pastas'])
+  } catch(e) {
+    grid.innerHTML = '<p style="opacity:0.5;padding:20px;grid-column:1/-1">Error al cargar. Revisá tu conexión.</p>'
+  }
+  if(loading) loading.style.display = 'none'
+}
 
 let suscriptoresData = []
 
