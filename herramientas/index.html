@@ -43,6 +43,16 @@
       <p>Calculadoras y recursos para ceramistas. Todo lo que necesitás para trabajar con precisión.</p>
     </div>
 
+    <!-- BANNER CERAMISTA -->
+    <div class="ceramista-banner" id="ceramistaBanner">
+      <div class="ceramista-banner-icono">🏺</div>
+      <div class="ceramista-banner-texto">
+        <strong>¿Sos ceramista?</strong>
+        <p>Registrate gratis y guardá tus cálculos, fórmulas y recetas en tu cuenta personal. Accedé a calculadoras exclusivas y recibí novedades del taller.</p>
+      </div>
+      <a class="ceramista-banner-btn" href="../login/index.html">Registrarme gratis →</a>
+    </div>
+
     <!-- CALCULADORAS -->
     <div class="herramientas-seccion">
       <h2>Calculadoras</h2>
@@ -132,6 +142,13 @@
   </footer>
 
   <script src="script.js"></script>
+  <script>
+    // Ocultar banner si ya hay sesión ceramista activa
+    try {
+      const s = JSON.parse(localStorage.getItem("ceramista_sesion") || "null")
+      if(s && s.token) document.getElementById("ceramistaBanner").style.display = "none"
+    } catch(e){}
+  </script>
 
 </body>
 </html>
