@@ -1593,25 +1593,180 @@ document.addEventListener('DOMContentLoaded', () => {
 // USUARIOS
 // ─────────────────────────────────────────────
 
-let tabUsuarioActual = 'pendientes'
-let usuariosData     = []
+let tabUsuarioActual  = 'pendientes'
+let usuariosData      = []
+let tabCeramistaActual = 'activos'
+let ceramistasData    = []
+let rolTabActual      = 'alumnos'
 
 async function cargarUsuarios(){
   document.getElementById('loading-usuarios').style.display = 'block'
   try {
     const sesion = getSesion()
-    const [resU, resC] = await Promise.all([
+    const [resU, resC, resCer] = await Promise.all([
       fetch(`${API}?action=getUsuarios&token=${encodeURIComponent(sesion.token)}`),
       cursosData.length > 0
         ? Promise.resolve(null)
-        : fetch(`${API}?action=getCursosAdmin&token=${encodeURIComponent(sesion.token)}`)
+        : fetch(`${API}?action=getCursosAdmin&token=${encodeURIComponent(sesion.token)}`),
+      fetch(`${API}?action=getCeramistas&token=${encodeURIComponent(sesion.token)}`)
     ])
-    const dataU = await resU.json()
-    usuariosData = dataU.data || []
+    const dataU   = await resU.json()
+    const dataCer = await resCer.json()
+    usuariosData   = dataU.data   || []
+    ceramistasData = dataCer.data || []
     if(resC){ const dataC = await resC.json(); cursosData = dataC.data || [] }
+
+    // Actualizar contadores de tabs de rol
+    document.getElementById('cnt-rol-alumnos').innerText    = usuariosData.length   || ''
+    document.getElementById('cnt-rol-ceramistas').innerText = ceramistasData.length || ''
+
     renderUsuarios()
+    renderCeramistas()
   } catch(e) { toast('❌ Error al cargar usuarios', 'err') }
   document.getElementById('loading-usuarios').style.display = 'none'
+}
+
+function setRolTab(rol){
+  rolTabActual = rol
+  document.getElementById('roltab-alumnos').classList.toggle('activo',    rol === 'alumnos')
+  document.getElementById('roltab-ceramistas').classList.toggle('activo', rol === 'ceramistas')
+  document.getElementById('seccionAlumnos').style.display    = rol === 'alumnos'    ? 'block' : 'none'
+  document.getElementById('seccionCeramistas').style.display = rol === 'ceramistas' ? 'block' : 'none'
+}
+
+function setCeramistaTab(tab){
+  tabCeramistaActual = tab
+  document.querySelectorAll('[id^="ctab-"]').forEach(b => b.classList.remove('activo'))
+  document.getElementById('ctab-' + tab)?.classList.add('activo')
+  renderCeramistas()
+}
+
+function renderCeramistas(){
+  const lista   = document.getElementById('lista-ceramistas')
+  if(!lista) return
+
+  const activos  = ceramistasData.filter(c => c.estado === 'activo')
+  const pausados = ceramistasData.filter(c => c.estado === 'pausado')
+
+  document.getElementById('cnt-cer-activos').innerText  = activos.length  || 0
+  document.getElementById('cnt-cer-pausados').innerText = pausados.length || 0
+
+  const filtrados = tabCeramistaActual === 'activos' ? activos : pausados
+
+  lista.innerHTML = ''
+  if(filtrados.length === 0){
+    lista.innerHTML = `<div class="vacio"><i class="fa-solid fa-mortar-pestle"></i><p>No hay ceramistas en esta categoría</p></div>`
+    return
+  }
+
+  filtrados.forEach(c => {
+    const inicial   = (c.nombre || '?')[0].toUpperCase()
+    const fecha     = formatearFecha(c.fechaRegistro)
+    const intereses = c.intereses ? c.intereses.split(',').map(i => i.trim()).join(' · ') : '—'
+    const card      = document.createElement('div')
+    card.className  = 'usuario-card'
+
+    let botones = `<span class="estado-badge ${c.estado}">${c.estado === 'activo' ? 'Activo' : 'Pausado'}</span>`
+    if(c.estado === 'activo'){
+      botones += `
+        <button class="btn-pausar" onclick="gestionarCeramista('${c.id}','pausar')"><i class="fa-solid fa-pause"></i> Pausar</button>
+        <button class="btn-eliminar-usr" onclick="eliminarCeramista('${c.id}')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>`
+    } else {
+      botones += `
+        <button class="btn-reactivar" onclick="gestionarCeramista('${c.id}','activar')"><i class="fa-solid fa-rotate-left"></i> Reactivar</button>
+        <button class="btn-eliminar-usr" onclick="eliminarCeramista('${c.id}')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>`
+    }
+
+    // Selector de curso (para asignar a futuro)
+    const checkboxes = cursosData.map(cu => `
+      <label class="curso-check-item">
+        <input type="checkbox" value="${cu.hojaId}" ${c.curso === cu.hojaId ? 'checked' : ''}>
+        <span>${cu.nombre}</span>
+      </label>`).join('')
+
+    const cursoNombre = c.curso
+      ? (cursosData.find(x => x.hojaId === c.curso)?.nombre || c.curso)
+      : 'Sin curso asignado'
+
+    card.innerHTML = `
+      <div class="usuario-avatar" style="background:var(--color-primario)">${inicial}</div>
+      <div class="usuario-info">
+        <div class="usuario-nombre">${c.nombre || ''}</div>
+        <div class="usuario-meta">${c.email || ''} · ${fecha}</div>
+        <div class="usuario-meta" style="margin-top:2px">🎯 ${intereses}</div>
+        <div class="usuario-curso-row">
+          <span class="usuario-curso-label"><i class="fa-solid fa-graduation-cap"></i> ${cursoNombre}</span>
+          ${cursosData.length > 0 ? `<button class="btn-cambiar-curso" onclick="toggleCursoSelectorCer('${c.id}')"><i class="fa-solid fa-pen"></i> Asignar curso</button>` : ''}
+        </div>
+        <div class="usuario-curso-selector" id="cerselector-${c.id}" style="display:none">
+          <div class="curso-checks-lista">${checkboxes}</div>
+          <div class="curso-checks-acciones">
+            <button class="btn-cancelar" onclick="toggleCursoSelectorCer('${c.id}')">Cancelar</button>
+            <button class="btn-guardar-modal" onclick="guardarCursoCeramista('${c.id}')">Guardar</button>
+          </div>
+        </div>
+      </div>
+      <div class="usuario-acciones">${botones}</div>`
+    lista.appendChild(card)
+  })
+}
+
+function toggleCursoSelectorCer(id){
+  const sel = document.getElementById(`cerselector-${id}`)
+  if(sel) sel.style.display = sel.style.display === 'none' ? 'block' : 'none'
+}
+
+async function guardarCursoCeramista(id){
+  const checks  = document.querySelectorAll(`#cerselector-${id} input:checked`)
+  const cursoId = checks.length > 0 ? checks[0].value : ''
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'asignarCursoCeramista', id, curso: cursoId, token: sesion.token })
+    })
+    const data = await res.json()
+    if(data.ok){
+      toggleCursoSelectorCer(id)
+      await cargarUsuarios()
+      toast('✅ Curso asignado', 'ok')
+    } else toast('❌ Error al asignar curso', 'err')
+  } catch(e){ toast('❌ Error de conexión', 'err') }
+}
+
+async function gestionarCeramista(id, accion){
+  try {
+    const sesion  = getSesion()
+    const actions = { pausar: 'pausarCeramista', activar: 'activarCeramista' }
+    const res     = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: actions[accion], id, token: sesion.token })
+    })
+    const data = await res.json()
+    if(data.ok){
+      await cargarUsuarios()
+      const msgs = { pausar: '⏸ Ceramista pausado', activar: '✅ Ceramista reactivado' }
+      toast(msgs[accion], 'ok')
+    } else toast('❌ Error', 'err')
+  } catch(e){ toast('❌ Error de conexión', 'err') }
+}
+
+async function eliminarCeramista(id){
+  abrirModalConfirmarAccion(
+    '¿Eliminar este ceramista?',
+    'Perderá el acceso permanentemente. Esta acción no se puede deshacer.',
+    async () => {
+      try {
+        const sesion = getSesion()
+        const res    = await fetch(API, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'eliminarCeramista', id, token: sesion.token })
+        })
+        const data = await res.json()
+        if(data.ok){ await cargarUsuarios(); toast('🗑 Ceramista eliminado', 'ok') }
+      } catch(e){ toast('❌ Error', 'err') }
+    }
+  )
 }
 
 function setUsuarioTab(tab){
