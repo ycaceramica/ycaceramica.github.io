@@ -399,3 +399,18 @@ async function descargarPDF(){
 // INIT
 // ─────────────────────────────────────────────
 renderizarHistorial()
+
+// ─────────────────────────────────────────────
+// MI TALLER (Fase 3)
+// ─────────────────────────────────────────────
+function verificarSesionTaller(){
+  try {
+    const s = JSON.parse(localStorage.getItem("ceramista_sesion") || "null")
+    const btn = document.getElementById("btnTaller")
+    if(btn) btn.style.display = (s && s.token) ? "flex" : "none"
+  } catch(e){}
+}
+function guardarEnTaller(){
+  mostrarModal({ titulo:"🏺 Mi taller", texto:"Próximamente podrás sincronizar tu historial con tu cuenta de ceramista.", confirmar:"Entendido", cancelar:false })
+}
+verificarSesionTaller()
