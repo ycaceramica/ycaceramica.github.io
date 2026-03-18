@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Contracción — YCA Cerámica</title>
+
+  <link rel="icon" type="image/png" href="../imagenes/logo.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+<body>
+
+  <!-- BARRA -->
+  <header class="header">
+    <div class="header-container">
+      <div class="logo">
+        <a href="../index.html">
+          <img src="../imagenes/logo.png" alt="YCA Cerámica" style="height:38px;width:38px;border-radius:50%;vertical-align:middle;margin-right:8px;">YCA Cerámica
+        </a>
+      </div>
+      <nav class="nav" id="nav">
+        <a href="../index.html">Inicio</a>
+        <a href="../index.html#productos">Productos</a>
+        <a href="../herramientas/index.html">Herramientas</a>
+        <a href="../cursos/index.html">Cursos y Talleres</a>
+        <a href="../index.html#galeria">Galería</a>
+        <a href="../index.html#contacto">Contacto</a>
+        <button id="toggleDark">🌙</button>
+      </nav>
+      <span class="hamburguesa" id="hamburguesa">☰</span>
+    </div>
+  </header>
+
+  <div class="calc-wrapper">
+
+    <div class="calc-header">
+      <a class="calc-volver" href="../herramientas/index.html">← Herramientas</a>
+      <h1>📐 Calculadora de Contracción</h1>
+      <p>Calculá cuánto se contrae tu arcilla en cada etapa del proceso.</p>
+      <div class="calc-tips">
+        <span>💾 Guardá tus medidas en el historial</span>
+        <span>📄 Descargalas todas en un PDF</span>
+      </div>
+    </div>
+
+    <!-- INFO COLAPSABLE -->
+    <div class="calc-info-box">
+      <button class="calc-info-toggle" onclick="toggleInfo()">
+        <i class="fa-solid fa-circle-info"></i> ¿Cómo usar esta calculadora?
+        <i class="fa-solid fa-chevron-down" id="infoChevron"></i>
+      </button>
+      <div class="calc-info-content" id="infoContent" style="display:none">
+        <p><strong>Modo estándar:</strong> usa una contracción fija del 10% — válida para la mayoría de las arcillas comerciales. Ingresás la medida en crudo y te dice cuánto va a medir en bizcocho.</p>
+        <p><strong>Modo personalizado:</strong> tomás 3 medidas reales de tu arcilla específica:</p>
+        <ol>
+          <li>Medís la pieza en <strong>estado cuero</strong> (semiseca, flexible)</li>
+          <li>Medís la pieza en <strong>estado hueso</strong> (completamente seca, antes del horno)</li>
+          <li>Medís la pieza en <strong>bizcocho</strong> (después del primer horno)</li>
+        </ol>
+        <p>Con esas 3 medidas, la calculadora aprende el porcentaje real de contracción de tu arcilla y lo guarda como perfil para usarlo en futuras piezas.</p>
+      </div>
+    </div>
+
+    <div class="calc-layout">
+
+      <!-- COLUMNA IZQUIERDA: CALCULADORA -->
+      <div class="calc-card">
+
+        <!-- MODO -->
+        <div class="calc-paso">
+          <div class="calc-paso-titulo">
+            <span class="calc-paso-num">1</span>
+            <span>Modo de cálculo</span>
+          </div>
+          <div class="tipo-selector">
+            <button class="tipo-btn activo" id="btnEstandar" onclick="setModo('estandar')">
+              📏 Estándar (10%)
+            </button>
+            <button class="tipo-btn" id="btnPersonalizado" onclick="setModo('personalizado')">
+              🎯 Personalizado
+            </button>
+          </div>
+        </div>
+
+        <!-- MODO ESTÁNDAR -->
+        <div id="seccionEstandar">
+          <div class="calc-paso">
+            <div class="calc-paso-titulo">
+              <span class="calc-paso-num">2</span>
+              <span>Medida en crudo</span>
+            </div>
+            <div class="dim-grupo" style="max-width:200px">
+              <div class="dim-input-wrapper">
+                <input type="number" id="medidaCrudo" placeholder="0" oninput="calcularEstandar()">
+                <span class="dim-unidad">cm</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="calc-resultado" id="resultadoEstandar" style="display:none">
+            <h3>📋 Resultado</h3>
+            <div class="resultado-grid">
+              <div class="resultado-item">
+                <div class="resultado-nombre">📏 Crudo</div>
+                <div class="resultado-valor"><span id="resCrudo">0</span><span class="resultado-unidad">cm</span></div>
+              </div>
+              <div class="resultado-item">
+                <div class="resultado-nombre">🔥 Bizcocho</div>
+                <div class="resultado-valor"><span id="resBizcocho">0</span><span class="resultado-unidad">cm</span></div>
+              </div>
+              <div class="resultado-item resultado-item-full">
+                <div class="resultado-nombre">📉 Contracción</div>
+                <div class="resultado-valor"><span id="resContraccion">10</span><span class="resultado-unidad">%</span></div>
+              </div>
+            </div>
+            <div class="resultado-acciones">
+              <button class="btn-accion btn-guardar" onclick="guardarEstandar()">
+                <i class="fa-solid fa-floppy-disk"></i> Guardar en historial
+              </button>
+              <button class="btn-accion btn-copiar" onclick="copiarEstandar()">
+                <i class="fa-regular fa-copy"></i> Copiar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODO PERSONALIZADO -->
+        <div id="seccionPersonalizado" style="display:none">
+
+          <!-- PERFIL GUARDADO -->
+          <div class="calc-paso">
+            <div class="calc-paso-titulo">
+              <span class="calc-paso-num">2</span>
+              <span>Perfil de arcilla</span>
+            </div>
+            <div class="perfil-selector" id="perfilSelector">
+              <select id="selectPerfil" onchange="cargarPerfil()">
+                <option value="">— Nuevo perfil —</option>
+              </select>
+              <button class="btn-accion btn-copiar" onclick="borrarPerfilSeleccionado()" id="btnBorrarPerfil" style="display:none">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="calc-paso">
+            <div class="calc-paso-titulo">
+              <span class="calc-paso-num">3</span>
+              <span>Tomá las 3 medidas</span>
+            </div>
+            <div class="dimensiones-grid">
+              <div class="dim-grupo">
+                <label>🌿 Cuero</label>
+                <div class="dim-input-wrapper">
+                  <input type="number" id="medidaCuero" placeholder="0" oninput="calcularPersonalizado()">
+                  <span class="dim-unidad">cm</span>
+                </div>
+              </div>
+              <div class="dim-grupo">
+                <label>🦴 Hueso</label>
+                <div class="dim-input-wrapper">
+                  <input type="number" id="medidaHueso" placeholder="0" oninput="calcularPersonalizado()">
+                  <span class="dim-unidad">cm</span>
+                </div>
+              </div>
+              <div class="dim-grupo">
+                <label>🔥 Bizcocho</label>
+                <div class="dim-input-wrapper">
+                  <input type="number" id="medidaBizcochoP" placeholder="0" oninput="calcularPersonalizado()">
+                  <span class="dim-unidad">cm</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="calc-resultado" id="resultadoPersonalizado" style="display:none">
+            <h3>📋 Resultado</h3>
+            <div class="resultado-grid contraccion-grid">
+              <div class="resultado-item">
+                <div class="resultado-nombre">🌿 Cuero</div>
+                <div class="resultado-valor"><span id="pCuero">0</span><span class="resultado-unidad">cm</span></div>
+              </div>
+              <div class="resultado-item">
+                <div class="resultado-nombre">🦴 Hueso</div>
+                <div class="resultado-valor"><span id="pHueso">0</span><span class="resultado-unidad">cm</span></div>
+              </div>
+              <div class="resultado-item">
+                <div class="resultado-nombre">🔥 Bizcocho</div>
+                <div class="resultado-valor"><span id="pBizcocho">0</span><span class="resultado-unidad">cm</span></div>
+              </div>
+              <div class="resultado-item">
+                <div class="resultado-nombre">📉 Cuero→Bizcocho</div>
+                <div class="resultado-valor"><span id="pContTotal">0</span><span class="resultado-unidad">%</span></div>
+              </div>
+              <div class="resultado-item">
+                <div class="resultado-nombre">📉 Crudo→Cuero</div>
+                <div class="resultado-valor"><span id="pContCuero">0</span><span class="resultado-unidad">%</span></div>
+              </div>
+              <div class="resultado-item">
+                <div class="resultado-nombre">📉 Hueso→Bizcocho</div>
+                <div class="resultado-valor"><span id="pContHueso">0</span><span class="resultado-unidad">%</span></div>
+              </div>
+            </div>
+
+            <div class="guardar-perfil-wrapper">
+              <input type="text" id="nombrePerfil" placeholder="Nombre del perfil (ej: Arcilla roja Tucumán)">
+              <button class="btn-accion btn-guardar" onclick="guardarPerfil()">
+                <i class="fa-solid fa-floppy-disk"></i> Guardar perfil
+              </button>
+            </div>
+
+            <div class="resultado-acciones">
+              <button class="btn-accion btn-guardar" onclick="guardarPersonalizado()">
+                <i class="fa-solid fa-floppy-disk"></i> Guardar en historial
+              </button>
+              <button class="btn-accion btn-copiar" onclick="copiarPersonalizado()">
+                <i class="fa-regular fa-copy"></i> Copiar
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- COLUMNA DERECHA: HISTORIAL -->
+      <div class="historial-panel">
+        <div class="historial-header">
+          <h3>📚 Historial</h3>
+          <div class="historial-acciones">
+            <button class="btn-pdf" onclick="descargarPDF()" id="btnPDF" disabled>
+              <i class="fa-solid fa-file-pdf"></i> Descargar PDF
+            </button>
+            <button class="btn-limpiar-todo" onclick="limpiarHistorial()" id="btnLimpiar" style="display:none">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="historial-lista" id="historialLista">
+          <p class="historial-vacio">Guardá un cálculo para verlo aquí.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <a class="whatsapp" href="https://wa.me/5491160387535" target="_blank">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <footer>
+    <p>© 2026 YCA Cerámica</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>
