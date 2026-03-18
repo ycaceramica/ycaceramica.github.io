@@ -243,11 +243,13 @@ function pedirBorrarPerfil(){
 }
 
 function borrarPerfil(){
+  if(!perfilActivo) return
   perfiles = perfiles.filter(p => p.id !== perfilActivo.id)
   localStorage.setItem("contraccion_perfiles", JSON.stringify(perfiles))
   perfilActivo = null
   renderizarPerfiles()
-  document.getElementById("selectPerfil").value = ""
+  const sel = document.getElementById("selectPerfil")
+  if(sel) sel.value = ""
   cargarPerfil()
 }
 
@@ -303,8 +305,14 @@ function borrarItem(id){
   guardarHistorial()
 }
 
+function limpiarHistorialConfirmado(){
+  historial = []
+  localStorage.setItem("contraccion_historial", JSON.stringify(historial))
+  renderizarHistorial()
+}
+
 function pedirLimpiarHistorial(){
-  mostrarModal({ titulo:"🗑 Limpiar historial", texto:"¿Borrar todo el historial? Esta acción no se puede deshacer.", confirmar:"Borrar todo", accion:() => { historial = []; guardarHistorial() } })
+  mostrarModal({ titulo:"🗑 Limpiar historial", texto:"¿Borrar todo el historial? Esta acción no se puede deshacer.", confirmar:"Borrar todo", accion: limpiarHistorialConfirmado })
 }
 
 // ─────────────────────────────────────────────
