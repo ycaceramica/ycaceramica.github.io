@@ -1163,3 +1163,47 @@ body.dark #exportCurso option{
   height:28px;
 }
 .pasta-btn-quitar:hover{ opacity:1; color:#c85028; }
+
+/* ── TABS ROL ALUMNOS/CERAMISTAS ── */
+.usuarios-rol-tabs{
+  display:flex;
+  gap:8px;
+  margin-bottom:20px;
+}
+.rol-tab{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:10px 16px;
+  border:2px solid var(--color-borde);
+  border-radius:10px;
+  background:transparent;
+  color:var(--color-texto);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.2s;
+  opacity:0.6;
+}
+.rol-tab.activo{
+  border-color:var(--color-primario);
+  background:rgba(139,111,86,0.08);
+  color:var(--color-primario);
+  opacity:1;
+}
+.rol-tab span{
+  background:var(--color-primario);
+  color:white;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:700;
+  padding:2px 7px;
+  min-width:18px;
+  text-align:center;
+}
+.rol-tab:not(.activo) span{
+  background:rgba(139,111,86,0.3);
+}
