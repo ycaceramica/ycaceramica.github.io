@@ -43,6 +43,36 @@ window.addEventListener("scroll", () => {
 })
 
 // ─────────────────────────────────────────────
+// INFO
+// ─────────────────────────────────────────────
+function toggleInfo(){
+  const c = document.getElementById("infoContent")
+  const v = c.style.display !== "none"
+  c.style.display = v ? "none" : "block"
+  document.getElementById("infoChevron").style.transform = v ? "rotate(0deg)" : "rotate(180deg)"
+}
+
+// ─────────────────────────────────────────────
+// MODAL GENÉRICO
+// ─────────────────────────────────────────────
+let modalCallback = null
+function mostrarModal({ titulo, texto, confirmar, accion, cancelar = true }){
+  document.getElementById("contModalTitulo").innerText = titulo
+  document.getElementById("contModalTexto").innerText  = texto
+  const btnConfirmar = document.getElementById("contModalConfirmar")
+  const btnCancelar  = document.getElementById("contModalCancelar")
+  btnConfirmar.innerText = confirmar
+  btnCancelar.style.display = cancelar ? "inline-flex" : "none"
+  modalCallback = accion || null
+  btnConfirmar.onclick = () => { const cb = modalCallback; cerrarModal(); if(cb) cb() }
+  document.getElementById("contModal").style.display = "flex"
+}
+function cerrarModal(){
+  document.getElementById("contModal").style.display = "none"
+  modalCallback = null
+}
+
+// ─────────────────────────────────────────────
 // ESTADO
 // ─────────────────────────────────────────────
 
@@ -226,8 +256,7 @@ function calcular(){
 function guardarFormula(){
   const nombre = document.getElementById("nombreFormula").value.trim()
   if(!nombre){
-    alert("Poné un nombre a la fórmula antes de guardar.")
-    document.getElementById("nombreFormula").focus()
+    mostrarModal({ titulo:"⚠️ Sin nombre", texto:"Poné un nombre a la fórmula antes de guardar.", confirmar:"Entendido", cancelar:false })
     return
   }
 
@@ -302,11 +331,16 @@ function borrarFormula(id){
 }
 
 function limpiarHistorial(){
-  if(confirm("¿Borrar todo el historial?")) {
-    historial = []
-    localStorage.setItem("engobes_historial", JSON.stringify(historial))
-    renderizarHistorial()
-  }
+  mostrarModal({
+    titulo:"🗑 Limpiar historial",
+    texto:"¿Borrar todo el historial? Esta acción no se puede deshacer.",
+    confirmar:"Borrar todo",
+    accion: () => {
+      historial = []
+      localStorage.setItem("engobes_historial", JSON.stringify(historial))
+      renderizarHistorial()
+    }
+  })
 }
 
 // ─────────────────────────────────────────────
@@ -490,3 +524,18 @@ async function descargarPDF(){
 
 calcular()
 renderizarHistorial()
+
+// ─────────────────────────────────────────────
+// MI TALLER (Fase 3)
+// ─────────────────────────────────────────────
+function verificarSesionTaller(){
+  try {
+    const s = JSON.parse(localStorage.getItem("ceramista_sesion") || "null")
+    const btn = document.getElementById("btnTaller")
+    if(btn) btn.style.display = (s && s.token) ? "flex" : "none"
+  } catch(e){}
+}
+function guardarEnTaller(){
+  mostrarModal({ titulo:"🏺 Mi taller", texto:"Próximamente podrás sincronizar tu historial con tu cuenta de ceramista.", confirmar:"Entendido", cancelar:false })
+}
+verificarSesionTaller()
