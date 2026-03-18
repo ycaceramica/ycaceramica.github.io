@@ -320,39 +320,68 @@
         <div class="seccion-header">
           <div>
             <h2>👥 Usuarios</h2>
-            <p>Gestión de alumnos registrados</p>
+            <p>Gestión de alumnos y ceramistas registrados</p>
           </div>
           <button class="btn-nuevo" onclick="abrirModalExportarLista()">
             <i class="fa-solid fa-file-pdf"></i> Exportar lista
           </button>
         </div>
 
-        <!-- Tabs de estado -->
-        <div class="usuarios-tabs">
-          <button class="utab activo" onclick="setUsuarioTab('pendientes')" id="utab-pendientes">
-            Pendientes <span id="cnt-pendientes">0</span>
+        <!-- Tabs Alumnos / Ceramistas -->
+        <div class="usuarios-rol-tabs">
+          <button class="rol-tab activo" id="roltab-alumnos" onclick="setRolTab('alumnos')">
+            <i class="fa-solid fa-graduation-cap"></i> Alumnos
+            <span id="cnt-rol-alumnos"></span>
           </button>
-          <button class="utab" onclick="setUsuarioTab('activos')" id="utab-activos">
-            Activos <span id="cnt-activos">0</span>
-          </button>
-          <button class="utab" onclick="setUsuarioTab('pausados')" id="utab-pausados">
-            Pausados <span id="cnt-pausados">0</span>
-          </button>
-          <button class="utab" onclick="setUsuarioTab('rechazados')" id="utab-rechazados">
-            Rechazados <span id="cnt-rechazados">0</span>
+          <button class="rol-tab" id="roltab-ceramistas" onclick="setRolTab('ceramistas')">
+            <i class="fa-solid fa-mortar-pestle"></i> Ceramistas
+            <span id="cnt-rol-ceramistas"></span>
           </button>
         </div>
 
-        <!-- Filtro por curso -->
-        <div class="usuarios-filtro-curso">
-          <i class="fa-solid fa-graduation-cap"></i>
-          <select id="filtroCursoUsuarios" onchange="renderUsuarios()">
-            <option value="">Todos los cursos</option>
-          </select>
+        <!-- SECCIÓN ALUMNOS -->
+        <div id="seccionAlumnos">
+          <!-- Tabs de estado -->
+          <div class="usuarios-tabs">
+            <button class="utab activo" onclick="setUsuarioTab('pendientes')" id="utab-pendientes">
+              Pendientes <span id="cnt-pendientes">0</span>
+            </button>
+            <button class="utab" onclick="setUsuarioTab('activos')" id="utab-activos">
+              Activos <span id="cnt-activos">0</span>
+            </button>
+            <button class="utab" onclick="setUsuarioTab('pausados')" id="utab-pausados">
+              Pausados <span id="cnt-pausados">0</span>
+            </button>
+            <button class="utab" onclick="setUsuarioTab('rechazados')" id="utab-rechazados">
+              Rechazados <span id="cnt-rechazados">0</span>
+            </button>
+          </div>
+
+          <!-- Filtro por curso -->
+          <div class="usuarios-filtro-curso">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <select id="filtroCursoUsuarios" onchange="renderUsuarios()">
+              <option value="">Todos los cursos</option>
+            </select>
+          </div>
+
+          <div class="usuarios-lista" id="lista-usuarios"></div>
+          <div class="loading" id="loading-usuarios" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
         </div>
 
-        <div class="usuarios-lista" id="lista-usuarios"></div>
-        <div class="loading" id="loading-usuarios" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+        <!-- SECCIÓN CERAMISTAS -->
+        <div id="seccionCeramistas" style="display:none">
+          <div class="usuarios-tabs">
+            <button class="utab activo" onclick="setCeramistaTab('activos')" id="ctab-activos">
+              Activos <span id="cnt-cer-activos">0</span>
+            </button>
+            <button class="utab" onclick="setCeramistaTab('pausados')" id="ctab-pausados">
+              Pausados <span id="cnt-cer-pausados">0</span>
+            </button>
+          </div>
+          <div class="usuarios-lista" id="lista-ceramistas"></div>
+          <div class="loading" id="loading-ceramistas" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+        </div>
       </div>
 
       <!-- MODAL EXPORTAR LISTA -->
