@@ -48,6 +48,24 @@
 </div>
     </div>
 
+    <!-- INFO -->
+    <div class="calc-info-box">
+      <button class="calc-info-toggle" onclick="toggleInfo()">
+        <i class="fa-solid fa-circle-info"></i> ¿Cómo usar esta calculadora?
+        <i class="fa-solid fa-chevron-down" id="infoChevron"></i>
+      </button>
+      <div class="calc-info-content" id="infoContent" style="display:none">
+        <p>Formulá engobes con óxidos o pigmentos comerciales y calculá los gramos exactos de cada componente.</p>
+        <ol>
+          <li><strong>Tipo</strong> — elegí entre óxidos (colorantes naturales) o pigmentos comerciales.</li>
+          <li><strong>Componentes</strong> — ajustá los porcentajes de cada ingrediente. El total debe sumar 100%.</li>
+          <li><strong>Cantidad total</strong> — ingresá cuántos gramos de engobe querés preparar.</li>
+          <li><strong>Nombre</strong> — poné un nombre a tu fórmula antes de guardar (por ejemplo "Engobe rojo Tucumán").</li>
+        </ol>
+        <p>El resultado te da los gramos exactos de cada componente. Guardá la fórmula en el historial para repetirla cuando quieras o exportala en PDF.</p>
+      </div>
+    </div>
+
     <div class="lab-layout">
 
       <!-- COLUMNA IZQUIERDA: CALCULADORA -->
@@ -184,6 +202,9 @@
               <i class="fa-regular fa-copy"></i> Copiar
             </button>
           </div>
+          <button class="btn-accion btn-taller" id="btnTaller" onclick="guardarEnTaller()" style="display:none">
+            <i class="fa-solid fa-store"></i> Guardar en mi taller
+          </button>
         </div>
 
       </div>
@@ -206,6 +227,23 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- MODAL GENÉRICO -->
+  <div class="cont-modal-overlay" id="contModal" style="display:none" onclick="if(event.target===this)cerrarModal()">
+    <div class="cont-modal">
+      <div class="cont-modal-header">
+        <h3 id="contModalTitulo"></h3>
+        <button onclick="cerrarModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="cont-modal-body">
+        <p id="contModalTexto"></p>
+      </div>
+      <div class="cont-modal-footer">
+        <button class="btn-accion btn-copiar" id="contModalCancelar" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn-accion btn-guardar" id="contModalConfirmar"></button>
+      </div>
     </div>
   </div>
 
