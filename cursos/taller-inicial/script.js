@@ -54,9 +54,12 @@ function enviarConsulta(){
   const mensaje   = document.getElementById("fMensaje").value.trim()
 
   if(!nombre || !email){
-    alert("Por favor completá al menos tu nombre y email.")
+    const err = document.getElementById("formError")
+    if(err){ err.innerText = "Por favor completá al menos tu nombre y email."; err.style.display = "block" }
     return
   }
+  const err = document.getElementById("formError")
+  if(err) err.style.display = "none"
 
   let texto = `¡Hola! Me interesa el Taller de Cerámica Inicial 🏺\n\n`
   texto += `*Nombre:* ${nombre}\n`
