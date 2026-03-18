@@ -334,3 +334,12 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── INFO BOX ── */
+.calc-info-box{ max-width:900px; margin:0 auto 24px; background:var(--color-superficie); border-radius:14px; overflow:hidden; box-shadow:0 4px 16px var(--color-sombra); }
+.calc-info-toggle{ width:100%; padding:16px 20px; background:none; border:none; display:flex; align-items:center; gap:10px; font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; font-weight:700; color:var(--color-texto); cursor:pointer; }
+.calc-info-toggle i:last-child{ margin-left:auto; transition:transform 0.2s; color:var(--color-primario); }
+.calc-info-content{ padding:0 20px 18px; font-size:13px; line-height:1.7; opacity:0.8; }
+.calc-info-content p{ margin:0 0 10px; }
+.calc-info-content ol{ margin:0 0 10px; padding-left:20px; }
+.calc-info-content li{ margin-bottom:4px; }
