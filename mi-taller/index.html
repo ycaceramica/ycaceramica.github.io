@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Taller — YCA Cerámica</title>
+  <link rel="icon" type="image/png" href="../imagenes/logo.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- BARRA -->
+  <header class="header">
+    <div class="header-container">
+      <div class="logo">
+        <a href="../index.html">
+          <img src="../imagenes/logo.png" alt="YCA Cerámica" style="height:38px;width:38px;border-radius:50%;vertical-align:middle;margin-right:8px;">YCA Cerámica
+        </a>
+      </div>
+      <nav class="nav" id="nav">
+        <a href="../index.html">Inicio</a>
+        <a href="../index.html#productos">Productos</a>
+        <a href="../herramientas/index.html">Herramientas</a>
+        <a href="../cursos/index.html">Cursos y Talleres</a>
+        <a href="../index.html#galeria">Galería</a>
+        <a href="../index.html#contacto">Contacto</a>
+        <button id="toggleDark">🌙</button>
+      </nav>
+      <span class="hamburguesa" id="hamburguesa">☰</span>
+    </div>
+  </header>
+
+  <div class="cuenta-wrapper">
+
+    <!-- HEADER DE BIENVENIDA -->
+    <div class="cuenta-header">
+      <div class="cuenta-avatar" id="cuentaAvatar">?</div>
+      <div>
+        <h1 id="cuentaNombre">Cargando...</h1>
+        <p id="cuentaSubtitulo">Mi taller de cerámica 🏺</p>
+      </div>
+      <button class="btn-salir" onclick="cerrarSesion()">
+        <i class="fa-solid fa-right-from-bracket"></i> Salir
+      </button>
+    </div>
+
+    <!-- TABS -->
+    <div class="cuenta-tabs">
+      <button class="ctab activo" onclick="setTab('historial')" id="ctab-historial">
+        <i class="fa-solid fa-clock-rotate-left"></i> Historial
+      </button>
+      <button class="ctab" onclick="setTab('recursos')" id="ctab-recursos">
+        <i class="fa-solid fa-file-pdf"></i> Recursos
+      </button>
+      <button class="ctab" onclick="setTab('multimedia')" id="ctab-multimedia">
+        <i class="fa-solid fa-photo-film"></i> Multimedia
+      </button>
+      <button class="ctab" onclick="setTab('contrasena')" id="ctab-contrasena">
+        <i class="fa-solid fa-lock"></i> Contraseña
+      </button>
+    </div>
+
+    <!-- HISTORIAL -->
+    <div class="cuenta-seccion" id="sec-historial">
+      <div class="historial-taller-header">
+        <p>Tus cálculos guardados desde las calculadoras. Para agregar uno, usá el botón "Guardar en mi taller" en cualquier calculadora.</p>
+        <button class="btn-descargar-historial" onclick="descargarHistorialPDF()" id="btnHistorialPDF" disabled>
+          <i class="fa-solid fa-file-pdf"></i> Descargar todo en PDF
+        </button>
+      </div>
+
+      <!-- Filtro por calculadora -->
+      <div class="historial-filtros" id="historialFiltros" style="display:none">
+        <button class="hfiltro activo" data-calc="todos" onclick="filtrarHistorial('todos', this)">Todos</button>
+        <button class="hfiltro" data-calc="yeso" onclick="filtrarHistorial('yeso', this)">🧱 Yeso</button>
+        <button class="hfiltro" data-calc="engobes" onclick="filtrarHistorial('engobes', this)">🎨 Engobes</button>
+        <button class="hfiltro" data-calc="contraccion" onclick="filtrarHistorial('contraccion', this)">📐 Contracción</button>
+        <button class="hfiltro" data-calc="costos" onclick="filtrarHistorial('costos', this)">💰 Costos</button>
+        <button class="hfiltro" data-calc="pastas" onclick="filtrarHistorial('pastas', this)">🫙 Pastas</button>
+      </div>
+
+      <div class="historial-taller-grid" id="historialTallerGrid">
+        <div class="cuenta-loading">
+          <i class="fa-solid fa-spinner fa-spin"></i> Cargando historial...
+        </div>
+      </div>
+    </div>
+
+    <!-- RECURSOS (PDFs) -->
+    <div class="cuenta-seccion" id="sec-recursos" style="display:none">
+      <div class="apuntes-grid" id="recursosGrid">
+        <div class="cuenta-loading">
+          <i class="fa-solid fa-spinner fa-spin"></i> Cargando recursos...
+        </div>
+      </div>
+    </div>
+
+    <!-- MULTIMEDIA -->
+    <div class="cuenta-seccion" id="sec-multimedia" style="display:none">
+      <div class="multimedia-lista" id="multimediaLista">
+        <div class="cuenta-loading">
+          <i class="fa-solid fa-spinner fa-spin"></i> Cargando multimedia...
+        </div>
+      </div>
+    </div>
+
+    <!-- CAMBIAR CONTRASEÑA -->
+    <div class="cuenta-seccion" id="sec-contrasena" style="display:none">
+      <div class="pass-cambiar-card">
+        <h3><i class="fa-solid fa-lock"></i> Cambiar contraseña</h3>
+
+        <div class="form-grupo">
+          <label>Contraseña actual</label>
+          <div class="pass-wrapper">
+            <input type="password" id="passActual" placeholder="Tu contraseña actual">
+            <button class="pass-toggle" onclick="togglePassCuenta('passActual', this)" type="button">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-grupo">
+          <label>Nueva contraseña</label>
+          <div class="pass-wrapper">
+            <input type="password" id="passNueva" placeholder="Mínimo 6 caracteres">
+            <button class="pass-toggle" onclick="togglePassCuenta('passNueva', this)" type="button">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-grupo">
+          <label>Repetir nueva contraseña</label>
+          <div class="pass-wrapper">
+            <input type="password" id="passRepetir" placeholder="Repetí la nueva contraseña">
+            <button class="pass-toggle" onclick="togglePassCuenta('passRepetir', this)" type="button">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="pass-error" id="passError" style="display:none">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span id="passErrorMsg"></span>
+        </div>
+
+        <div class="pass-success" id="passSuccess" style="display:none">
+          <i class="fa-solid fa-circle-check"></i>
+          <span>¡Contraseña actualizada correctamente!</span>
+        </div>
+
+        <button class="btn-cambiar-pass" onclick="cambiarContrasena()" id="btnCambiarPass">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar nueva contraseña
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>© 2026 YCA Cerámica</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>
