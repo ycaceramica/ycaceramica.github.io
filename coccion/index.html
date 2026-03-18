@@ -169,6 +169,23 @@
 
   </div>
 
+  <!-- MODAL GENÉRICO -->
+  <div class="cont-modal-overlay" id="contModal" style="display:none" onclick="if(event.target===this)cerrarModal()">
+    <div class="cont-modal">
+      <div class="cont-modal-header">
+        <h3 id="contModalTitulo"></h3>
+        <button onclick="cerrarModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="cont-modal-body">
+        <p id="contModalTexto"></p>
+      </div>
+      <div class="cont-modal-footer">
+        <button class="btn-accion btn-copiar" id="contModalCancelar" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn-accion btn-guardar" id="contModalConfirmar"></button>
+      </div>
+    </div>
+  </div>
+
   <a class="whatsapp" href="https://wa.me/5491160387535" target="_blank">
     <i class="fa-brands fa-whatsapp"></i>
   </a>
