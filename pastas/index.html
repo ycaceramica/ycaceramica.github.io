@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pastas — YCA Cerámica</title>
+  <link rel="icon" type="image/png" href="../imagenes/logo.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-container">
+      <div class="logo">
+        <a href="../index.html">
+          <img src="../imagenes/logo.png" alt="YCA Cerámica" style="height:38px;width:38px;border-radius:50%;vertical-align:middle;margin-right:8px;">YCA Cerámica
+        </a>
+      </div>
+      <nav class="nav" id="nav">
+        <a href="../index.html">Inicio</a>
+        <a href="../index.html#productos">Productos</a>
+        <a href="../herramientas/index.html">Herramientas</a>
+        <a href="../cursos/index.html">Cursos y Talleres</a>
+        <a href="../index.html#galeria">Galería</a>
+        <a href="../index.html#contacto">Contacto</a>
+        <button id="toggleDark">🌙</button>
+      </nav>
+      <span class="hamburguesa" id="hamburguesa">☰</span>
+    </div>
+  </header>
+
+  <div class="pastas-wrapper">
+
+    <!-- HEADER -->
+    <div class="pastas-header">
+      <a class="pastas-volver" href="../herramientas/index.html">← Herramientas</a>
+      <h1>🫙 Pastas cerámicas</h1>
+      <p>Consultá las proporciones de nuestras pastas y calculá los gramos exactos para tu próxima mezcla.</p>
+    </div>
+
+    <!-- INFO -->
+    <div class="calc-info-box">
+      <button class="calc-info-toggle" onclick="toggleInfo()">
+        <i class="fa-solid fa-circle-info"></i> ¿Cómo usar esta sección?
+        <i class="fa-solid fa-chevron-down" id="infoChevron"></i>
+      </button>
+      <div class="calc-info-content" id="infoContent" style="display:none">
+        <p>Esta sección tiene dos partes:</p>
+        <ol>
+          <li><strong>Pastas del taller</strong> — fórmulas curadas por YCA Cerámica. Hacé clic en una pasta para ver sus componentes e ingresar cuántos gramos querés preparar. La calculadora te dice exactamente cuántos gramos de cada ingrediente usar.</li>
+          <li><strong>Calculadora libre</strong> — armá tu propia pasta. Elegí los ingredientes, asignales un porcentaje (deben sumar 100%), ingresá los gramos totales y obtené la mezcla exacta. Podés guardarla en el historial y exportarla en PDF.</li>
+        </ol>
+        <p>Todos los resultados se redondean a gramos enteros. Guardá tus cálculos en el historial para consultarlos después.</p>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="pastas-tabs">
+      <button class="pastas-tab activo" id="tabCatalogo" onclick="setTab('catalogo')">
+        <i class="fa-solid fa-book-open"></i> Pastas del taller
+      </button>
+      <button class="pastas-tab" id="tabLibre" onclick="setTab('libre')">
+        <i class="fa-solid fa-flask"></i> Calculadora libre
+      </button>
+    </div>
+
+    <!-- TAB CATÁLOGO -->
+    <div id="seccionCatalogo">
+      <div class="pastas-estado" id="estadoCatalogo">
+        <div class="spinner"></div>
+        <p>Cargando pastas...</p>
+      </div>
+      <div class="pastas-grid" id="pastasGrid"></div>
+    </div>
+
+    <!-- TAB CALCULADORA LIBRE -->
+    <div id="seccionLibre" style="display:none">
+
+      <!-- Aviso si está restringida -->
+      <div class="pastas-acceso-aviso" id="avisoAcceso" style="display:none">
+        <i class="fa-solid fa-lock"></i>
+        <p>La calculadora libre es exclusiva para ceramistas registrados. <a href="../login/index.html">Iniciá sesión</a> para acceder.</p>
+      </div>
+
+      <!-- Calculadora libre -->
+      <div id="calculadoraLibre">
+        <div class="calc-layout">
+          <div class="calc-card">
+
+            <div class="calc-paso">
+              <div class="calc-paso-titulo">
+                <span class="calc-paso-num">1</span>
+                <span>Nombre de tu pasta</span>
+              </div>
+              <input class="input-nombre-arcilla" type="text" id="libreNombre" placeholder="Ej: Mi stoneware rojo...">
+            </div>
+
+            <div class="calc-paso">
+              <div class="calc-paso-titulo">
+                <span class="calc-paso-num">2</span>
+                <span>Componentes <span id="libreTotalLabel" style="font-size:12px;font-weight:700;margin-left:8px;color:#c85028"></span></span>
+              </div>
+              <div class="pasta-comp-headers">
+                <span>Ingrediente</span><span>%</span>
+              </div>
+              <div id="libreComponentes"></div>
+              <div class="pasta-comp-agregar" style="margin-top:10px">
+                <button class="pasta-btn-agregar" onclick="libreAgregarComponente()" type="button">
+                  <i class="fa-solid fa-plus"></i> Agregar ingrediente
+                </button>
+              </div>
+            </div>
+
+            <div class="calc-paso">
+              <div class="calc-paso-titulo">
+                <span class="calc-paso-num">3</span>
+                <span>Gramos totales a preparar</span>
+              </div>
+              <div class="dim-input-wrapper" style="max-width:180px">
+                <input type="number" id="libreGramos" placeholder="0" min="1" oninput="libreCalcular()">
+                <span class="dim-unidad">g</span>
+              </div>
+            </div>
+
+            <!-- Resultado libre -->
+            <div class="calc-resultado" id="libreResultado" style="display:none">
+              <h3>📋 Resultado</h3>
+              <div id="libreResultadoTabla"></div>
+              <div class="resultado-acciones">
+                <button class="btn-accion btn-guardar" onclick="libreGuardar()">
+                  <i class="fa-solid fa-floppy-disk"></i> Guardar en historial
+                </button>
+                <button class="btn-accion btn-copiar" onclick="libreCopiar()">
+                  <i class="fa-regular fa-copy"></i> Copiar
+                </button>
+              </div>
+              <button class="btn-accion btn-taller" id="btnTallerLibre" onclick="guardarEnTaller()" style="display:none">
+                <i class="fa-solid fa-store"></i> Guardar en mi taller
+              </button>
+            </div>
+
+          </div>
+
+          <!-- HISTORIAL -->
+          <div class="historial-panel">
+            <div class="historial-header">
+              <h3>📚 Historial</h3>
+              <div class="historial-acciones">
+                <button class="btn-pdf" onclick="descargarPDF()" id="btnPDF" disabled>
+                  <i class="fa-solid fa-file-pdf"></i> PDF
+                </button>
+                <button class="btn-limpiar-todo" onclick="pedirLimpiarHistorial()" id="btnLimpiar" style="display:none">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
+            <div class="historial-lista" id="historialLista">
+              <p class="historial-vacio">Guardá un cálculo para verlo aquí.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODAL PASTA DEL CATÁLOGO -->
+  <div class="pasta-modal-overlay" id="pastaModal" style="display:none" onclick="if(event.target===this)cerrarPastaModal()">
+    <div class="pasta-modal">
+      <button class="pasta-modal-cerrar" onclick="cerrarPastaModal()"><i class="fa-solid fa-xmark"></i></button>
+
+      <div class="pasta-modal-foto" id="pastaModalFoto"></div>
+
+      <div class="pasta-modal-body">
+        <h2 id="pastaModalNombre"></h2>
+        <p id="pastaModalDesc" class="pasta-modal-desc"></p>
+
+        <div class="pasta-modal-componentes">
+          <h4>Composición</h4>
+          <div id="pastaModalTabla"></div>
+        </div>
+
+        <div class="pasta-modal-calc">
+          <div class="calc-paso-titulo" style="margin-bottom:12px">
+            <span class="calc-paso-num">→</span>
+            <span>¿Cuántos gramos querés preparar?</span>
+          </div>
+          <div class="dim-input-wrapper" style="max-width:180px;margin-bottom:16px">
+            <input type="number" id="modalGramos" placeholder="0" min="1" oninput="modalCalcular()">
+            <span class="dim-unidad">g</span>
+          </div>
+          <div id="modalResultadoTabla" style="display:none">
+            <div class="cont-tabla" id="modalResultadoGrid"></div>
+            <div class="resultado-acciones" style="margin-top:12px">
+              <button class="btn-accion btn-guardar" onclick="modalGuardar()">
+                <i class="fa-solid fa-floppy-disk"></i> Guardar en historial
+              </button>
+              <button class="btn-accion btn-copiar" onclick="modalCopiar()">
+                <i class="fa-regular fa-copy"></i> Copiar
+              </button>
+              <button class="btn-accion btn-pdf-directo" onclick="modalDescargarPDF()">
+                <i class="fa-solid fa-file-pdf"></i> PDF
+              </button>
+            </div>
+            <button class="btn-accion btn-taller" id="btnTallerModal" onclick="guardarEnTaller()" style="display:none;margin-top:10px;width:100%">
+              <i class="fa-solid fa-store"></i> Guardar en mi taller
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL GENÉRICO -->
+  <div class="cont-modal-overlay" id="contModal" style="display:none" onclick="if(event.target===this)cerrarModal()">
+    <div class="cont-modal">
+      <div class="cont-modal-header">
+        <h3 id="contModalTitulo"></h3>
+        <button onclick="cerrarModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="cont-modal-body">
+        <p id="contModalTexto"></p>
+      </div>
+      <div class="cont-modal-footer">
+        <button class="btn-accion btn-copiar" id="contModalCancelar" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn-accion btn-guardar" id="contModalConfirmar"></button>
+      </div>
+    </div>
+  </div>
+
+  <a class="whatsapp" href="https://wa.me/5491160387535" target="_blank">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <footer><p>© 2026 YCA Cerámica</p></footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
