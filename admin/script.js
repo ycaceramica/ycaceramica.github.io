@@ -150,8 +150,8 @@ async function cargarCursosSilencioso(){
 let ordenActual = {} // hoja -> 'az' | 'za'
 
 function ordenarItems(items, orden, hoja){
-  // Para inventarios privados ordenar por código
-  const porCodigo = hoja === 'moldes' || (hoja && hoja.endsWith('_inv'))
+  // Ordenar por código: moldes, inventarios privados, piezas e insumos
+  const porCodigo = hoja === 'moldes' || hoja === 'piezas' || hoja === 'insumos' || (hoja && hoja.endsWith('_inv'))
 
   return [...items].sort((a, b) => {
     if(porCodigo){
