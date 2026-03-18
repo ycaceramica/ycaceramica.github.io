@@ -244,6 +244,7 @@
             <button class="form-btn" onclick="enviarConsulta('${c.nombre || 'este curso'}')">
               <i class="fa-brands fa-whatsapp"></i> Reservar por WhatsApp
             </button>
+            <p id="formError" style="display:none;color:#c85028;font-size:13px;font-weight:600;margin-top:8px;text-align:center"></p>
           </div>
         </div>
       `
@@ -256,7 +257,13 @@
       const conociste = document.getElementById("fConociste").value
       const mensaje   = document.getElementById("fMensaje").value.trim()
 
-      if(!nombre || !email){ alert("Por favor completá al menos tu nombre y email."); return }
+      if(!nombre || !email){
+        const err = document.getElementById("formError")
+        if(err){ err.innerText = "Por favor completá al menos tu nombre y email."; err.style.display = "block" }
+        return
+      }
+      const err = document.getElementById("formError")
+      if(err) err.style.display = "none"
 
       let texto = `¡Hola! Me interesa reservar un lugar en: ${nombreCurso}\n\n`
       texto += `*Nombre:* ${nombre}\n`
