@@ -51,6 +51,9 @@
         <button class="sidebar-item" onclick="setSeccion('insumos')" id="nav-insumos">
           <i class="fa-solid fa-flask"></i> Insumos
         </button>
+        <button class="sidebar-item" onclick="setSeccion('pastas')" id="nav-pastas">
+          <i class="fa-solid fa-mortar-pestle"></i> Pastas
+        </button>
         <button class="sidebar-item" onclick="setSeccion('galeria')" id="nav-galeria">
           <i class="fa-solid fa-images"></i> Galería
         </button>
@@ -221,6 +224,39 @@
         </div>
         <div class="items-grid" id="grid-insumos"></div>
         <div class="loading" id="loading-insumos" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
+
+      <!-- PASTAS -->
+      <div class="seccion" id="seccion-pastas" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>🫙 Pastas</h2>
+            <p>Catálogo público — solo se muestran las marcadas como publicadas</p>
+          </div>
+          <button class="btn-nuevo" onclick="abrirModal('pastas')">
+            <i class="fa-solid fa-plus"></i> Nueva pasta
+          </button>
+        </div>
+        <div class="admin-filtros-wrapper">
+          <div class="admin-buscador-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input class="admin-buscador" id="buscar-pastas" placeholder="Buscar por nombre..." oninput="filtrarGrid('pastas')">
+          </div>
+          <div class="admin-controles-row">
+            <div class="admin-filtros-cats" id="filtros-pastas"></div>
+            <div class="admin-pub-filtros">
+              <button class="admin-pub-btn activo" onclick="setFiltroPublicado('pastas','todos',this)">Todos</button>
+              <button class="admin-pub-btn" onclick="setFiltroPublicado('pastas','publicado',this)">Publicadas</button>
+              <button class="admin-pub-btn" onclick="setFiltroPublicado('pastas','oculto',this)">Ocultas</button>
+            </div>
+            <div class="admin-orden-btns">
+              <button class="activo" onclick="setOrden('pastas','az',this)">A→Z</button>
+              <button onclick="setOrden('pastas','za',this)">Z→A</button>
+            </div>
+          </div>
+        </div>
+        <div class="items-grid" id="grid-pastas"></div>
+        <div class="loading" id="loading-pastas" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
       </div>
 
       <!-- MOLDES -->
