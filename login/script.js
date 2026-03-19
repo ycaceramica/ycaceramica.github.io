@@ -25,6 +25,11 @@ window.addEventListener('DOMContentLoaded', () => {
     else                            window.location.href = '../mi-cuenta/index.html'
   }
   cargarCursosRegistro()
+
+  // Si viene con #ceramista en la URL, abrir el tab ceramista directo
+  if(window.location.hash === '#ceramista'){
+    setTab('ceramista')
+  }
 })
 
 // ─────────────────────────────────────────────
