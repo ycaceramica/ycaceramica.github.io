@@ -504,7 +504,41 @@ function verificarSesionTaller(){
   } catch(e){}
 }
 function guardarEnTaller(){
-  mostrarModal({ titulo:"🏺 Mi taller", texto:"Próximamente podrás sincronizar tu historial con tu cuenta de ceramista.", confirmar:"Entendido", cancelar:false })
+  try {
+    const s = JSON.parse(localStorage.getItem("ceramista_sesion") || "null")
+    if(!s || !s.token){
+      mostrarModal({ titulo:"🏺 Mi taller", texto:"Iniciá sesión como ceramista para guardar acá.", confirmar:"Entendido", cancelar:false })
+      return
+    }
+    const hist = JSON.parse(localStorage.getItem("pastas_historial") || "[]")
+    if(!hist.length){
+      mostrarModal({ titulo:"⚠️ Sin datos", texto:"Guardá un cálculo en el historial primero.", confirmar:"Entendido", cancelar:false })
+      return
+    }
+    const item = hist[0]
+    fetch("https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec", {
+      method: "POST",
+      body: JSON.stringify({
+        action:       "guardarHistorialTaller",
+        ceramistaId:  s.id,
+        item: {
+          calculadora: "pastas",
+          nombre:      item.nombre || item.arcilla || item.tipo || "Cálculo",
+          datos:       item
+        }
+      })
+    }).then(r => r.json()).then(data => {
+      if(data.ok){
+        mostrarModal({ titulo:"✅ Guardado en tu taller", texto:"El cálculo fue sincronizado con tu cuenta ceramista.", confirmar:"¡Genial!", cancelar:false })
+      } else {
+        mostrarModal({ titulo:"❌ Error", texto:"No se pudo guardar. Intentá de nuevo.", confirmar:"Entendido", cancelar:false })
+      }
+    }).catch(() => {
+      mostrarModal({ titulo:"❌ Sin conexión", texto:"No se pudo guardar. Revisá tu conexión.", confirmar:"Entendido", cancelar:false })
+    })
+  } catch(e){
+    mostrarModal({ titulo:"❌ Error", texto:"No se pudo guardar.", confirmar:"Entendido", cancelar:false })
+  }
 }
 
 // ─────────────────────────────────────────────
