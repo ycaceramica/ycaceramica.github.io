@@ -376,19 +376,21 @@ async function ejecutarBorrarItem(borrarDrive){
   cerrarModalBorrarItem()
   try {
     const sesion = getSesion()
-    const res    = await fetch(API, {
-      method: 'POST',
-      body: JSON.stringify({
-        action:  borrarDrive ? 'eliminarConFoto' : 'eliminar',
-        hoja, id, fotoUrl,
-        token:   sesion.token
-      })
-    })
+    // Para ceramistas usar acción específica
+    let body
+    if(hoja === 'apuntes_ceramistas'){
+      body = JSON.stringify({ action: 'eliminarApunteCeramista', id, token: sesion.token })
+    } else if(hoja === 'multimedia_ceramistas'){
+      body = JSON.stringify({ action: 'eliminarMultimediaCeramista', id, token: sesion.token })
+    } else {
+      body = JSON.stringify({ action: borrarDrive ? 'eliminarConFoto' : 'eliminar', hoja, id, fotoUrl, token: sesion.token })
+    }
+    const res  = await fetch(API, { method: 'POST', body })
     const data = await res.json()
     if(data.ok){
       delete cache[hoja]
       await cargarSeccion(hoja)
-      toast(borrarDrive ? '🗑 Eliminado de la web y del Drive' : '🗑 Eliminado de la web', 'ok')
+      toast('🗑 Eliminado', 'ok')
     } else toast('❌ Error al eliminar', 'err')
   } catch(e) { toast('❌ Error de conexión', 'err') }
 }
@@ -2999,68 +3001,56 @@ async function cargarSeccionCeramista(hoja){
   const grid    = document.getElementById('grid-' + hoja)
   const loading = document.getElementById('loading-' + hoja)
   if(!grid) return
-  if(cache[hoja]){ renderGridCeramista(hoja, cache[hoja]); return }
+  // apuntes_ceramistas usa renderGrid genérico — igual que apuntes de alumnos
+  if(hoja === 'apuntes_ceramistas'){
+    if(cache[hoja]){ renderGrid(hoja, cache[hoja]); armarFiltrosAdmin(hoja, cache[hoja]); return }
+    if(loading) loading.style.display = 'block'
+    grid.innerHTML = ''
+    try {
+      const sesion = getSesion()
+      const res    = await fetch(`${API}?action=getApuntesCeramistaAdmin&token=${encodeURIComponent(sesion.token)}`)
+      const data   = await res.json()
+      cache[hoja]  = data.data || []
+      renderGrid(hoja, cache[hoja])
+      armarFiltrosAdmin(hoja, cache[hoja])
+    } catch(e) {
+      if(grid) grid.innerHTML = '<p style="opacity:0.5;padding:20px;grid-column:1/-1">Error al cargar.</p>'
+    }
+    if(loading) loading.style.display = 'none'
+    return
+  }
+  // multimedia_ceramistas usa renderGridCeramista (grid especial)
+  if(cache[hoja]){ renderGridCeramistaMul(hoja, cache[hoja]); return }
   if(loading) loading.style.display = 'block'
   grid.innerHTML = ''
   try {
     const sesion = getSesion()
-    const action = hoja === 'apuntes_ceramistas' ? 'getApuntesCeramistaAdmin' : 'getMultimediaCeramistaAdmin'
-    const res    = await fetch(`${API}?action=${action}&token=${encodeURIComponent(sesion.token)}`)
+    const res    = await fetch(`${API}?action=getMultimediaCeramistaAdmin&token=${encodeURIComponent(sesion.token)}`)
     const data   = await res.json()
     cache[hoja]  = data.data || []
-    renderGridCeramista(hoja, cache[hoja])
-    armarFiltrosAdmin(hoja, cache[hoja])
+    renderGridCeramistaMul(hoja, cache[hoja])
   } catch(e) {
     if(grid) grid.innerHTML = '<p style="opacity:0.5;padding:20px;grid-column:1/-1">Error al cargar.</p>'
   }
   if(loading) loading.style.display = 'none'
 }
 
-function renderGridCeramista(hoja, items){
-  const esApuntes = hoja === 'apuntes_ceramistas'
-  const grid      = document.getElementById('grid-' + hoja)
+function renderGridCeramistaMul(hoja, items){
+  const grid = document.getElementById('grid-' + hoja)
   if(!grid) return
-
-  // Aplicar filtros existentes
-  const busq     = (document.getElementById('buscar-' + hoja)?.value || '').toLowerCase()
-  const pubFiltro= filtroPublicadoActual[hoja] || 'todos'
-  let   filtrados = items.filter(i => {
+  const busq      = (document.getElementById('buscar-' + hoja)?.value || '').toLowerCase()
+  const pubFiltro = filtroPublicadoActual[hoja] || 'todos'
+  const filtrados = items.filter(i => {
     const matchBusq = !busq || (i.titulo||'').toLowerCase().includes(busq)
     const pub = i.publicado === true || i.publicado === 'TRUE' || i.publicado === 'true'
     const matchPub  = pubFiltro === 'todos' || (pubFiltro === 'publicado' ? pub : !pub)
     return matchBusq && matchPub
   })
-
   if(filtrados.length === 0){
     grid.innerHTML = '<p style="opacity:0.5;padding:20px;grid-column:1/-1">No hay items en esta categoría.</p>'
     return
   }
-
-  if(esApuntes){
-    grid.innerHTML = ''
-    filtrados.forEach(item => {
-      const pub  = item.publicado === true || item.publicado === 'TRUE' || item.publicado === 'true'
-      const card = document.createElement('div')
-      card.className = 'item-card'
-      card.innerHTML = `
-        <div class="item-card-foto">
-          ${item.miniatura
-            ? `<img src="${item.miniatura}" alt="${item.titulo}" loading="lazy">`
-            : `<div class="item-foto-placeholder"><i class="fa-solid fa-file-pdf"></i></div>`}
-        </div>
-        <div class="item-info">
-          <div class="item-nombre">${item.titulo || 'Sin título'}</div>
-          ${item.descripcion ? `<div class="item-meta">${item.descripcion}</div>` : ''}
-          ${item.archivoUrl ? `<a href="${item.archivoUrl}" target="_blank" class="item-meta" style="color:var(--color-primario)"><i class="fa-solid fa-link"></i> Ver PDF</a>` : ''}
-          <div class="item-acciones">
-            <span class="estado-badge ${pub ? 'activo' : 'pausado'}">${pub ? 'Visible' : 'Oculto'}</span>
-            <button class="btn-editar-item" onclick="editarApunteCeramista('${item.id}')"><i class="fa-solid fa-pen"></i></button>
-            <button class="btn-eliminar-item" onclick="eliminarApunteCeramista('${item.id}')"><i class="fa-solid fa-trash"></i></button>
-          </div>
-        </div>`
-      grid.appendChild(card)
-    })
-  } else {
+  {
     // Multimedia ceramistas — usa el mismo grid de multimedia
     grid.innerHTML = ''
     filtrados.forEach(item => {
