@@ -129,12 +129,24 @@ async function cargarHistorial(){
 }
 
 const CALC_LABELS = {
-  yeso:        { emoji:'🧱', nombre:'Yeso' },
-  engobes:     { emoji:'🎨', nombre:'Engobes' },
-  coccion:     { emoji:'🌡️', nombre:'Cocción' },
-  contraccion: { emoji:'📐', nombre:'Contracción' },
-  costos:      { emoji:'💰', nombre:'Costos' },
-  pastas:      { emoji:'🫙', nombre:'Pastas' }
+  yeso:        { emoji:'🧱', nombre:'Yeso',        pdfNombre:'Yeso' },
+  engobes:     { emoji:'🎨', nombre:'Engobes',     pdfNombre:'Engobes' },
+  coccion:     { emoji:'🌡️', nombre:'Cocción',     pdfNombre:'Coccion' },
+  contraccion: { emoji:'📐', nombre:'Contracción', pdfNombre:'Contraccion' },
+  costos:      { emoji:'💰', nombre:'Costos',      pdfNombre:'Costos' },
+  pastas:      { emoji:'🫙', nombre:'Pastas',      pdfNombre:'Pastas' }
+}
+
+function formatFecha(fecha){
+  if(!fecha) return ''
+  // Si es ISO (2026-03-19T03:00:00.000Z) convertir a fecha local
+  try {
+    if(String(fecha).includes('T')){
+      const d = new Date(fecha)
+      return d.toLocaleDateString('es-AR')
+    }
+  } catch(e){}
+  return String(fecha)
 }
 
 function filtrarHistorial(calc, btn){
@@ -166,7 +178,7 @@ function renderHistorial(){
     card.innerHTML = `
       <div class="htcard-header">
         <span class="htcard-calc">${label.emoji} ${label.nombre}</span>
-        <span class="htcard-fecha">${item.fecha || ''}</span>
+        <span class="htcard-fecha">${formatFecha(item.fecha)}</span>
       </div>
       <div class="htcard-nombre">${item.nombre || 'Sin nombre'}</div>
       <div class="htcard-datos">${renderDatosCard(item.calculadora, datos)}</div>
@@ -376,7 +388,7 @@ async function descargarHistorialPDF(){
   y=50
 
   items.forEach((item, idx) => {
-    const label = CALC_LABELS[item.calculadora] || { emoji:'📋', nombre: item.calculadora || 'Cálculo' }
+    const label = CALC_LABELS[item.calculadora] || { emoji:'📋', nombre: item.calculadora || 'Calculo', pdfNombre: item.calculadora || 'Calculo' }
     let datos = {}
     try { datos = JSON.parse(item.datos || '{}') } catch(e){}
 
@@ -385,9 +397,9 @@ async function descargarHistorialPDF(){
 
     doc.setFillColor(...GRIS); doc.roundedRect(m,y,W-m*2,h,4,4,'F')
     doc.setTextColor(...NEGRO); doc.setFontSize(11); doc.setFont('helvetica','bold')
-    doc.text(`${label.emoji} ${label.nombre} — ${item.nombre || 'Sin nombre'}`,m+5,y+9)
+    doc.text(`${label.pdfNombre} — ${item.nombre || 'Sin nombre'}`,m+5,y+9)
     doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(120,110,100)
-    doc.text(item.fecha || '',W-m-5,y+9,{align:'right'})
+    doc.text(formatFecha(item.fecha) || '',W-m-5,y+9,{align:'right'})
 
     // Datos resumidos
     const resumen = generarResumenPDF(item.calculadora, datos)
