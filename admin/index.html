@@ -88,12 +88,6 @@
         <button class="sidebar-item" onclick="setSeccion('multimedia')" id="nav-multimedia">
           <i class="fa-solid fa-photo-film"></i> Multimedia
         </button>
-        <button class="sidebar-item" onclick="setSeccion('apuntes_ceramistas')" id="nav-apuntes_ceramistas">
-          <i class="fa-solid fa-mortar-pestle"></i> Apuntes ceramistas
-        </button>
-        <button class="sidebar-item" onclick="setSeccion('multimedia_ceramistas')" id="nav-multimedia_ceramistas">
-          <i class="fa-solid fa-film"></i> Multimedia ceramistas
-        </button>
       </div>
 
       <div class="sidebar-seccion">
@@ -442,28 +436,51 @@
         <div class="seccion-header">
           <div>
             <h2>📚 Apuntes</h2>
-            <p>Material de cursos para alumnos</p>
+            <p>Material para alumnos y ceramistas</p>
           </div>
-          <button class="btn-nuevo" onclick="abrirModal('apuntes')">
+          <button class="btn-nuevo" id="btnNuevoApunte" onclick="abrirNuevoApunte()">
             <i class="fa-solid fa-plus"></i> Nuevo apunte
           </button>
         </div>
+
+        <!-- Tabs Alumnos / Ceramistas -->
+        <div class="usuarios-rol-tabs">
+          <button class="rol-tab activo" id="apuntesTab-alumnos" onclick="setApuntesTab('alumnos')">
+            <i class="fa-solid fa-graduation-cap"></i> Alumnos
+            <span id="cnt-apuntes-alumnos"></span>
+          </button>
+          <button class="rol-tab" id="apuntesTab-ceramistas" onclick="setApuntesTab('ceramistas')">
+            <i class="fa-solid fa-mortar-pestle"></i> Ceramistas
+            <span id="cnt-apuntes-ceramistas"></span>
+          </button>
+        </div>
+
         <div class="admin-filtros-wrapper">
           <div class="admin-buscador-wrapper">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input class="admin-buscador" id="buscar-apuntes" placeholder="Buscar apunte..." oninput="filtrarGrid('apuntes')">
+            <input class="admin-buscador" id="buscar-apuntes" placeholder="Buscar apunte..." oninput="filtrarApuntesActual()">
           </div>
           <div class="admin-controles-row">
             <div class="admin-filtros-cats" id="filtros-apuntes"></div>
             <div class="admin-pub-filtros">
-              <button class="admin-pub-btn activo" onclick="setFiltroPublicado('apuntes','todos',this)">Todos</button>
-              <button class="admin-pub-btn" onclick="setFiltroPublicado('apuntes','publicado',this)">Visibles</button>
-              <button class="admin-pub-btn" onclick="setFiltroPublicado('apuntes','oculto',this)">Ocultos</button>
+              <button class="admin-pub-btn activo" onclick="setFiltroApuntesActual('todos',this)">Todos</button>
+              <button class="admin-pub-btn" onclick="setFiltroApuntesActual('publicado',this)">Visibles</button>
+              <button class="admin-pub-btn" onclick="setFiltroApuntesActual('oculto',this)">Ocultos</button>
             </div>
           </div>
         </div>
-        <div class="items-grid" id="grid-apuntes"></div>
-        <div class="loading" id="loading-apuntes" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+
+        <!-- Grid alumnos -->
+        <div id="seccionApuntesAlumnos">
+          <div class="items-grid" id="grid-apuntes"></div>
+          <div class="loading" id="loading-apuntes" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+        </div>
+
+        <!-- Grid ceramistas -->
+        <div id="seccionApuntesCeramistas" style="display:none">
+          <div class="items-grid" id="grid-apuntes_ceramistas"></div>
+          <div class="loading" id="loading-apuntes_ceramistas" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+        </div>
       </div>
 
       <!-- MULTIMEDIA -->
@@ -471,61 +488,49 @@
         <div class="seccion-header">
           <div>
             <h2>🎬 Multimedia</h2>
-            <p>Fotos y videos de los cursos</p>
+            <p>Fotos y videos para alumnos y ceramistas</p>
           </div>
-          <button class="btn-nuevo" onclick="abrirModalMultimedia()">
+          <button class="btn-nuevo" id="btnNuevoMultimedia" onclick="abrirNuevoMultimedia()">
             <i class="fa-solid fa-plus"></i> Agregar
           </button>
         </div>
+
+        <!-- Tabs Alumnos / Ceramistas -->
+        <div class="usuarios-rol-tabs">
+          <button class="rol-tab activo" id="multimediaTab-alumnos" onclick="setMultimediaTab('alumnos')">
+            <i class="fa-solid fa-graduation-cap"></i> Alumnos
+            <span id="cnt-multimedia-alumnos"></span>
+          </button>
+          <button class="rol-tab" id="multimediaTab-ceramistas" onclick="setMultimediaTab('ceramistas')">
+            <i class="fa-solid fa-mortar-pestle"></i> Ceramistas
+            <span id="cnt-multimedia-ceramistas"></span>
+          </button>
+        </div>
+
         <div class="admin-filtros-wrapper">
           <div class="admin-buscador-wrapper">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input class="admin-buscador" id="buscar-multimedia" placeholder="Buscar por título..." oninput="filtrarGrid('multimedia')">
+            <input class="admin-buscador" id="buscar-multimedia" placeholder="Buscar por título..." oninput="filtrarMultimediaActual()">
           </div>
           <div class="admin-filtros-cats" id="filtros-multimedia"></div>
         </div>
-        <div class="multimedia-admin-grid" id="grid-multimedia"></div>
-        <div class="loading" id="loading-multimedia" style="display:none">
-          <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+
+        <!-- Grid alumnos -->
+        <div id="seccionMultimediaAlumnos">
+          <div class="multimedia-admin-grid" id="grid-multimedia"></div>
+          <div class="loading" id="loading-multimedia" style="display:none">
+            <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+          </div>
+        </div>
+
+        <!-- Grid ceramistas -->
+        <div id="seccionMultimediaCeramistas" style="display:none">
+          <div class="multimedia-admin-grid" id="grid-multimedia_ceramistas"></div>
+          <div class="loading" id="loading-multimedia_ceramistas" style="display:none">
+            <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+          </div>
         </div>
       </div>
-
-      <!-- APUNTES CERAMISTAS -->
-      <div class="seccion" id="seccion-apuntes_ceramistas" style="display:none">
-        <div class="seccion-header">
-          <div>
-            <h2>🏺 Apuntes ceramistas</h2>
-            <p>PDFs y recursos exclusivos para ceramistas registrados</p>
-          </div>
-          <button class="btn-nuevo" onclick="abrirModal('apuntes_ceramistas')">
-            <i class="fa-solid fa-plus"></i> Nuevo recurso
-          </button>
-        </div>
-        <div class="admin-filtros-wrapper">
-          <div class="admin-buscador-wrapper">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input class="admin-buscador" id="buscar-apuntes_ceramistas" placeholder="Buscar recurso..." oninput="filtrarGrid('apuntes_ceramistas')">
-          </div>
-          <div class="admin-controles-row">
-            <div class="admin-filtros-cats" id="filtros-apuntes_ceramistas"></div>
-            <div class="admin-pub-filtros">
-              <button class="admin-pub-btn activo" onclick="setFiltroPublicado('apuntes_ceramistas','todos',this)">Todos</button>
-              <button class="admin-pub-btn" onclick="setFiltroPublicado('apuntes_ceramistas','publicado',this)">Visibles</button>
-              <button class="admin-pub-btn" onclick="setFiltroPublicado('apuntes_ceramistas','oculto',this)">Ocultos</button>
-            </div>
-          </div>
-        </div>
-        <div class="items-grid" id="grid-apuntes_ceramistas"></div>
-        <div class="loading" id="loading-apuntes_ceramistas" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
-      </div>
-
-      <!-- MULTIMEDIA CERAMISTAS -->
-      <div class="seccion" id="seccion-multimedia_ceramistas" style="display:none">
-        <div class="seccion-header">
-          <div>
-            <h2>🎬 Multimedia ceramistas</h2>
-            <p>Videos y links exclusivos para ceramistas registrados</p>
-          </div>
           <button class="btn-nuevo" onclick="abrirModalMultimediaCer()">
             <i class="fa-solid fa-plus"></i> Agregar
           </button>
