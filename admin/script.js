@@ -303,7 +303,7 @@ function renderGrid(hoja, items){
   ordenados.forEach(item => {
     const publicado = item.publicado === true || item.publicado === 'TRUE' || item.publicado === 'true'
     const esMolde   = hoja === 'moldes' || hoja.endsWith('_inv')
-    const esApunte  = hoja === 'apuntes'
+    const esApunte  = hoja === 'apuntes' || hoja === 'apuntes_ceramistas'
     const mostrarPub = !esMolde
     const icono     = hoja === 'insumos' ? 'fa-flask' : hoja === 'moldes' ? 'fa-layer-group' : esApunte ? 'fa-book-open' : 'fa-jar'
 
@@ -467,7 +467,7 @@ function abrirModal(hoja, item = null){
   fotoModalBase64  = null
   fotoModalNombre  = null
 
-  const esApuntes = hoja === 'apuntes'
+  const esApuntes = hoja === 'apuntes' || hoja === 'apuntes_ceramistas'
   const esMoldes  = hoja === 'moldes' || hoja.endsWith('_inv')
   const esPiezas  = hoja === 'piezas'
   const esInsumos = hoja === 'insumos'
@@ -554,7 +554,7 @@ function abrirModal(hoja, item = null){
       </div>
       <label class="publicado-toggle">
         <input type="checkbox" id="mPublicado" ${(item?.publicado === true || item?.publicado === 'TRUE' || item?.publicado === 'true') ? 'checked' : ''}>
-        <span>✅ Visible para los alumnos</span>
+        <span>✅ Visible para ${modalHoja === 'apuntes_ceramistas' ? 'ceramistas' : 'los alumnos'}</span>
       </label>
     `
   } else if(esPastas){
@@ -782,9 +782,14 @@ async function guardarModal(){
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'
     }
 
+    // Para apuntes/multimedia ceramistas usar acción específica
+    const accionGuardar = modalHoja === 'apuntes_ceramistas' ? 'guardarApunteCeramista' : 'guardar'
+    const bodyGuardar   = modalHoja === 'apuntes_ceramistas'
+      ? JSON.stringify({ action: accionGuardar, fila, token: sesion.token })
+      : JSON.stringify({ action: accionGuardar, hoja: modalHoja, fila, token: sesion.token })
     const res  = await fetch(API, {
       method: 'POST',
-      body: JSON.stringify({ action: 'guardar', hoja: modalHoja, fila, token: sesion.token })
+      body: bodyGuardar
     })
     const data = await res.json()
 
@@ -830,7 +835,7 @@ function construirFila(){
   const id   = modalItem?.id || (modalHoja.toUpperCase().slice(0,3) + '-' + Date.now())
   const hoja = modalHoja
 
-  if(hoja === 'apuntes'){
+  if(hoja === 'apuntes' || hoja === 'apuntes_ceramistas'){
     const titulo = document.getElementById('mTitulo')?.value.trim()
     if(!titulo){ toast('El título es obligatorio', 'err'); return null }
     return {
@@ -1410,7 +1415,19 @@ function getEmbedUrl(url){
   return null
 }
 
+function abrirModalMultimediaCer(){
+  multimediaHojaActual = 'multimedia_ceramistas'
+  abrirModalMultimediaBase()
+}
+
 function abrirModalMultimedia(){
+  multimediaHojaActual = 'multimedia'
+  abrirModalMultimediaBase()
+}
+
+let multimediaHojaActual = 'multimedia'
+
+function abrirModalMultimediaBase(){
   tipoMultimedia    = 'foto'
   fotoMultimediaB64 = null
 
@@ -1426,7 +1443,7 @@ function abrirModalMultimedia(){
   document.getElementById('mMultimediaPreview').style.display = 'none'
 
   const sel = document.getElementById('mMultimediaCurso')
-  sel.innerHTML = '<option value="">Seleccioná</option><option value="General">General (todos los alumnos)</option>'
+  sel.innerHTML = multimediaHojaActual === 'multimedia_ceramistas' ? '<option value="">Sin categoría</option>' : '<option value="">Seleccioná</option><option value="General">General (todos los alumnos)</option>'
   cursosData.forEach(c => {
     const opt = document.createElement('option')
     opt.value = c.hojaId; opt.textContent = c.nombre
@@ -1484,37 +1501,40 @@ async function guardarMultimedia(){
       const url = document.getElementById('mMultimediaUrl').value.trim()
       if(!url){ toast('Ingresá el link del video', 'err'); btn.classList.remove('cargando'); return }
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'
-      const res  = await fetch(API, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'guardar', hoja: 'multimedia',
-          fila: { id, tipo: 'video', titulo, curso, url, foto: '', publicado, creadoEn: new Date().toLocaleDateString('es-AR') },
-          token: sesion.token })
-      })
+      const accionM = multimediaHojaActual === 'multimedia_ceramistas' ? 'guardarMultimediaCeramista' : 'guardar'
+      const bodyM   = multimediaHojaActual === 'multimedia_ceramistas'
+        ? JSON.stringify({ action: accionM, fila: { id, tipo: 'video', titulo, url, foto: '', publicado, creadoEn: new Date().toLocaleDateString('es-AR') }, token: sesion.token })
+        : JSON.stringify({ action: accionM, hoja: multimediaHojaActual, fila: { id, tipo: 'video', titulo, curso, url, foto: '', publicado, creadoEn: new Date().toLocaleDateString('es-AR') }, token: sesion.token })
+      const res  = await fetch(API, { method: 'POST', body: bodyM })
       const data = await res.json()
-      if(data.ok){ cerrarModalMultimedia(); multimediaData = []; await cargarMultimedia(); toast('✅ Video agregado', 'ok') }
+      if(data.ok){
+        cerrarModalMultimedia()
+        delete cache[multimediaHojaActual]
+        multimediaHojaActual === 'multimedia_ceramistas' ? await cargarSeccionCeramista('multimedia_ceramistas') : await cargarMultimedia()
+        toast('✅ Video agregado', 'ok')
+      }
       else toast('❌ ' + (data.error || 'Error'), 'err')
     } else {
       if(!fotoMultimediaB64){ toast('Seleccioná una foto', 'err'); btn.classList.remove('cargando'); return }
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'
-      const res = await fetch(API, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'guardar', hoja: 'multimedia',
-          fila: { id, tipo: 'foto', titulo, curso, url: '', foto: '', publicado, creadoEn: new Date().toLocaleDateString('es-AR') },
-          token: sesion.token })
-      })
+      const accionFoto = multimediaHojaActual === 'multimedia_ceramistas' ? 'guardarMultimediaCeramista' : 'guardar'
+      const bodyFoto   = multimediaHojaActual === 'multimedia_ceramistas'
+        ? JSON.stringify({ action: accionFoto, fila: { id, tipo: 'foto', titulo, url: '', foto: '', publicado, creadoEn: new Date().toLocaleDateString('es-AR') }, token: sesion.token })
+        : JSON.stringify({ action: accionFoto, hoja: multimediaHojaActual, fila: { id, tipo: 'foto', titulo, curso, url: '', foto: '', publicado, creadoEn: new Date().toLocaleDateString('es-AR') }, token: sesion.token })
+      const res = await fetch(API, { method: 'POST', body: bodyFoto })
       const data = await res.json()
       if(!data.ok){ toast('❌ Error al guardar', 'err'); btn.classList.remove('cargando'); btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar'; return }
 
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo foto...'
       const resF = await fetch(API, {
         method: 'POST',
-        body: JSON.stringify({ action: 'subirFoto', hoja: 'multimedia', id, b64: fotoMultimediaB64,
+        body: JSON.stringify({ action: 'subirFoto', hoja: multimediaHojaActual, id, b64: fotoMultimediaB64,
           nombre: 'multimedia_' + id, categoria: curso || 'General', token: sesion.token })
       })
       const dataF = await resF.json()
       cerrarModalMultimedia()
-      multimediaData = []
-      await cargarMultimedia()
+      delete cache[multimediaHojaActual]
+      multimediaHojaActual === 'multimedia_ceramistas' ? await cargarSeccionCeramista('multimedia_ceramistas') : await cargarMultimedia()
       toast(dataF.ok ? '✅ Foto agregada correctamente' : '⚠️ Guardado pero error al subir foto', dataF.ok ? 'ok' : 'err')
     }
   } catch(e) { toast('❌ Error de conexión', 'err') }
