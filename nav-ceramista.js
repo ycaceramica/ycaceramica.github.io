@@ -29,7 +29,8 @@
 
   var tallerUrl = prefix + 'mi-taller/index.html'
   var loginUrl  = prefix + 'login/index.html'
-  var nombre    = sesion.nombre || 'Mi taller'
+  var nombreCompleto = sesion.nombre || 'Mi taller'
+  var nombre = nombreCompleto.split(' ')[0]
   var inicial   = nombre[0].toUpperCase()
 
   // Insertar estilos si no están ya
@@ -40,7 +41,7 @@
       '.ceramista-nav-btn{position:relative;display:flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;}',
       '.ceramista-nav-avatar{width:32px;height:32px;min-width:32px;min-height:32px;border-radius:50%;background:var(--color-primario);color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;border:2px solid white;box-sizing:border-box;}',
       '.ceramista-nav-nombre{font-size:14px;font-weight:700;color:var(--color-texto);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
-      '.ceramista-nav-menu{position:absolute;top:calc(100% + 10px);right:0;background:var(--color-superficie);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.15);padding:8px;min-width:180px;z-index:1000;display:none;flex-direction:column;gap:4px;}',
+      '.ceramista-nav-menu{position:absolute;top:calc(100% + 10px);right:0;background:var(--color-superficie);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.15);padding:8px;min-width:180px;z-index:1000;display:none;flex-direction:column;gap:4px;overflow:hidden;}',
       '.ceramista-nav-btn.abierto .ceramista-nav-menu{display:flex;}',
       '.ceramista-nav-menu a,.ceramista-nav-menu button{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-family:inherit;font-size:14px;font-weight:600;color:var(--color-texto);text-decoration:none;background:none;border:none;cursor:pointer;width:100%;text-align:left;transition:background 0.15s;}',
       '.ceramista-nav-menu a:hover,.ceramista-nav-menu button:hover{background:rgba(139,111,86,0.1);color:var(--color-primario);}',
