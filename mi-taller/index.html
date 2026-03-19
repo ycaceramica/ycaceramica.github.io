@@ -66,9 +66,14 @@
     <div class="cuenta-seccion" id="sec-historial">
       <div class="historial-taller-header">
         <p>Tus cálculos guardados desde las calculadoras. Para agregar uno, usá el botón "Guardar en mi taller" en cualquier calculadora.</p>
-        <button class="btn-descargar-historial" onclick="descargarHistorialPDF()" id="btnHistorialPDF" disabled>
-          <i class="fa-solid fa-file-pdf"></i> Descargar todo en PDF
-        </button>
+        <div style="display:flex;gap:10px;flex-shrink:0">
+          <button class="btn-descargar-historial" onclick="descargarHistorialPDF()" id="btnHistorialPDF" disabled>
+            <i class="fa-solid fa-file-pdf"></i> PDF
+          </button>
+          <button class="btn-limpiar-historial" onclick="pedirLimpiarTodo()" id="btnLimpiarTodo" style="display:none">
+            <i class="fa-solid fa-trash"></i> Eliminar todo
+          </button>
+        </div>
       </div>
 
       <!-- Filtro por calculadora -->
