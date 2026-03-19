@@ -12,7 +12,36 @@
     sesion = JSON.parse(localStorage.getItem('ceramista_sesion') || 'null')
   } catch(e) {}
 
-  if(!sesion || !sesion.token) return  // Sin sesión → no hacer nada
+  if(!sesion || !sesion.token){
+    // Sin sesión → mostrar botón de registro
+    var path2    = window.location.pathname
+    var segs2    = path2.split('/').filter(Boolean)
+    var depth2   = segs2.length > 0 ? segs2.length - 1 : 0
+    if(path2.endsWith('/') || path2.endsWith('.html')){
+      depth2 = segs2.length - (path2.endsWith('.html') ? 1 : 0)
+    }
+    var prefix2  = depth2 === 0 ? '' : depth2 === 1 ? '../' : '../../'
+    var loginUrl2 = prefix2 + 'login/index.html#ceramista'
+
+    // Inyectar estilos del botón si no están
+    if(!document.getElementById('ceramista-nav-styles')){
+      var style2 = document.createElement('style')
+      style2.id  = 'ceramista-nav-styles'
+      style2.textContent = '.ceramista-registro-btn{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1.5px solid var(--color-primario);background:transparent;color:var(--color-primario);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;white-space:nowrap;transition:0.2s;} .ceramista-registro-btn:hover{background:var(--color-primario);color:white;} @media(max-width:768px){.ceramista-registro-btn span{display:none;}}'
+      document.head.appendChild(style2)
+    }
+
+    var btnReg = document.createElement('a')
+    btnReg.className = 'ceramista-registro-btn'
+    btnReg.href = loginUrl2
+    btnReg.innerHTML = '🏺 <span>Soy ceramista</span>'
+
+    var toggleDark2 = document.getElementById('toggleDark')
+    if(toggleDark2 && toggleDark2.parentNode){
+      toggleDark2.parentNode.insertBefore(btnReg, toggleDark2)
+    }
+    return
+  }
 
   // Detectar profundidad de carpeta para armar los paths correctos
   var path     = window.location.pathname
