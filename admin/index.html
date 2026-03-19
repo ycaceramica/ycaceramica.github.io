@@ -497,7 +497,7 @@
             <h2>🏺 Apuntes ceramistas</h2>
             <p>PDFs y recursos exclusivos para ceramistas registrados</p>
           </div>
-          <button class="btn-nuevo" onclick="abrirModalApunteCeramista()">
+          <button class="btn-nuevo" onclick="abrirModal('apuntes_ceramistas')">
             <i class="fa-solid fa-plus"></i> Nuevo recurso
           </button>
         </div>
@@ -526,7 +526,7 @@
             <h2>🎬 Multimedia ceramistas</h2>
             <p>Videos y links exclusivos para ceramistas registrados</p>
           </div>
-          <button class="btn-nuevo" onclick="abrirModalMultimediaCeramista()">
+          <button class="btn-nuevo" onclick="abrirModalMultimediaCer()">
             <i class="fa-solid fa-plus"></i> Agregar
           </button>
         </div>
@@ -543,56 +543,7 @@
         </div>
       </div>
 
-      <!-- MODAL APUNTE CERAMISTA -->
-      <div class="modal-overlay" id="modalApunteCeramista" style="display:none" onclick="cerrarModalApunteCeramista(event)">
-        <div class="modal-card" style="max-width:500px">
-          <div class="modal-header">
-            <h3 id="tituloModalApunteCer">Nuevo recurso ceramista</h3>
-            <button class="modal-cerrar" onclick="cerrarModalApunteCeramista()"><i class="fa-solid fa-xmark"></i></button>
-          </div>
-          <div class="modal-body">
-            <input type="hidden" id="mApunteCerId">
-            <div class="mform-grupo">
-              <label>Título <span style="color:#c85028">*</span></label>
-              <input type="text" id="mApunteCerTitulo" placeholder="Nombre del recurso">
-            </div>
-            <div class="mform-grupo">
-              <label>Descripción</label>
-              <textarea id="mApunteCerDesc" rows="2" placeholder="Descripción breve"></textarea>
-            </div>
-            <div class="mform-grupo">
-              <label>URL del archivo PDF <span style="color:#c85028">*</span></label>
-              <input type="url" id="mApunteCerUrl" placeholder="https://...">
-            </div>
-            <div class="mform-grupo">
-              <label>URL de miniatura <small style="opacity:0.5">(opcional)</small></label>
-              <input type="url" id="mApunteCerMini" placeholder="https://...">
-            </div>
-            <div class="mform-grupo">
-              <label>Visible para ceramistas</label>
-              <select id="mApunteCerPublicado">
-                <option value="true">✅ Sí, visible</option>
-                <option value="false">👁 Oculto</option>
-              </select>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn-cancelar" onclick="cerrarModalApunteCeramista()">Cancelar</button>
-            <button class="btn-guardar-modal" onclick="guardarApunteCeramista()">
-              <i class="fa-solid fa-floppy-disk"></i> Guardar
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- MODAL MULTIMEDIA CERAMISTA -->
-      <div class="modal-overlay" id="modalMultimediaCeramista" style="display:none" onclick="cerrarModalMultimediaCeramista(event)">
-        <div class="modal-card" style="max-width:500px">
-          <div class="modal-header">
-            <h3 id="tituloModalMultiCer">Agregar multimedia ceramista</h3>
-            <button class="modal-cerrar" onclick="cerrarModalMultimediaCeramista()"><i class="fa-solid fa-xmark"></i></button>
-          </div>
-          <div class="modal-body">
+      <div class="modal-body">
             <input type="hidden" id="mMultiCerId">
             <div class="mform-grupo">
               <label>Tipo</label>
