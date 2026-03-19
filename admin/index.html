@@ -543,53 +543,6 @@
         </div>
       </div>
 
-      <div class="modal-body">
-            <input type="hidden" id="mMultiCerId">
-            <div class="mform-grupo">
-              <label>Tipo</label>
-              <div class="multimedia-tipo-selector">
-                <button class="mtipo-btn activo" id="mcerTipoVideo" onclick="setMultiCerTipo('video',this)" type="button">
-                  <i class="fa-brands fa-youtube"></i> Video
-                </button>
-                <button class="mtipo-btn" id="mcerTipoLink" onclick="setMultiCerTipo('link',this)" type="button">
-                  <i class="fa-solid fa-link"></i> Link
-                </button>
-              </div>
-            </div>
-            <div class="mform-grupo">
-              <label>Título <span style="color:#c85028">*</span></label>
-              <input type="text" id="mMultiCerTitulo" placeholder="Nombre del recurso">
-            </div>
-            <div class="mform-grupo">
-              <label>Descripción</label>
-              <textarea id="mMultiCerDesc" rows="2" placeholder="Descripción breve"></textarea>
-            </div>
-            <div class="mform-grupo">
-              <label>URL <span style="color:#c85028">*</span></label>
-              <input type="url" id="mMultiCerUrl" placeholder="https://..." oninput="previewMultiCer()">
-            </div>
-            <div class="multimedia-video-preview" id="mMultiCerPreview" style="display:none"></div>
-            <div class="mform-grupo">
-              <label>URL de imagen/miniatura <small style="opacity:0.5">(opcional)</small></label>
-              <input type="url" id="mMultiCerFoto" placeholder="https://...">
-            </div>
-            <div class="mform-grupo">
-              <label>Visible para ceramistas</label>
-              <select id="mMultiCerPublicado">
-                <option value="true">✅ Sí, visible</option>
-                <option value="false">👁 Oculto</option>
-              </select>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn-cancelar" onclick="cerrarModalMultimediaCeramista()">Cancelar</button>
-            <button class="btn-guardar-modal" onclick="guardarMultimediaCeramista()">
-              <i class="fa-solid fa-floppy-disk"></i> Guardar
-            </button>
-          </div>
-        </div>
-      </div>
-
       <!-- SUSCRIPTORES -->
       <div class="seccion" id="seccion-suscriptores" style="display:none">
         <div class="seccion-header">
