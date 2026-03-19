@@ -309,3 +309,7 @@
   .material-fila{ grid-template-columns:1fr 80px 80px 28px; gap:6px; }
   .ganancia-wrapper{ flex-direction:column; align-items:flex-start; }
 }
+
+/* ── BOTÓN MI TALLER ── */
+.btn-taller{ margin-top:10px; width:100%; background:rgba(139,111,86,0.12); color:var(--color-primario); border:1.5px solid var(--color-primario); }
+.btn-taller:hover{ background:rgba(139,111,86,0.2); }
