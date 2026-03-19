@@ -121,6 +121,7 @@ async function cargarHistorial(){
 
     btnPDF.disabled = false
     document.getElementById('historialFiltros').style.display = 'flex'
+    document.getElementById('btnLimpiarTodo').style.display = 'flex'
     renderHistorial()
 
   } catch(e){
@@ -188,23 +189,83 @@ function renderHistorial(){
   })
 }
 
-async function borrarItemTaller(id){
-  if(!confirm('¿Eliminar este cálculo del historial?')) return
-  try {
-    const res  = await fetch(API, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'eliminarHistorialTaller', id, ceramistaId: sesion.id })
-    })
-    const data = await res.json()
-    if(data.ok){
-      historialData = historialData.filter(i => i.id !== id)
-      renderHistorial()
-      if(!historialData.length){
-        document.getElementById('btnHistorialPDF').disabled = true
-        document.getElementById('historialFiltros').style.display = 'none'
-      }
+function borrarItemTaller(id){
+  abrirModalConfirm(
+    '¿Eliminar este cálculo?',
+    'Esta acción no se puede deshacer.',
+    async () => {
+      try {
+        const res  = await fetch(API, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'eliminarHistorialTaller', id, ceramistaId: sesion.id })
+        })
+        const data = await res.json()
+        if(data.ok){
+          historialData = historialData.filter(i => i.id !== id)
+          renderHistorial()
+          if(!historialData.length){
+            document.getElementById('btnHistorialPDF').disabled = true
+            document.getElementById('historialFiltros').style.display = 'none'
+          }
+        }
+      } catch(e){ console.error(e) }
     }
-  } catch(e){ console.error(e) }
+  )
+}
+
+function pedirLimpiarTodo(){
+  abrirModalConfirm(
+    '🗑 ¿Eliminar todo el historial?',
+    'Se van a borrar todos los cálculos guardados. Esta acción no se puede deshacer.',
+    async () => {
+      const ids = [...historialData.map(i => i.id)]
+      for(const id of ids){
+        try {
+          await fetch(API, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'eliminarHistorialTaller', id, ceramistaId: sesion.id })
+          })
+        } catch(e){}
+      }
+      historialData = []
+      renderHistorial()
+      document.getElementById('btnHistorialPDF').disabled = true
+      document.getElementById('historialFiltros').style.display = 'none'
+    }
+  )
+}
+
+// ── MODAL DE CONFIRMACIÓN PROPIO ──
+function abrirModalConfirm(titulo, texto, accion){
+  // Crear modal si no existe
+  let overlay = document.getElementById('tallerModalOverlay')
+  if(!overlay){
+    overlay = document.createElement('div')
+    overlay.id = 'tallerModalOverlay'
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px'
+    overlay.innerHTML = `
+      <div style="background:var(--color-superficie);border-radius:16px;padding:0;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);overflow:hidden">
+        <div style="padding:20px 20px 0">
+          <h3 id="tallerModalTitulo" style="font-size:16px;margin:0 0 10px"></h3>
+          <p id="tallerModalTexto" style="font-size:14px;margin:0;opacity:0.75;line-height:1.5"></p>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;padding:20px">
+          <button onclick="cerrarModalConfirm()" style="padding:9px 18px;border-radius:20px;border:1.5px solid #d8cfc4;background:transparent;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;color:var(--color-texto)">Cancelar</button>
+          <button id="tallerModalConfirmar" style="padding:9px 18px;border-radius:20px;border:none;background:#c85028;color:white;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer">Eliminar</button>
+        </div>
+      </div>`
+    document.body.appendChild(overlay)
+    overlay.addEventListener('click', e => { if(e.target === overlay) cerrarModalConfirm() })
+  }
+  document.getElementById('tallerModalTitulo').innerText = titulo
+  document.getElementById('tallerModalTexto').innerText  = texto
+  document.getElementById('tallerModalConfirmar').onclick = () => { cerrarModalConfirm(); accion() }
+  overlay.style.display = 'flex'
+}
+
+function cerrarModalConfirm(){
+  const overlay = document.getElementById('tallerModalOverlay')
+  if(overlay) overlay.style.display = 'none'
 }
 
 function renderDatosCard(calc, datos){
