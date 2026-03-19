@@ -106,6 +106,8 @@ async function cargarSeccion(nombre){
   if(nombre === 'suscriptores') { await cargarSuscriptores(); return }
   if(nombre === 'emails')       { await cargarEmails();       return }
   if(nombre === 'pastas')       { await cargarPastas();       return }
+  if(nombre === 'apuntes_ceramistas')    { await cargarSeccionCeramista('apuntes_ceramistas');    return }
+  if(nombre === 'multimedia_ceramistas') { await cargarSeccionCeramista('multimedia_ceramistas'); return }
 
   const grid    = document.getElementById('grid-' + nombre)
   const loading = document.getElementById('loading-' + nombre)
@@ -2967,4 +2969,297 @@ function ejecutarModalConfirmarAccion(){
   document.getElementById('modalConfirmarAccion').style.display = 'none'
   _accionConfirmarModal = null
   if(cb) cb()
+}
+
+// ─────────────────────────────────────────────
+// APUNTES Y MULTIMEDIA CERAMISTAS
+// ─────────────────────────────────────────────
+
+async function cargarSeccionCeramista(hoja){
+  const grid    = document.getElementById('grid-' + hoja)
+  const loading = document.getElementById('loading-' + hoja)
+  if(!grid) return
+  if(cache[hoja]){ renderGridCeramista(hoja, cache[hoja]); return }
+  if(loading) loading.style.display = 'block'
+  grid.innerHTML = ''
+  try {
+    const sesion = getSesion()
+    const action = hoja === 'apuntes_ceramistas' ? 'getApuntesCeramistaAdmin' : 'getMultimediaCeramistaAdmin'
+    const res    = await fetch(`${API}?action=${action}&token=${encodeURIComponent(sesion.token)}`)
+    const data   = await res.json()
+    cache[hoja]  = data.data || []
+    renderGridCeramista(hoja, cache[hoja])
+    armarFiltrosAdmin(hoja, cache[hoja])
+  } catch(e) {
+    if(grid) grid.innerHTML = '<p style="opacity:0.5;padding:20px;grid-column:1/-1">Error al cargar.</p>'
+  }
+  if(loading) loading.style.display = 'none'
+}
+
+function renderGridCeramista(hoja, items){
+  const esApuntes = hoja === 'apuntes_ceramistas'
+  const grid      = document.getElementById('grid-' + hoja)
+  if(!grid) return
+
+  // Aplicar filtros existentes
+  const busq     = (document.getElementById('buscar-' + hoja)?.value || '').toLowerCase()
+  const pubFiltro= filtroPublicadoActual[hoja] || 'todos'
+  let   filtrados = items.filter(i => {
+    const matchBusq = !busq || (i.titulo||'').toLowerCase().includes(busq)
+    const pub = i.publicado === true || i.publicado === 'TRUE' || i.publicado === 'true'
+    const matchPub  = pubFiltro === 'todos' || (pubFiltro === 'publicado' ? pub : !pub)
+    return matchBusq && matchPub
+  })
+
+  if(filtrados.length === 0){
+    grid.innerHTML = '<p style="opacity:0.5;padding:20px;grid-column:1/-1">No hay items en esta categoría.</p>'
+    return
+  }
+
+  if(esApuntes){
+    grid.innerHTML = ''
+    filtrados.forEach(item => {
+      const pub  = item.publicado === true || item.publicado === 'TRUE' || item.publicado === 'true'
+      const card = document.createElement('div')
+      card.className = 'item-card'
+      card.innerHTML = `
+        <div class="item-card-foto">
+          ${item.miniatura
+            ? `<img src="${item.miniatura}" alt="${item.titulo}" loading="lazy">`
+            : `<div class="item-foto-placeholder"><i class="fa-solid fa-file-pdf"></i></div>`}
+        </div>
+        <div class="item-info">
+          <div class="item-nombre">${item.titulo || 'Sin título'}</div>
+          ${item.descripcion ? `<div class="item-meta">${item.descripcion}</div>` : ''}
+          ${item.archivoUrl ? `<a href="${item.archivoUrl}" target="_blank" class="item-meta" style="color:var(--color-primario)"><i class="fa-solid fa-link"></i> Ver PDF</a>` : ''}
+          <div class="item-acciones">
+            <span class="estado-badge ${pub ? 'activo' : 'pausado'}">${pub ? 'Visible' : 'Oculto'}</span>
+            <button class="btn-editar-item" onclick="editarApunteCeramista('${item.id}')"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn-eliminar-item" onclick="eliminarApunteCeramista('${item.id}')"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>`
+      grid.appendChild(card)
+    })
+  } else {
+    // Multimedia ceramistas — usa el mismo grid de multimedia
+    grid.innerHTML = ''
+    filtrados.forEach(item => {
+      const pub = item.publicado === true || item.publicado === 'TRUE' || item.publicado === 'true'
+      const div = document.createElement('div')
+      div.className = 'multimedia-admin-item'
+      const esVideo = item.tipo === 'video'
+      div.innerHTML = `
+        <div class="multimedia-admin-thumb">
+          ${item.foto
+            ? `<img src="${item.foto}" alt="${item.titulo}" loading="lazy">`
+            : `<div class="multimedia-thumb-placeholder"><i class="fa-solid ${esVideo ? 'fa-play-circle' : 'fa-link'}"></i></div>`}
+        </div>
+        <div class="multimedia-admin-info">
+          <div class="multimedia-admin-titulo">${item.titulo || 'Sin título'}</div>
+          ${item.descripcion ? `<div class="multimedia-admin-meta">${item.descripcion}</div>` : ''}
+          ${item.url ? `<a href="${item.url}" target="_blank" class="multimedia-admin-meta" style="color:var(--color-primario)"><i class="fa-solid fa-external-link-alt"></i> Ver</a>` : ''}
+          <div class="item-acciones" style="margin-top:8px">
+            <span class="estado-badge ${pub ? 'activo' : 'pausado'}">${pub ? 'Visible' : 'Oculto'}</span>
+            <button class="btn-editar-item" onclick="editarMultimediaCeramista('${item.id}')"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn-eliminar-item" onclick="eliminarMultimediaCeramista('${item.id}')"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>`
+      grid.appendChild(div)
+    })
+  }
+}
+
+// ── APUNTES CERAMISTAS ──
+let apunteCerEditandoId = null
+let multiCerTipoActual  = 'video'
+
+function abrirModalApunteCeramista(id){
+  apunteCerEditandoId = id || null
+  document.getElementById('tituloModalApunteCer').innerText = id ? 'Editar recurso' : 'Nuevo recurso ceramista'
+  if(!id){
+    document.getElementById('mApunteCerId').value       = ''
+    document.getElementById('mApunteCerTitulo').value   = ''
+    document.getElementById('mApunteCerDesc').value     = ''
+    document.getElementById('mApunteCerUrl').value      = ''
+    document.getElementById('mApunteCerMini').value     = ''
+    document.getElementById('mApunteCerPublicado').value= 'true'
+  } else {
+    const item = (cache['apuntes_ceramistas'] || []).find(i => i.id === id)
+    if(item){
+      document.getElementById('mApunteCerId').value       = item.id
+      document.getElementById('mApunteCerTitulo').value   = item.titulo      || ''
+      document.getElementById('mApunteCerDesc').value     = item.descripcion || ''
+      document.getElementById('mApunteCerUrl').value      = item.archivoUrl  || ''
+      document.getElementById('mApunteCerMini').value     = item.miniatura   || ''
+      const pub = item.publicado === true || item.publicado === 'TRUE' || item.publicado === 'true'
+      document.getElementById('mApunteCerPublicado').value = pub ? 'true' : 'false'
+    }
+  }
+  document.getElementById('modalApunteCeramista').style.display = 'flex'
+}
+
+function editarApunteCeramista(id){ abrirModalApunteCeramista(id) }
+
+function cerrarModalApunteCeramista(e){
+  if(e && e.target !== document.getElementById('modalApunteCeramista')) return
+  document.getElementById('modalApunteCeramista').style.display = 'none'
+}
+
+async function guardarApunteCeramista(){
+  const titulo = document.getElementById('mApunteCerTitulo').value.trim()
+  const url    = document.getElementById('mApunteCerUrl').value.trim()
+  if(!titulo || !url){ toast('⚠️ Completá título y URL', 'err'); return }
+
+  const sesion = getSesion()
+  const fila   = {
+    id:          apunteCerEditandoId || 'ACE-' + Date.now(),
+    titulo,
+    descripcion: document.getElementById('mApunteCerDesc').value.trim(),
+    archivoUrl:  url,
+    miniatura:   document.getElementById('mApunteCerMini').value.trim(),
+    publicado:   document.getElementById('mApunteCerPublicado').value,
+    creadoEn:    apunteCerEditandoId ? undefined : new Date().toLocaleDateString('es-AR')
+  }
+
+  try {
+    const res  = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'guardarApunteCeramista', fila, token: sesion.token })
+    })
+    const data = await res.json()
+    if(data.ok){
+      delete cache['apuntes_ceramistas']
+      document.getElementById('modalApunteCeramista').style.display = 'none'
+      await cargarSeccionCeramista('apuntes_ceramistas')
+      toast(apunteCerEditandoId ? '✅ Recurso actualizado' : '✅ Recurso agregado', 'ok')
+    } else { toast('❌ Error al guardar', 'err') }
+  } catch(e){ toast('❌ Error de conexión', 'err') }
+}
+
+function eliminarApunteCeramista(id){
+  abrirModalConfirmarAccion('¿Eliminar este recurso?', 'Esta acción no se puede deshacer.', async () => {
+    try {
+      const sesion = getSesion()
+      const res    = await fetch(API, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'eliminarApunteCeramista', id, token: sesion.token })
+      })
+      const data = await res.json()
+      if(data.ok){
+        delete cache['apuntes_ceramistas']
+        await cargarSeccionCeramista('apuntes_ceramistas')
+        toast('🗑 Recurso eliminado', 'ok')
+      }
+    } catch(e){ toast('❌ Error', 'err') }
+  })
+}
+
+// ── MULTIMEDIA CERAMISTAS ──
+let multiCerEditandoId = null
+
+function setMultiCerTipo(tipo, btn){
+  multiCerTipoActual = tipo
+  document.querySelectorAll('#modalMultimediaCeramista .mtipo-btn').forEach(b => b.classList.remove('activo'))
+  btn.classList.add('activo')
+  previewMultiCer()
+}
+
+function previewMultiCer(){
+  const url     = document.getElementById('mMultiCerUrl').value.trim()
+  const preview = document.getElementById('mMultiCerPreview')
+  if(!url || multiCerTipoActual !== 'video'){ preview.style.display = 'none'; return }
+  let embedUrl = url
+  const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&\s]+)/)
+  if(ytMatch) embedUrl = `https://www.youtube.com/embed/${ytMatch[1]}`
+  preview.style.display = 'block'
+  preview.innerHTML = `<iframe src="${embedUrl}" frameborder="0" allowfullscreen style="width:100%;aspect-ratio:16/9;border-radius:8px"></iframe>`
+}
+
+function abrirModalMultimediaCeramista(id){
+  multiCerEditandoId = id || null
+  document.getElementById('tituloModalMultiCer').innerText = id ? 'Editar multimedia' : 'Agregar multimedia ceramista'
+  if(!id){
+    document.getElementById('mMultiCerId').value        = ''
+    document.getElementById('mMultiCerTitulo').value    = ''
+    document.getElementById('mMultiCerDesc').value      = ''
+    document.getElementById('mMultiCerUrl').value       = ''
+    document.getElementById('mMultiCerFoto').value      = ''
+    document.getElementById('mMultiCerPublicado').value = 'true'
+    document.getElementById('mMultiCerPreview').style.display = 'none'
+    setMultiCerTipo('video', document.getElementById('mcerTipoVideo'))
+  } else {
+    const item = (cache['multimedia_ceramistas'] || []).find(i => i.id === id)
+    if(item){
+      document.getElementById('mMultiCerId').value        = item.id
+      document.getElementById('mMultiCerTitulo').value    = item.titulo      || ''
+      document.getElementById('mMultiCerDesc').value      = item.descripcion || ''
+      document.getElementById('mMultiCerUrl').value       = item.url         || ''
+      document.getElementById('mMultiCerFoto').value      = item.foto        || ''
+      const pub = item.publicado === true || item.publicado === 'TRUE' || item.publicado === 'true'
+      document.getElementById('mMultiCerPublicado').value = pub ? 'true' : 'false'
+      const tipo = item.tipo || 'video'
+      multiCerTipoActual = tipo
+      const btnTipo = document.getElementById(tipo === 'video' ? 'mcerTipoVideo' : 'mcerTipoLink')
+      if(btnTipo) setMultiCerTipo(tipo, btnTipo)
+      previewMultiCer()
+    }
+  }
+  document.getElementById('modalMultimediaCeramista').style.display = 'flex'
+}
+
+function editarMultimediaCeramista(id){ abrirModalMultimediaCeramista(id) }
+
+function cerrarModalMultimediaCeramista(e){
+  if(e && e.target !== document.getElementById('modalMultimediaCeramista')) return
+  document.getElementById('modalMultimediaCeramista').style.display = 'none'
+}
+
+async function guardarMultimediaCeramista(){
+  const titulo = document.getElementById('mMultiCerTitulo').value.trim()
+  const url    = document.getElementById('mMultiCerUrl').value.trim()
+  if(!titulo || !url){ toast('⚠️ Completá título y URL', 'err'); return }
+
+  const sesion = getSesion()
+  const fila   = {
+    id:          multiCerEditandoId || 'MCE-' + Date.now(),
+    tipo:        multiCerTipoActual,
+    titulo,
+    descripcion: document.getElementById('mMultiCerDesc').value.trim(),
+    url,
+    foto:        document.getElementById('mMultiCerFoto').value.trim(),
+    publicado:   document.getElementById('mMultiCerPublicado').value,
+    creadoEn:    multiCerEditandoId ? undefined : new Date().toLocaleDateString('es-AR')
+  }
+
+  try {
+    const res  = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'guardarMultimediaCeramista', fila, token: sesion.token })
+    })
+    const data = await res.json()
+    if(data.ok){
+      delete cache['multimedia_ceramistas']
+      document.getElementById('modalMultimediaCeramista').style.display = 'none'
+      await cargarSeccionCeramista('multimedia_ceramistas')
+      toast(multiCerEditandoId ? '✅ Actualizado' : '✅ Multimedia agregada', 'ok')
+    } else { toast('❌ Error al guardar', 'err') }
+  } catch(e){ toast('❌ Error de conexión', 'err') }
+}
+
+function eliminarMultimediaCeramista(id){
+  abrirModalConfirmarAccion('¿Eliminar este item?', 'Esta acción no se puede deshacer.', async () => {
+    try {
+      const sesion = getSesion()
+      const res    = await fetch(API, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'eliminarMultimediaCeramista', id, token: sesion.token })
+      })
+      const data = await res.json()
+      if(data.ok){
+        delete cache['multimedia_ceramistas']
+        await cargarSeccionCeramista('multimedia_ceramistas')
+        toast('🗑 Eliminado', 'ok')
+      }
+    } catch(e){ toast('❌ Error', 'err') }
+  })
 }
