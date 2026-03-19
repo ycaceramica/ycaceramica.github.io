@@ -9,7 +9,17 @@
   // Leer sesión del localStorage
   var sesion = null
   try {
+    // Primero intentar del localStorage (si ya visitó mi-taller)
     sesion = JSON.parse(localStorage.getItem('ceramista_sesion') || 'null')
+    // Si no hay, intentar del sessionStorage (login reciente)
+    if(!sesion || !sesion.token) {
+      var sesionCompleta = JSON.parse(sessionStorage.getItem('yca_sesion') || 'null')
+      if(sesionCompleta && sesionCompleta.rol === 'ceramista') {
+        sesion = { token: sesionCompleta.token, nombre: sesionCompleta.nombre, id: sesionCompleta.id }
+        // Sincronizar al localStorage para que las calculadoras lo encuentren
+        localStorage.setItem('ceramista_sesion', JSON.stringify(sesion))
+      }
+    }
   } catch(e) {}
 
   if(!sesion || !sesion.token){
