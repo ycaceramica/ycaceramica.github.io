@@ -179,12 +179,32 @@ function renderHistorial(){
       <div class="htcard-header">
         <span class="htcard-calc">${label.emoji} ${label.nombre}</span>
         <span class="htcard-fecha">${formatFecha(item.fecha)}</span>
+        <button class="htcard-borrar" onclick="borrarItemTaller('${item.id}')" title="Eliminar">✕</button>
       </div>
       <div class="htcard-nombre">${item.nombre || 'Sin nombre'}</div>
       <div class="htcard-datos">${renderDatosCard(item.calculadora, datos)}</div>
     `
     grid.appendChild(card)
   })
+}
+
+async function borrarItemTaller(id){
+  if(!confirm('¿Eliminar este cálculo del historial?')) return
+  try {
+    const res  = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'eliminarHistorialTaller', id, ceramistaId: sesion.id })
+    })
+    const data = await res.json()
+    if(data.ok){
+      historialData = historialData.filter(i => i.id !== id)
+      renderHistorial()
+      if(!historialData.length){
+        document.getElementById('btnHistorialPDF').disabled = true
+        document.getElementById('historialFiltros').style.display = 'none'
+      }
+    }
+  } catch(e){ console.error(e) }
 }
 
 function renderDatosCard(calc, datos){
@@ -194,7 +214,7 @@ function renderDatosCard(calc, datos){
     return `
       <div class="htcard-chip">Agua: ${datos.agua || '—'}</div>
       <div class="htcard-chip">Yeso: ${datos.yeso || '—'}</div>
-      ${datos.tipo ? `<div class="htcard-chip">${datos.tipo}</div>` : ''}`
+      ${datos.tipo ? `<div class="htcard-chip">${datos.tipo[0].toUpperCase() + datos.tipo.slice(1)}</div>` : ''}`
   }
   if(calc === 'engobes'){
     return `
@@ -419,7 +439,7 @@ async function descargarHistorialPDF(){
 
 function generarResumenPDF(calc, datos){
   if(!datos) return ''
-  if(calc === 'yeso')        return `Agua: ${datos.agua || '—'}  |  Yeso: ${datos.yeso || '—'}  |  ${datos.tipo || ''}`
+  if(calc === 'yeso'){        const tipo = datos.tipo ? datos.tipo[0].toUpperCase() + datos.tipo.slice(1) : ''; return `Agua: ${datos.agua || '—'}  |  Yeso: ${datos.yeso || '—'}  |  ${tipo}` }
   if(calc === 'engobes')     return `Total: ${datos.total || '—'}g  |  ${datos.tipo || ''}`
   if(calc === 'contraccion') return `Modo: ${datos.modo || '—'}  |  Contracción: ${datos.contraccion || '—'}%`
   if(calc === 'costos')      return `Costo total: $${datos.costoTotal || '—'}  |  Precio sugerido: $${datos.precioVenta || '—'}`
