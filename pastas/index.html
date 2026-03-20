@@ -73,6 +73,24 @@
         <p>Cargando pastas...</p>
       </div>
       <div class="pastas-grid" id="pastasGrid"></div>
+
+      <!-- HISTORIAL DEL CATÁLOGO -->
+      <div id="historialCatalogoPanel" style="margin-top:32px">
+        <div class="historial-header">
+          <h3 class="historial-titulo">📋 Mis cálculos</h3>
+          <div class="historial-acciones">
+            <button class="btn-pdf" id="btnPDFCatalogo" onclick="descargarPDFCatalogo()" disabled>
+              <i class="fa-solid fa-file-pdf"></i> PDF
+            </button>
+            <button class="btn-limpiar" id="btnLimpiarCatalogo" onclick="limpiarHistorialCatalogo()" style="display:none">
+              <i class="fa-solid fa-trash"></i> Limpiar
+            </button>
+          </div>
+        </div>
+        <div id="historialCatalogoLista">
+          <p class="historial-vacio">Calculá una pasta para verla aquí.</p>
+        </div>
+      </div>
     </div>
 
     <!-- TAB CALCULADORA LIBRE -->
