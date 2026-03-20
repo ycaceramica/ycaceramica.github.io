@@ -198,8 +198,8 @@ function ordenarItems(items, orden, hoja){
     // Para catálogos públicos ordenar por categoría + nombre
     const catA = (a.categoria || '').toLowerCase()
     const catB = (b.categoria || '').toLowerCase()
-    const nomA = (a.nombre || a.titulo || '').toLowerCase()
-    const nomB = (b.nombre || b.titulo || '').toLowerCase()
+    const nomA = String(a.nombre || a.titulo || '').toLowerCase()
+    const nomB = String(b.nombre || b.titulo || '').toLowerCase()
     if(catA !== catB) return catA < catB ? -1 : 1
     if(orden === 'za') return nomA < nomB ? 1 : -1
     return nomA < nomB ? -1 : 1
