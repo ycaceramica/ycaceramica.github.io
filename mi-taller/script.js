@@ -468,45 +468,208 @@ async function descargarHistorialPDF(){
   doc.text(`Generado: ${new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'})}`,W-m,36,{align:'right'})
   y=50
 
-  items.forEach((item, idx) => {
-    const label = CALC_LABELS[item.calculadora] || { emoji:'📋', nombre: item.calculadora || 'Calculo', pdfNombre: item.calculadora || 'Calculo' }
+  for(const item of items){
     let datos = {}
     try { datos = JSON.parse(item.datos || '{}') } catch(e){}
-
-    const h = 28
-    if(y+h > 272){ doc.addPage(); y=20 }
-
-    doc.setFillColor(...GRIS); doc.roundedRect(m,y,W-m*2,h,4,4,'F')
-    doc.setTextColor(...NEGRO); doc.setFontSize(11); doc.setFont('helvetica','bold')
-    doc.text(`${label.pdfNombre} — ${item.nombre || 'Sin nombre'}`,m+5,y+9)
-    doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(120,110,100)
-    doc.text(formatFecha(item.fecha) || '',W-m-5,y+9,{align:'right'})
-
-    // Datos resumidos
-    const resumen = generarResumenPDF(item.calculadora, datos)
-    doc.setTextColor(...NEGRO); doc.setFontSize(9); doc.setFont('helvetica','normal')
-    doc.text(resumen, m+5, y+18)
-
-    y += h+6
-  })
+    y = await renderItemPDF(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
+  }
 
   // Footer
   doc.setFillColor(...GRIS); doc.rect(0,287,W,10,'F')
   doc.setTextColor(160,150,140); doc.setFontSize(7); doc.setFont('helvetica','normal')
   doc.text('ycaceramica.github.io  |  YCA Ceramica © 2026',W/2,293,{align:'center'})
-
   doc.save('YCA_MiTaller_Historial.pdf')
 }
 
-function generarResumenPDF(calc, datos){
-  if(!datos) return ''
-  if(calc === 'yeso'){        const tipo = datos.tipo ? datos.tipo[0].toUpperCase() + datos.tipo.slice(1) : ''; return `Agua: ${datos.agua || '—'}  |  Yeso: ${datos.yeso || '—'}  |  ${tipo}` }
-  if(calc === 'engobes')     return `Total: ${datos.total || '—'}g  |  ${datos.tipo || ''}`
-  if(calc === 'contraccion') return `Modo: ${datos.modo || '—'}  |  Contracción: ${datos.contraccion || '—'}%`
-  if(calc === 'costos')      return `Costo total: $${datos.costoTotal || '—'}  |  Precio sugerido: $${datos.precioVenta || '—'}`
-  if(calc === 'pastas'){
-    const comps = datos.componentes || []
-    return comps.slice(0,4).map(c => `${c.nombre}: ${c.porcentaje}%`).join('  |  ')
+
+
+// ─────────────────────────────────────────────
+// RENDER PDF POR CALCULADORA
+// ─────────────────────────────────────────────
+
+async function renderItemPDF(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO){
+  if(item.calculadora === 'yeso')        return renderPDF_Yeso(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
+  if(item.calculadora === 'contraccion') return renderPDF_Contraccion(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
+  if(item.calculadora === 'costos')      return renderPDF_Costos(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
+  if(item.calculadora === 'engobes')     return renderPDF_Engobes(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
+  if(item.calculadora === 'pastas')      return renderPDF_Pastas(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
+  // Fallback
+  const h = 20
+  if(y+h > 272){ doc.addPage(); y=20 }
+  doc.setFillColor(...GRIS); doc.roundedRect(m,y,W-m*2,h,4,4,'F')
+  doc.setTextColor(...NEGRO); doc.setFontSize(11); doc.setFont('helvetica','bold')
+  doc.text(item.nombre || 'Sin nombre', m+5, y+9)
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(120,110,100)
+  doc.text(formatFecha(item.fecha)||'', W-m-5, y+9, {align:'right'})
+  return y + h + 6
+}
+
+// ── 1. YESO ───────────────────────────────────
+function renderPDF_Yeso(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO){
+  const h = 32
+  if(y+h > 272){ doc.addPage(); y=20 }
+  doc.setFillColor(...GRIS); doc.roundedRect(m,y,W-m*2,h,4,4,'F')
+
+  const tipoNombre = datos.tipo === 'rectangular' ? 'Rectangular' : datos.tipo === 'circular' ? 'Circular' : (datos.tipo||'')
+  const cantStr    = datos.cantidad ? `${datos.cantidad} molde${datos.cantidad>1?'s':''}` : ''
+  const propStr    = datos.proporcion ? `Proporcion ${datos.proporcion}%` : ''
+  const tituloStr  = [tipoNombre, cantStr, propStr].filter(Boolean).join(' · ')
+
+  doc.setTextColor(...NEGRO); doc.setFontSize(12); doc.setFont('helvetica','bold')
+  doc.text(tituloStr || item.nombre || 'Yeso', m+5, y+9)
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(120,110,100)
+  if(datos.detalle) doc.text(datos.detalle, m+5, y+15)
+  doc.text(formatFecha(item.fecha)||'', W-m-5, y+9, {align:'right'})
+
+  const colW = (W-m*2-6)/2
+  doc.setFillColor(...BLANCO); doc.roundedRect(m,y+18,colW,11,2,2,'F')
+  doc.setTextColor(120,110,100); doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.text('AGUA',m+8,y+23)
+  doc.setTextColor(...MARRON); doc.setFontSize(11); doc.text(`${datos.agua||'—'} ml`,m+24,y+23)
+
+  doc.setFillColor(...BLANCO); doc.roundedRect(m+colW+6,y+18,colW,11,2,2,'F')
+  doc.setTextColor(120,110,100); doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.text('YESO',m+colW+14,y+23)
+  doc.setTextColor(...MARRON); doc.setFontSize(11); doc.text(`${datos.yeso||'—'} g`,m+colW+30,y+23)
+
+  return y+h+6
+}
+
+// ── 2. CONTRACCION ────────────────────────────
+function renderPDF_Contraccion(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO){
+  const h = datos.modo === 'personalizado' ? 52 : 38
+  if(y+h > 272){ doc.addPage(); y=20 }
+  doc.setFillColor(...GRIS); doc.roundedRect(m,y,W-m*2,h,4,4,'F')
+
+  const titulo = datos.modo==='estandar' ? 'Estandar 10%'
+    : datos.modo==='personalizado' ? `Medicion · ${datos.arcilla||''}`
+    : `Perfil · ${datos.arcilla||''}`
+
+  doc.setTextColor(...NEGRO); doc.setFontSize(12); doc.setFont('helvetica','bold')
+  doc.text(titulo, m+5, y+9)
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(120,110,100)
+  doc.text(formatFecha(item.fecha)||'', W-m-5, y+9, {align:'right'})
+
+  const cw = (W-m*2-40)/3
+  const filas = datos.modo==='estandar'
+    ? [{l:'CRUDO',v:[datos.alto,datos.ancho,datos.prof]},{l:'BIZCOCHO',v:[datos.bizcAlto,datos.bizcAncho,datos.bizcProf]}]
+    : datos.modo==='personalizado'
+    ? [{l:'CUERO',v:[datos.cueroAlto,datos.cueroAncho,datos.cueroProf]},{l:'BIZCOCHO',v:[datos.bizcAlto,datos.bizcAncho,datos.bizcProf]},{l:'CONTRACCION',v:[(datos.contAlto||'')+'%',(datos.contAncho||'')+'%',(datos.contProf||'')+'%']}]
+    : [{l:'CRUDO',v:[datos.crudoAlto,datos.crudoAncho,datos.crudoProf]},{l:'BIZCOCHO',v:[datos.bizcAlto,datos.bizcAncho,datos.bizcProf]}]
+
+  filas.forEach((f,fi) => {
+    const fy = y+14+fi*12
+    if(fy+10 > y+h) return
+    doc.setTextColor(120,110,100); doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.text(f.l,m+4,fy+6)
+    f.v.forEach((v,vi) => {
+      const x = m+38+vi*(cw+4)
+      doc.setFillColor(...BLANCO); doc.roundedRect(x,fy,cw,9,2,2,'F')
+      doc.setTextColor(...MARRON); doc.setFontSize(9); doc.setFont('helvetica','normal')
+      const vStr = String(v||'—')
+      doc.text(vStr+(vStr.includes('%')?'':vStr!=='—'?' cm':''), x+4, fy+6)
+    })
+  })
+  return y+h+6
+}
+
+// ── 3. COSTOS ─────────────────────────────────
+function renderPDF_Costos(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO){
+  const fmt = v => v !== undefined && v !== null ? `$${Number(v).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2})}` : '$—'
+  const lineasMat = datos.materiales?.length || 0
+  const h = 44 + lineasMat*8 + 14
+  if(y+h > 272){ doc.addPage(); y=20 }
+  doc.setFillColor(...GRIS); doc.roundedRect(m,y,W-m*2,h,4,4,'F')
+
+  doc.setTextColor(...NEGRO); doc.setFontSize(12); doc.setFont('helvetica','bold')
+  doc.text(datos.nombre || item.nombre || 'Sin nombre', m+5, y+9)
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(120,110,100)
+  doc.text(formatFecha(item.fecha)||'', W-m-5, y+9, {align:'right'})
+
+  let fy = y+16
+  if(datos.materiales?.length){
+    datos.materiales.forEach(mat => {
+      doc.setTextColor(...NEGRO); doc.setFontSize(8); doc.setFont('helvetica','normal')
+      doc.text(`· ${mat.nombre||'Material'} (${mat.cantidad} × $${mat.precio})`, m+6, fy+5)
+      doc.text(fmt(mat.subtotal), W-m-5, fy+5, {align:'right'})
+      fy+=8
+    })
   }
-  return ''
+  doc.setDrawColor(...MARRON); doc.setLineWidth(0.2); doc.line(m+4,fy,W-m-4,fy); fy+=6
+
+  const filas = [
+    ['Materiales', fmt(datos.materiales?.reduce((s,mt)=>s+(mt.subtotal||0),0)||0)],
+    ['Horas de trabajo', fmt(datos.totalHoras||0)],
+    ['Costos fijos', fmt(datos.fijos||0)],
+    ['Costo total', fmt(datos.costoTotal)]
+  ]
+  filas.forEach(([label,val]) => {
+    doc.setTextColor(...NEGRO); doc.setFontSize(8); doc.setFont('helvetica','normal')
+    doc.text(label, m+6, fy+4)
+    if(label==='Costo total') doc.setFont('helvetica','bold')
+    doc.text(val, W-m-5, fy+4, {align:'right'})
+    fy+=7
+  })
+  doc.setFillColor(...MARRON); doc.roundedRect(m+4,fy,W-m*2-8,12,3,3,'F')
+  doc.setTextColor(...BLANCO); doc.setFontSize(9); doc.setFont('helvetica','bold')
+  doc.text(`Precio sugerido (${datos.ganancia||0}% ganancia)`, m+8, fy+8)
+  doc.text(fmt(datos.precioVenta), W-m-8, fy+8, {align:'right'})
+  return y+h+6
+}
+
+// ── 4. ENGOBES ────────────────────────────────
+function renderPDF_Engobes(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO){
+  const comps = datos.componentes || []
+  const h     = 16 + 24 + 12
+  if(y+h > 272){ doc.addPage(); y=20 }
+  doc.setFillColor(...GRIS); doc.roundedRect(m,y,W-m*2,h,4,4,'F')
+
+  doc.setTextColor(...NEGRO); doc.setFontSize(13); doc.setFont('helvetica','bold')
+  doc.text(datos.nombre || item.nombre || 'Sin nombre', m+5, y+9)
+  const tipo = datos.tipo==='oxido' ? 'Oxidos' : 'Pigmentos'
+  doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(120,110,100)
+  doc.text(`${tipo}  |  ${datos.total||0}g totales`, m+5, y+15)
+  doc.text(formatFecha(item.fecha)||'', W-m-5, y+9, {align:'right'})
+
+  if(comps.length){
+    const n   = Math.min(comps.length, 6)
+    const colW = (W-m*2-(n-1)*3)/n
+    comps.slice(0,n).forEach((c,ci) => {
+      const x  = m+ci*(colW+3)
+      const cy = y+20
+      doc.setFillColor(...BLANCO); doc.roundedRect(x,cy,colW,14,2,2,'F')
+      const cx = x+colW/2
+      doc.setTextColor(120,110,100); doc.setFontSize(6.5); doc.setFont('helvetica','bold')
+      doc.text((c.nombre||'').toUpperCase(), cx, cy+4.5, {align:'center'})
+      doc.setTextColor(...MARRON); doc.setFontSize(11); doc.setFont('helvetica','bold')
+      doc.text(`${c.gramos||0}g`, cx, cy+10, {align:'center'})
+      doc.setTextColor(160,150,140); doc.setFontSize(6.5); doc.setFont('helvetica','normal')
+      doc.text(`${c.pct||0}%`, cx, cy+13.5, {align:'center'})
+    })
+  }
+  return y+h+6
+}
+
+// ── 5. PASTAS ─────────────────────────────────
+function renderPDF_Pastas(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO){
+  const comps = datos.componentes || []
+  const h     = 24 + comps.length*9 + 12
+  if(y+h > 272){ doc.addPage(); y=20 }
+  doc.setFillColor(...GRIS); doc.roundedRect(m,y,W-m*2,h,4,4,'F')
+
+  doc.setTextColor(...NEGRO); doc.setFontSize(12); doc.setFont('helvetica','bold')
+  doc.text(datos.nombre || item.nombre || 'Sin nombre', m+5, y+9)
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(120,110,100)
+  doc.text(`${datos.gramos||0}g totales · ${formatFecha(item.fecha)||''}`, W-m-5, y+9, {align:'right'})
+
+  const cw = (W-m*2-10)/3
+  doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(120,110,100)
+  doc.text('INGREDIENTE',m+4,y+16); doc.text('%',m+4+cw,y+16); doc.text('GRAMOS',m+4+cw*2,y+16)
+
+  comps.forEach((c,ci) => {
+    const fy = y+22+ci*9
+    doc.setTextColor(...NEGRO); doc.setFontSize(9); doc.setFont('helvetica','normal')
+    doc.text(c.nombre||'', m+4, fy)
+    doc.setTextColor(...MARRON); doc.setFont('helvetica','bold')
+    doc.text(`${c.porcentaje||0}%`, m+4+cw, fy)
+    doc.text(`${c.gramos||0}g`, m+4+cw*2, fy)
+  })
+  return y+h+6
 }
