@@ -3095,7 +3095,7 @@ function renderGridCeramistaMul(hoja, items){
   const grid = document.getElementById('grid-' + hoja)
   if(!grid) return
   const busq      = (document.getElementById('buscar-' + hoja)?.value || '').toLowerCase()
-  const pubFiltro = filtroPublicadoActual[hoja] || 'todos'
+  const pubFiltro = (filtroPubActivo[hoja] || 'todos')
   const filtrados = items.filter(i => {
     const matchBusq = !busq || (i.titulo||'').toLowerCase().includes(busq)
     const pub = i.publicado === true || i.publicado === 'TRUE' || i.publicado === 'true'
