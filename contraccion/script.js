@@ -423,7 +423,11 @@ function guardarEnTaller(){
         [idKey]: userId,
         item: {
           calculadora: "contraccion",
-          nombre:      item.nombre || item.arcilla || item.tipo || "Cálculo",
+          nombre:      item.modo === "estandar"
+            ? `Estándar ${item.alto}×${item.ancho}×${item.prof} cm`
+            : item.modo === "personalizado"
+              ? `${item.arcilla || "Personalizado"} ${item.cueroAlto}×${item.cueroAncho}×${item.cueroProf}`
+              : `Perfil ${item.arcilla || ""} ${item.crudoAlto}×${item.crudoAncho}×${item.crudoProf}`,
           datos:       item
         }
       })
