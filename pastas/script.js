@@ -509,7 +509,7 @@ function guardarEnTaller(){
     const esCeramista = ceramista && ceramista.token
     const esAlumno    = !esCeramista && alumno && alumno.rol === 'alumno' && alumno.token
     if(!esCeramista && !esAlumno){
-      mostrarModal({ titulo:"👤 Iniciá sesión", texto:"Iniciá sesión para guardar tus cálculos en tu cuenta.", confirmar:"Entendido", cancelar:false })
+      mostrarModal({ titulo:"👤 Iniciá sesión", texto:"Iniciá sesión para guardar tus cálculos.", confirmar:"Entendido", cancelar:false })
       return
     }
     const hist = JSON.parse(localStorage.getItem("pastas_historial") || "[]")
@@ -524,23 +524,12 @@ function guardarEnTaller(){
     const destino = esCeramista ? "mi taller" : "mi cuenta"
     fetch("https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec", {
       method: "POST",
-      body: JSON.stringify({
-        action,
-        [idKey]: userId,
-        item: {
-          calculadora: "pastas",
-          nombre:      item.nombre || item.arcilla || item.tipo || "Cálculo",
-          datos:       item
-        }
-      })
+      body: JSON.stringify({ action, [idKey]: userId, item: { calculadora: "pastas", nombre: item.nombre || item.arcilla || item.tipo || "Cálculo", datos: item } })
     }).then(r => r.json()).then(data => {
-      if(data.ok){
-        mostrarModal({ titulo:"✅ Guardado en " + destino, texto:"El cálculo fue sincronizado con tu cuenta.", confirmar:"¡Genial!", cancelar:false })
-      } else {
-        mostrarModal({ titulo:"❌ Error", texto:"No se pudo guardar. Intentá de nuevo.", confirmar:"Entendido", cancelar:false })
-      }
+      if(data.ok) mostrarModal({ titulo:"✅ Guardado en " + destino, texto:"Sincronizado con tu cuenta.", confirmar:"¡Genial!", cancelar:false })
+      else        mostrarModal({ titulo:"❌ Error", texto:"No se pudo guardar.", confirmar:"Entendido", cancelar:false })
     }).catch(() => {
-      mostrarModal({ titulo:"❌ Sin conexión", texto:"No se pudo guardar. Revisá tu conexión.", confirmar:"Entendido", cancelar:false })
+      mostrarModal({ titulo:"❌ Sin conexión", texto:"Revisá tu conexión.", confirmar:"Entendido", cancelar:false })
     })
   } catch(e){
     mostrarModal({ titulo:"❌ Error", texto:"No se pudo guardar.", confirmar:"Entendido", cancelar:false })
