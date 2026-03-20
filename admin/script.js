@@ -3348,8 +3348,10 @@ async function cargarApuntesTabs(){
   // Actualizar contadores
   const totalAlu = (cache['apuntes'] || []).length
   const totalCer = (cache['apuntes_ceramistas'] || []).length
-  document.getElementById('cnt-apuntes-alumnos').innerText    = totalAlu || ''
-  document.getElementById('cnt-apuntes-ceramistas').innerText = totalCer || ''
+  const cntAlu = document.getElementById('cnt-apuntes-alumnos')
+  const cntCer = document.getElementById('cnt-apuntes-ceramistas')
+  if(cntAlu) cntAlu.innerText = totalAlu > 0 ? totalAlu : ''
+  if(cntCer) cntCer.innerText = totalCer > 0 ? totalCer : ''
 
   // Precargar ceramistas en background
   if(!cache['apuntes_ceramistas']){
@@ -3411,8 +3413,10 @@ async function cargarMultimediaTabs(){
   // Actualizar contadores
   const totalAlu = (cache['multimedia'] || []).length
   const totalCer = (cache['multimedia_ceramistas'] || []).length
-  document.getElementById('cnt-multimedia-alumnos').innerText    = totalAlu || ''
-  document.getElementById('cnt-multimedia-ceramistas').innerText = totalCer || ''
+  const cntMAlu = document.getElementById('cnt-multimedia-alumnos')
+  const cntMCer = document.getElementById('cnt-multimedia-ceramistas')
+  if(cntMAlu) cntMAlu.innerText = totalAlu > 0 ? totalAlu : ''
+  if(cntMCer) cntMCer.innerText = totalCer > 0 ? totalCer : ''
 
   // Precargar ceramistas
   if(!cache['multimedia_ceramistas']){
