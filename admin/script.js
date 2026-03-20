@@ -510,11 +510,13 @@ function abrirModal(hoja, item = null){
   let html = bloqFoto
 
   if(esApuntes){
+    const esCeramistas = hoja === 'apuntes_ceramistas'
     html = `
       <div class="mform-grupo">
         <label>Título *</label>
         <input id="mTitulo" value="${item?.titulo || ''}" placeholder="Título del apunte">
       </div>
+      ${!esCeramistas ? `
       <div class="mform-grupo">
         <label>Curso</label>
         <select id="mCategoria">
@@ -522,7 +524,7 @@ function abrirModal(hoja, item = null){
           ${cursosOps}
           <option value="General" ${item?.curso === 'General' ? 'selected' : ''}>General (todos los alumnos)</option>
         </select>
-      </div>
+      </div>` : '<input type="hidden" id="mCategoria" value="">'}
       <div class="mform-grupo">
         <label>Contenido</label>
         <textarea id="mContenido" rows="5" placeholder="Escribí el contenido...">${item?.contenido || ''}</textarea>
@@ -1330,7 +1332,8 @@ let fotoMultimediaB64 = null
 async function cargarMultimedia(){
   const grid    = document.getElementById('grid-multimedia')
   const loading = document.getElementById('loading-multimedia')
-  loading.style.display = 'block'
+  if(!grid) return
+  if(loading) loading.style.display = 'block'
   grid.innerHTML = ''
 
   try {
@@ -1344,7 +1347,7 @@ async function cargarMultimedia(){
   } catch(e) {
     grid.innerHTML = '<p style="opacity:0.5;padding:20px;grid-column:1/-1">Error al cargar.</p>'
   }
-  loading.style.display = 'none'
+  if(loading) loading.style.display = 'none'
 }
 
 function renderMultimediaGrid(items){
@@ -1459,6 +1462,12 @@ function abrirModalMultimediaBase(){
     opt.value = c.hojaId; opt.textContent = c.nombre
     sel.appendChild(opt)
   })
+
+  // Label dinámico según la hoja
+  const labelSpan = document.querySelector('#modalMultimedia .publicado-toggle span')
+  if(labelSpan) labelSpan.innerText = multimediaHojaActual === 'multimedia_ceramistas'
+    ? '✅ Visible para ceramistas'
+    : '✅ Visible para los alumnos'
 
   setTipoMultimedia('foto')
   document.getElementById('modalMultimedia').style.display = 'flex'
