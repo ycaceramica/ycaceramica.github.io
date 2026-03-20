@@ -86,6 +86,30 @@ function setSeccion(nombre){
 }
 
 // ─────────────────────────────────────────────
+// CONVERSIÓN DE IMÁGENES A JPG LIVIANO
+// ─────────────────────────────────────────────
+
+function convertirAJpg(b64, calidad){
+  calidad = calidad || 0.75
+  return new Promise(function(resolve){
+    var img = new Image()
+    img.onload = function(){
+      var canvas = document.createElement('canvas')
+      canvas.width  = img.width
+      canvas.height = img.height
+      var ctx = canvas.getContext('2d')
+      // Fondo blanco para imágenes con transparencia (PNG)
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      ctx.drawImage(img, 0, 0)
+      resolve(canvas.toDataURL('image/jpeg', calidad))
+    }
+    img.onerror = function(){ resolve(b64) } // si falla, usar original
+    img.src = b64
+  })
+}
+
+// ─────────────────────────────────────────────
 // CACHÉ Y CARGA
 // ─────────────────────────────────────────────
 
@@ -410,8 +434,8 @@ function previsualizarFoto(e){
   if(!file) return
   fotoModalNombre = file.name.split('.')[0]
   const reader = new FileReader()
-  reader.onload = (ev) => {
-    fotoModalBase64 = ev.target.result
+  reader.onload = async (ev) => {
+    fotoModalBase64 = await convertirAJpg(ev.target.result)
     const area = document.getElementById('mFotoArea')
     if(area){
       area.innerHTML = `
@@ -432,7 +456,8 @@ function subirFotoItem(hoja, id, nombre, categoria){
     const file = e.target.files[0]
     if(!file) return
     toast('⏳ Subiendo foto...', '')
-    const b64 = await fileToBase64(file)
+    const b64Raw = await fileToBase64(file)
+    const b64    = await convertirAJpg(b64Raw)
     try {
       const sesion = getSesion()
       const res    = await fetch(API, {
@@ -756,13 +781,13 @@ async function guardarModal(){
     if(!fila){ btn.classList.remove('cargando'); btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar'; return }
 
     // Si es apunte — subir PDF y/o miniatura antes de guardar
-    if(modalHoja === 'apuntes'){
+    if(modalHoja === 'apuntes' || modalHoja === 'apuntes_ceramistas'){
       if(apuntePdfB64){
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo PDF...'
         try {
           const resPdf = await fetch(API, {
             method: 'POST',
-            body: JSON.stringify({ action: 'subirPdfApunte', b64: apuntePdfB64, nombre: apuntePdfNombreStr, token: sesion.token })
+            body: JSON.stringify({ action: modalHoja === 'apuntes_ceramistas' ? 'subirPdfApunteCeramista' : 'subirPdfApunte', b64: apuntePdfB64, nombre: apuntePdfNombreStr, token: sesion.token })
           })
           const dataPdf = await resPdf.json()
           if(dataPdf.ok && dataPdf.url) fila.archivoUrl = dataPdf.url
@@ -775,7 +800,7 @@ async function guardarModal(){
         try {
           const resMin = await fetch(API, {
             method: 'POST',
-            body: JSON.stringify({ action: 'subirMiniaturaApunte', b64: apunteMiniaturaB64, nombre: 'miniatura_' + Date.now(), token: sesion.token })
+            body: JSON.stringify({ action: modalHoja === 'apuntes_ceramistas' ? 'subirMiniaturaCeramista' : 'subirMiniaturaApunte', b64: apunteMiniaturaB64, nombre: 'miniatura_' + Date.now(), token: sesion.token })
           })
           const dataMin = await resMin.json()
           if(dataMin.ok && dataMin.url) fila.miniatura = dataMin.url
@@ -1141,7 +1166,8 @@ function subirFotoElaboracion(id, seccion, slot){
     }
 
     toast('⏳ Subiendo foto...', '')
-    const b64 = await fileToBase64(file)
+    const b64Raw = await fileToBase64(file)
+    const b64    = await convertirAJpg(b64Raw)
 
     try {
       const sesion = getSesion()
@@ -1501,8 +1527,8 @@ function previsualizarFotoMultimedia(e){
   const file = e.target.files[0]
   if(!file) return
   const reader = new FileReader()
-  reader.onload = (ev) => {
-    fotoMultimediaB64 = ev.target.result
+  reader.onload = async (ev) => {
+    fotoMultimediaB64 = await convertirAJpg(ev.target.result)
     document.getElementById('mMultimediaFotoArea').innerHTML = `
       <img class="mform-foto-preview" src="${fotoMultimediaB64}" alt="Preview">
       <button class="mform-foto-cambiar" onclick="elegirFotoMultimedia()" type="button">
@@ -3069,7 +3095,7 @@ function renderGridCeramistaMul(hoja, items){
   const grid = document.getElementById('grid-' + hoja)
   if(!grid) return
   const busq      = (document.getElementById('buscar-' + hoja)?.value || '').toLowerCase()
-  const pubFiltro = (filtroPubActivo[hoja] || 'todos')
+  const pubFiltro = filtroPublicadoActual[hoja] || 'todos'
   const filtrados = items.filter(i => {
     const matchBusq = !busq || (i.titulo||'').toLowerCase().includes(busq)
     const pub = i.publicado === true || i.publicado === 'TRUE' || i.publicado === 'true'
