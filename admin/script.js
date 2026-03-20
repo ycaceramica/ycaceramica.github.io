@@ -3057,7 +3057,7 @@ async function cargarSeccionCeramista(hoja){
     renderGridCeramistaMul(hoja, cache[hoja])
     // Actualizar contador
     const cntEl = document.getElementById('cnt-multimedia-ceramistas')
-    if(cntEl) cntEl.innerText = cache[hoja].length > 0 ? cache[hoja].length : ''
+    if(cntEl) cntEl.innerText = cache[hoja].length
   } catch(e) {
     console.error('Error cargarSeccionCeramista multimedia:', e)
     if(grid) grid.innerHTML = '<p style="opacity:0.5;padding:20px;grid-column:1/-1">Error al cargar. Revisá tu conexión.</p>'
@@ -3077,7 +3077,11 @@ function renderGridCeramistaMul(hoja, items){
     return matchBusq && matchPub
   })
   if(filtrados.length === 0){
-    grid.innerHTML = '<p style="opacity:0.5;padding:20px;grid-column:1/-1">No hay items en esta categoría.</p>'
+    grid.innerHTML = `
+      <div class="vacio">
+        <i class="fa-solid fa-photo-film"></i>
+        <p>No hay multimedia todavía. ¡Agregá fotos o videos!</p>
+      </div>`
     return
   }
   {
@@ -3372,8 +3376,8 @@ async function cargarApuntesTabs(){
   const totalCer = (cache['apuntes_ceramistas'] || []).length
   const cntAlu = document.getElementById('cnt-apuntes-alumnos')
   const cntCer = document.getElementById('cnt-apuntes-ceramistas')
-  if(cntAlu) cntAlu.innerText = totalAlu > 0 ? totalAlu : ''
-  if(cntCer) cntCer.innerText = totalCer > 0 ? totalCer : ''
+  if(cntAlu) cntAlu.innerText = totalAlu
+  if(cntCer) cntCer.innerText = totalCer
 
   // Precargar ceramistas en background
   if(!cache['apuntes_ceramistas']){
@@ -3381,7 +3385,7 @@ async function cargarApuntesTabs(){
       .then(r => r.json())
       .then(d => {
         cache['apuntes_ceramistas'] = d.data || []
-        document.getElementById('cnt-apuntes-ceramistas').innerText = cache['apuntes_ceramistas'].length || ''
+        const cntCerBg = document.getElementById('cnt-apuntes-ceramistas'); if(cntCerBg) cntCerBg.innerText = cache['apuntes_ceramistas'].length
       }).catch(() => {})
   }
 }
@@ -3437,8 +3441,8 @@ async function cargarMultimediaTabs(){
   const totalCer = (cache['multimedia_ceramistas'] || []).length
   const cntMAlu = document.getElementById('cnt-multimedia-alumnos')
   const cntMCer = document.getElementById('cnt-multimedia-ceramistas')
-  if(cntMAlu) cntMAlu.innerText = totalAlu > 0 ? totalAlu : ''
-  if(cntMCer) cntMCer.innerText = totalCer > 0 ? totalCer : ''
+  if(cntMAlu) cntMAlu.innerText = totalAlu
+  if(cntMCer) cntMCer.innerText = totalCer
 
   // Precargar ceramistas
   if(!cache['multimedia_ceramistas']){
@@ -3447,7 +3451,7 @@ async function cargarMultimediaTabs(){
       .then(r => r.json())
       .then(d => {
         cache['multimedia_ceramistas'] = d.data || []
-        document.getElementById('cnt-multimedia-ceramistas').innerText = cache['multimedia_ceramistas'].length || ''
+        const cntMCerBg = document.getElementById('cnt-multimedia-ceramistas'); if(cntMCerBg) cntMCerBg.innerText = cache['multimedia_ceramistas'].length
       }).catch(() => {})
   }
 }
