@@ -404,7 +404,6 @@ function verificarSesionTaller(){
     const btn = document.getElementById("btnTaller")
     if(btn) btn.style.display = activo ? "flex" : "none"
   } catch(e){}
-} catch(e){}
 }
 function guardarEnTaller(){
   try {
