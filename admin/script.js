@@ -1434,7 +1434,8 @@ function abrirModalMultimediaCer(){
 }
 
 function abrirModalMultimedia(){
-  multimediaHojaActual = 'multimedia'
+  // Solo setea la hoja si se llama directamente (no desde abrirNuevoMultimedia)
+  if(multimediaHojaActual !== 'multimedia_ceramistas') multimediaHojaActual = 'multimedia'
   abrirModalMultimediaBase()
 }
 
@@ -1456,12 +1457,19 @@ function abrirModalMultimediaBase(){
   document.getElementById('mMultimediaPreview').style.display = 'none'
 
   const sel = document.getElementById('mMultimediaCurso')
-  sel.innerHTML = multimediaHojaActual === 'multimedia_ceramistas' ? '<option value="">Sin categoría</option>' : '<option value="">Seleccioná</option><option value="General">General (todos los alumnos)</option>'
-  cursosData.forEach(c => {
-    const opt = document.createElement('option')
-    opt.value = c.hojaId; opt.textContent = c.nombre
-    sel.appendChild(opt)
-  })
+  const cursoBloq = document.getElementById('mMultimediaCursoBloq')
+  if(multimediaHojaActual === 'multimedia_ceramistas'){
+    sel.innerHTML = '<option value="">Sin categoría</option>'
+    if(cursoBloq) cursoBloq.style.display = 'none'
+  } else {
+    sel.innerHTML = '<option value="">Seleccioná</option><option value="General">General (todos los alumnos)</option>'
+    cursosData.forEach(c => {
+      const opt = document.createElement('option')
+      opt.value = c.hojaId; opt.textContent = c.nombre
+      sel.appendChild(opt)
+    })
+    if(cursoBloq) cursoBloq.style.display = 'block'
+  }
 
   // Label dinámico según la hoja
   const labelSpan = document.querySelector('#modalMultimedia .publicado-toggle span')
@@ -3037,17 +3045,22 @@ async function cargarSeccionCeramista(hoja){
     return
   }
   // multimedia_ceramistas usa renderGridCeramista (grid especial)
-  if(cache[hoja]){ renderGridCeramistaMul(hoja, cache[hoja]); return }
+  if(cache[hoja]){ renderGridCeramistaMul(hoja, cache[hoja]); if(loading) loading.style.display = 'none'; return }
   if(loading) loading.style.display = 'block'
   grid.innerHTML = ''
   try {
     const sesion = getSesion()
     const res    = await fetch(`${API}?action=getMultimediaCeramistaAdmin&token=${encodeURIComponent(sesion.token)}`)
     const data   = await res.json()
+    if(!data.ok && data.error) throw new Error(data.error)
     cache[hoja]  = data.data || []
     renderGridCeramistaMul(hoja, cache[hoja])
+    // Actualizar contador
+    const cntEl = document.getElementById('cnt-multimedia-ceramistas')
+    if(cntEl) cntEl.innerText = cache[hoja].length > 0 ? cache[hoja].length : ''
   } catch(e) {
-    if(grid) grid.innerHTML = '<p style="opacity:0.5;padding:20px;grid-column:1/-1">Error al cargar.</p>'
+    console.error('Error cargarSeccionCeramista multimedia:', e)
+    if(grid) grid.innerHTML = '<p style="opacity:0.5;padding:20px;grid-column:1/-1">Error al cargar. Revisá tu conexión.</p>'
   }
   if(loading) loading.style.display = 'none'
 }
@@ -3394,7 +3407,7 @@ function setMultimediaTab(tab){
 
 function abrirNuevoMultimedia(){
   multimediaHojaActual = multimediaTabActual === 'alumnos' ? 'multimedia' : 'multimedia_ceramistas'
-  abrirModalMultimedia()
+  abrirModalMultimediaBase()
 }
 
 function filtrarMultimediaActual(){
@@ -3417,7 +3430,7 @@ async function cargarMultimediaTabs(){
     await cargarMultimedia()
   } else {
     multimediaData = cache['multimedia']
-    renderMultimediaGrid(multimediaData)
+    renderMultimedia()
   }
   // Actualizar contadores
   const totalAlu = (cache['multimedia'] || []).length
