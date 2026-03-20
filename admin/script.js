@@ -177,7 +177,7 @@ let ordenActual = {} // hoja -> 'az' | 'za'
 
 function ordenarItems(items, orden, hoja){
   // Ordenar por código: moldes, inventarios privados, piezas e insumos
-  const porCodigo = hoja === 'moldes' || hoja === 'piezas' || hoja === 'insumos' || (hoja && hoja.endsWith('_inv'))
+  const porCodigo = hoja === 'moldes' || hoja === 'piezas' || hoja === 'insumos' || hoja === 'pastas' || (hoja && hoja.endsWith('_inv'))
 
   return [...items].sort((a, b) => {
     if(porCodigo){
