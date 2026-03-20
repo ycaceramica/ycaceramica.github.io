@@ -133,7 +133,15 @@ async function cargarPastas(){
 function renderPastas(pastas){
   const grid = document.getElementById("pastasGrid")
   grid.innerHTML = ""
-  pastas.forEach(pasta => {
+  // Ordenar por código
+  const ordenadas = [...pastas].sort((a,b) => {
+    const ca = a.codigo || '', cb = b.codigo || ''
+    if(!ca && !cb) return 0
+    if(!ca) return 1
+    if(!cb) return -1
+    return ca.localeCompare(cb, 'es', { numeric: true })
+  })
+  ordenadas.forEach(pasta => {
     let comps = []
     try { comps = JSON.parse(pasta.componentes || "[]") } catch(e){}
     const card = document.createElement("div")
@@ -146,6 +154,7 @@ function renderPastas(pastas){
           : `<div class="pasta-card-foto-placeholder"><i class="fa-solid fa-mortar-pestle"></i></div>`}
       </div>
       <div class="pasta-card-body">
+        ${pasta.codigo ? `<div class="pasta-card-codigo">${pasta.codigo}</div>` : ''}
         <h3 class="pasta-card-nombre">${pasta.nombre}</h3>
         ${pasta.descripcion ? `<p class="pasta-card-desc">${pasta.descripcion}</p>` : ""}
         <div class="pasta-card-chips">
@@ -172,6 +181,8 @@ function abrirPastaModal(pasta){
   fotoEl.style.display = pasta.foto ? "block" : "none"
   if(pasta.foto) fotoEl.innerHTML = `<img src="${pasta.foto}" alt="${pasta.nombre}">`
 
+  const codigoEl = document.getElementById("pastaModalCodigo")
+  if(codigoEl){ codigoEl.innerText = pasta.codigo || ''; codigoEl.style.display = pasta.codigo ? 'block' : 'none' }
   document.getElementById("pastaModalNombre").innerText = pasta.nombre
   const descEl = document.getElementById("pastaModalDesc")
   descEl.innerText     = pasta.descripcion || ""
