@@ -86,7 +86,6 @@ function calcularEstandar(){
   set("eResBizcAncho",an ? contraer(an, 10) + " cm" : "—")
   set("eResBizcProf", p  ? contraer(p,  10) + " cm" : "—")
   document.getElementById("resultadoEstandar").style.display = "block"
-  verificarSesionTaller()
 }
 
 function guardarEstandar(){
@@ -121,7 +120,6 @@ function calcularPersonalizado(){
   set("pResContTotal", total !== "—" ? `${total}% promedio (referencia principal: Alto ${contA}%)` : "—")
 
   document.getElementById("resultadoPersonalizado").style.display = "block"
-  verificarSesionTaller()
 }
 
 function guardarPerfil(){
@@ -222,7 +220,6 @@ function calcularConPerfil(){
   set("uResBizcAncho",  an ? contraer(an, perfilActivo.contAncho) + " cm" : "—")
   set("uResBizcProf",   p  ? contraer(p,  perfilActivo.contProf)  + " cm" : "—")
   document.getElementById("resultadoUsarPerfil").style.display = "block"
-  verificarSesionTaller()
 }
 
 function guardarConPerfil(){
@@ -394,8 +391,9 @@ function verificarSesionTaller(){
     const ceramista = JSON.parse(localStorage.getItem("ceramista_sesion") || "null")
     const alumno    = JSON.parse(sessionStorage.getItem("yca_sesion") || "null")
     const activo    = (ceramista && ceramista.token) || (alumno && alumno.rol === 'alumno' && alumno.token)
-    const btn = document.getElementById("btnTaller")
-    if(btn) btn.style.display = activo ? "flex" : "none"
+    const b0 = document.getElementById("btnTallerEstandar"); if(b0) { if(activo) { b0.style.removeProperty("display"); b0.style.display = "flex" } else { b0.style.display = "none" } }
+    const b1 = document.getElementById("btnTallerPersonalizado"); if(b1) { if(activo) { b1.style.removeProperty("display"); b1.style.display = "flex" } else { b1.style.display = "none" } }
+    const b2 = document.getElementById("btnTallerPerfil"); if(b2) { if(activo) { b2.style.removeProperty("display"); b2.style.display = "flex" } else { b2.style.display = "none" } }
   } catch(e){}
 }
 function guardarEnTaller(){
