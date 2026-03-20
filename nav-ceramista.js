@@ -62,13 +62,16 @@
         '.nav-sesion-sep{height:1px;background:rgba(139,111,86,0.15);margin:4px 0;}',
         '.nav-sesion-salir{color:#c85028 !important;}',
         '.nav-sesion-salir:hover{background:rgba(200,80,40,0.08) !important;color:#c85028 !important;}',
-        '@media(max-width:768px){.nav-sesion-nombre{display:none;}.nav-sesion-menu{right:auto;left:0;}}'
+        '@media(max-width:768px){.nav-sesion-nombre{display:none;}.nav-sesion-menu{right:0;left:auto;}.nav-sesion-btn{margin-right:4px;}.nav-sesion-registro{margin-right:4px;padding:6px 10px;}}'
       ].join('\n')
       document.head.appendChild(style)
     }
 
     // ── 4. Encontrar punto de inserción ─────
-    var toggleDark = document.getElementById('toggleDark')
+    // En mobile: insertar antes del hamburguesa (fuera del nav, siempre visible)
+    // En desktop: insertar antes del toggleDark (dentro del nav)
+    var toggleDark  = document.getElementById('toggleDark')
+    var hamburguesa = document.getElementById('hamburguesa')
     if(!toggleDark || !toggleDark.parentNode) return
 
     // ── 5. Insertar según el estado ─────────
@@ -79,7 +82,15 @@
       btn.className = 'nav-sesion-registro'
       btn.href      = loginUrl
       btn.innerHTML = '🏺 <span>Soy ceramista</span>'
+      if(hamburguesa && hamburguesa.parentNode){
+        hamburguesa.parentNode.insertBefore(btn, hamburguesa)
+      } else {
+        if(hamburguesa && hamburguesa.parentNode){
+      hamburguesa.parentNode.insertBefore(btn, hamburguesa)
+    } else {
       toggleDark.parentNode.insertBefore(btn, toggleDark)
+    }
+      }
       return
     }
 
