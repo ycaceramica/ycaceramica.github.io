@@ -3052,7 +3052,6 @@ async function cargarSeccionCeramista(hoja){
     const sesion = getSesion()
     const res    = await fetch(`${API}?action=getMultimediaCeramistaAdmin&token=${encodeURIComponent(sesion.token)}`)
     const data   = await res.json()
-    if(!data.ok && data.error) throw new Error(data.error)
     cache[hoja]  = data.data || []
     renderGridCeramistaMul(hoja, cache[hoja])
     // Actualizar contador
@@ -3326,8 +3325,11 @@ function setApuntesTab(tab){
   if(buscador) buscador.placeholder = tab === 'alumnos' ? 'Buscar apunte...' : 'Buscar recurso ceramista...'
 
   // Cargar si no hay datos
-  if(tab === 'alumnos' && !cache['apuntes'])         cargarApuntesTabs()
-  if(tab === 'ceramistas' && !cache['apuntes_ceramistas']) cargarSeccionCeramista('apuntes_ceramistas')
+  if(tab === 'alumnos')    cargarApuntesTabs()
+  if(tab === 'ceramistas'){
+    if(cache['apuntes_ceramistas']) renderGrid('apuntes_ceramistas', cache['apuntes_ceramistas'])
+    else cargarSeccionCeramista('apuntes_ceramistas')
+  }
 }
 
 function abrirNuevoApunte(){
@@ -3385,7 +3387,10 @@ async function cargarApuntesTabs(){
       .then(r => r.json())
       .then(d => {
         cache['apuntes_ceramistas'] = d.data || []
-        const cntCerBg = document.getElementById('cnt-apuntes-ceramistas'); if(cntCerBg) cntCerBg.innerText = cache['apuntes_ceramistas'].length
+        const cntCerBg = document.getElementById('cnt-apuntes-ceramistas')
+        if(cntCerBg) cntCerBg.innerText = cache['apuntes_ceramistas'].length
+        // Si el tab ceramistas está activo, renderizar ahora
+        if(apuntesTabActual === 'ceramistas') renderGrid('apuntes_ceramistas', cache['apuntes_ceramistas'])
       }).catch(() => {})
   }
 }
@@ -3405,8 +3410,11 @@ function setMultimediaTab(tab){
   document.getElementById('seccionMultimediaAlumnos').style.display    = tab === 'alumnos'    ? 'block' : 'none'
   document.getElementById('seccionMultimediaCeramistas').style.display = tab === 'ceramistas' ? 'block' : 'none'
 
-  if(tab === 'alumnos' && !cache['multimedia'])               cargarMultimediaTabs()
-  if(tab === 'ceramistas' && !cache['multimedia_ceramistas']) cargarSeccionCeramista('multimedia_ceramistas')
+  if(tab === 'alumnos')    cargarMultimediaTabs()
+  if(tab === 'ceramistas'){
+    if(cache['multimedia_ceramistas']) renderGridCeramistaMul('multimedia_ceramistas', cache['multimedia_ceramistas'])
+    else cargarSeccionCeramista('multimedia_ceramistas')
+  }
 }
 
 function abrirNuevoMultimedia(){
@@ -3451,7 +3459,10 @@ async function cargarMultimediaTabs(){
       .then(r => r.json())
       .then(d => {
         cache['multimedia_ceramistas'] = d.data || []
-        const cntMCerBg = document.getElementById('cnt-multimedia-ceramistas'); if(cntMCerBg) cntMCerBg.innerText = cache['multimedia_ceramistas'].length
+        const cntMCerBg = document.getElementById('cnt-multimedia-ceramistas')
+        if(cntMCerBg) cntMCerBg.innerText = cache['multimedia_ceramistas'].length
+        // Si el tab ceramistas está activo, renderizar ahora
+        if(multimediaTabActual === 'ceramistas') renderGridCeramistaMul('multimedia_ceramistas', cache['multimedia_ceramistas'])
       }).catch(() => {})
   }
 }
