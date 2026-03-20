@@ -345,6 +345,7 @@ function libreCalcular(){
       </div>
     </div>`
   res.style.display = "block"
+  verificarSesionTaller()
 }
 
 function libreGuardar(){
@@ -498,8 +499,8 @@ function verificarSesionTaller(){
     const ceramista = JSON.parse(localStorage.getItem("ceramista_sesion") || "null")
     const alumno    = JSON.parse(sessionStorage.getItem("yca_sesion") || "null")
     const activo    = (ceramista && ceramista.token) || (alumno && alumno.rol === 'alumno' && alumno.token)
-    const btn0 = document.getElementById("btnTallerLibre"); if(btn0) btn0.style.display = activo ? "flex" : "none"
-    const btn1 = document.getElementById("btnTallerModal"); if(btn1) btn1.style.display = activo ? "flex" : "none"
+    const btn = document.getElementById("btnTaller")
+    if(btn) btn.style.display = activo ? "flex" : "none"
   } catch(e){}
 }
 function guardarEnTaller(){
