@@ -2847,6 +2847,14 @@ async function actualizarInfoDestinatarios(){
       infoMsg.innerText = `Se enviará a ${suscriptoresData.length} suscriptores + ${alumnos.length} alumnos = ${suscriptoresData.length + alumnos.length} destinatarios`
     } else if(destinatarioActual === 'alumnos'){
       infoMsg.innerText = `Se enviará a ${alumnos.length} alumnos activos`
+    } else if(destinatarioActual === 'ceramistas'){
+      // Cargar ceramistas si no están
+      let ceramistas = []
+      try {
+        const res = await fetch(`${API}?action=getCeramistas&token=${encodeURIComponent(sesion.token)}`)
+        ceramistas = ((await res.json()).data || []).filter(c => c.estado === 'activo')
+      } catch(e){}
+      infoMsg.innerText = `Se enviará a ${ceramistas.length} ceramistas activos`
     } else {
       const sus = suscriptoresData.filter(s => (s.intereses||'').includes(destinatarioActual)||(s.intereses||'').includes('todo')).length
       infoMsg.innerText = `Se enviará a ${sus} suscriptores interesados en "${destinatarioActual}"`
