@@ -484,3 +484,29 @@
 }
 
 .btn-cambiar-pass:hover{ opacity: 0.85; }
+
+/* ── HISTORIAL ALUMNO ── */
+.historial-taller-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
+.historial-taller-header p{ font-size:14px; opacity:0.65; margin:0; flex:1; }
+.btn-descargar-historial{ display:flex; align-items:center; gap:8px; padding:9px 18px; border:none; border-radius:20px; background:var(--color-primario); color:white; font-family:'Plus Jakarta Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:0.2s; }
+.btn-descargar-historial:disabled{ opacity:0.4; cursor:default; }
+.btn-limpiar-historial{ display:flex; align-items:center; gap:6px; padding:9px 14px; border:none; border-radius:20px; background:rgba(200,80,40,0.1); color:#c85028; font-family:'Plus Jakarta Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; }
+.historial-filtros{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+.hfiltro{ padding:6px 14px; border-radius:20px; border:1.5px solid rgba(139,111,86,0.3); background:transparent; color:var(--color-texto); font-family:'Plus Jakarta Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; opacity:0.6; }
+.hfiltro.activo{ border-color:var(--color-primario); background:rgba(139,111,86,0.1); color:var(--color-primario); opacity:1; }
+.historial-taller-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+.historial-taller-card{ background:var(--color-superficie); border-radius:14px; padding:18px; box-shadow:0 4px 16px var(--color-sombra); }
+.htcard-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.htcard-calc{ font-size:12px; font-weight:700; color:var(--color-primario); text-transform:uppercase; letter-spacing:0.5px; }
+.htcard-fecha{ font-size:11px; opacity:0.4; }
+.htcard-borrar{ background:none; border:none; font-size:13px; cursor:pointer; opacity:0.3; padding:2px 6px; border-radius:6px; color:var(--color-texto); transition:0.2s; }
+.htcard-borrar:hover{ opacity:1; color:#c85028; }
+.htcard-nombre{ font-size:15px; font-weight:700; margin-bottom:10px; }
+.htcard-datos{ display:flex; flex-wrap:wrap; gap:6px; }
+.htcard-chip{ font-size:12px; background:rgba(139,111,86,0.1); color:var(--color-primario); border-radius:20px; padding:3px 10px; font-weight:600; }
+.taller-vacio{ grid-column:1/-1; text-align:center; padding:48px 20px; opacity:0.6; }
+.taller-vacio i{ font-size:40px; color:var(--color-primario); margin-bottom:16px; display:block; opacity:0.4; }
+.taller-vacio p{ font-size:16px; margin:0 0 8px; }
+.taller-vacio-sub{ font-size:14px; opacity:0.7; }
+.btn-ir-herramientas{ display:inline-flex; align-items:center; gap:8px; margin-top:16px; padding:10px 20px; background:var(--color-primario); color:white; border-radius:30px; font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; font-weight:700; text-decoration:none; }
+.taller-sin-items{ grid-column:1/-1; text-align:center; padding:20px; font-size:14px; opacity:0.5; }
