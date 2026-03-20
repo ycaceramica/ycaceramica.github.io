@@ -599,9 +599,18 @@ function abrirModal(hoja, item = null){
           </div>`).join('')
       : ''
     html += `
-      <div class="mform-grupo">
-        <label>Nombre de la pasta *</label>
-        <input id="mNombre" value="${item?.nombre || ''}" placeholder="Ej: Stoneware blanco, Porcelana...">
+      <div class="mform-fila">
+        <div class="mform-grupo">
+          <label>Código</label>
+          <div class="mform-codigo-wrapper">
+            <input id="mCodigo" value="${item?.codigo || ''}" placeholder="Auto">
+            <button class="btn-generar-codigo" onclick="generarCodigoPasta()" type="button">↺ Auto</button>
+          </div>
+        </div>
+        <div class="mform-grupo">
+          <label>Nombre de la pasta *</label>
+          <input id="mNombre" value="${item?.nombre || ''}" placeholder="Ej: Stoneware blanco, Porcelana...">
+        </div>
       </div>
       <div class="mform-grupo">
         <label>Descripción <small style="opacity:0.5;font-weight:400">(opcional)</small></label>
@@ -724,7 +733,8 @@ function abrirModal(hoja, item = null){
   document.getElementById('modalBody').innerHTML = html
   document.getElementById('modalOverlay').style.display = 'flex'
 
-  if(!item && !esApuntes) setTimeout(() => generarCodigo(), 100)
+  if(!item && !esApuntes && !esPastas) setTimeout(() => generarCodigo(), 100)
+  if(!item && esPastas) setTimeout(() => generarCodigoPasta(), 100)
 }
 
 function editarItem(hoja, item){ abrirModal(hoja, item) }
@@ -917,6 +927,7 @@ function construirFila(){
     }
     return {
       id,
+      codigo:      document.getElementById('mCodigo')?.value.trim() || '',
       nombre,
       descripcion: document.getElementById('mDescripcion')?.value.trim() || '',
       componentes: JSON.stringify(componentes),
@@ -933,6 +944,20 @@ function construirFila(){
     dimensiones: document.getElementById('mDimensiones')?.value.trim() || '',
     notas:       document.getElementById('mNotas')?.value.trim() || ''
   }
+}
+
+// ─────────────────────────────────────────────
+// CÓDIGO DE PASTAS
+// ─────────────────────────────────────────────
+
+async function generarCodigoPasta(){
+  const codEl = document.getElementById('mCodigo')
+  if(!codEl) return
+  try {
+    const res  = await fetch(`${API}?action=siguienteCodigo&hoja=pastas&categoria=PAS`)
+    const data = await res.json()
+    if(data.codigo) codEl.value = data.codigo
+  } catch(e){}
 }
 
 // ─────────────────────────────────────────────
