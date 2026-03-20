@@ -183,7 +183,10 @@ function abrirPastaModal(pasta){
 
   const codigoEl = document.getElementById("pastaModalCodigo")
   if(codigoEl){ codigoEl.innerText = pasta.codigo || ''; codigoEl.style.display = pasta.codigo ? 'block' : 'none' }
-  document.getElementById("pastaModalNombre").innerText = pasta.nombre
+  const nombreStr = String(pasta.nombre || '')
+  document.getElementById("pastaModalNombre").innerText = nombreStr
+  const headerNombre = document.getElementById("pastaModalHeaderNombre")
+  if(headerNombre) headerNombre.innerText = nombreStr
   const descEl = document.getElementById("pastaModalDesc")
   descEl.innerText     = pasta.descripcion || ""
   descEl.style.display = pasta.descripcion ? "block" : "none"
@@ -209,6 +212,10 @@ function abrirPastaModal(pasta){
 
   document.getElementById("pastaModal").style.display = "flex"
   document.body.style.overflow = "hidden"
+}
+
+function toggleFotoExpandida(el){
+  el.classList.toggle('expandida')
 }
 
 function cerrarPastaModal(){
@@ -284,7 +291,7 @@ async function modalDescargarPDF(){
     componentes: comps.map(c => ({ nombre: c.nombre, porcentaje: c.porcentaje, gramos: Math.round(gramos * c.porcentaje / 100) })),
     fecha: new Date().toLocaleDateString("es-AR")
   }
-  await generarPDFItems([item], `YCA_Ceramica_Pasta_${pastaActiva.nombre.replace(/ /g,"_")}.pdf`)
+  await generarPDFItems([item], `YCA_Ceramica_Pasta_${String(pastaActiva.nombre||'pasta').replace(/ /g,'_')}.pdf`)
 }
 
 
@@ -535,7 +542,8 @@ async function generarPDFItems(items, filename){
     if(y+h > 272){ doc.addPage(); y=20 }
     doc.setFillColor(...GRIS); doc.roundedRect(m,y,W-m*2,h,4,4,"F")
     doc.setTextColor(...NEGRO); doc.setFontSize(12); doc.setFont("helvetica","bold")
-    doc.text(`${item.tipo === "catalogo" ? "🫙" : "🧪"} ${item.nombre}`,m+5,y+9)
+    const tipoTag = item.tipo === "catalogo" ? "[Catalogo]" : "[Libre]"
+    doc.text(`${tipoTag} ${String(item.nombre||"Sin nombre")}`,m+5,y+9)
     doc.setFontSize(8); doc.setFont("helvetica","normal"); doc.setTextColor(120,110,100)
     doc.text(`${item.gramos}g totales · ${item.fecha}`,W-m-5,y+9,{align:"right"})
 
