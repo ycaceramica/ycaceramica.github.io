@@ -548,3 +548,4 @@ function guardarEnTaller(){
 }
 
 verificarSesionTaller()
+cargarPastas()
