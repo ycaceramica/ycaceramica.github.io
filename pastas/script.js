@@ -259,6 +259,7 @@ function modalGuardar(){
     fecha: new Date().toLocaleDateString("es-AR")
   })
   guardarHistorial()
+  renderHistorialCatalogo()
   mostrarModal({ titulo:"✅ Guardado", texto:`La pasta "${pastaActiva.nombre}" fue guardada en el historial.`, confirmar:"¡Genial!", cancelar:false })
 }
 
@@ -284,6 +285,69 @@ async function modalDescargarPDF(){
     fecha: new Date().toLocaleDateString("es-AR")
   }
   await generarPDFItems([item], `YCA_Ceramica_Pasta_${pastaActiva.nombre.replace(/ /g,"_")}.pdf`)
+}
+
+
+// ─────────────────────────────────────────────
+// HISTORIAL DEL CATÁLOGO
+// ─────────────────────────────────────────────
+
+function renderHistorialCatalogo(){
+  const panel  = document.getElementById('historialCatalogoPanel')
+  const lista  = document.getElementById('historialCatalogoLista')
+  const btnPDF = document.getElementById('btnPDFCatalogo')
+  const btnLim = document.getElementById('btnLimpiarCatalogo')
+  if(!panel || !lista) return
+
+  // Filtrar solo ítems del catálogo
+  const items = historial.filter(i => i.tipo === 'catalogo')
+  if(items.length === 0){
+    lista.innerHTML = '<p class="historial-vacio">Calculá una pasta para verla aquí.</p>'
+    if(btnPDF) btnPDF.disabled = true
+    if(btnLim) btnLim.style.display = 'none'
+    return
+  }
+
+  if(btnPDF) btnPDF.disabled = false
+  if(btnLim) btnLim.style.display = 'inline-flex'
+  lista.innerHTML = ''
+  items.forEach(item => {
+    const div = document.createElement('div')
+    div.className = 'historial-item'
+    div.innerHTML = `
+      <button class="historial-item-borrar" onclick="borrarItemCatalogo(${item.id})">✕</button>
+      <div class="historial-item-nombre">${item.nombre}</div>
+      <div class="historial-item-meta">${item.gramos}g · ${item.fecha}</div>
+      <div class="historial-item-componentes">
+        ${item.componentes.map(c => `<span class="historial-chip">${c.nombre}: ${c.gramos}g</span>`).join('')}
+      </div>`
+    lista.appendChild(div)
+  })
+}
+
+function borrarItemCatalogo(id){
+  historial = historial.filter(i => i.id !== id)
+  guardarHistorial()
+  renderHistorialCatalogo()
+}
+
+async function descargarPDFCatalogo(){
+  const items = historial.filter(i => i.tipo === 'catalogo')
+  if(!items.length) return
+  await generarPDFItems(items, 'YCA_Ceramica_MisPastas.pdf')
+}
+
+function limpiarHistorialCatalogo(){
+  mostrarModal({
+    titulo: '🗑 Limpiar historial',
+    texto: '¿Borrar todas las pastas guardadas? Esta acción no se puede deshacer.',
+    confirmar: 'Borrar todo',
+    accion: () => {
+      historial = historial.filter(i => i.tipo !== 'catalogo')
+      guardarHistorial()
+      renderHistorialCatalogo()
+    }
+  })
 }
 
 // ─────────────────────────────────────────────
@@ -450,6 +514,7 @@ function cargarLogoBase64(){
 }
 
 async function generarPDFItems(items, filename){
+  if(!window.jspdf){ mostrarModal({ titulo:'❌ PDF no disponible', texto:'Recargá la página e intentá de nuevo.', confirmar:'Entendido', cancelar:false }); return }
   const { jsPDF } = window.jspdf
   const doc = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4" })
   const W=210, m=18
@@ -549,3 +614,4 @@ function guardarEnTaller(){
 
 verificarSesionTaller()
 cargarPastas()
+renderHistorialCatalogo()
