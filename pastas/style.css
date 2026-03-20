@@ -136,17 +136,36 @@
   box-shadow:0 20px 60px rgba(0,0,0,0.3);
   position:relative;
 }
+.pasta-modal-header-sticky{
+  position:sticky; top:0; z-index:10;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 16px 12px 20px;
+  background:var(--color-superficie);
+  border-bottom:1px solid rgba(139,111,86,0.12);
+  font-size:15px; font-weight:700;
+  border-radius:20px 20px 0 0;
+}
 .pasta-modal-cerrar{
-  position:absolute; top:14px; right:14px;
   background:var(--color-fondo); border:none;
   width:32px; height:32px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
   cursor:pointer; font-size:16px; color:var(--color-texto);
-  opacity:0.6; transition:0.2s; z-index:2;
+  opacity:0.6; transition:0.2s; flex-shrink:0;
 }
 .pasta-modal-cerrar:hover{ opacity:1; }
-.pasta-modal-foto{ width:100%; aspect-ratio:16/7; overflow:hidden; border-radius:20px 20px 0 0; }
-.pasta-modal-foto img{ width:100%; height:100%; object-fit:cover; }
+.pasta-modal-cerrar-bottom{
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  width:100%; margin-top:20px; padding:12px;
+  border:1.5px solid rgba(139,111,86,0.3); border-radius:12px;
+  background:transparent; color:var(--color-texto);
+  font-family:inherit; font-size:14px; font-weight:600;
+  cursor:pointer; transition:0.2s;
+}
+.pasta-modal-cerrar-bottom:hover{ background:rgba(139,111,86,0.08); }
+.pasta-modal-foto{ width:100%; aspect-ratio:16/7; overflow:hidden; cursor:zoom-in; transition:0.3s; }
+.pasta-modal-foto img{ width:100%; height:100%; object-fit:cover; transition:0.3s; }
+.pasta-modal-foto.expandida{ aspect-ratio:unset; max-height:70vh; cursor:zoom-out; }
+.pasta-modal-foto.expandida img{ height:100%; object-fit:contain; background:#000; }
 .pasta-modal-body{ padding:24px; }
 .pasta-modal-body h2{ font-size:22px; margin:0 0 8px; }
 .pasta-modal-desc{ font-size:14px; opacity:0.65; line-height:1.5; margin:0 0 20px; }
@@ -277,3 +296,21 @@
   margin-bottom: 6px;
   opacity: 0.8;
 }
+
+/* ── BOTÓN LIMPIAR CATÁLOGO ── */
+#btnLimpiarCatalogo{
+  display:flex; align-items:center; gap:6px;
+  padding:8px 14px; border-radius:20px; border:none;
+  background:rgba(200,80,40,0.1); color:#c85028;
+  font-family:inherit; font-size:13px; font-weight:600;
+  cursor:pointer; transition:0.2s;
+}
+#btnLimpiarCatalogo:hover{ background:rgba(200,80,40,0.2); }
+#btnPDFCatalogo{
+  display:flex; align-items:center; gap:6px;
+  padding:8px 14px; border-radius:20px; border:none;
+  background:var(--color-primario); color:white;
+  font-family:inherit; font-size:13px; font-weight:600;
+  cursor:pointer; transition:0.2s;
+}
+#btnPDFCatalogo:disabled{ opacity:0.4; cursor:default; }
