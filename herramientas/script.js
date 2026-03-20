@@ -34,7 +34,7 @@ window.addEventListener("scroll", () => {
   if(nav) nav.classList.remove("active")
 })
 // Ocultar banner ceramista si ya hay sesión (alumno o ceramista)
-(function(){
+function ocultarBannerSiSesion(){
   try {
     const ceramista = JSON.parse(localStorage.getItem('ceramista_sesion') || 'null')
     const alumno    = JSON.parse(sessionStorage.getItem('yca_sesion') || 'null')
@@ -44,4 +44,9 @@ window.addEventListener("scroll", () => {
       if(banner) banner.style.display = 'none'
     }
   } catch(e){}
-})()
+}
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', ocultarBannerSiSesion)
+} else {
+  ocultarBannerSiSesion()
+}
