@@ -187,9 +187,15 @@
   <!-- MODAL PASTA DEL CATÁLOGO -->
   <div class="pasta-modal-overlay" id="pastaModal" style="display:none" onclick="if(event.target===this)cerrarPastaModal()">
     <div class="pasta-modal">
-      <button class="pasta-modal-cerrar" onclick="cerrarPastaModal()"><i class="fa-solid fa-xmark"></i></button>
 
-      <div class="pasta-modal-foto" id="pastaModalFoto"></div>
+      <!-- Header sticky con X -->
+      <div class="pasta-modal-header-sticky">
+        <span id="pastaModalHeaderNombre"></span>
+        <button class="pasta-modal-cerrar" onclick="cerrarPastaModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- Foto expandible -->
+      <div class="pasta-modal-foto" id="pastaModalFoto" onclick="toggleFotoExpandida(this)"></div>
 
       <div class="pasta-modal-body">
         <div id="pastaModalCodigo" class="pasta-modal-codigo" style="display:none"></div>
@@ -228,6 +234,11 @@
             </button>
           </div>
         </div>
+
+        <!-- Botón cerrar al final para mobile/scroll -->
+        <button class="pasta-modal-cerrar-bottom" onclick="cerrarPastaModal()">
+          <i class="fa-solid fa-xmark"></i> Cerrar
+        </button>
       </div>
     </div>
   </div>
