@@ -57,6 +57,9 @@
       <button class="ctab" onclick="setTab('multimedia')" id="ctab-multimedia">
         <i class="fa-solid fa-photo-film"></i> Multimedia
       </button>
+      <button class="ctab" onclick="setTab('historial')" id="ctab-historial">
+        <i class="fa-solid fa-clock-rotate-left"></i> Historial
+      </button>
       <button class="ctab" onclick="setTab('contrasena')" id="ctab-contrasena">
         <i class="fa-solid fa-lock"></i> Contraseña
       </button>
@@ -76,6 +79,48 @@
       <div class="multimedia-lista" id="multimediaLista">
         <div class="cuenta-loading">
           <i class="fa-solid fa-spinner fa-spin"></i> Cargando multimedia...
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORIAL -->
+    <div class="cuenta-seccion" id="sec-historial" style="display:none">
+      <div class="historial-taller-header">
+        <p>Tus cálculos guardados desde las calculadoras. Usá el botón "Guardar en mi cuenta" en cualquier calculadora.</p>
+        <div style="display:flex;gap:10px;flex-shrink:0">
+          <button class="btn-descargar-historial" onclick="descargarHistorialPDF()" id="btnHistorialPDF" disabled>
+            <i class="fa-solid fa-file-pdf"></i> PDF
+          </button>
+          <button class="btn-limpiar-historial" onclick="pedirLimpiarTodo()" id="btnLimpiarTodo" style="display:none">
+            <i class="fa-solid fa-trash"></i> Eliminar todo
+          </button>
+        </div>
+      </div>
+      <div class="historial-filtros" id="historialFiltros" style="display:none">
+        <button class="hfiltro activo" onclick="filtrarHistorial('todos', this)">Todos</button>
+        <button class="hfiltro" onclick="filtrarHistorial('yeso', this)">🧱 Yeso</button>
+        <button class="hfiltro" onclick="filtrarHistorial('engobes', this)">🎨 Engobes</button>
+        <button class="hfiltro" onclick="filtrarHistorial('contraccion', this)">📐 Contracción</button>
+        <button class="hfiltro" onclick="filtrarHistorial('costos', this)">💰 Costos</button>
+        <button class="hfiltro" onclick="filtrarHistorial('pastas', this)">🫙 Pastas</button>
+      </div>
+      <div class="historial-taller-grid" id="historialGrid">
+        <div class="cuenta-loading">
+          <i class="fa-solid fa-spinner fa-spin"></i> Cargando historial...
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL CONFIRMACIÓN -->
+    <div id="alumnoModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:999;padding:20px">
+      <div style="background:var(--color-superficie);border-radius:16px;padding:0;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);overflow:hidden">
+        <div style="padding:20px 20px 0">
+          <h3 id="alumnoModalTitulo" style="font-size:16px;margin:0 0 10px"></h3>
+          <p id="alumnoModalTexto" style="font-size:14px;margin:0;opacity:0.75;line-height:1.5"></p>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;padding:20px">
+          <button onclick="cerrarModalAlumno()" style="padding:9px 18px;border-radius:20px;border:1.5px solid #d8cfc4;background:transparent;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;color:var(--color-texto)">Cancelar</button>
+          <button id="alumnoModalConfirmar" style="padding:9px 18px;border-radius:20px;border:none;background:#c85028;color:white;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer">Eliminar</button>
         </div>
       </div>
     </div>
@@ -137,6 +182,7 @@
     <p>© 2026 YCA Cerámica</p>
   </footer>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="script.js"></script>
 
 </body>
