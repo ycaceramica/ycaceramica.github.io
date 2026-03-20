@@ -22,6 +22,88 @@
     }
   } catch(e) {}
 
+  // Si no hay sesión ceramista, verificar si hay sesión alumno
+  var sesionAlumno = null
+  if(!sesion || !sesion.token){
+    try {
+      var sesionCompleta2 = JSON.parse(sessionStorage.getItem('yca_sesion') || 'null')
+      if(sesionCompleta2 && (sesionCompleta2.rol === 'alumno')){
+        sesionAlumno = sesionCompleta2
+      }
+    } catch(e) {}
+  }
+
+  if(sesionAlumno){
+    // Sesión alumno → mostrar avatar con "Mi cuenta / Cerrar sesión"
+    var pathA    = window.location.pathname
+    var segsA    = pathA.split('/').filter(Boolean)
+    var depthA   = segsA.length > 0 ? segsA.length - 1 : 0
+    if(pathA.endsWith('/') || pathA.endsWith('.html')){
+      depthA = segsA.length - (pathA.endsWith('.html') ? 1 : 0)
+    }
+    var prefixA   = depthA === 0 ? '' : depthA === 1 ? '../' : '../../'
+    var cuentaUrl = prefixA + 'mi-cuenta/index.html'
+    var loginUrlA = prefixA + 'login/index.html'
+
+    var nombreCompletoA = sesionAlumno.nombre || 'Mi cuenta'
+    var nombreA  = nombreCompletoA.split(' ')[0]
+    var inicialA = nombreA[0].toUpperCase()
+
+    if(!document.getElementById('ceramista-nav-styles')){
+      var styleA = document.createElement('style')
+      styleA.id  = 'ceramista-nav-styles'
+      styleA.textContent = [
+        '.ceramista-nav-btn{position:relative;display:flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;}',
+        '.ceramista-nav-avatar{width:32px;height:32px;min-width:32px;min-height:32px;border-radius:50%;background:var(--color-primario);color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;border:2px solid white;box-sizing:border-box;}',
+        '.ceramista-nav-nombre{font-size:14px;font-weight:700;color:var(--color-texto);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+        '.ceramista-nav-menu{position:absolute;top:calc(100% + 10px);right:0;background:var(--color-superficie);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.15);padding:8px;min-width:180px;z-index:1000;display:none;flex-direction:column;gap:4px;overflow:hidden;}',
+        '.ceramista-nav-btn.abierto .ceramista-nav-menu{display:flex;}',
+        '.ceramista-nav-menu a,.ceramista-nav-menu button{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-family:inherit;font-size:14px;font-weight:600;color:var(--color-texto);text-decoration:none;background:none;border:none;cursor:pointer;width:100%;text-align:left;transition:background 0.15s;}',
+        '.ceramista-nav-menu a:hover,.ceramista-nav-menu button:hover{background:rgba(139,111,86,0.1);color:var(--color-primario);}',
+        '.ceramista-nav-menu-sep{height:1px;background:rgba(139,111,86,0.15);margin:4px 0;}',
+        '.ceramista-nav-menu .salir{color:#c85028;}',
+        '.ceramista-nav-menu .salir:hover{background:rgba(200,80,40,0.08);color:#c85028;}',
+        '@media(max-width:768px){.ceramista-nav-nombre{display:none;}.ceramista-nav-menu{right:auto;left:0;}}'
+      ].join('
+')
+      document.head.appendChild(styleA)
+    }
+
+    var btnA = document.createElement('button')
+    btnA.className = 'ceramista-nav-btn'
+    btnA.setAttribute('aria-label', 'Mi cuenta')
+    btnA.innerHTML = [
+      '<div class="ceramista-nav-avatar">' + inicialA + '</div>',
+      '<span class="ceramista-nav-nombre">' + nombreA + '</span>',
+      '<div class="ceramista-nav-menu">',
+        '<a href="' + cuentaUrl + '">',
+          '<i class="fa-solid fa-user"></i> Mi cuenta',
+        '</a>',
+        '<div class="ceramista-nav-menu-sep"></div>',
+        '<button class="salir" onclick="cerrarSesionAlumno()">',
+          '<i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión',
+        '</button>',
+      '</div>'
+    ].join('')
+
+    btnA.addEventListener('click', function(e){
+      e.stopPropagation()
+      btnA.classList.toggle('abierto')
+    })
+    document.addEventListener('click', function(){ btnA.classList.remove('abierto') })
+
+    var toggleDarkA = document.getElementById('toggleDark')
+    if(toggleDarkA && toggleDarkA.parentNode){
+      toggleDarkA.parentNode.insertBefore(btnA, toggleDarkA)
+    }
+
+    window.cerrarSesionAlumno = function(){
+      sessionStorage.removeItem('yca_sesion')
+      window.location.href = loginUrlA
+    }
+    return
+  }
+
   if(!sesion || !sesion.token){
     // Sin sesión → mostrar botón de registro
     var path2    = window.location.pathname
