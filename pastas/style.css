@@ -257,3 +257,23 @@
   .pastas-tabs{ gap:4px; }
   .pastas-tab{ padding:8px 12px; font-size:13px; }
 }
+
+/* ── CÓDIGO DE PASTA ── */
+.pasta-card-codigo {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-primario);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  opacity: 0.8;
+}
+.pasta-modal-codigo {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-primario);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  opacity: 0.8;
+}
