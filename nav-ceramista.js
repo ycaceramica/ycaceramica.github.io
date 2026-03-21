@@ -128,7 +128,11 @@
       btn.classList.remove('abierto')
     })
 
-    toggleDark.parentNode.insertBefore(btn, toggleDark)
+    if(hamburguesa && hamburguesa.parentNode){
+      hamburguesa.parentNode.insertBefore(btn, hamburguesa)
+    } else {
+      toggleDark.parentNode.insertBefore(btn, toggleDark)
+    }
 
     // Botón cerrar sesión
     var btnSalir = btn.querySelector('#nav-btn-salir')
