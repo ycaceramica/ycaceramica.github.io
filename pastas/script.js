@@ -253,11 +253,12 @@ function modalCalcular(){
   let comps = []
   try { comps = JSON.parse(pastaActiva.componentes || "[]") } catch(e){}
 
+  const totalPct = comps.reduce((s,c) => s + c.porcentaje, 0) || 100
   const grid = document.getElementById("modalResultadoGrid")
   grid.innerHTML = `
     <div class="cont-tabla-header" style="grid-template-columns:1fr 80px 80px"><span>Ingrediente</span><span>%</span><span>Gramos</span></div>
     ${comps.map(c => {
-      const g = Math.round(gramos * c.porcentaje / 100)
+      const g = Math.round(gramos * c.porcentaje / totalPct)
       return `<div class="cont-tabla-fila" style="grid-template-columns:1fr 80px 80px">
         <span>${c.nombre}</span>
         <span>${c.porcentaje}%</span>
@@ -282,7 +283,7 @@ function modalGuardar(){
     nombre: pastaActiva.nombre,
     tipo: "catalogo",
     gramos,
-    componentes: comps.map(c => ({ nombre: c.nombre, porcentaje: c.porcentaje, gramos: Math.round(gramos * c.porcentaje / 100) })),
+    componentes: comps.map(c => ({ nombre: c.nombre, porcentaje: c.porcentaje, gramos: Math.round(gramos * c.porcentaje / (comps.reduce((s,x)=>s+x.porcentaje,0)||100)) })),
     fecha: new Date().toLocaleDateString("es-AR")
   })
   guardarHistorial()
@@ -296,7 +297,8 @@ function modalCopiar(){
   let comps = []
   try { comps = JSON.parse(pastaActiva.componentes || "[]") } catch(e){}
   let txt = `${pastaActiva.nombre} — ${gramos}g\n`
-  comps.forEach(c => { txt += `${c.nombre}: ${Math.round(gramos * c.porcentaje / 100)}g (${c.porcentaje}%)\n` })
+  const totalPctCop = comps.reduce((s,c)=>s+c.porcentaje,0)||100
+  comps.forEach(c => { txt += `${c.nombre}: ${Math.round(gramos * c.porcentaje / totalPctCop)}g (${c.porcentaje}%)\n` })
   navigator.clipboard.writeText(txt)
 }
 
@@ -308,7 +310,7 @@ async function modalDescargarPDF(){
   try { comps = JSON.parse(pastaActiva.componentes || "[]") } catch(e){}
   const item = {
     nombre: pastaActiva.nombre, tipo: "catalogo", gramos,
-    componentes: comps.map(c => ({ nombre: c.nombre, porcentaje: c.porcentaje, gramos: Math.round(gramos * c.porcentaje / 100) })),
+    componentes: comps.map(c => ({ nombre: c.nombre, porcentaje: c.porcentaje, gramos: Math.round(gramos * c.porcentaje / (comps.reduce((s,x)=>s+x.porcentaje,0)||100)) })),
     fecha: new Date().toLocaleDateString("es-AR")
   }
   await generarPDFItems([item], `YCA_Ceramica_Pasta_${String(pastaActiva.nombre||'pasta').replace(/ /g,'_')}.pdf`)
@@ -435,7 +437,7 @@ function libreCalcular(){
     <div class="cont-tabla">
       <div class="cont-tabla-header" style="grid-template-columns:1fr 80px 80px"><span>Ingrediente</span><span>%</span><span>Gramos</span></div>
       ${comps.map(c => {
-        const g = Math.round(gramos * c.porcentaje / 100)
+        const g = Math.round(gramos * c.porcentaje / (total || 100))
         return `<div class="cont-tabla-fila" style="grid-template-columns:1fr 80px 80px">
           <span>${c.nombre}</span>
           <span>${c.porcentaje}%</span>
@@ -455,10 +457,10 @@ function libreGuardar(){
   const comps  = libreObtenerComponentes()
   const total  = comps.reduce((s, c) => s + c.porcentaje, 0)
   if(!gramos){ mostrarModal({ titulo:"⚠️ Sin datos", texto:"Ingresá los gramos antes de guardar.", confirmar:"Entendido", cancelar:false }); return }
-  if(total !== 100){ mostrarModal({ titulo:"⚠️ Porcentajes incorrectos", texto:`Los porcentajes suman ${total}%. Deben sumar exactamente 100%.`, confirmar:"Entendido", cancelar:false }); return }
+  // Fórmulas pueden superar 100% (cargas sobre base) — se normaliza al calcular
   historial.unshift({
     id: Date.now(), nombre, tipo: "libre", gramos,
-    componentes: comps.map(c => ({ nombre: c.nombre, porcentaje: c.porcentaje, gramos: Math.round(gramos * c.porcentaje / 100) })),
+    componentes: comps.map(c => ({ nombre: c.nombre, porcentaje: c.porcentaje, gramos: Math.round(gramos * c.porcentaje / (comps.reduce((s,x)=>s+x.porcentaje,0)||100)) })),
     fecha: new Date().toLocaleDateString("es-AR")
   })
   guardarHistorial()
