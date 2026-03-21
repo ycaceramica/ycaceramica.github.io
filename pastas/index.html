@@ -72,6 +72,13 @@
         <div class="spinner"></div>
         <p>Cargando pastas...</p>
       </div>
+
+      <!-- BUSCADOR -->
+      <div class="pastas-buscador-wrapper" id="pastaBuscadorWrapper" style="display:none">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="pastaBuscador" placeholder="Buscar pasta..." oninput="filtrarPastas()">
+      </div>
+
       <div class="pastas-grid" id="pastasGrid"></div>
 
       <!-- HISTORIAL DEL CATÁLOGO -->
