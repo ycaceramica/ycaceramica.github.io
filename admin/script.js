@@ -921,10 +921,8 @@ function construirFila(){
   if(hoja === 'pastas'){
     const componentes = leerComponentes()
     const total = componentes.reduce((s, c) => s + c.porcentaje, 0)
-    if(total !== 100){
-      toast(`❌ Los porcentajes suman ${total}%, deben sumar exactamente 100%`, 'err')
-      return null
-    }
+    // Permitir fórmulas que superen 100% (cargas sobre base)
+    // El cálculo se normaliza al momento de preparar
     return {
       id,
       codigo:      document.getElementById('mCodigo')?.value.trim() || '',
@@ -1013,9 +1011,12 @@ function recalcularPorcentajes(){
   if(total === 100){
     label.style.color = '#2d7a2d'
     label.innerText   = '✅ 100%'
-  } else {
+  } else if(total < 100){
     label.style.color = '#c85028'
     label.innerText   = `⚠️ ${total}% (falta ${100 - total}%)`
+  } else {
+    label.style.color = 'var(--color-primario)'
+    label.innerText   = `✅ ${total}% (base + ${total - 100}% cargas)`
   }
 }
 
