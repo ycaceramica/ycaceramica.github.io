@@ -77,6 +77,24 @@ function setTab(tab){
 }
 
 // ─────────────────────────────────────────────
+// BUSCADOR DEL CATÁLOGO
+// ─────────────────────────────────────────────
+
+function filtrarPastas(){
+  const busq = (document.getElementById("pastaBuscador")?.value || "").toLowerCase()
+  if(!busq){ renderPastas(pastasData); return }
+  const filtradas = pastasData.filter(p => {
+    const nombre = String(p.nombre || "").toLowerCase()
+    const codigo = String(p.codigo || "").toLowerCase()
+    let comps = []
+    try { comps = JSON.parse(p.componentes || "[]") } catch(e){}
+    const enComps = comps.some(c => (c.nombre||"").toLowerCase().includes(busq))
+    return nombre.includes(busq) || codigo.includes(busq) || enComps
+  })
+  renderPastas(filtradas)
+}
+
+// ─────────────────────────────────────────────
 // ACCESO CALCULADORA LIBRE
 // ─────────────────────────────────────────────
 function verificarAccesoLibre(){
@@ -124,6 +142,9 @@ async function cargarPastas(){
       grid.innerHTML = '<p class="pastas-vacio">Próximamente — estamos preparando las fórmulas 🫙</p>'
       return
     }
+    // Mostrar buscador solo si hay pastas
+    const wrapper = document.getElementById("pastaBuscadorWrapper")
+    if(wrapper) wrapper.style.display = "flex"
     renderPastas(pastasData)
   } catch(e){
     estado.innerHTML = '<p style="opacity:0.5">Error al cargar. Revisá tu conexión.</p>'
@@ -155,13 +176,12 @@ function renderPastas(pastas){
       </div>
       <div class="pasta-card-body">
         ${pasta.codigo ? `<div class="pasta-card-codigo">${pasta.codigo}</div>` : ''}
-        <h3 class="pasta-card-nombre">${pasta.nombre}</h3>
-        ${pasta.descripcion ? `<p class="pasta-card-desc">${pasta.descripcion}</p>` : ""}
+        <h3 class="pasta-card-nombre">${String(pasta.nombre||'')}</h3>
         <div class="pasta-card-chips">
           ${comps.slice(0,3).map(c => `<span class="pasta-chip">${c.nombre} ${c.porcentaje}%</span>`).join("")}
           ${comps.length > 3 ? `<span class="pasta-chip pasta-chip-mas">+${comps.length - 3} más</span>` : ""}
         </div>
-        <div class="pasta-card-cta">Ver fórmula y calcular →</div>
+        <div class="pasta-card-cta">Ver fórmula →</div>
       </div>
     `
     grid.appendChild(card)
