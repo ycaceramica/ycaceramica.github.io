@@ -275,6 +275,12 @@
   .resultado-acciones{ flex-direction:column; }
   .pastas-tabs{ gap:4px; }
   .pastas-tab{ padding:8px 12px; font-size:13px; }
+  /* Doble columna en mobile */
+  .pastas-grid{ grid-template-columns:repeat(2, 1fr); gap:10px; }
+  .pasta-card-nombre{ font-size:14px; }
+  .pasta-card-chips{ gap:4px; }
+  .pasta-chip{ font-size:11px; padding:3px 7px; }
+  .pasta-card-cta{ font-size:12px; }
 }
 
 /* ── CÓDIGO DE PASTA ── */
@@ -314,3 +320,19 @@
   cursor:pointer; transition:0.2s;
 }
 #btnPDFCatalogo:disabled{ opacity:0.4; cursor:default; }
+
+/* ── BUSCADOR CATÁLOGO ── */
+.pastas-buscador-wrapper{
+  display:flex; align-items:center; gap:10px;
+  background:var(--color-superficie);
+  border:1.5px solid rgba(139,111,86,0.2);
+  border-radius:30px; padding:10px 18px;
+  margin-bottom:20px;
+}
+.pastas-buscador-wrapper i{ opacity:0.4; font-size:14px; flex-shrink:0; }
+.pastas-buscador-wrapper input{
+  border:none; background:transparent;
+  font-family:inherit; font-size:14px; color:var(--color-texto);
+  width:100%; outline:none;
+}
+.pastas-buscador-wrapper input::placeholder{ opacity:0.45; }
