@@ -468,17 +468,13 @@ verificarSesionTaller()
 // ─────────────────────────────────────────────
 
 function usarParaBreakeven(){
-  const ganancia   = parseFloat(document.getElementById("ganancia").value) || 0
-  const totalMat   = Array.from(document.querySelectorAll(".material-row")).reduce((s, r) => {
-    const cant  = parseFloat(r.querySelector(".mat-cantidad")?.value) || 0
-    const precio = parseFloat(r.querySelector(".mat-precio")?.value)   || 0
-    return s + cant * precio
-  }, 0)
-  const horas      = parseFloat(document.getElementById("horas").value)     || 0
-  const valorHora  = parseFloat(document.getElementById("valorHora").value) || 0
-  const fijos      = parseFloat(document.getElementById("costosFijos").value) || 0
-  const costoTotal = totalMat + horas * valorHora + fijos
-  const precioVenta = costoTotal * (1 + ganancia / 100)
+  const gananciaVal = parseFloat(document.getElementById("ganancia").value)      || 0
+  const horas       = parseFloat(document.getElementById("horasCantidad").value) || 0
+  const valorHora   = parseFloat(document.getElementById("horasValor").value)    || 0
+  const fijos       = parseFloat(document.getElementById("costosFijos").value)   || 0
+  const totalMat    = materiales.reduce((s, m) => s + (m.cantidad * m.precio), 0)
+  const costoTotal  = totalMat + horas * valorHora + fijos
+  const precioVenta = costoTotal * (1 + gananciaVal / 100)
 
   if(costoTotal <= 0){
     mostrarModal({ titulo: 'Sin datos', texto: 'Calculá el costo de una pieza antes de usar esta función.', confirmar: 'Entendido', cancelar: false })
