@@ -131,6 +131,16 @@ function toggleFeldespato(){
 }
 
 // ─────────────────────────────────────────────
+// TOGGLE CUSTOM
+// ─────────────────────────────────────────────
+
+function toggleCustom(){
+  const checked = document.getElementById("checkCustom").checked
+  document.getElementById("controlCustom").classList.toggle("oculto", !checked)
+  calcular()
+}
+
+// ─────────────────────────────────────────────
 // TOGGLE COLORANTE
 // ─────────────────────────────────────────────
 
@@ -196,8 +206,8 @@ function obtenerComponentes(){
   const pctColorante  = conColor  ? (parseFloat(document.getElementById("inputColorante").value)  || 0) : 0
   const pctFeldespato = conFeldes ? (parseFloat(document.getElementById("inputFeldespato").value) || 0) : 0
 
-  const componentes = [{ nombre: "Tinkar", emoji: "🟤", pct: pctTinkar }]
-  componentes.push({ nombre: "Flux", emoji: "⚪", pct: pctFlux })
+  const componentes = [{ nombre: "Arcilla Base", emoji: "🟤", pct: pctTinkar }]
+  componentes.push({ nombre: "Fundente", emoji: "⚪", pct: pctFlux })
 
   if(conColor){
     componentes.push({
@@ -209,7 +219,12 @@ function obtenerComponentes(){
 
   if(conFeldes) componentes.push({ nombre: "Feldespato", emoji: "🪨", pct: pctFeldespato })
 
-  return { total, componentes, suma: pctTinkar + pctFlux + pctColorante + pctFeldespato }
+  const conCustom    = document.getElementById("checkCustom").checked
+  const pctCustom    = conCustom ? (parseFloat(document.getElementById("inputCustom").value) || 0) : 0
+  const nombreCustom = document.getElementById("nombreCustom").value.trim() || "Ingrediente"
+  if(conCustom) componentes.push({ nombre: nombreCustom, emoji: "✏️", pct: pctCustom })
+
+  return { total, componentes, suma: pctTinkar + pctFlux + pctColorante + pctFeldespato + pctCustom }
 }
 
 function calcular(){
@@ -226,7 +241,7 @@ function calcular(){
     aviso.innerText = "✓ Perfecto"
     aviso.className = "total-aviso ok"
   } else if(suma < 100){
-    aviso.innerText = `Falta ${100 - suma}% — completá con Tinkar`
+    aviso.innerText = `Falta ${100 - suma}% — completá con Arcilla Base`
     aviso.className = "total-aviso"
   } else {
     aviso.innerText = `Excede en ${suma - 100}%`
