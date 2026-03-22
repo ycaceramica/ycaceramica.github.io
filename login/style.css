@@ -277,6 +277,16 @@
   line-height: 1.5;
 }
 
+/* ── PASOS DE REGISTRO ── */
+
+#regPaso1,
+#regPaso2Comunidad,
+#regPaso2Ceramista{
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 /* ── SELECTOR DE ROL ── */
 
 .reg-intro{
