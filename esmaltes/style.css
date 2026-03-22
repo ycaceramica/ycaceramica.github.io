@@ -103,6 +103,7 @@
   grid-template-columns:1fr 360px;
   gap:24px;
   align-items:start;
+  min-width:0;
 }
 
 /* ── CARD ── */
@@ -115,6 +116,9 @@
   display:flex;
   flex-direction:column;
   gap:28px;
+  box-sizing:border-box;
+  width:100%;
+  min-width:0;
 }
 
 /* ── PASOS ── */
@@ -675,6 +679,9 @@
   padding:24px;
   position:sticky;
   top:90px;
+  box-sizing:border-box;
+  width:100%;
+  min-width:0;
 }
 
 .historial-header{
