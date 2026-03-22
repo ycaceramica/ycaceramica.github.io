@@ -13,6 +13,8 @@
   max-width:1100px;
   margin:auto;
   padding:100px 20px 60px;
+  box-sizing:border-box;
+  overflow-x:hidden;
 }
 
 .lab-header{
@@ -888,4 +890,9 @@
   .resultado-acciones{ flex-direction:column; }
   .esm-tabs{ gap:4px; }
   .esm-tab{ padding:10px 14px; font-size:13px; }
+  .esm-material{ flex-wrap:wrap; }
+  .esm-material-valor{ width:60px; }
+  .den-inputs{ gap:10px; }
+  .den-resultado-valor{ font-size:40px; }
+  .lab-wrapper{ overflow-x:hidden; box-sizing:border-box; }
 }
