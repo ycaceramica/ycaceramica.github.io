@@ -21,7 +21,7 @@
       <div class="login-logo">
         <img src="../imagenes/logo.png" alt="YCA Cerámica">
         <h1>YCA Cerámica</h1>
-        <p>Ingresá a tu cuenta</p>
+        <p id="loginSubtitulo">Ingresá a tu cuenta</p>
       </div>
 
       <!-- TABS -->
@@ -30,10 +30,7 @@
           Ingresar
         </button>
         <button class="tab-btn" onclick="setTab('registrarse')" id="tabRegistrarse">
-          Alumno
-        </button>
-        <button class="tab-btn" onclick="setTab('ceramista')" id="tabCeramista">
-          🏺 Ceramista
+          Registrarse
         </button>
       </div>
 
@@ -102,110 +99,157 @@
 
       </div>
 
-      <!-- FORM REGISTRARSE -->
+      <!-- FORM REGISTRARSE — selector de rol -->
       <div class="login-form" id="formRegistrarse" style="display:none">
 
-        <div class="form-grupo">
-          <label><i class="fa-regular fa-user"></i> Nombre completo</label>
-          <input type="text" id="regNombre" placeholder="Tu nombre">
-        </div>
+        <!-- PASO 1: elegir rol -->
+        <div id="regPaso1">
+          <p class="reg-intro">¿Cómo querés registrarte?</p>
+          <div class="rol-selector">
 
-        <div class="form-grupo">
-          <label><i class="fa-regular fa-envelope"></i> Email</label>
-          <input type="email" id="regEmail" placeholder="tu@email.com">
-        </div>
-
-        <div class="form-grupo">
-          <label><i class="fa-solid fa-lock"></i> Contraseña</label>
-          <div class="pass-wrapper">
-            <input type="password" id="regPass" placeholder="Elegí una contraseña">
-            <button class="pass-toggle" onclick="togglePass('regPass', this)" type="button">
-              <i class="fa-regular fa-eye"></i>
+            <button class="rol-card" id="rolComunidad" onclick="elegirRol('comunidad')">
+              <div class="rol-card-icono">🎓</div>
+              <div class="rol-card-info">
+                <strong>Comunidad</strong>
+                <span>Alumnos, futuros alumnos e interesados en cursos de YCA</span>
+              </div>
+              <i class="fa-solid fa-chevron-right rol-card-arrow"></i>
             </button>
-          </div>
-        </div>
 
-        <div class="form-grupo">
-          <label><i class="fa-solid fa-graduation-cap"></i> Curso de interés</label>
-          <select id="regCurso">
-            <option value="">Cargando cursos...</option>
-          </select>
-        </div>
-
-        <div class="login-error" id="regError" style="display:none">
-          <i class="fa-solid fa-circle-exclamation"></i>
-          <span id="regErrorMsg"></span>
-        </div>
-
-        <div class="login-success" id="regSuccess" style="display:none">
-          <i class="fa-solid fa-circle-check"></i>
-          <span>¡Registro exitoso! Esperá la aprobación para ingresar.</span>
-        </div>
-
-        <button class="login-btn" onclick="registrarse()" id="btnRegistrarse">
-          <span>Solicitar acceso</span>
-          <i class="fa-solid fa-arrow-right"></i>
-        </button>
-
-      </div>
-
-      <!-- FORM CERAMISTA -->
-      <div class="login-form" id="formCeramista" style="display:none">
-
-        <div class="ceramista-beneficios">
-          <div class="ceramista-beneficios-titulo">🏺 ¿Por qué registrarte como ceramista?</div>
-          <ul>
-            <li><i class="fa-solid fa-floppy-disk"></i> Guardá tus cálculos y fórmulas en tu cuenta</li>
-            <li><i class="fa-solid fa-flask"></i> Accedé a la calculadora libre de pastas</li>
-            <li><i class="fa-solid fa-file-pdf"></i> Recursos y PDFs exclusivos para ceramistas</li>
-            <li><i class="fa-solid fa-bell"></i> Recibí novedades y ofertas del taller</li>
-          </ul>
-        </div>
-
-        <div class="form-grupo">
-          <label><i class="fa-regular fa-user"></i> Nombre completo</label>
-          <input type="text" id="cerNombre" placeholder="Tu nombre">
-        </div>
-
-        <div class="form-grupo">
-          <label><i class="fa-regular fa-envelope"></i> Email</label>
-          <input type="email" id="cerEmail" placeholder="tu@email.com">
-        </div>
-
-        <div class="form-grupo">
-          <label><i class="fa-solid fa-lock"></i> Contraseña</label>
-          <div class="pass-wrapper">
-            <input type="password" id="cerPass" placeholder="Elegí una contraseña">
-            <button class="pass-toggle" onclick="togglePass('cerPass', this)" type="button">
-              <i class="fa-regular fa-eye"></i>
+            <button class="rol-card" id="rolCeramista" onclick="elegirRol('ceramista')">
+              <div class="rol-card-icono">🏺</div>
+              <div class="rol-card-info">
+                <strong>Ceramista</strong>
+                <span>Tengo mi propio taller y quiero acceder a calculadoras y recursos</span>
+              </div>
+              <i class="fa-solid fa-chevron-right rol-card-arrow"></i>
             </button>
+
           </div>
         </div>
 
-        <div class="form-grupo">
-          <label><i class="fa-solid fa-heart"></i> ¿Qué te interesa? <small style="font-weight:400;opacity:0.5">(opcional)</small></label>
-          <div class="ceramista-intereses">
-            <label class="interes-check"><input type="checkbox" value="cursos"> <span>Cursos y talleres</span></label>
-            <label class="interes-check"><input type="checkbox" value="pastas"> <span>Pastas y fórmulas</span></label>
-            <label class="interes-check"><input type="checkbox" value="herramientas"> <span>Herramientas y calculadoras</span></label>
-            <label class="interes-check"><input type="checkbox" value="ofertas"> <span>Ofertas y novedades</span></label>
+        <!-- PASO 2A: form comunidad -->
+        <div id="regPaso2Comunidad" style="display:none">
+
+          <button class="reg-volver" onclick="volverPaso1()" type="button">
+            ← Volver
+          </button>
+
+          <div class="reg-rol-badge comunidad-badge">
+            🎓 Registro — Comunidad
           </div>
+
+          <div class="form-grupo">
+            <label><i class="fa-regular fa-user"></i> Nombre completo</label>
+            <input type="text" id="regNombre" placeholder="Tu nombre">
+          </div>
+
+          <div class="form-grupo">
+            <label><i class="fa-regular fa-envelope"></i> Email</label>
+            <input type="email" id="regEmail" placeholder="tu@email.com">
+          </div>
+
+          <div class="form-grupo">
+            <label><i class="fa-solid fa-lock"></i> Contraseña</label>
+            <div class="pass-wrapper">
+              <input type="password" id="regPass" placeholder="Elegí una contraseña">
+              <button class="pass-toggle" onclick="togglePass('regPass', this)" type="button">
+                <i class="fa-regular fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-grupo">
+            <label><i class="fa-solid fa-graduation-cap"></i> Curso de interés</label>
+            <select id="regCurso">
+              <option value="">Cargando cursos...</option>
+            </select>
+          </div>
+
+          <div class="login-error" id="regError" style="display:none">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span id="regErrorMsg"></span>
+          </div>
+
+          <div class="login-success" id="regSuccess" style="display:none">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>¡Registro exitoso! Esperá la aprobación para ingresar.</span>
+          </div>
+
+          <button class="login-btn" onclick="registrarse()" id="btnRegistrarse">
+            <span>Solicitar acceso</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+
         </div>
 
-        <div class="login-error" id="cerError" style="display:none">
-          <i class="fa-solid fa-circle-exclamation"></i>
-          <span id="cerErrorMsg"></span>
-        </div>
+        <!-- PASO 2B: form ceramista -->
+        <div id="regPaso2Ceramista" style="display:none">
 
-        <div class="login-success" id="cerSuccess" style="display:none">
-          <i class="fa-solid fa-circle-check"></i>
-          <span>¡Registro exitoso! Ya podés ingresar con tu email y contraseña.</span>
-        </div>
+          <button class="reg-volver" onclick="volverPaso1()" type="button">
+            ← Volver
+          </button>
 
-        <button class="login-btn" onclick="registrarseCeramista()" id="btnRegistrarseCeramista">
-          <span>Crear cuenta gratis</span>
-          <i class="fa-solid fa-arrow-right"></i>
-        </button>
+          <div class="reg-rol-badge ceramista-badge">
+            🏺 Registro — Ceramista
+          </div>
+
+          <div class="ceramista-beneficios">
+            <div class="ceramista-beneficios-titulo">¿Por qué registrarte como ceramista?</div>
+            <ul>
+              <li><i class="fa-solid fa-floppy-disk"></i> Guardá tus cálculos y fórmulas en tu cuenta</li>
+              <li><i class="fa-solid fa-flask"></i> Accedé a la calculadora libre de pastas</li>
+              <li><i class="fa-solid fa-file-pdf"></i> Recursos y PDFs exclusivos para ceramistas</li>
+              <li><i class="fa-solid fa-bell"></i> Recibí novedades y ofertas del taller</li>
+            </ul>
+          </div>
+
+          <div class="form-grupo">
+            <label><i class="fa-regular fa-user"></i> Nombre completo</label>
+            <input type="text" id="cerNombre" placeholder="Tu nombre">
+          </div>
+
+          <div class="form-grupo">
+            <label><i class="fa-regular fa-envelope"></i> Email</label>
+            <input type="email" id="cerEmail" placeholder="tu@email.com">
+          </div>
+
+          <div class="form-grupo">
+            <label><i class="fa-solid fa-lock"></i> Contraseña</label>
+            <div class="pass-wrapper">
+              <input type="password" id="cerPass" placeholder="Elegí una contraseña">
+              <button class="pass-toggle" onclick="togglePass('cerPass', this)" type="button">
+                <i class="fa-regular fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-grupo">
+            <label><i class="fa-solid fa-heart"></i> ¿Qué te interesa? <small style="font-weight:400;opacity:0.5">(opcional)</small></label>
+            <div class="ceramista-intereses">
+              <label class="interes-check"><input type="checkbox" value="cursos"> <span>Cursos y talleres</span></label>
+              <label class="interes-check"><input type="checkbox" value="pastas"> <span>Pastas y fórmulas</span></label>
+              <label class="interes-check"><input type="checkbox" value="herramientas"> <span>Herramientas y calculadoras</span></label>
+              <label class="interes-check"><input type="checkbox" value="ofertas"> <span>Ofertas y novedades</span></label>
+            </div>
+          </div>
+
+          <div class="login-error" id="cerError" style="display:none">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span id="cerErrorMsg"></span>
+          </div>
+
+          <div class="login-success" id="cerSuccess" style="display:none">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>¡Registro exitoso! Ya podés ingresar con tu email y contraseña.</span>
+          </div>
+
+          <button class="login-btn" onclick="registrarseCeramista()" id="btnRegistrarseCeramista">
+            <span>Crear cuenta gratis</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+
+        </div>
 
       </div>
 
