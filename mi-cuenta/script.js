@@ -107,16 +107,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('cuentaNombre').innerText = `Hola, ${nombre} 👋`
 
   // Badge Pro
-  const esPro = sesion.plan === 'pro'
-  const badgeExistente = document.getElementById('planBadge')
-  if(badgeExistente) badgeExistente.remove()
-  if(esPro){
-    const badge = document.createElement('span')
-    badge.id        = 'planBadge'
-    badge.innerText = '⭐ Pro'
-    badge.style.cssText = 'font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(201,162,39,0.15);color:#c9a227;border:1.5px solid rgba(201,162,39,0.3);margin-left:8px;vertical-align:middle;'
-    document.getElementById('cuentaNombre').appendChild(badge)
-  }
+  const esPro  = sesion.plan === 'pro'
+  const badge  = document.getElementById('planBadge')
+  if(badge) badge.style.display = esPro ? 'inline-block' : 'none'
 
   // Mostrar nombre real del curso — soporta múltiples
   const cursoId     = sesion.curso || ''
