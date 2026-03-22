@@ -53,7 +53,7 @@
       <a class="ceramista-banner-btn" href="../login/index.html">Registrarme gratis →</a>
     </div>
 
-    <!-- CALCULADORAS -->
+    <!-- CALCULADORAS GRATIS -->
     <div class="herramientas-seccion">
       <h2>Calculadoras</h2>
       <div class="herramientas-grid">
@@ -111,24 +111,44 @@
           </div>
           <span class="herramienta-flecha">→</span>
         </a>
-        
+
       </div>
     </div>
 
-    <!-- PRÓXIMAMENTE -->
+    <!-- CALCULADORAS PRO -->
     <div class="herramientas-seccion">
-      <h2>Próximamente</h2>
-      <div class="herramientas-grid">
+      <h2>Calculadoras Pro ⭐</h2>
+      <p class="pro-seccion-desc">Herramientas avanzadas para ceramistas que quieren llevar su técnica al siguiente nivel.</p>
+      <div class="herramientas-grid" id="gridPro">
 
-        <div class="herramienta-card proximamente">
-          <div class="herramienta-icono">📄</div>
+        <div class="herramienta-card pro-card" data-calc="seger" onclick="irACalcPro('seger')">
+          <div class="herramienta-icono">🔬</div>
           <div class="herramienta-info">
-            <h3>Guías en PDF</h3>
-            <p>Fichas técnicas y guías de referencia para descargar.</p>
+            <h3>Fórmula Seger <span class="pro-badge">⭐ Pro</span></h3>
+            <p>Analizá la composición química de tus esmaltes y optimizá brillo, fusión y estabilidad.</p>
           </div>
-          <span class="herramienta-flecha herramienta-flecha-dis">→</span>
+          <span class="herramienta-flecha pro-flecha" id="flecha-seger">🔒</span>
         </div>
-       </div>
+
+        <div class="herramienta-card pro-card" data-calc="pruebas" onclick="irACalcPro('pruebas')">
+          <div class="herramienta-icono">🧪</div>
+          <div class="herramienta-info">
+            <h3>Generador de pruebas <span class="pro-badge">⭐ Pro</span></h3>
+            <p>Generá combinaciones de colorantes automáticamente y organizá tus series de testeo.</p>
+          </div>
+          <span class="herramienta-flecha pro-flecha" id="flecha-pruebas">🔒</span>
+        </div>
+
+        <div class="herramienta-card pro-card" data-calc="arcillas" onclick="irACalcPro('arcillas')">
+          <div class="herramienta-icono">🧱</div>
+          <div class="herramienta-info">
+            <h3>Mezcla de arcillas <span class="pro-badge">⭐ Pro</span></h3>
+            <p>Formulá pastas propias mezclando materiales y estimá plasticidad, contracción y temperatura.</p>
+          </div>
+          <span class="herramienta-flecha pro-flecha" id="flecha-arcillas">🔒</span>
+        </div>
+
+      </div>
     </div>
 
   </div>
@@ -142,14 +162,6 @@
   </footer>
 
   <script src="script.js"></script>
-  <script>
-    // Ocultar banner si ya hay sesión ceramista activa
-    try {
-      const s = JSON.parse(localStorage.getItem("ceramista_sesion") || "null")
-      if(s && s.token) document.getElementById("ceramistaBanner").style.display = "none"
-    } catch(e){}
-  </script>
-
   <script src="../nav-ceramista.js"></script>
 
 </body>
