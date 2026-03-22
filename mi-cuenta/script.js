@@ -107,9 +107,16 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('cuentaNombre').innerText = `Hola, ${nombre} 👋`
 
   // Badge Pro
-  const esPro  = sesion.plan === 'pro'
-  const badge  = document.getElementById('planBadge')
-  if(badge) badge.style.display = esPro ? 'inline-block' : 'none'
+  const esPro = sesion.plan === 'pro'
+  const badgeExistente = document.getElementById('planBadge')
+  if(badgeExistente) badgeExistente.remove()
+  if(esPro){
+    const badge = document.createElement('span')
+    badge.id        = 'planBadge'
+    badge.innerText = '⭐ Pro'
+    badge.style.cssText = 'font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(201,162,39,0.15);color:#c9a227;border:1.5px solid rgba(201,162,39,0.3);margin-left:8px;vertical-align:middle;'
+    document.getElementById('cuentaNombre').appendChild(badge)
+  }
 
   // Mostrar nombre real del curso — soporta múltiples
   const cursoId     = sesion.curso || ''
@@ -435,12 +442,16 @@ let historialCargado = false
 let filtroActual    = 'todos'
 
 const CALC_LABELS = {
-  yeso:        { emoji:'🧱', nombre:'Yeso',        pdfNombre:'Yeso' },
-  engobes:     { emoji:'🎨', nombre:'Engobes',     pdfNombre:'Engobes' },
-  coccion:     { emoji:'🌡️', nombre:'Cocción',     pdfNombre:'Coccion' },
-  contraccion: { emoji:'📐', nombre:'Contracción', pdfNombre:'Contraccion' },
-  costos:      { emoji:'💰', nombre:'Costos',      pdfNombre:'Costos' },
-  pastas:      { emoji:'🫙', nombre:'Pastas',      pdfNombre:'Pastas' }
+  yeso:        { emoji:'🧱', nombre:'Yeso',                pdfNombre:'Yeso' },
+  engobes:     { emoji:'🎨', nombre:'Engobes',             pdfNombre:'Engobes' },
+  coccion:     { emoji:'🌡️', nombre:'Cocción',             pdfNombre:'Coccion' },
+  contraccion: { emoji:'📐', nombre:'Contracción',         pdfNombre:'Contraccion' },
+  costos:      { emoji:'💰', nombre:'Costos',              pdfNombre:'Costos' },
+  pastas:      { emoji:'🫙', nombre:'Pastas',              pdfNombre:'Pastas' },
+  esmaltes:    { emoji:'⚗️', nombre:'Esmaltes',            pdfNombre:'Esmaltes' },
+  densidad:    { emoji:'⚗️', nombre:'Densidad de esmalte', pdfNombre:'Densidad' },
+  absorcion:   { emoji:'💧', nombre:'Absorcion de agua',   pdfNombre:'Absorcion' },
+  breakeven:   { emoji:'📊', nombre:'Punto de equilibrio', pdfNombre:'BreakEven' }
 }
 
 function formatFecha(fecha){
@@ -532,6 +543,25 @@ function renderDatosCard(calc, datos){
   if(calc === 'engobes')     return `<div class="htcard-chip">Total: ${datos.total || '—'}g</div>${datos.tipo ? `<div class="htcard-chip">${datos.tipo}</div>` : ''}`
   if(calc === 'contraccion') return `<div class="htcard-chip">Modo: ${datos.modo || '—'}</div>${datos.contraccion ? `<div class="htcard-chip">Contracción: ${datos.contraccion}%</div>` : ''}`
   if(calc === 'costos')      return `<div class="htcard-chip">Costo: $${datos.costoTotal || '—'}</div><div class="htcard-chip">Venta: $${datos.precioVenta || '—'}</div>`
+  if(calc === 'esmaltes'){
+    const comps = datos.componentes || []
+    return `<div class="htcard-chip">Total: ${datos.total || '—'}g</div>` +
+      comps.slice(0,3).map(c => `<div class="htcard-chip">${c.nombre}: ${c.gramos}g</div>`).join('') +
+      (comps.length > 3 ? `<div class="htcard-chip">+${comps.length-3} mas</div>` : '')
+  }
+  if(calc === 'densidad'){
+    return `<div class="htcard-chip">${datos.densidad || '—'} g/ml</div>` +
+           `<div class="htcard-chip">${datos.estado ? datos.estado.split(' ')[0] : '—'}</div>`
+  }
+  if(calc === 'absorcion'){
+    return `<div class="htcard-chip">${datos.absorcion || '—'}%</div>` +
+           `<div class="htcard-chip">${datos.estado ? datos.estado.split(' ')[0] : '—'}</div>` +
+           `<div class="htcard-chip">${datos.metodo || '—'}</div>`
+  }
+  if(calc === 'breakeven'){
+    return `<div class="htcard-chip">Equilibrio: ${datos.puntoEquilibrio || '—'} piezas</div>` +
+           `<div class="htcard-chip">Margen: $${datos.margen || '—'}</div>`
+  }
   if(calc === 'pastas'){
     const comps = datos.componentes || []
     return comps.slice(0,3).map(c => `<div class="htcard-chip">${c.nombre}: ${c.porcentaje}%</div>`).join('') +
@@ -639,6 +669,10 @@ async function renderItemPDF(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NE
   if(item.calculadora === 'costos')      return renderPDF_Costos(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
   if(item.calculadora === 'engobes')     return renderPDF_Engobes(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
   if(item.calculadora === 'pastas')      return renderPDF_Pastas(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
+  if(item.calculadora === 'esmaltes')    return renderPDF_Esmaltes(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
+  if(item.calculadora === 'densidad')    return renderPDF_Densidad(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
+  if(item.calculadora === 'absorcion')   return renderPDF_Absorcion(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
+  if(item.calculadora === 'breakeven')   return renderPDF_Breakeven(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
   // Fallback
   const h = 20
   if(y+h > 272){ doc.addPage(); y=20 }
@@ -817,5 +851,113 @@ function renderPDF_Pastas(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO
     doc.text(`${c.porcentaje||0}%`, m+4+cw, fy)
     doc.text(`${c.gramos||0}g`, m+4+cw*2, fy)
   })
+  return y+h+6
+}
+
+// ── ESMALTES ─────────────────────────────────
+function renderPDF_Esmaltes(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO){
+  const comps = datos.componentes || []
+  const h = 20 + Math.max(comps.length, 1) * 9
+  if(y+h > 272){ doc.addPage(); y=20 }
+  doc.setFillColor(...GRIS); doc.roundedRect(m,y,W-m*2,h,4,4,'F')
+  doc.setTextColor(...NEGRO); doc.setFontSize(12); doc.setFont('helvetica','bold')
+  doc.text(item.nombre || 'Sin nombre', m+5, y+9)
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(120,110,100)
+  doc.text(`${datos.total||0}g totales · ${formatFecha(item.fecha)||''}`, W-m-5, y+9, {align:'right'})
+  const cw = (W-m*2-10)/3
+  doc.setFontSize(7); doc.setFont('helvetica','bold')
+  doc.text('MATERIAL',m+4,y+16); doc.text('%',m+4+cw,y+16); doc.text('GRAMOS',m+4+cw*2,y+16)
+  comps.forEach((c,ci) => {
+    const fy = y+22+ci*9
+    doc.setTextColor(...NEGRO); doc.setFontSize(9); doc.setFont('helvetica','normal')
+    doc.text(c.nombre||'', m+4, fy)
+    doc.setTextColor(...MARRON); doc.setFont('helvetica','bold')
+    doc.text(`${c.pct||0}%`, m+4+cw, fy)
+    doc.text(`${c.gramos||0}g`, m+4+cw*2, fy)
+  })
+  return y+h+6
+}
+
+// ── DENSIDAD ─────────────────────────────────
+function renderPDF_Densidad(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO){
+  const h = 36
+  if(y+h > 272){ doc.addPage(); y=20 }
+  doc.setFillColor(...GRIS); doc.roundedRect(m,y,W-m*2,h,4,4,'F')
+  doc.setTextColor(...NEGRO); doc.setFontSize(12); doc.setFont('helvetica','bold')
+  doc.text(item.nombre || 'Sin nombre', m+5, y+9)
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(120,110,100)
+  doc.text(formatFecha(item.fecha)||'', W-m-5, y+9, {align:'right'})
+  const chips = [
+    {l:'DENSIDAD', v:`${datos.densidad||'—'} g/ml`},
+    {l:'PESO',     v:`${datos.peso||'—'}g`},
+    {l:'VOLUMEN',  v:`${datos.volumen||'—'}ml`},
+    {l:'ESTADO',   v:datos.estado ? datos.estado.split(' ')[0] : '—'}
+  ]
+  const cw = (W-m*2-9)/4
+  chips.forEach((c,ci) => {
+    const x = m+ci*(cw+3), cx = x+cw/2
+    doc.setFillColor(...BLANCO); doc.roundedRect(x,y+16,cw,14,2,2,'F')
+    doc.setTextColor(120,110,100); doc.setFontSize(6); doc.setFont('helvetica','bold')
+    doc.text(c.l, cx, y+21, {align:'center'})
+    doc.setTextColor(...MARRON); doc.setFontSize(9); doc.setFont('helvetica','bold')
+    doc.text(c.v, cx, y+27, {align:'center'})
+  })
+  return y+h+6
+}
+
+// ── ABSORCION ────────────────────────────────
+function renderPDF_Absorcion(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO){
+  const h = 36
+  if(y+h > 272){ doc.addPage(); y=20 }
+  doc.setFillColor(...GRIS); doc.roundedRect(m,y,W-m*2,h,4,4,'F')
+  doc.setTextColor(...NEGRO); doc.setFontSize(12); doc.setFont('helvetica','bold')
+  doc.text(item.nombre || 'Sin nombre', m+5, y+9)
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(120,110,100)
+  doc.text(`${datos.metodo||'—'} · ${formatFecha(item.fecha)||''}`, W-m-5, y+9, {align:'right'})
+  const chips = [
+    {l:'PESO SECO',   v:`${datos.pesoSeco||'—'}g`},
+    {l:'PESO HUMEDO', v:`${datos.pesoHumedo||'—'}g`},
+    {l:'ABSORCION',   v:`${datos.absorcion||'—'}%`},
+    {l:'ESTADO',      v:datos.estado ? datos.estado.split(' ')[0] : '—'}
+  ]
+  const cw = (W-m*2-9)/4
+  chips.forEach((c,ci) => {
+    const x = m+ci*(cw+3), cx = x+cw/2
+    doc.setFillColor(...BLANCO); doc.roundedRect(x,y+16,cw,14,2,2,'F')
+    doc.setTextColor(120,110,100); doc.setFontSize(6); doc.setFont('helvetica','bold')
+    doc.text(c.l, cx, y+21, {align:'center'})
+    doc.setTextColor(...MARRON); doc.setFontSize(9); doc.setFont('helvetica','bold')
+    doc.text(c.v, cx, y+27, {align:'center'})
+  })
+  return y+h+6
+}
+
+// ── BREAKEVEN ────────────────────────────────
+function renderPDF_Breakeven(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO){
+  const h = 40
+  if(y+h > 272){ doc.addPage(); y=20 }
+  doc.setFillColor(...GRIS); doc.roundedRect(m,y,W-m*2,h,4,4,'F')
+  doc.setTextColor(...NEGRO); doc.setFontSize(12); doc.setFont('helvetica','bold')
+  doc.text(item.nombre || 'Sin nombre', m+5, y+9)
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(120,110,100)
+  doc.text(formatFecha(item.fecha)||'', W-m-5, y+9, {align:'right'})
+  const chips = [
+    {l:'COSTOS FIJOS',   v:`$${datos.costosFijos||0}`},
+    {l:'COSTO VARIABLE', v:`$${datos.costoVariable||0}`},
+    {l:'PRECIO',         v:`$${datos.precio||0}`},
+    {l:'MARGEN',         v:`$${datos.margen||0}`}
+  ]
+  const cw = (W-m*2-9)/4
+  chips.forEach((c,ci) => {
+    const x = m+ci*(cw+3), cx = x+cw/2
+    doc.setFillColor(...BLANCO); doc.roundedRect(x,y+14,cw,12,2,2,'F')
+    doc.setTextColor(120,110,100); doc.setFontSize(5.5); doc.setFont('helvetica','bold')
+    doc.text(c.l, cx, y+18.5, {align:'center'})
+    doc.setTextColor(...MARRON); doc.setFontSize(8); doc.setFont('helvetica','bold')
+    doc.text(c.v, cx, y+23.5, {align:'center'})
+  })
+  doc.setFillColor(...MARRON); doc.roundedRect(m,y+29,W-m*2,8,2,2,'F')
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont('helvetica','bold')
+  doc.text(`Punto de equilibrio: ${datos.puntoEquilibrio||0} piezas`, W/2, y+34.5, {align:'center'})
   return y+h+6
 }
