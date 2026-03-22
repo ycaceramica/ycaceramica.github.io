@@ -339,7 +339,11 @@ body{ margin:0; overflow-x:hidden; }
 .estado-badge.rechazado  { background:rgba(168,82,82,0.15);  color:#a85252; border:1.5px solid rgba(168,82,82,0.3); }
 .estado-badge.pausado    { background:rgba(100,100,200,0.15); color:#6464c8; border:1.5px solid rgba(100,100,200,0.3); }
 
-.btn-aprobar,.btn-rechazar,.btn-pausar,.btn-reactivar,.btn-eliminar-usr{
+.plan-badge{ font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; }
+.plan-badge.pro  { background:rgba(201,162,39,0.15); color:#c9a227; border:1.5px solid rgba(201,162,39,0.3); }
+.plan-badge.free { background:rgba(139,111,86,0.08); color:var(--color-texto); border:1.5px solid rgba(139,111,86,0.2); opacity:0.5; }
+
+.btn-aprobar,.btn-rechazar,.btn-pausar,.btn-reactivar,.btn-eliminar-usr,.btn-toggle-plan{
   padding:6px 14px; border:none; border-radius:20px;
   font-family:'Plus Jakarta Sans',sans-serif; font-size:12px; font-weight:700;
   cursor:pointer; transition:0.15s; display:flex; align-items:center; gap:5px;
@@ -354,6 +358,10 @@ body{ margin:0; overflow-x:hidden; }
 .btn-reactivar:hover { background:#52a852; color:white; }
 .btn-eliminar-usr { background:rgba(168,82,82,0.08); color:#a85252; border:1.5px solid rgba(168,82,82,0.2); opacity:0.7; }
 .btn-eliminar-usr:hover { background:#a85252; color:white; opacity:1; }
+.btn-dar-pro   { background:rgba(201,162,39,0.12); color:#c9a227; border:1.5px solid rgba(201,162,39,0.3); }
+.btn-dar-pro:hover { background:#c9a227; color:white; }
+.btn-quitar-pro{ background:rgba(139,111,86,0.1); color:var(--color-texto); border:1.5px solid rgba(139,111,86,0.2); opacity:0.6; }
+.btn-quitar-pro:hover{ opacity:1; }
 
 .usuario-curso-row{ display:flex; align-items:center; gap:8px; margin-top:6px; flex-wrap:wrap; }
 .usuario-curso-label{ font-size:12px; font-weight:600; color:var(--color-primario); display:flex; align-items:center; gap:5px; }
