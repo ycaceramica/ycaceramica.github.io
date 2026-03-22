@@ -168,6 +168,10 @@ function calcular(){
   document.getElementById("resCostoTotal").innerText  = fmt(costoTotal)
   document.getElementById("resPrecioVenta").innerText = fmt(precioVenta)
   document.getElementById("resGananciaValor").innerText = `Ganancia: ${fmt(gananciaMonto)} (${ganancia}%)`
+
+  // Mostrar botón de análisis de negocio
+  const btnBE = document.getElementById("btnBreakeven")
+  if(btnBE) btnBE.style.display = "flex"
 }
 
 function fmt(n){ return "$" + (Math.round(n * 100) / 100).toLocaleString("es-AR", { minimumFractionDigits:2, maximumFractionDigits:2 }) }
@@ -458,3 +462,33 @@ function guardarEnTaller(){
 }
 
 verificarSesionTaller()
+
+// ─────────────────────────────────────────────
+// INTEGRACIÓN CON BREAK-EVEN
+// ─────────────────────────────────────────────
+
+function usarParaBreakeven(){
+  const ganancia   = parseFloat(document.getElementById("ganancia").value) || 0
+  const totalMat   = Array.from(document.querySelectorAll(".material-row")).reduce((s, r) => {
+    const cant  = parseFloat(r.querySelector(".mat-cantidad")?.value) || 0
+    const precio = parseFloat(r.querySelector(".mat-precio")?.value)   || 0
+    return s + cant * precio
+  }, 0)
+  const horas      = parseFloat(document.getElementById("horas").value)     || 0
+  const valorHora  = parseFloat(document.getElementById("valorHora").value) || 0
+  const fijos      = parseFloat(document.getElementById("costosFijos").value) || 0
+  const costoTotal = totalMat + horas * valorHora + fijos
+  const precioVenta = costoTotal * (1 + ganancia / 100)
+
+  if(costoTotal <= 0){
+    mostrarModal({ titulo: 'Sin datos', texto: 'Calculá el costo de una pieza antes de usar esta función.', confirmar: 'Entendido', cancelar: false })
+    return
+  }
+
+  localStorage.setItem('costos_para_breakeven', JSON.stringify({
+    costoVariable: parseFloat(costoTotal.toFixed(2)),
+    precio:        parseFloat(precioVenta.toFixed(2))
+  }))
+
+  window.location.href = '../breakeven/index.html'
+}
