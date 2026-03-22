@@ -18,6 +18,13 @@
   gap: 32px;
 }
 
+#proContenido,
+#proAcciones{
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
 /* ── VOLVER ── */
 
 .pro-volver{
