@@ -886,8 +886,12 @@
 /* ── RESPONSIVE ── */
 
 @media(max-width:900px){
-  .lab-layout{ grid-template-columns:1fr; }
+  .lab-layout{
+    grid-template-columns:1fr;
+    width:100%;
+  }
   .historial-panel{ position:static; }
+  .lab-card{ width:100%; }
 }
 
 @media(max-width:768px){
@@ -902,4 +906,7 @@
   .den-inputs{ gap:10px; }
   .den-resultado-valor{ font-size:40px; }
   .lab-wrapper{ overflow-x:hidden; box-sizing:border-box; }
+  .lab-layout{ width:100%; }
+  .esm-escalar-row{ flex-wrap:wrap; }
+  .btn-escalar{ width:100%; justify-content:center; }
 }
