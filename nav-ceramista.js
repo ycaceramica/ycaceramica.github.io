@@ -77,7 +77,7 @@
     // ── 5. Insertar según el estado ─────────
     if(!rol){
       // Sin sesión → botón "Soy ceramista"
-      var loginUrl = prefix + 'login/index.html#ceramista'
+      var loginUrl = prefix + 'login/index.html'
       var btn = document.createElement('a')
       btn.className = 'nav-sesion-registro'
       btn.href      = loginUrl
