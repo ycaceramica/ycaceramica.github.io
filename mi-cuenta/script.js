@@ -398,8 +398,7 @@ async function cambiarContrasena(){
         action:   'cambiarContrasena',
         id:       sesion.id,
         actual,
-        nueva,
-        token:    sesion.token
+        nueva
       })
     })
     const data = await res.json()
