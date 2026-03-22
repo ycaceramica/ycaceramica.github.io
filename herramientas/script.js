@@ -1,3 +1,7 @@
+// ─────────────────────────────────────────────
+// MODO OSCURO
+// ─────────────────────────────────────────────
+
 function actualizarIcono(){
   const btn = document.getElementById("toggleDark")
   if(btn) btn.innerText = document.body.classList.contains("dark") ? "☀️" : "🌙"
@@ -19,6 +23,10 @@ if(toggleDark){
   })
 }
 
+// ─────────────────────────────────────────────
+// NAV
+// ─────────────────────────────────────────────
+
 const hamburguesa = document.getElementById("hamburguesa")
 const nav = document.getElementById("nav")
 
@@ -33,20 +41,65 @@ document.querySelectorAll(".nav a").forEach(link => {
 window.addEventListener("scroll", () => {
   if(nav) nav.classList.remove("active")
 })
-// Ocultar banner ceramista si ya hay sesión (alumno o ceramista)
-function ocultarBannerSiSesion(){
+
+// ─────────────────────────────────────────────
+// SESIÓN Y ESTADO PRO
+// ─────────────────────────────────────────────
+
+function getSesion(){
   try {
-    const ceramista = JSON.parse(localStorage.getItem('ceramista_sesion') || 'null')
-    const alumno    = JSON.parse(sessionStorage.getItem('yca_sesion') || 'null')
-    const tienesSesion = (ceramista && ceramista.token) || (alumno && alumno.token)
-    if(tienesSesion){
-      const banner = document.getElementById('ceramistaBanner')
-      if(banner) banner.style.display = 'none'
-    }
-  } catch(e){}
+    return JSON.parse(sessionStorage.getItem('yca_sesion'))
+  } catch(e) {
+    return null
+  }
 }
+
+function inicializarPro(){
+  const sesion = getSesion()
+
+  // Ocultar banner si ya hay sesión
+  const banner = document.getElementById('ceramistaBanner')
+  if(sesion && sesion.token && banner){
+    banner.style.display = 'none'
+  }
+
+  // Actualizar flechas de cards Pro según plan
+  const esPro = sesion && sesion.plan === 'pro'
+  const calcsPro = ['seger', 'pruebas', 'arcillas']
+
+  calcsPro.forEach(id => {
+    const flecha = document.getElementById('flecha-' + id)
+    const card   = document.querySelector(`.pro-card[data-calc="${id}"]`)
+    if(!flecha || !card) return
+
+    if(esPro){
+      flecha.innerText = '→'
+      flecha.style.fontSize  = '20px'
+      flecha.style.color     = 'var(--color-primario)'
+      card.classList.add('pro-desbloqueada')
+    } else {
+      flecha.innerText = '🔒'
+      flecha.style.fontSize  = '20px'
+    }
+  })
+}
+
+// ─────────────────────────────────────────────
+// NAVEGACIÓN A CALCULADORA PRO
+// ─────────────────────────────────────────────
+
+function irACalcPro(calc){
+  // Siempre va a la página de presentación
+  // Si es Pro, la página de presentación lo manda directo a la calculadora
+  window.location.href = '../pro/index.html?calc=' + calc
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+
 if(document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', ocultarBannerSiSesion)
+  document.addEventListener('DOMContentLoaded', inicializarPro)
 } else {
-  ocultarBannerSiSesion()
+  inicializarPro()
 }
