@@ -92,26 +92,25 @@
   border-color:var(--color-primario);
 }
 
-.be-link-costos{
+.be-btn-cargar-costos{
   display:inline-flex;
   align-items:center;
-  gap:6px;
-  padding:10px 14px;
+  gap:8px;
+  padding:9px 16px;
   border-radius:10px;
-  background:rgba(139,111,86,0.08);
-  border:1.5px solid rgba(139,111,86,0.2);
+  border:1.5px solid rgba(139,111,86,0.3);
+  background:rgba(139,111,86,0.06);
   color:var(--color-primario);
   font-family:'Plus Jakarta Sans', sans-serif;
-  font-size:12px;
+  font-size:13px;
   font-weight:700;
-  text-decoration:none;
-  white-space:nowrap;
+  cursor:pointer;
   transition:0.2s;
-  flex-shrink:0;
+  align-self:flex-start;
 }
-
-.be-link-costos:hover{
-  background:rgba(139,111,86,0.15);
+.be-btn-cargar-costos:hover{
+  background:rgba(139,111,86,0.12);
+  border-color:var(--color-primario);
 }
 
 /* ── WRAPPER ── */
