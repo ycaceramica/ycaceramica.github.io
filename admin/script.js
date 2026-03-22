@@ -1767,7 +1767,17 @@ function renderCeramistas(){
     const card      = document.createElement('div')
     card.className  = 'usuario-card'
 
-    let botones = `<span class="estado-badge ${c.estado}">${c.estado === 'activo' ? 'Activo' : 'Pausado'}</span>`
+    const esProC = (c.plan === 'pro')
+    const planBadgeC = esProC
+      ? `<span class="plan-badge pro">⭐ Pro</span>`
+      : `<span class="plan-badge free">Free</span>`
+    const planBtnC = c.estado === 'activo'
+      ? `<button class="btn-toggle-plan ${esProC ? 'btn-quitar-pro' : 'btn-dar-pro'}" onclick="togglePlanUsuario('${c.id}','ceramistas','${esProC ? 'free' : 'pro'}')">
+           ${esProC ? '<i class="fa-solid fa-star-half-stroke"></i> Quitar Pro' : '<i class="fa-solid fa-star"></i> Dar Pro'}
+         </button>`
+      : ''
+
+    let botones = `<span class="estado-badge ${c.estado}">${c.estado === 'activo' ? 'Activo' : 'Pausado'}</span>${planBadgeC}`
     if(c.estado === 'activo'){
       botones += `
         <button class="btn-pausar" onclick="gestionarCeramista('${c.id}','pausar')"><i class="fa-solid fa-pause"></i> Pausar</button>
@@ -1807,7 +1817,7 @@ function renderCeramistas(){
           </div>
         </div>
       </div>
-      <div class="usuario-acciones">${botones}</div>`
+      <div class="usuario-acciones">${botones}${planBtnC}</div>`
     lista.appendChild(card)
   })
 }
@@ -1934,7 +1944,17 @@ function renderUsuarios(){
     const card         = document.createElement('div')
     card.className = 'usuario-card'
 
-    let botones = `<span class="estado-badge ${u.estado}">${estadoLabels[u.estado] || u.estado}</span>`
+    const esPro = (u.plan === 'pro')
+    const planBadge = esPro
+      ? `<span class="plan-badge pro">⭐ Pro</span>`
+      : `<span class="plan-badge free">Free</span>`
+    const planBtn = u.estado === 'activo'
+      ? `<button class="btn-toggle-plan ${esPro ? 'btn-quitar-pro' : 'btn-dar-pro'}" onclick="togglePlanUsuario('${u.id}','usuarios','${esPro ? 'free' : 'pro'}')">
+           ${esPro ? '<i class="fa-solid fa-star-half-stroke"></i> Quitar Pro' : '<i class="fa-solid fa-star"></i> Dar Pro'}
+         </button>`
+      : ''
+
+    let botones = `<span class="estado-badge ${u.estado}">${estadoLabels[u.estado] || u.estado}</span>${planBadge}`
     if(u.estado === 'pendiente'){
       botones += `
         <button class="btn-aprobar"  onclick="gestionarUsuario('${u.id}','aprobar')"><i class="fa-solid fa-check"></i> Aprobar</button>
@@ -1979,7 +1999,7 @@ function renderUsuarios(){
           </div>
         </div>
       </div>
-      <div class="usuario-acciones">${botones}</div>
+      <div class="usuario-acciones">${botones}${planBtn}</div>
     `
     lista.appendChild(card)
   })
@@ -3513,5 +3533,28 @@ async function cargarMultimediaTabs(){
         cache['multimedia_ceramistas'] = d.data || []
         const cntMCerBg = document.getElementById('cnt-multimedia-ceramistas'); if(cntMCerBg) cntMCerBg.innerText = cache['multimedia_ceramistas'].length
       }).catch(() => {})
+  }
+}
+
+// ─────────────────────────────────────────────
+// TOGGLE PLAN PRO
+// ─────────────────────────────────────────────
+
+async function togglePlanUsuario(id, hoja, plan) {
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'togglePlan', id, hoja, plan, token: sesion.token })
+    })
+    const data = await res.json()
+    if(data.ok){
+      await cargarUsuarios()
+      toast(plan === 'pro' ? '⭐ Plan Pro activado' : '✓ Plan cambiado a Free', 'ok')
+    } else {
+      toast('❌ Error al cambiar el plan', 'err')
+    }
+  } catch(e) {
+    toast('❌ Error de conexión', 'err')
   }
 }
