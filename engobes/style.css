@@ -205,6 +205,24 @@
   font-weight:700;
 }
 
+.nombre-custom-input{
+  font-size:13px;
+  font-weight:600;
+  font-family:'Plus Jakarta Sans', sans-serif;
+  background:transparent;
+  border:none;
+  border-bottom:1.5px solid rgba(139,111,86,0.3);
+  color:var(--color-texto);
+  padding:2px 4px;
+  width:160px;
+  outline:none;
+  transition:border-color 0.2s;
+}
+
+.nombre-custom-input:focus{
+  border-bottom-color:var(--color-primario);
+}
+
 .componente-sub{
   font-weight:400;
   opacity:0.6;
