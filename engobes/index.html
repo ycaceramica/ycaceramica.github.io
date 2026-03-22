@@ -117,10 +117,10 @@
 
           <div class="componentes" id="componentes">
 
-            <!-- TINKAR -->
+            <!-- ARCILLA BASE -->
             <div class="componente">
               <div class="componente-header">
-                <span class="componente-nombre">🟤 Tinkar <span class="componente-sub">(Arcilla base)</span></span>
+                <span class="componente-nombre">🟤 Arcilla Base</span>
                 <span class="componente-ref" id="refTinkar">Ref: 85%</span>
               </div>
               <div class="componente-control">
@@ -130,10 +130,10 @@
               </div>
             </div>
 
-            <!-- FLUX -->
+            <!-- FUNDENTE -->
             <div class="componente">
               <div class="componente-header">
-                <span class="componente-nombre">⚪ Flux <span class="componente-sub">(Esmalte)</span></span>
+                <span class="componente-nombre">⚪ Fundente</span>
                 <span class="componente-ref">Ref: 10%</span>
               </div>
               <div class="componente-control">
@@ -171,6 +171,22 @@
               <div class="componente-control oculto" id="controlFeldespato">
                 <input type="range" id="sliderFeldespato" min="0" max="100" value="20" oninput="sincronizarInput('Feldespato'); calcular()">
                 <input type="number" id="inputFeldespato" min="0" max="100" value="20" oninput="sincronizarSlider('Feldespato'); calcular()">
+                <span class="componente-pct">%</span>
+              </div>
+            </div>
+
+            <!-- INGREDIENTE PERSONALIZADO -->
+            <div class="componente" id="componenteCustom">
+              <div class="componente-header">
+                <label class="componente-check">
+                  <input type="checkbox" id="checkCustom" onchange="toggleCustom(); calcular()">
+                  <span class="componente-nombre">✏️ <input type="text" id="nombreCustom" class="nombre-custom-input" placeholder="Ingrediente personalizado" oninput="calcular()"></span>
+                </label>
+                <span class="componente-ref">Ref: —</span>
+              </div>
+              <div class="componente-control oculto" id="controlCustom">
+                <input type="range" id="sliderCustom" min="0" max="100" value="10" oninput="sincronizarInput('Custom'); calcular()">
+                <input type="number" id="inputCustom" min="0" max="100" value="10" oninput="sincronizarSlider('Custom'); calcular()">
                 <span class="componente-pct">%</span>
               </div>
             </div>
