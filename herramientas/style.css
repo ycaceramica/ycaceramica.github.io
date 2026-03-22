@@ -29,13 +29,13 @@
 }
 
 .herramientas-seccion{
-  margin-bottom:50px;
+  margin-bottom:60px;
 }
 
 .herramientas-seccion h2{
   font-size:20px;
   font-weight:700;
-  margin-bottom:8px;
+  margin-bottom:16px;
   padding-bottom:10px;
   border-bottom:2px solid var(--color-primario);
   display:inline-block;
@@ -44,9 +44,10 @@
 .seccion-desc{
   font-size:13px;
   opacity:0.6;
-  margin:0 0 20px 0;
+  margin:0 0 24px 0;
   line-height:1.5;
   max-width:600px;
+  display:block;
 }
 
 .herramientas-grid{
@@ -196,10 +197,11 @@ a.herramienta-card:hover{
 /* ── SECCIÓN PRO ── */
 
 .pro-seccion-desc{
-  font-size:14px;
+  font-size:13px;
   opacity:0.6;
-  margin:-10px 0 20px 0;
+  margin:0 0 24px 0;
   line-height:1.5;
+  display:block;
 }
 
 .pro-card{
