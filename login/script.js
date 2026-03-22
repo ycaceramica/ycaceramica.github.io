@@ -20,15 +20,16 @@ aplicarModoOscuro()
 window.addEventListener('DOMContentLoaded', () => {
   const sesion = getSesion()
   if(sesion){
-    if(sesion.rol === 'admin')      window.location.href = '../admin/index.html'
+    if(sesion.rol === 'admin')          window.location.href = '../admin/index.html'
     else if(sesion.rol === 'ceramista') window.location.href = '../mi-taller/index.html'
-    else                            window.location.href = '../mi-cuenta/index.html'
+    else                                window.location.href = '../mi-cuenta/index.html'
   }
   cargarCursosRegistro()
 
-  // Si viene con #ceramista en la URL, abrir el tab ceramista directo
+  // Si viene con #ceramista en la URL, ir directo al registro ceramista
   if(window.location.hash === '#ceramista'){
-    setTab('ceramista')
+    setTab('registrarse')
+    elegirRol('ceramista')
   }
 })
 
@@ -53,8 +54,8 @@ async function cargarCursosRegistro(){
     }
 
     cursos.forEach(c => {
-      const opt   = document.createElement('option')
-      opt.value   = c.hojaId || c.id
+      const opt       = document.createElement('option')
+      opt.value       = c.hojaId || c.id
       opt.textContent = c.nombre + (c.estado === 'proximamente' ? ' — Próximamente' : '')
       select.appendChild(opt)
     })
@@ -64,24 +65,54 @@ async function cargarCursosRegistro(){
 }
 
 // ─────────────────────────────────────────────
-// TABS
+// TABS PRINCIPALES
 // ─────────────────────────────────────────────
 
 function setTab(tab){
   const esIngresar    = tab === 'ingresar'
   const esRegistrarse = tab === 'registrarse'
-  const esCeramista   = tab === 'ceramista'
   const esOlvide      = tab === 'olvide'
 
   document.getElementById('tabIngresar').classList.toggle('activo',    esIngresar)
   document.getElementById('tabRegistrarse').classList.toggle('activo', esRegistrarse)
-  document.getElementById('tabCeramista').classList.toggle('activo',   esCeramista)
   document.getElementById('loginTabs').style.display = esOlvide ? 'none' : 'flex'
 
   document.getElementById('formIngresar').style.display    = esIngresar    ? 'flex' : 'none'
   document.getElementById('formRegistrarse').style.display = esRegistrarse ? 'flex' : 'none'
-  document.getElementById('formCeramista').style.display   = esCeramista   ? 'flex' : 'none'
   document.getElementById('formOlvide').style.display      = esOlvide      ? 'flex' : 'none'
+
+  // Actualizar subtítulo
+  const subtitulo = document.getElementById('loginSubtitulo')
+  if(esIngresar)    subtitulo.innerText = 'Ingresá a tu cuenta'
+  if(esRegistrarse) subtitulo.innerText = 'Creá tu cuenta gratis'
+  if(esOlvide)      subtitulo.innerText = 'Recuperar contraseña'
+
+  // Al cambiar tab, volver al paso 1 del registro
+  if(esRegistrarse) volverPaso1()
+
+  ocultarErrores()
+}
+
+// ─────────────────────────────────────────────
+// SELECTOR DE ROL EN REGISTRO
+// ─────────────────────────────────────────────
+
+function elegirRol(rol){
+  document.getElementById('regPaso1').style.display            = 'none'
+  document.getElementById('regPaso2Comunidad').style.display   = 'none'
+  document.getElementById('regPaso2Ceramista').style.display   = 'none'
+
+  if(rol === 'comunidad'){
+    document.getElementById('regPaso2Comunidad').style.display = 'flex'
+  } else {
+    document.getElementById('regPaso2Ceramista').style.display = 'flex'
+  }
+}
+
+function volverPaso1(){
+  document.getElementById('regPaso1').style.display            = 'flex'
+  document.getElementById('regPaso2Comunidad').style.display   = 'none'
+  document.getElementById('regPaso2Ceramista').style.display   = 'none'
   ocultarErrores()
 }
 
@@ -181,7 +212,7 @@ async function ingresar(){
 }
 
 // ─────────────────────────────────────────────
-// REGISTRARSE
+// REGISTRARSE (Comunidad)
 // ─────────────────────────────────────────────
 
 async function registrarse(){
@@ -244,8 +275,7 @@ async function registrarseCeramista(){
     return
   }
 
-  // Recolectar intereses
-  const checks = document.querySelectorAll('.interes-check input:checked')
+  const checks    = document.querySelectorAll('.interes-check input:checked')
   const intereses = checks.length > 0
     ? Array.from(checks).map(c => c.value).join(',')
     : 'todo'
@@ -276,6 +306,10 @@ async function registrarseCeramista(){
   setBtnCargando('btnRegistrarseCeramista', false)
 }
 
+// ─────────────────────────────────────────────
+// SESIÓN
+// ─────────────────────────────────────────────
+
 function guardarSesion(data){
   sessionStorage.setItem('yca_sesion', JSON.stringify({
     rol:         data.rol,
@@ -305,13 +339,11 @@ function mostrarError(divId, spanId, msg){
 }
 
 function ocultarErrores(){
-  document.getElementById('loginError').style.display    = 'none'
-  document.getElementById('regError').style.display      = 'none'
-  document.getElementById('regSuccess').style.display    = 'none'
-  document.getElementById('olvideError').style.display   = 'none'
-  document.getElementById('olvideSuccess').style.display = 'none'
-  document.getElementById('cerError').style.display      = 'none'
-  document.getElementById('cerSuccess').style.display    = 'none'
+  const ids = ['loginError','regError','regSuccess','olvideError','olvideSuccess','cerError','cerSuccess']
+  ids.forEach(id => {
+    const el = document.getElementById(id)
+    if(el) el.style.display = 'none'
+  })
 }
 
 function setBtnCargando(id, cargando){
@@ -319,19 +351,18 @@ function setBtnCargando(id, cargando){
   if(!btn) return
   btn.classList.toggle('cargando', cargando)
   const textos = {
-    btnIngresar:              { on: 'Cargando...',  off: 'Ingresar' },
-    btnRegistrarse:           { on: 'Cargando...',  off: 'Solicitar acceso' },
-    btnOlvide:                { on: 'Enviando...',  off: 'Enviar contraseña temporal' },
-    btnRegistrarseCeramista:  { on: 'Cargando...',  off: 'Crear cuenta gratis' }
+    btnIngresar:             { on: 'Cargando...',  off: 'Ingresar' },
+    btnRegistrarse:          { on: 'Cargando...',  off: 'Solicitar acceso' },
+    btnOlvide:               { on: 'Enviando...',  off: 'Enviar contraseña temporal' },
+    btnRegistrarseCeramista: { on: 'Cargando...',  off: 'Crear cuenta gratis' }
   }
   const t = textos[id]
   if(t) btn.querySelector('span').innerText = cargando ? t.on : t.off
 }
 
-// Enter para enviar
+// Enter para enviar en login
 document.addEventListener('keydown', e => {
   if(e.key !== 'Enter') return
   const formIngresarVisible = document.getElementById('formIngresar').style.display !== 'none'
   if(formIngresarVisible) ingresar()
-  else registrarse()
 })
