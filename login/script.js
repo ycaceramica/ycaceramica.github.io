@@ -317,7 +317,8 @@ function guardarSesion(data){
     nombre:      data.nombre,
     id:          data.id || null,
     curso:       data.curso || '',
-    cursoNombre: data.cursoNombre || data.curso || ''
+    cursoNombre: data.cursoNombre || data.curso || '',
+    plan:        data.plan || 'free'
   }))
 }
 
