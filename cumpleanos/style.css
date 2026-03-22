@@ -116,6 +116,10 @@
   background:var(--color-superficie);
   border-radius:20px;
   box-shadow:0 8px 20px var(--color-sombra);
+  max-width:900px;
+  margin-left:auto;
+  margin-right:auto;
+  box-sizing:border-box;
 }
 
 .incluye-grid{
