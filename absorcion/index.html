@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Absorción de Agua — YCA Cerámica</title>
+
+  <link rel="icon" type="image/png" href="../imagenes/logo.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+<body>
+
+  <!-- BARRA -->
+  <header class="header">
+    <div class="header-container">
+      <div class="logo">
+        <a href="../index.html">
+          <img src="../imagenes/logo.png" alt="YCA Cerámica" style="height:38px;width:38px;border-radius:50%;vertical-align:middle;margin-right:8px;">YCA Cerámica
+        </a>
+      </div>
+      <nav class="nav" id="nav">
+        <a href="../index.html">Inicio</a>
+        <a href="../index.html#productos">Productos</a>
+        <a href="../herramientas/index.html">Herramientas</a>
+        <a href="../cursos/index.html">Cursos y Talleres</a>
+        <a href="../index.html#galeria">Galería</a>
+        <a href="../index.html#contacto">Contacto</a>
+        <button id="toggleDark">🌙</button>
+      </nav>
+      <span class="hamburguesa" id="hamburguesa">☰</span>
+    </div>
+  </header>
+
+  <!-- CALCULADORA -->
+  <div class="lab-wrapper">
+
+    <div class="lab-header">
+      <a class="lab-volver" href="../herramientas/index.html">← Herramientas</a>
+      <h1>💧 Absorción de Agua</h1>
+      <p>Medí cuánta agua absorbe tu pieza cocida para saber si está bien vitrificada.</p>
+      <div class="lab-tips">
+        <span>Guardá tus mediciones en el historial</span>
+        <span>Descargalas en PDF</span>
+      </div>
+    </div>
+
+    <!-- INFO -->
+    <div class="calc-info-box">
+      <button class="calc-info-toggle" onclick="toggleInfo()">
+        <i class="fa-solid fa-circle-info"></i> ¿Cómo usar esta calculadora?
+        <i class="fa-solid fa-chevron-down" id="infoChevron"></i>
+      </button>
+      <div class="calc-info-content" id="infoContent" style="display:none">
+        <p>La absorción de agua indica qué tan vitrificada está tu pieza después de la cocción. Cuanto menor sea el porcentaje, más densa y resistente es la cerámica.</p>
+        <ol>
+          <li><strong>Pesá la pieza seca</strong> — antes de cualquier contacto con agua.</li>
+          <li><strong>Herví o remojá la pieza</strong> — hervido 1-2 horas para mayor precisión, o remojo 24hs como alternativa.</li>
+          <li><strong>Secá la superficie</strong> — con un trapo húmedo, sin secar el interior.</li>
+          <li><strong>Pesá la pieza húmeda</strong> — e ingresá ambos valores.</li>
+        </ol>
+        <p>El resultado te indica el porcentaje de absorción y una interpretación automática del nivel de vitrificación.</p>
+      </div>
+    </div>
+
+    <div class="lab-layout">
+
+      <!-- COLUMNA IZQUIERDA -->
+      <div class="lab-card">
+
+        <!-- NOMBRE -->
+        <div class="lab-paso">
+          <div class="lab-paso-titulo">
+            <span class="lab-paso-num">1</span>
+            <span>Nombre de la pieza</span>
+          </div>
+          <input type="text" id="absNombre" class="nombre-input" placeholder="Ej: Taza gres Cone 6">
+        </div>
+
+        <!-- MÉTODO -->
+        <div class="lab-paso">
+          <div class="lab-paso-titulo">
+            <span class="lab-paso-num">2</span>
+            <span>Método de saturación</span>
+          </div>
+          <div class="tipo-selector">
+            <button class="tipo-btn activo" id="btnMetodoHervido" onclick="setMetodo('hervido')">
+              <i class="fa-solid fa-fire"></i> Hervido (1-2 hs)
+            </button>
+            <button class="tipo-btn" id="btnMetodoRemojo" onclick="setMetodo('remojo')">
+              <i class="fa-solid fa-clock"></i> Remojo (24 hs)
+            </button>
+          </div>
+          <p class="abs-metodo-nota" id="metodoNota">
+            Recomendado: el hervido satura mejor la pieza y da resultados más precisos.
+          </p>
+        </div>
+
+        <!-- PESOS -->
+        <div class="lab-paso">
+          <div class="lab-paso-titulo">
+            <span class="lab-paso-num">3</span>
+            <span>Pesos de la pieza</span>
+          </div>
+          <div class="abs-campos">
+            <div class="abs-campo">
+              <label>Peso seco</label>
+              <div class="abs-input-wrapper">
+                <input type="number" id="absPesoSeco" placeholder="0" min="0" step="0.1" oninput="calcularAbsorcion()">
+                <span class="abs-unidad">g</span>
+              </div>
+            </div>
+            <div class="abs-campo">
+              <label>Peso húmedo</label>
+              <div class="abs-input-wrapper">
+                <input type="number" id="absPesoHumedo" placeholder="0" min="0" step="0.1" oninput="calcularAbsorcion()">
+                <span class="abs-unidad">g</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULTADO -->
+        <div class="lab-resultado" id="absResultado" style="display:none">
+
+          <h3>Resultado</h3>
+
+          <!-- VALOR PRINCIPAL -->
+          <div class="abs-resultado-principal">
+            <div class="abs-resultado-valor" id="absValor">—</div>
+            <div class="abs-resultado-unidad">%</div>
+          </div>
+
+          <!-- BARRA DE INTERPRETACIÓN -->
+          <div class="abs-barra-wrapper">
+            <div class="abs-barra-bg">
+              <div class="abs-barra-fill" id="absBarra"></div>
+            </div>
+            <div class="abs-barra-labels">
+              <span>0%</span>
+              <span>3%</span>
+              <span>6%+</span>
+            </div>
+          </div>
+
+          <!-- BADGE DE ESTADO -->
+          <div class="abs-estado" id="absEstado"></div>
+
+          <!-- NOTA DE MÉTODO -->
+          <div class="abs-aviso-metodo" id="absAvisoMetodo" style="display:none">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>Medición con remojo: puede subestimar hasta un 2% respecto al método hervido.</span>
+          </div>
+
+          <!-- ACCIONES -->
+          <div class="resultado-acciones">
+            <button class="btn-accion btn-guardar" onclick="guardarAbsorcion()">
+              <i class="fa-solid fa-floppy-disk"></i> Guardar en historial
+            </button>
+            <button class="btn-accion btn-copiar" onclick="copiarAbsorcion()">
+              <i class="fa-regular fa-copy"></i> Copiar
+            </button>
+          </div>
+          <button class="btn-accion btn-taller" id="btnTallerAbs" onclick="guardarEnTallerAbs()" style="display:none">
+            <i class="fa-solid fa-store"></i> Guardar en mi taller
+          </button>
+
+        </div>
+
+        <!-- TABLA DE REFERENCIA -->
+        <div class="abs-referencia">
+          <div class="abs-referencia-titulo">Tabla de referencia</div>
+          <div class="abs-referencia-grid">
+            <div class="abs-ref-item vitrificada">
+              <div class="abs-ref-rango">0 – 1%</div>
+              <div class="abs-ref-label">Alta vitrificación</div>
+              <div class="abs-ref-desc">Porcelana, gatés finos</div>
+            </div>
+            <div class="abs-ref-item buena">
+              <div class="abs-ref-rango">1 – 3%</div>
+              <div class="abs-ref-label">Muy buena</div>
+              <div class="abs-ref-desc">Ideal para uso utilitario</div>
+            </div>
+            <div class="abs-ref-item media">
+              <div class="abs-ref-rango">3 – 6%</div>
+              <div class="abs-ref-label">Media</div>
+              <div class="abs-ref-desc">Aceptable, revisar cocción</div>
+            </div>
+            <div class="abs-ref-item alta">
+              <div class="abs-ref-rango">6%+</div>
+              <div class="abs-ref-label">Alta absorción</div>
+              <div class="abs-ref-desc">Riesgo en piezas utilitarias</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- HISTORIAL -->
+      <div class="historial-panel">
+        <div class="historial-header">
+          <h3>Historial</h3>
+          <div class="historial-acciones">
+            <button class="btn-pdf" onclick="descargarPDF()" id="btnPDF" disabled>
+              <i class="fa-solid fa-file-pdf"></i> PDF
+            </button>
+            <button class="btn-limpiar-todo" onclick="limpiarHistorial()" id="btnLimpiar" style="display:none">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="historial-lista" id="absHistorialLista">
+          <p class="historial-vacio">Guardá una medición para verla aquí.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL GENÉRICO -->
+  <div class="cont-modal-overlay" id="contModal" style="display:none" onclick="if(event.target===this)cerrarModal()">
+    <div class="cont-modal">
+      <div class="cont-modal-header">
+        <h3 id="contModalTitulo"></h3>
+        <button onclick="cerrarModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="cont-modal-body">
+        <p id="contModalTexto"></p>
+      </div>
+      <div class="cont-modal-footer">
+        <button class="btn-accion btn-copiar" id="contModalCancelar" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn-accion btn-guardar" id="contModalConfirmar"></button>
+      </div>
+    </div>
+  </div>
+
+  <a class="whatsapp" href="https://wa.me/5491160387535" target="_blank">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <footer>
+    <p>© 2026 YCA Cerámica</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="script.js"></script>
+  <script src="../nav-ceramista.js"></script>
+
+</body>
+</html>
