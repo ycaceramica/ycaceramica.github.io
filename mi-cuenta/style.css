@@ -439,6 +439,44 @@
   margin-bottom: 6px;
 }
 
+.pass-cambiar-card .form-grupo input{
+  width: 100%;
+  padding: 12px 44px 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #d8cfc4;
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font-size: 14px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.pass-cambiar-card .form-grupo input:focus{
+  outline: none;
+  border-color: var(--color-primario);
+}
+
+.pass-cambiar-card .pass-wrapper{
+  position: relative;
+}
+
+.pass-cambiar-card .pass-toggle{
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--color-texto);
+  opacity: 0.4;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 15px;
+}
+
+.pass-cambiar-card .pass-toggle:hover{ opacity: 0.8; }
+
 .pass-error{
   background: rgba(168,82,82,0.1);
   border: 1.5px solid rgba(168,82,82,0.3);
