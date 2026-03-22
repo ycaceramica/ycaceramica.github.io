@@ -119,6 +119,8 @@
   max-width:1100px;
   margin:auto;
   padding:100px 20px 60px;
+  box-sizing:border-box;
+  overflow-x:hidden;
 }
 
 .lab-header{
@@ -757,4 +759,9 @@
   .be-metricas{ grid-template-columns:1fr; }
   .resultado-acciones{ flex-direction:column; }
   .be-precio-wrapper input{ font-size:18px; }
+  .be-item{ flex-wrap:wrap; }
+  .be-item-valor{ width:80px; }
+  .be-campo-simple input{ font-size:16px; }
+  .be-sim-fila{ font-size:12px; }
+  .lab-wrapper{ overflow-x:hidden; }
 }
