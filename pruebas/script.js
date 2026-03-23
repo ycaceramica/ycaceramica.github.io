@@ -5,6 +5,34 @@
 const API = 'https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec'
 
 // ─────────────────────────────────────────────
+// DESCRIPCIONES DE COLORANTES
+// ─────────────────────────────────────────────
+
+const COLORANTES_DESC = {
+  'Óxido de cobalto (CoO)':              'Azul muy potente. 0.5–1% da azul intenso. Con ciertos fundentes puede dar violeta o negro.',
+  'Óxido de cobre (CuO)':               'Verde en oxidación, rojo en reducción. 1–3% según intensidad. Muy versátil.',
+  'Óxido de hierro (Fe2O3)':            'El más versátil. Ocre/marrón en oxidación, celadón/tenmoku en reducción. 2–8%.',
+  'Óxido de manganeso (MnO2)':          'Marrón-violeta. Con cobalto da negro. Solo da marrones cálidos. 2–5%.',
+  'Óxido de cromo (Cr2O3)':             'Verde opaco y estable. Con zinc da marrón, con estaño da rosado. 1–3%.',
+  'Óxido de titanio (TiO2)':            'Opacificante suave, da efectos moteados. Con hierro produce veteados. 3–8%.',
+  'Óxido de estaño (SnO2)':             'Opacificante clásico. 8–10% da blanco brillante opaco muy estable.',
+  'Rutilo (TiO2 + Fe2O3)':              'TiO₂ impuro con hierro. Da texturas, veteados y efectos de cristalización. 3–6%.',
+  'Óxido de circonio / zirconio (ZrO2)':'Opacificante moderno. Blancos limpios, más económico que el estaño. 8–12%.',
+  'Carbonato de cobalto (CoCO3)':       'Forma más suave del cobalto. Mejor dispersión, mismo color. 0.5–1.5%.',
+  'Carbonato de cobre (CuCO3)':         'Forma más suave del cobre. Mejor dispersión en el esmalte. 1–3%.',
+  'Pigmento comercial':                 'Colorante industrialmente preparado. Estable a alta temperatura. Seguir indicaciones del proveedor.',
+  'Otro':                               'Material personalizado. Consultá la ficha técnica para dosificación y efectos.',
+}
+
+function mostrarDescColorante(select, descId){
+  const el = document.getElementById(descId)
+  if(!el) return
+  const texto = COLORANTES_DESC[select.value] || ''
+  el.innerText     = texto
+  el.style.display = texto ? 'block' : 'none'
+}
+
+// ─────────────────────────────────────────────
 // MODAL GENÉRICO
 // ─────────────────────────────────────────────
 
