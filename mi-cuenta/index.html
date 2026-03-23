@@ -77,16 +77,25 @@
           </button>
         </div>
       </div>
-      <div class="historial-filtros" id="historialFiltros" style="display:none">
-        <button class="hfiltro activo" onclick="filtrarHistorial('todos', this)">Todos</button>
-        <button class="hfiltro" onclick="filtrarHistorial('yeso', this)">🧱 Yeso</button>
-        <button class="hfiltro" onclick="filtrarHistorial('engobes', this)">🎨 Engobes</button>
-        <button class="hfiltro" onclick="filtrarHistorial('contraccion', this)">📐 Contracción</button>
-        <button class="hfiltro" onclick="filtrarHistorial('costos', this)">💰 Costos</button>
-        <button class="hfiltro" onclick="filtrarHistorial('pastas', this)">🫙 Pastas</button>
-        <button class="hfiltro" onclick="filtrarHistorial('esmaltes', this)">⚗️ Esmaltes</button>
-        <button class="hfiltro" onclick="filtrarHistorial('absorcion', this)">💧 Absorción</button>
-        <button class="hfiltro" onclick="filtrarHistorial('breakeven', this)">📊 Equilibrio</button>
+            <div class="historial-filtros" id="historialFiltros" style="display:none">
+        <div class="hfiltro-select-wrapper">
+          <i class="fa-solid fa-filter"></i>
+          <select class="hfiltro-select" id="hfiltroSelect" onchange="filtrarHistorial(this.value, this)">
+            <option value="todos">📋 Todas las calculadoras</option>
+            <option value="yeso">🧱 Yeso</option>
+            <option value="engobes">🎨 Engobes</option>
+            <option value="coccion">🌡️ Cocción</option>
+            <option value="contraccion">📐 Contracción</option>
+            <option value="costos">💰 Costos</option>
+            <option value="pastas">🫙 Pastas</option>
+            <option value="esmaltes">⚗️ Esmaltes</option>
+            <option value="absorcion">💧 Absorción</option>
+            <option value="breakeven">📊 Equilibrio</option>
+            <option value="seger">🔬 Fórmula Seger</option>
+            <option value="arcillas">🧱 Mezcla de Arcillas</option>
+            <option value="pruebas">🧪 Pruebas de colorantes</option>
+          </select>
+        </div>
       </div>
       <div class="historial-taller-grid" id="historialGrid">
         <div class="cuenta-loading">
