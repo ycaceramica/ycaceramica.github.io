@@ -547,7 +547,12 @@ async function guardarEnTallerPruebas(){
       body: JSON.stringify({
         action,
         [idKey]: sesion.id,
-        item:{ calculadora:'pruebas', nombre:serieActual.nombre, datos:{ pruebas:serieActual.pruebas.length, gramos:serieActual.gramos } }
+        item:{ calculadora:'pruebas', nombre:serieActual.nombre, datos:{
+          pruebas: serieActual.pruebas,
+          gramos:  serieActual.gramos,
+          base:    serieActual.base,
+          fecha:   serieActual.fecha
+        } }
       })
     })
     const data = await res.json()
