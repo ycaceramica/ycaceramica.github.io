@@ -148,7 +148,7 @@ window.addEventListener('DOMContentLoaded', () => {
     </div>
   `
 
-  // Llenar acciones según plan — se agrega dentro de proContenido
+  // Llenar acciones — se agrega dentro de proContenido para evitar gap visual
   const acciones = document.getElementById('proAcciones')
   acciones.innerHTML = ''
 
