@@ -567,7 +567,7 @@ async function guardarEnTallerPruebas(){
 
 window.addEventListener('DOMContentLoaded', () => {
   agregarBase('Feldespato potásico', 40)
-  agregarBase('Whiting', 20)
+  agregarBase('Carbonato de calcio', 20)
   agregarBase('Caolín', 20)
   agregarBase('Sílice', 20)
 
