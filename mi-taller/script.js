@@ -548,9 +548,12 @@ function cargarLogoBase64(){
 }
 
 async function descargarHistorialPDF(){
-  const items = filtroActual === 'todos'
+  const baseItems = filtroActual === 'todos'
     ? historialData
     : historialData.filter(i => i.calculadora === filtroActual)
+  const items = seleccionados.size > 0
+    ? baseItems.filter(i => seleccionados.has(i.id))
+    : baseItems
   if(!items.length) return
 
   const { jsPDF } = window.jspdf
