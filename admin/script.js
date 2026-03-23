@@ -3614,17 +3614,24 @@ async function generarConIA(){
     })
 
     const data     = await res.json()
+    console.log('Gemini response:', JSON.stringify(data).substring(0, 200))
+
+    if(data.error){
+      throw new Error(data.error.message || 'Error de Gemini')
+    }
+
     const markdown = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
 
     if(!markdown){
-      throw new Error('Respuesta vacía')
+      throw new Error('Respuesta vacía de Gemini')
     }
 
     contenidoFormateado = { markdown, titulo, tipo: tipoDocActual }
     renderizarPreview(markdown, titulo)
 
   } catch(e) {
-    toast('❌ Error al conectar con Gemini — revisá la conexión', 'err')
+    console.error('Gemini error:', e)
+    toast('❌ ' + (e.message || 'Error al conectar con Gemini'), 'err')
     document.getElementById('pdfgenVacio').style.display = 'flex'
   } finally {
     document.getElementById('pdfgenLoading').style.display = 'none'
