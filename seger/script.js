@@ -755,7 +755,19 @@ async function guardarEnTallerSeger(){
   try {
     const res  = await fetch(API, {
       method:'POST',
-      body: JSON.stringify({ action, [idKey]: sesion.id, item:{ calculadora:'seger', nombre:item.nombre, datos:item } })
+      body: JSON.stringify({ action, [idKey]: sesion.id, item:{
+        calculadora: 'seger',
+        nombre:      item.nombre,
+        datos: {
+          cone:       item.cone,
+          materiales: item.materiales,
+          si:         item.si,
+          al:         item.al,
+          siAl:       item.siAl,
+          seger:      item.seger,
+          fecha:      item.fecha
+        }
+      } })
     })
     const data = await res.json()
     if(data.ok){
