@@ -134,11 +134,13 @@
     var insertPoint = hamburguesa || toggleDark
     if(!insertPoint || !insertPoint.parentNode) return
 
-    // Páginas sin avatar (login, mi-cuenta, mi-taller manejan su propio estado)
+    // Páginas sin avatar (nav-ceramista.js no inserta el botón de sesión)
     var sinAvatar = ['login', 'mi-cuenta', 'mi-taller']
     var paginaActual = window.location.pathname.split('/').filter(Boolean)
     var carpeta = paginaActual[paginaActual.length - (window.location.pathname.endsWith('.html') ? 2 : 1)] || ''
-    if(sinAvatar.indexOf(carpeta) !== -1) return
+    var mostrarAvatar = sinAvatar.indexOf(carpeta) === -1
+
+    if(!mostrarAvatar) return
 
     if(!rol){
       // Sin sesión → botón Soy ceramista
