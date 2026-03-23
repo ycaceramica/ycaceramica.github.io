@@ -68,34 +68,65 @@
     <div class="cuenta-seccion" id="sec-historial" style="display:none">
       <div class="historial-taller-header">
         <p>Tus cálculos guardados desde las calculadoras. Usá el botón "Guardar en mi cuenta" en cualquier calculadora.</p>
-        <div style="display:flex;gap:10px;flex-shrink:0">
+      </div>
+
+      <!-- BARRA DE ACCIONES -->
+      <div class="historial-acciones-bar" id="historialFiltros" style="display:none">
+
+        <!-- Filtro dropdown custom -->
+        <div class="hfiltro-dropdown" id="hfiltroDropdown">
+          <button class="hfiltro-trigger" onclick="toggleFiltroMenu()" id="hfiltroTrigger">
+            <i class="fa-solid fa-filter"></i>
+            <span id="hfiltroLabel">Todas las calculadoras</span>
+            <i class="fa-solid fa-chevron-down" id="hfiltroChevron"></i>
+          </button>
+          <div class="hfiltro-menu" id="hfiltroMenu" style="display:none">
+            <div class="hfiltro-grupo">
+              <div class="hfiltro-grupo-titulo">Básicas</div>
+              <button class="hfiltro-opcion activo" onclick="elegirFiltro('todos', 'Todas las calculadoras', this)">📋 Todas</button>
+              <button class="hfiltro-opcion" onclick="elegirFiltro('yeso', '🧱 Yeso', this)">🧱 Yeso</button>
+              <button class="hfiltro-opcion" onclick="elegirFiltro('engobes', '🎨 Engobes', this)">🎨 Engobes</button>
+              <button class="hfiltro-opcion" onclick="elegirFiltro('coccion', '🌡️ Cocción', this)">🌡️ Cocción</button>
+              <button class="hfiltro-opcion" onclick="elegirFiltro('contraccion', '📐 Contracción', this)">📐 Contracción</button>
+              <button class="hfiltro-opcion" onclick="elegirFiltro('costos', '💰 Costos', this)">💰 Costos</button>
+              <button class="hfiltro-opcion" onclick="elegirFiltro('pastas', '🫙 Pastas', this)">🫙 Pastas</button>
+            </div>
+            <div class="hfiltro-grupo">
+              <div class="hfiltro-grupo-titulo">Avanzadas</div>
+              <button class="hfiltro-opcion" onclick="elegirFiltro('esmaltes', '⚗️ Esmaltes', this)">⚗️ Esmaltes</button>
+              <button class="hfiltro-opcion" onclick="elegirFiltro('absorcion', '💧 Absorción', this)">💧 Absorción</button>
+              <button class="hfiltro-opcion" onclick="elegirFiltro('breakeven', '📊 Equilibrio', this)">📊 Equilibrio</button>
+            </div>
+            <div class="hfiltro-grupo">
+              <div class="hfiltro-grupo-titulo">Pro</div>
+              <button class="hfiltro-opcion" onclick="elegirFiltro('seger', '🔬 Fórmula Seger', this)">🔬 Fórmula Seger</button>
+              <button class="hfiltro-opcion" onclick="elegirFiltro('arcillas', '🧱 Mezcla de Arcillas', this)">🧱 Mezcla de Arcillas</button>
+              <button class="hfiltro-opcion" onclick="elegirFiltro('pruebas', '🧪 Pruebas', this)">🧪 Pruebas</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acciones PDF -->
+        <div class="historial-pdf-acciones">
+          <div class="historial-seleccion-info" id="seleccionInfo" style="display:none">
+            <span id="seleccionConteo">0 seleccionados</span>
+            <button class="btn-deseleccionar" onclick="deseleccionarTodo()">Limpiar</button>
+          </div>
           <button class="btn-descargar-historial" onclick="descargarHistorialPDF()" id="btnHistorialPDF" disabled>
-            <i class="fa-solid fa-file-pdf"></i> PDF
+            <i class="fa-solid fa-file-pdf"></i>
+            <span id="btnPDFLabel">PDF</span>
           </button>
           <button class="btn-limpiar-historial" onclick="pedirLimpiarTodo()" id="btnLimpiarTodo" style="display:none">
-            <i class="fa-solid fa-trash"></i> Eliminar todo
+            <i class="fa-solid fa-trash"></i>
           </button>
         </div>
+
       </div>
-            <div class="historial-filtros" id="historialFiltros" style="display:none">
-        <div class="hfiltro-select-wrapper">
-          <i class="fa-solid fa-filter"></i>
-          <select class="hfiltro-select" id="hfiltroSelect" onchange="filtrarHistorial(this.value, this)">
-            <option value="todos">📋 Todas las calculadoras</option>
-            <option value="yeso">🧱 Yeso</option>
-            <option value="engobes">🎨 Engobes</option>
-            <option value="coccion">🌡️ Cocción</option>
-            <option value="contraccion">📐 Contracción</option>
-            <option value="costos">💰 Costos</option>
-            <option value="pastas">🫙 Pastas</option>
-            <option value="esmaltes">⚗️ Esmaltes</option>
-            <option value="absorcion">💧 Absorción</option>
-            <option value="breakeven">📊 Equilibrio</option>
-            <option value="seger">🔬 Fórmula Seger</option>
-            <option value="arcillas">🧱 Mezcla de Arcillas</option>
-            <option value="pruebas">🧪 Pruebas de colorantes</option>
-          </select>
-        </div>
+
+      <!-- Hint selección -->
+      <div class="historial-seleccion-hint" id="seleccionHint" style="display:none">
+        <i class="fa-solid fa-circle-info"></i>
+        Hacé click en las tarjetas para seleccionarlas. El PDF incluirá solo las seleccionadas. Si no seleccionás ninguna, se exportan todas.
       </div>
       <div class="historial-taller-grid" id="historialGrid">
         <div class="cuenta-loading">
