@@ -139,8 +139,10 @@ function actualizarTotalBase(){
 function toggleColor2(){
   const usar   = document.getElementById('usar2do').checked
   const ctrls  = document.getElementById('color2Controles')
+  const bloque = document.querySelector('.colorante-bloque.opcional')
   ctrls.style.display = usar ? 'flex' : 'none'
   if(usar) ctrls.style.flexDirection = 'column'
+  if(bloque) bloque.classList.toggle('activo', usar)
 }
 
 // ─────────────────────────────────────────────
