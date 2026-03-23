@@ -3752,16 +3752,19 @@ async function descargarPDFGen(){
       y += lines.length * 5.5 + 3
 
     } else if(linea.startsWith('# ')){
+      const h1txt = linea.replace(/^# /, '').trim()
+      // Ignorar si es el mismo título que ya renderizamos
+      if(contenidoFormateado.titulo && h1txt.toLowerCase() === contenidoFormateado.titulo.toLowerCase()) { return }
       y += 4
       doc.setTextColor(...MARRON); doc.setFontSize(16); doc.setFont('helvetica','bold')
-      const txt = linea.replace(/^# /, '').replace(/\*\*/g,'')
+      const txt = h1txt.replace(/\*\*/g,'')
       const lines = doc.splitTextToSize(txt, W - m*2)
       doc.text(lines, m, y)
       y += lines.length * 8 + 4
 
-    } else if(linea.startsWith('- ') || linea.match(/^\d+\. /)){
+    } else if(linea.startsWith('- ') || linea.startsWith('* ') || linea.match(/^\d+\. /)){
       doc.setTextColor(...NEGRO); doc.setFontSize(10); doc.setFont('helvetica','normal')
-      const txt = linea.replace(/^- /, '').replace(/^\d+\. /, '').replace(/\*\*(.+?)\*\*/g, '$1')
+      const txt = linea.replace(/^[\-\*] /, '').replace(/^\d+\. /, '').replace(/\*\*(.+?)\*\*/g, '$1')
       const lines = doc.splitTextToSize('• ' + txt, W - m*2 - 4)
       doc.text(lines, m + 4, y)
       y += lines.length * 5.5
