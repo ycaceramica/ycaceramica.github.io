@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fórmula Seger — YCA Cerámica</title>
+
+  <link rel="icon" type="image/png" href="../imagenes/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+<body>
+
+  <div id="nav-placeholder"></div>
+
+  <div class="lab-wrapper">
+
+    <div class="lab-header">
+      <a class="lab-volver" href="../herramientas/index.html">← Herramientas</a>
+      <div class="lab-header-badge">⭐ Pro</div>
+      <h1>🔬 Fórmula Seger</h1>
+      <p>Analizá la composición química de tus esmaltes y optimizá brillo, fusión y estabilidad.</p>
+      <div class="lab-tips">
+        <span>Guardá tus recetas en el historial</span>
+        <span>Descargalas en PDF</span>
+      </div>
+    </div>
+
+    <!-- INFO -->
+    <div class="calc-info-box">
+      <button class="calc-info-toggle" onclick="toggleInfo()">
+        <i class="fa-solid fa-circle-info"></i> ¿Cómo usar esta calculadora?
+        <i class="fa-solid fa-chevron-down" id="infoChevron"></i>
+      </button>
+      <div class="calc-info-content" id="infoContent" style="display:none">
+        <p>La fórmula Seger convierte una receta de materias primas en su composición de óxidos, agrupados en tres categorías: fundentes (RO/R₂O), estabilizantes (R₂O₃) y formadores de vidrio (RO₂).</p>
+        <ol>
+          <li><strong>Ingresá los materiales</strong> — elegí cada materia prima y su porcentaje en la receta.</li>
+          <li><strong>La suma debe ser 100%</strong> — ajustá los porcentajes hasta completar el total.</li>
+          <li><strong>Analizá los resultados</strong> — la calculadora muestra la fórmula Seger normalizada y un diagnóstico automático del esmalte.</li>
+          <li><strong>Interpretá el diagnóstico</strong> — te indica si el esmalte puede craquelar, ser muy fluido, mate excesivo, etc.</li>
+        </ol>
+        <p>Los ratios Si:Al y el balance de fundentes determinan el comportamiento del esmalte en el horno.</p>
+      </div>
+    </div>
+
+    <div class="lab-layout">
+
+      <!-- COLUMNA IZQUIERDA -->
+      <div class="lab-card">
+
+        <!-- NOMBRE -->
+        <div class="lab-paso">
+          <div class="lab-paso-titulo">
+            <span class="lab-paso-num">1</span>
+            <span>Nombre de la receta</span>
+          </div>
+          <input type="text" id="segerNombre" class="nombre-input" placeholder="Ej: Celadón Cone 10">
+        </div>
+
+        <!-- TEMPERATURA -->
+        <div class="lab-paso">
+          <div class="lab-paso-titulo">
+            <span class="lab-paso-num">2</span>
+            <span>Temperatura de cocción</span>
+          </div>
+          <div class="seger-temp-selector">
+            <button class="seger-temp-btn activo" id="btnCone06" onclick="setCone('cone06')">Cone 06<br><small>999°C</small></button>
+            <button class="seger-temp-btn" id="btnCone6"  onclick="setCone('cone6')">Cone 6<br><small>1222°C</small></button>
+            <button class="seger-temp-btn" id="btnCone10" onclick="setCone('cone10')">Cone 10<br><small>1305°C</small></button>
+          </div>
+        </div>
+
+        <!-- MATERIALES -->
+        <div class="lab-paso">
+          <div class="lab-paso-titulo">
+            <span class="lab-paso-num">3</span>
+            <span>Materiales de la receta</span>
+          </div>
+          <p class="seger-desc">Agregá cada materia prima con su porcentaje. La suma debe ser 100%.</p>
+
+          <div id="segerMateriales" class="seger-materiales-lista"></div>
+
+          <button class="btn-agregar-item" onclick="agregarMaterial()">
+            <i class="fa-solid fa-plus"></i> Agregar material
+          </button>
+
+          <!-- BARRA TOTAL -->
+          <div class="total-wrapper">
+            <div class="total-barra-bg">
+              <div class="total-barra-fill" id="segerBarra"></div>
+            </div>
+            <div class="total-texto">
+              Total: <strong id="segerTotal">0%</strong>
+              <span class="total-aviso" id="segerAviso"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULTADO -->
+        <div class="lab-resultado" id="segerResultado" style="display:none">
+          <h3>Fórmula Seger</h3>
+
+          <!-- TABLA DE ÓXIDOS -->
+          <div class="seger-tabla-wrapper">
+
+            <div class="seger-grupo">
+              <div class="seger-grupo-titulo ro">RO / R₂O — Fundentes</div>
+              <div class="seger-grupo-items" id="segerRO"></div>
+            </div>
+
+            <div class="seger-grupo">
+              <div class="seger-grupo-titulo r2o3">R₂O₃ — Estabilizantes</div>
+              <div class="seger-grupo-items" id="segerR2O3"></div>
+            </div>
+
+            <div class="seger-grupo">
+              <div class="seger-grupo-titulo ro2">RO₂ — Formadores de vidrio</div>
+              <div class="seger-grupo-items" id="segerRO2"></div>
+            </div>
+
+          </div>
+
+          <!-- RATIOS -->
+          <div class="seger-ratios">
+            <div class="seger-ratio">
+              <div class="seger-ratio-label">Si : Al</div>
+              <div class="seger-ratio-valor" id="ratioSiAl">—</div>
+            </div>
+            <div class="seger-ratio">
+              <div class="seger-ratio-label">Si</div>
+              <div class="seger-ratio-valor" id="ratioSi">—</div>
+            </div>
+            <div class="seger-ratio">
+              <div class="seger-ratio-label">Al</div>
+              <div class="seger-ratio-valor" id="ratioAl">—</div>
+            </div>
+          </div>
+
+          <!-- DIAGNÓSTICO -->
+          <div class="seger-diagnostico" id="segerDiagnostico"></div>
+
+          <!-- ACCIONES -->
+          <div class="resultado-acciones">
+            <button class="btn-accion btn-guardar" onclick="guardarSeger()">
+              <i class="fa-solid fa-floppy-disk"></i> Guardar en historial
+            </button>
+            <button class="btn-accion btn-copiar" onclick="copiarSeger()">
+              <i class="fa-regular fa-copy"></i> Copiar
+            </button>
+          </div>
+          <button class="btn-accion btn-taller" id="btnTallerSeger" onclick="guardarEnTallerSeger()" style="display:none">
+            <i class="fa-solid fa-store"></i> Guardar en mi taller
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- HISTORIAL -->
+      <div class="historial-panel">
+        <div class="historial-header">
+          <h3>Historial</h3>
+          <div class="historial-acciones">
+            <button class="btn-pdf" onclick="descargarPDF()" id="btnPDF" disabled>
+              <i class="fa-solid fa-file-pdf"></i> PDF
+            </button>
+            <button class="btn-limpiar-todo" onclick="limpiarHistorial()" id="btnLimpiar" style="display:none">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="historial-lista" id="segerHistorialLista">
+          <p class="historial-vacio">Guardá una receta para verla aquí.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="cont-modal-overlay" id="contModal" style="display:none" onclick="if(event.target===this)cerrarModal()">
+    <div class="cont-modal">
+      <div class="cont-modal-header">
+        <h3 id="contModalTitulo"></h3>
+        <button onclick="cerrarModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="cont-modal-body">
+        <p id="contModalTexto"></p>
+      </div>
+      <div class="cont-modal-footer">
+        <button class="btn-accion btn-copiar" id="contModalCancelar" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn-accion btn-guardar" id="contModalConfirmar"></button>
+      </div>
+    </div>
+  </div>
+
+  <a class="whatsapp" href="https://wa.me/5491160387535" target="_blank">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <footer>
+    <p>© 2026 YCA Cerámica</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="script.js"></script>
+  <script src="../nav-ceramista.js"></script>
+
+</body>
+</html>
