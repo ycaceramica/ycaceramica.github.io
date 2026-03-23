@@ -661,7 +661,7 @@ async function guardarEnTallerArc(){
 
 window.addEventListener('DOMContentLoaded', () => {
   agregarMaterial('Arcilla para gres', 50)
-  agregarMaterial('Arcilla plástica / Ball clay', 25)
+  agregarMaterial('Arcilla de bola / Ball clay', 25)
   agregarMaterial('Caolín (EPK)', 15)
   agregarMaterial('Chamote fino (molido <0.5mm)', 10)
 
