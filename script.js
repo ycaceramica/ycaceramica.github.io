@@ -1,55 +1,4 @@
-// MODO OSCURO — recuerda la preferencia y cambia ícono
-
-function actualizarIcono(){
-  const btn = document.getElementById("toggleDark")
-  if(btn){
-    btn.innerText = document.body.classList.contains("dark") ? "☀️" : "🌙"
-  }
-}
-
-function aplicarModoOscuro(){
-  if(localStorage.getItem("dark") === "true"){
-    document.body.classList.add("dark")
-  }
-  actualizarIcono()
-}
-
-aplicarModoOscuro()
-
-const toggleDark = document.getElementById("toggleDark")
-
-if(toggleDark){
-  toggleDark.addEventListener("click", () => {
-    document.body.classList.toggle("dark")
-    localStorage.setItem("dark", document.body.classList.contains("dark"))
-    actualizarIcono()
-  })
-}
-
-
-
-// MENU HAMBURGUESA
-
-const hamburguesa = document.getElementById("hamburguesa")
-const nav = document.getElementById("nav")
-
-if(hamburguesa){
-  hamburguesa.addEventListener("click", () => {
-    nav.classList.toggle("active")
-  })
-}
-
-window.addEventListener("scroll", () => {
-  if(nav) nav.classList.remove("active")
-})
-
-const linksNav = document.querySelectorAll(".nav a")
-
-linksNav.forEach(link => {
-  link.addEventListener("click", () => {
-    nav.classList.remove("active")
-  })
-})
+// Dark mode y nav manejados por nav-ceramista.js
 
 
 
@@ -139,9 +88,9 @@ async function verificarVisibilidadElaboracion(){
 
     // El valor puede llegar como 'false', '0', false o 0
     const val = String(config.elaboracion_visible)
-    if(val === 'false' || val === '0'){
-      const banner = document.getElementById('banner-elaboracion')
-      if(banner) banner.style.display = 'none'
+    const banner = document.getElementById('banner-elaboracion')
+    if(banner && val !== 'false' && val !== '0'){
+      banner.style.display = ''
     }
   } catch(e) {
     // Silencioso — si falla queda visible por defecto
