@@ -18,11 +18,16 @@
   gap: 32px;
 }
 
-#proContenido,
-#proAcciones{
+#proContenido{
   display: flex;
   flex-direction: column;
   gap: 32px;
+}
+
+#proAcciones{
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 /* ── VOLVER ── */
