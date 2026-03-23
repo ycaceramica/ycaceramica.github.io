@@ -1215,3 +1215,236 @@ body.dark #exportCurso option{
 .rol-tab:not(.activo) span{
   background:rgba(139,111,86,0.3);
 }
+
+/* ─────────────────────────────────────────────
+   GENERADOR PDF
+───────────────────────────────────────────── */
+
+.pdfgen-layout{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+  align-items:start;
+}
+
+.pdfgen-card{
+  background:var(--color-superficie);
+  border-radius:14px;
+  padding:24px;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  box-shadow:0 4px 20px var(--color-sombra);
+}
+
+.pdfgen-preview-card{
+  position:sticky;
+  top:76px;
+  min-height:500px;
+}
+
+.pdfgen-campo{ display:flex; flex-direction:column; gap:8px; }
+
+.pdfgen-label{
+  font-size:13px;
+  font-weight:700;
+  opacity:0.8;
+}
+
+.pdfgen-opcional{
+  font-size:11px;
+  font-weight:400;
+  opacity:0.5;
+}
+
+.pdfgen-hint{
+  font-size:12px;
+  opacity:0.5;
+  margin:0;
+  line-height:1.5;
+}
+
+.pdfgen-input{
+  padding:10px 14px;
+  border-radius:8px;
+  border:1.5px solid rgba(139,111,86,0.25);
+  background:var(--color-fondo);
+  color:var(--color-texto);
+  font-size:14px;
+  font-family:'Plus Jakarta Sans', sans-serif;
+}
+.pdfgen-input:focus{ outline:none; border-color:var(--color-primario); }
+
+.pdfgen-textarea{
+  padding:12px 14px;
+  border-radius:8px;
+  border:1.5px solid rgba(139,111,86,0.25);
+  background:var(--color-fondo);
+  color:var(--color-texto);
+  font-size:13px;
+  font-family:'Plus Jakarta Sans', sans-serif;
+  line-height:1.6;
+  resize:vertical;
+  min-height:240px;
+}
+.pdfgen-textarea:focus{ outline:none; border-color:var(--color-primario); }
+
+/* TIPOS */
+
+.pdfgen-tipos{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.pdfgen-tipo{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 14px;
+  border-radius:30px;
+  border:1.5px solid rgba(139,111,86,0.2);
+  background:transparent;
+  color:var(--color-texto);
+  font-family:'Plus Jakarta Sans', sans-serif;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.2s;
+  opacity:0.7;
+}
+
+.pdfgen-tipo:hover{
+  border-color:var(--color-primario);
+  opacity:1;
+}
+
+.pdfgen-tipo.activo{
+  background:var(--color-primario);
+  border-color:var(--color-primario);
+  color:white;
+  opacity:1;
+}
+
+/* BOTÓN GENERAR */
+
+.pdfgen-btn-generar{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:var(--color-primario);
+  color:white;
+  font-family:'Plus Jakarta Sans', sans-serif;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  transition:0.2s;
+  width:100%;
+}
+.pdfgen-btn-generar:hover{ background:var(--color-primario-hover); transform:translateY(-1px); }
+.pdfgen-btn-generar:disabled{ opacity:0.5; cursor:default; transform:none; }
+
+/* PREVIEW */
+
+.pdfgen-preview-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:4px;
+}
+
+.pdfgen-preview-titulo{
+  font-size:13px;
+  font-weight:700;
+  opacity:0.6;
+}
+
+.pdfgen-btn-pdf{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 16px;
+  border:none;
+  border-radius:20px;
+  background:var(--color-primario);
+  color:white;
+  font-family:'Plus Jakarta Sans', sans-serif;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+  transition:0.2s;
+}
+.pdfgen-btn-pdf:hover{ background:var(--color-primario-hover); }
+
+.pdfgen-preview-vacio{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  padding:60px 20px;
+  opacity:0.25;
+  text-align:center;
+}
+.pdfgen-preview-vacio i{ font-size:48px; }
+.pdfgen-preview-vacio p{ font-size:14px; margin:0; }
+
+.pdfgen-loading{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  padding:60px 20px;
+  opacity:0.6;
+  font-size:14px;
+}
+
+.pdfgen-spinner{
+  width:24px;
+  height:24px;
+  border:3px solid var(--color-primario);
+  border-top-color:transparent;
+  border-radius:50%;
+  animation:girar 0.7s linear infinite;
+  flex-shrink:0;
+}
+
+@keyframes girar{ to{ transform:rotate(360deg); } }
+
+/* CONTENIDO FORMATEADO */
+
+.pdfgen-preview-contenido{
+  background:var(--color-fondo);
+  border-radius:10px;
+  padding:20px;
+  font-size:13px;
+  line-height:1.7;
+  max-height:600px;
+  overflow-y:auto;
+}
+
+.pdfgen-preview-contenido h1{ font-size:18px; margin:0 0 12px; color:var(--color-primario); }
+.pdfgen-preview-contenido h2{ font-size:15px; margin:16px 0 8px; color:var(--color-primario); border-bottom:1px solid rgba(139,111,86,0.15); padding-bottom:6px; }
+.pdfgen-preview-contenido h3{ font-size:13px; margin:12px 0 6px; font-weight:700; }
+.pdfgen-preview-contenido p{ margin:0 0 8px; }
+.pdfgen-preview-contenido ul, .pdfgen-preview-contenido ol{ padding-left:20px; margin:0 0 8px; }
+.pdfgen-preview-contenido li{ margin-bottom:4px; }
+.pdfgen-preview-contenido strong{ color:var(--color-primario); }
+.pdfgen-preview-contenido hr{ border:none; border-top:1px solid rgba(139,111,86,0.15); margin:12px 0; }
+.pdfgen-preview-contenido .membrete{
+  background:rgba(139,111,86,0.08);
+  border-radius:8px;
+  padding:10px 14px;
+  margin-bottom:16px;
+  font-size:12px;
+  opacity:0.8;
+}
+
+@media(max-width:900px){
+  .pdfgen-layout{ grid-template-columns:1fr; }
+  .pdfgen-preview-card{ position:static; }
+}
