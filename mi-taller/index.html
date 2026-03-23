@@ -58,18 +58,26 @@
       </div>
 
       <!-- Filtro por calculadora -->
-      <div class="historial-filtros" id="historialFiltros" style="display:none">
-        <button class="hfiltro activo" data-calc="todos" onclick="filtrarHistorial('todos', this)">Todos</button>
-        <button class="hfiltro" data-calc="yeso" onclick="filtrarHistorial('yeso', this)">🧱 Yeso</button>
-        <button class="hfiltro" data-calc="engobes" onclick="filtrarHistorial('engobes', this)">🎨 Engobes</button>
-        <button class="hfiltro" data-calc="contraccion" onclick="filtrarHistorial('contraccion', this)">📐 Contracción</button>
-        <button class="hfiltro" data-calc="costos" onclick="filtrarHistorial('costos', this)">💰 Costos</button>
-        <button class="hfiltro" data-calc="pastas" onclick="filtrarHistorial('pastas', this)">🫙 Pastas</button>
-        <button class="hfiltro" data-calc="esmaltes" onclick="filtrarHistorial('esmaltes', this)">⚗️ Esmaltes</button>
-        <button class="hfiltro" data-calc="absorcion" onclick="filtrarHistorial('absorcion', this)">💧 Absorción</button>
-        <button class="hfiltro" data-calc="breakeven" onclick="filtrarHistorial('breakeven', this)">📊 Equilibrio</button>
+            <div class="historial-filtros" id="historialFiltros" style="display:none">
+        <div class="hfiltro-select-wrapper">
+          <i class="fa-solid fa-filter"></i>
+          <select class="hfiltro-select" id="hfiltroSelect" onchange="filtrarHistorial(this.value, this)">
+            <option value="todos">📋 Todas las calculadoras</option>
+            <option value="yeso">🧱 Yeso</option>
+            <option value="engobes">🎨 Engobes</option>
+            <option value="coccion">🌡️ Cocción</option>
+            <option value="contraccion">📐 Contracción</option>
+            <option value="costos">💰 Costos</option>
+            <option value="pastas">🫙 Pastas</option>
+            <option value="esmaltes">⚗️ Esmaltes</option>
+            <option value="absorcion">💧 Absorción</option>
+            <option value="breakeven">📊 Equilibrio</option>
+            <option value="seger">🔬 Fórmula Seger</option>
+            <option value="arcillas">🧱 Mezcla de Arcillas</option>
+            <option value="pruebas">🧪 Pruebas de colorantes</option>
+          </select>
+        </div>
       </div>
-
       <div class="historial-taller-grid" id="historialTallerGrid">
         <div class="cuenta-loading">
           <i class="fa-solid fa-spinner fa-spin"></i> Cargando historial...
