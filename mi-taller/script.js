@@ -33,6 +33,16 @@ let filtroActual   = 'todos'
 // ─────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────
+window.addEventListener('click', e => {
+  const dd = document.getElementById('hfiltroDropdown')
+  if(dd && !dd.contains(e.target)){
+    const menu = document.getElementById('hfiltroMenu')
+    const trig = document.getElementById('hfiltroTrigger')
+    if(menu) menu.style.display = 'none'
+    if(trig) trig.classList.remove('abierto')
+  }
+})
+
 window.addEventListener('DOMContentLoaded', async () => {
   sesion = getSesion()
 
@@ -182,6 +192,59 @@ function renderHistorial(){
     `
     grid.appendChild(card)
   })
+}
+
+
+// ─────────────────────────────────────────────
+// FILTRO DROPDOWN + SELECCIÓN
+// ─────────────────────────────────────────────
+
+function toggleFiltroMenu(){
+  const menu    = document.getElementById('hfiltroMenu')
+  const trigger = document.getElementById('hfiltroTrigger')
+  if(!menu) return
+  const abierto = menu.style.display !== 'none'
+  menu.style.display = abierto ? 'none' : 'block'
+  if(trigger) trigger.classList.toggle('abierto', !abierto)
+}
+
+function elegirFiltro(calc, label, btn){
+  filtroActual = calc
+  const lbl = document.getElementById('hfiltroLabel')
+  if(lbl) lbl.innerText = label
+  document.querySelectorAll('.hfiltro-opcion').forEach(b => b.classList.remove('activo'))
+  if(btn) btn.classList.add('activo')
+  const menu    = document.getElementById('hfiltroMenu')
+  const trigger = document.getElementById('hfiltroTrigger')
+  if(menu)    menu.style.display = 'none'
+  if(trigger) trigger.classList.remove('abierto')
+  renderHistorial()
+}
+
+function toggleSeleccion(id, event){
+  if(event) event.stopPropagation()
+  if(seleccionados.has(id)) seleccionados.delete(id)
+  else seleccionados.add(id)
+  actualizarUISeleccion()
+  renderHistorial()
+}
+
+function deseleccionarTodo(){
+  seleccionados.clear()
+  actualizarUISeleccion()
+  renderHistorial()
+}
+
+function actualizarUISeleccion(){
+  const n    = seleccionados.size
+  const info = document.getElementById('seleccionInfo')
+  const hint = document.getElementById('seleccionHint')
+  const lbl  = document.getElementById('btnPDFLabel')
+  const cont = document.getElementById('seleccionConteo')
+  if(cont) cont.innerText = n + (n === 1 ? ' seleccionado' : ' seleccionados')
+  if(info) info.style.display = n > 0 ? 'flex' : 'none'
+  if(hint && historialData.length > 0) hint.style.display = 'flex'
+  if(lbl)  lbl.innerText = n > 0 ? 'PDF (' + n + ')' : 'PDF'
 }
 
 function borrarItemTaller(id){
