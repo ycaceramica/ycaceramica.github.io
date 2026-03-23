@@ -76,31 +76,7 @@ function getSesion(){
 }
 
 // ─────────────────────────────────────────────
-// MODO OSCURO
-// ─────────────────────────────────────────────
-
-function aplicarModoOscuro(){
-  if(localStorage.getItem('dark') === 'true') document.body.classList.add('dark')
-  const btn = document.getElementById('toggleDark')
-  if(btn) btn.innerText = document.body.classList.contains('dark') ? '☀️' : '🌙'
-}
-
-aplicarModoOscuro()
-
-const toggleDark = document.getElementById('toggleDark')
-if(toggleDark){
-  toggleDark.addEventListener('click', () => {
-    document.body.classList.toggle('dark')
-    localStorage.setItem('dark', document.body.classList.contains('dark'))
-    toggleDark.innerText = document.body.classList.contains('dark') ? '☀️' : '🌙'
-  })
-}
-
-const hamburguesa = document.getElementById('hamburguesa')
-const nav = document.getElementById('nav')
-if(hamburguesa){
-  hamburguesa.addEventListener('click', () => nav.classList.toggle('active'))
-}
+// Dark mode y nav manejados por nav-ceramista.js
 
 // ─────────────────────────────────────────────
 // INIT
