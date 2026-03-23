@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de Pruebas — YCA Cerámica</title>
+
+  <link rel="icon" type="image/png" href="../imagenes/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+<body>
+
+  <div id="nav-placeholder"></div>
+
+  <div class="lab-wrapper">
+
+    <div class="lab-header">
+      <a class="lab-volver" href="../herramientas/index.html">← Herramientas</a>
+      <div class="lab-header-badge">⭐ Pro</div>
+      <h1>🧪 Generador de Pruebas</h1>
+      <p>Generá series de pruebas de colorantes automáticamente y organizá tus testeos con precisión.</p>
+      <div class="lab-tips">
+        <span>Generá hasta 50 pruebas de una sola vez</span>
+        <span>Descargalas en PDF para llevar al taller</span>
+      </div>
+    </div>
+
+    <!-- INFO -->
+    <div class="calc-info-box">
+      <button class="calc-info-toggle" onclick="toggleInfo()">
+        <i class="fa-solid fa-circle-info"></i> ¿Cómo usar esta calculadora?
+        <i class="fa-solid fa-chevron-down" id="infoChevron"></i>
+      </button>
+      <div class="calc-info-content" id="infoContent" style="display:none">
+        <p>El generador crea una serie sistemática de pruebas variando uno o dos colorantes sobre una receta base fija.</p>
+        <ol>
+          <li><strong>Receta base</strong> — ingresá los materiales de tu esmalte o engobe base (sin colorantes).</li>
+          <li><strong>Colorantes a variar</strong> — elegí uno o dos colorantes y el rango de porcentajes a testear.</li>
+          <li><strong>Tamaño de prueba</strong> — cuántos gramos vas a preparar por prueba.</li>
+          <li><strong>Generá la serie</strong> — la calculadora crea todas las combinaciones con los gramos exactos de cada ingrediente.</li>
+        </ol>
+        <p>El resultado es una planilla lista para llevar al taller. Cada prueba tiene un código único para identificarla una vez cocida.</p>
+      </div>
+    </div>
+
+    <div class="lab-layout">
+
+      <!-- COLUMNA IZQUIERDA -->
+      <div class="lab-card">
+
+        <!-- NOMBRE -->
+        <div class="lab-paso">
+          <div class="lab-paso-titulo">
+            <span class="lab-paso-num">1</span>
+            <span>Nombre de la serie</span>
+          </div>
+          <input type="text" id="pruebasNombre" class="nombre-input" placeholder="Ej: Serie cobalto-hierro Cone 6">
+        </div>
+
+        <!-- RECETA BASE -->
+        <div class="lab-paso">
+          <div class="lab-paso-titulo">
+            <span class="lab-paso-num">2</span>
+            <span>Receta base</span>
+          </div>
+          <p class="pruebas-desc">Los materiales del esmalte o engobe sin colorantes. La suma debe ser 100%.</p>
+          <div id="pruebasBase" class="pruebas-items"></div>
+          <button class="btn-agregar-item" onclick="agregarBase()">
+            <i class="fa-solid fa-plus"></i> Agregar material
+          </button>
+          <div class="pruebas-subtotal">
+            Total base: <strong id="totalBase">0%</strong>
+            <span class="total-aviso" id="avisoBase"></span>
+          </div>
+        </div>
+
+        <!-- COLORANTES -->
+        <div class="lab-paso">
+          <div class="lab-paso-titulo">
+            <span class="lab-paso-num">3</span>
+            <span>Colorantes a variar</span>
+          </div>
+          <p class="pruebas-desc">Elegí uno o dos colorantes y los porcentajes a testear. La calculadora genera todas las combinaciones.</p>
+
+          <!-- COLORANTE 1 -->
+          <div class="colorante-bloque">
+            <div class="colorante-titulo">
+              <i class="fa-solid fa-droplet" style="color:var(--color-primario)"></i>
+              Colorante 1
+            </div>
+            <div class="colorante-fila">
+              <select id="color1Nombre" class="colorante-select">
+                <option value="">— Seleccionar colorante —</option>
+                <option>Óxido de cobalto</option>
+                <option>Óxido de cobre</option>
+                <option>Óxido de hierro</option>
+                <option>Óxido de manganeso</option>
+                <option>Óxido de cromo</option>
+                <option>Óxido de titanio</option>
+                <option>Óxido de estaño</option>
+                <option>Rutilo</option>
+                <option>Carbonato de cobalto</option>
+                <option>Carbonato de cobre</option>
+                <option>Pigmento comercial</option>
+                <option>Otro</option>
+              </select>
+            </div>
+            <div class="colorante-rangos">
+              <div class="colorante-rango-item">
+                <label>Desde</label>
+                <div class="colorante-input-wrapper">
+                  <input type="number" id="color1Desde" min="0" max="20" step="0.5" value="0.5" oninput="previsualizarSerie()">
+                  <span>%</span>
+                </div>
+              </div>
+              <div class="colorante-rango-item">
+                <label>Hasta</label>
+                <div class="colorante-input-wrapper">
+                  <input type="number" id="color1Hasta" min="0" max="20" step="0.5" value="3" oninput="previsualizarSerie()">
+                  <span>%</span>
+                </div>
+              </div>
+              <div class="colorante-rango-item">
+                <label>Paso</label>
+                <div class="colorante-input-wrapper">
+                  <input type="number" id="color1Paso" min="0.1" max="5" step="0.1" value="0.5" oninput="previsualizarSerie()">
+                  <span>%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COLORANTE 2 (opcional) -->
+          <div class="colorante-bloque opcional">
+            <div class="colorante-titulo">
+              <label class="colorante-check-label">
+                <input type="checkbox" id="usar2do" onchange="toggleColor2(); previsualizarSerie()">
+                <i class="fa-solid fa-droplet-slash" style="color:var(--color-primario);opacity:0.5"></i>
+                Colorante 2 <span class="colorante-opcional">(opcional)</span>
+              </label>
+            </div>
+            <div id="color2Controles" style="display:none">
+              <div class="colorante-fila">
+                <select id="color2Nombre" class="colorante-select">
+                  <option value="">— Seleccionar colorante —</option>
+                  <option>Óxido de cobalto</option>
+                  <option>Óxido de cobre</option>
+                  <option>Óxido de hierro</option>
+                  <option>Óxido de manganeso</option>
+                  <option>Óxido de cromo</option>
+                  <option>Óxido de titanio</option>
+                  <option>Óxido de estaño</option>
+                  <option>Rutilo</option>
+                  <option>Carbonato de cobalto</option>
+                  <option>Carbonato de cobre</option>
+                  <option>Pigmento comercial</option>
+                  <option>Otro</option>
+                </select>
+              </div>
+              <div class="colorante-rangos">
+                <div class="colorante-rango-item">
+                  <label>Desde</label>
+                  <div class="colorante-input-wrapper">
+                    <input type="number" id="color2Desde" min="0" max="20" step="0.5" value="0.5" oninput="previsualizarSerie()">
+                    <span>%</span>
+                  </div>
+                </div>
+                <div class="colorante-rango-item">
+                  <label>Hasta</label>
+                  <div class="colorante-input-wrapper">
+                    <input type="number" id="color2Hasta" min="0" max="20" step="0.5" value="2" oninput="previsualizarSerie()">
+                    <span>%</span>
+                  </div>
+                </div>
+                <div class="colorante-rango-item">
+                  <label>Paso</label>
+                  <div class="colorante-input-wrapper">
+                    <input type="number" id="color2Paso" min="0.1" max="5" step="0.1" value="0.5" oninput="previsualizarSerie()">
+                    <span>%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- TAMAÑO -->
+        <div class="lab-paso">
+          <div class="lab-paso-titulo">
+            <span class="lab-paso-num">4</span>
+            <span>Gramos por prueba</span>
+          </div>
+          <p class="pruebas-desc">Cuántos gramos de esmalte vas a preparar para cada prueba individual.</p>
+          <div class="pruebas-gramos-wrapper">
+            <input type="number" id="pruebasGramos" value="100" min="10" max="1000" step="10" oninput="previsualizarSerie()">
+            <span class="pruebas-unidad">g</span>
+          </div>
+        </div>
+
+        <!-- PREVIEW -->
+        <div class="pruebas-preview" id="pruebasPreview" style="display:none">
+          <div class="pruebas-preview-header">
+            <span id="pruebasConteo">0 pruebas generadas</span>
+            <span class="pruebas-preview-aviso" id="pruebasAviso"></span>
+          </div>
+        </div>
+
+        <!-- BOTÓN GENERAR -->
+        <button class="btn-generar" id="btnGenerar" onclick="generarSerie()" style="display:none">
+          <i class="fa-solid fa-flask"></i> Generar serie de pruebas
+        </button>
+
+      </div>
+
+      <!-- RESULTADO + HISTORIAL -->
+      <div class="pruebas-derecha">
+
+        <!-- SERIE GENERADA -->
+        <div class="pruebas-resultado" id="pruebasResultado" style="display:none">
+          <div class="pruebas-resultado-header">
+            <h3 id="pruebasResultadoTitulo">Serie</h3>
+            <div class="pruebas-resultado-acciones">
+              <button class="btn-pdf" onclick="descargarPDF()" id="btnPDF">
+                <i class="fa-solid fa-file-pdf"></i> PDF
+              </button>
+              <button class="btn-accion btn-guardar" onclick="guardarSerie()">
+                <i class="fa-solid fa-floppy-disk"></i> Guardar
+              </button>
+            </div>
+          </div>
+          <div class="pruebas-grid" id="pruebasGrid"></div>
+          <button class="btn-accion btn-taller" id="btnTallerPruebas" onclick="guardarEnTallerPruebas()" style="display:none">
+            <i class="fa-solid fa-store"></i> Guardar en mi taller
+          </button>
+        </div>
+
+        <!-- HISTORIAL -->
+        <div class="historial-panel">
+          <div class="historial-header">
+            <h3>Historial</h3>
+            <button class="btn-limpiar-todo" onclick="limpiarHistorial()" id="btnLimpiar" style="display:none">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+          <div class="historial-lista" id="pruebasHistorialLista">
+            <p class="historial-vacio">Guardá una serie para verla aquí.</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="cont-modal-overlay" id="contModal" style="display:none" onclick="if(event.target===this)cerrarModal()">
+    <div class="cont-modal">
+      <div class="cont-modal-header">
+        <h3 id="contModalTitulo"></h3>
+        <button onclick="cerrarModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="cont-modal-body">
+        <p id="contModalTexto"></p>
+      </div>
+      <div class="cont-modal-footer">
+        <button class="btn-accion btn-copiar" id="contModalCancelar" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn-accion btn-guardar" id="contModalConfirmar"></button>
+      </div>
+    </div>
+  </div>
+
+  <a class="whatsapp" href="https://wa.me/5491160387535" target="_blank">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <footer>
+    <p>© 2026 YCA Cerámica</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="script.js"></script>
+  <script src="../nav-ceramista.js"></script>
+
+</body>
+</html>
