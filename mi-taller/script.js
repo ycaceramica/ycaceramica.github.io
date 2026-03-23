@@ -124,7 +124,9 @@ async function cargarHistorial(){
     renderHistorial()
 
   } catch(e){
-    grid.innerHTML = '<p style="opacity:0.5;text-align:center;padding:20px">Error al cargar. Revisá tu conexión.</p>'
+    console.error('Error cargarHistorial:', e)
+    console.error('sesion.id:', sesion?.id)
+    grid.innerHTML = '<p style="opacity:0.5;text-align:center;padding:20px">Error: ' + e.message + '</p>'
   }
 }
 
