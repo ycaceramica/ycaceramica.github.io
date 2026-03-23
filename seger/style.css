@@ -193,6 +193,7 @@
   background:var(--color-fondo);
   border-radius:10px;
   padding:10px 12px;
+  flex-wrap:wrap;
 }
 
 .seger-material-select{
@@ -786,10 +787,12 @@
 
 .seger-mat-desc{
   font-size:11px;
-  opacity:0.55;
+  opacity:0.6;
   font-style:italic;
-  padding:4px 12px 6px;
+  padding:2px 4px 0;
   line-height:1.4;
+  width:100%;
+  color:var(--color-primario);
 }
 
 @media(max-width:768px){
