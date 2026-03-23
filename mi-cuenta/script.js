@@ -395,6 +395,7 @@ async function cambiarContrasena(){
 let historialData   = []
 let historialCargado = false
 let filtroActual    = 'todos'
+let seleccionados   = new Set()
 
 const CALC_LABELS = {
   yeso:        { emoji:'🧱', nombre:'Yeso',                pdfNombre:'Yeso' },
@@ -454,10 +455,57 @@ async function cargarHistorial(){
 
 function filtrarHistorial(calc, btn){
   filtroActual = calc
-  // Sincronizar el select si existe
   const sel = document.getElementById('hfiltroSelect')
   if(sel && sel.value !== calc) sel.value = calc
   renderHistorial()
+}
+
+function toggleFiltroMenu(){
+  const menu    = document.getElementById('hfiltroMenu')
+  const trigger = document.getElementById('hfiltroTrigger')
+  if(!menu) return
+  const abierto = menu.style.display !== 'none'
+  menu.style.display = abierto ? 'none' : 'block'
+  if(trigger) trigger.classList.toggle('abierto', !abierto)
+}
+
+function elegirFiltro(calc, label, btn){
+  filtroActual = calc
+  const lbl = document.getElementById('hfiltroLabel')
+  if(lbl) lbl.innerText = label
+  document.querySelectorAll('.hfiltro-opcion').forEach(b => b.classList.remove('activo'))
+  if(btn) btn.classList.add('activo')
+  const menu    = document.getElementById('hfiltroMenu')
+  const trigger = document.getElementById('hfiltroTrigger')
+  if(menu)    menu.style.display = 'none'
+  if(trigger) trigger.classList.remove('abierto')
+  renderHistorial()
+}
+
+function toggleSeleccion(id, event){
+  if(event) event.stopPropagation()
+  if(seleccionados.has(id)) seleccionados.delete(id)
+  else seleccionados.add(id)
+  actualizarUISeleccion()
+  renderHistorial()
+}
+
+function deseleccionarTodo(){
+  seleccionados.clear()
+  actualizarUISeleccion()
+  renderHistorial()
+}
+
+function actualizarUISeleccion(){
+  const n    = seleccionados.size
+  const info = document.getElementById('seleccionInfo')
+  const hint = document.getElementById('seleccionHint')
+  const lbl  = document.getElementById('btnPDFLabel')
+  const cont = document.getElementById('seleccionConteo')
+  if(cont) cont.innerText = n + (n === 1 ? ' seleccionado' : ' seleccionados')
+  if(info) info.style.display = n > 0 ? 'flex' : 'none'
+  if(hint && historialData.length > 0) hint.style.display = 'flex'
+  if(lbl)  lbl.innerText = n > 0 ? 'PDF (' + n + ')' : 'PDF'
 }
 
 function renderHistorial(){
@@ -478,12 +526,15 @@ function renderHistorial(){
     try { datos = JSON.parse(item.datos || '{}') } catch(e){}
 
     const card = document.createElement('div')
-    card.className = 'historial-taller-card'
+    const esSel = seleccionados.has(item.id)
+    card.className = 'historial-taller-card' + (esSel ? ' seleccionada' : '')
+    card.onclick = (e) => toggleSeleccion(item.id, e)
     card.innerHTML = `
       <div class="htcard-header">
         <span class="htcard-calc">${label.emoji} ${label.nombre}</span>
         <span class="htcard-fecha">${formatFecha(item.fecha)}</span>
-        <button class="htcard-borrar" onclick="borrarItem('${item.id}')" title="Eliminar">✕</button>
+        <div class="htcard-check">${esSel ? '<i class="fa-solid fa-check"></i>' : ''}</div>
+        <button class="htcard-borrar" onclick="event.stopPropagation();borrarItem('${item.id}')" title="Eliminar">✕</button>
       </div>
       <div class="htcard-nombre">${item.nombre || 'Sin nombre'}</div>
       <div class="htcard-datos">${renderDatosCard(item.calculadora, datos)}</div>`
@@ -609,7 +660,8 @@ function cargarLogoBase64(){
 }
 
 async function descargarHistorialPDF(){
-  const items = filtroActual === 'todos' ? historialData : historialData.filter(i => i.calculadora === filtroActual)
+  const baseItems = filtroActual === 'todos' ? historialData : historialData.filter(i => i.calculadora === filtroActual)
+  const items = seleccionados.size > 0 ? baseItems.filter(i => seleccionados.has(i.id)) : baseItems
   if(!items.length) return
   const sesion = getSesion()
   const { jsPDF } = window.jspdf
