@@ -98,6 +98,9 @@
         <button class="sidebar-item" onclick="setSeccion('emails')" id="nav-emails">
           <i class="fa-solid fa-envelope"></i> Enviar email
         </button>
+        <button class="sidebar-item" onclick="setSeccion('pdfgen')" id="nav-pdfgen">
+          <i class="fa-solid fa-file-pdf"></i> Generador PDF
+        </button>
       </div>
 
     </aside>
@@ -662,6 +665,71 @@
         </div>
       </div>
 
+      <!-- ── GENERADOR PDF ── -->
+      <div class="seccion" id="seccion-pdfgen" style="display:none">
+        <div class="seccion-header">
+          <h2><i class="fa-solid fa-file-pdf"></i> Generador de PDF</h2>
+          <p class="seccion-subtitulo">Pegá cualquier contenido, elegí el tipo de documento y la IA lo formatea con el membrete de YCA Cerámica.</p>
+        </div>
+
+        <div class="pdfgen-layout">
+
+          <div class="pdfgen-card">
+
+            <div class="pdfgen-campo">
+              <label class="pdfgen-label">Tipo de documento</label>
+              <div class="pdfgen-tipos">
+                <button class="pdfgen-tipo activo" data-tipo="general" onclick="setTipo(this)"><i class="fa-solid fa-file-lines"></i> General</button>
+                <button class="pdfgen-tipo" data-tipo="presupuesto" onclick="setTipo(this)"><i class="fa-solid fa-file-invoice-dollar"></i> Presupuesto</button>
+                <button class="pdfgen-tipo" data-tipo="certificado" onclick="setTipo(this)"><i class="fa-solid fa-certificate"></i> Certificado</button>
+                <button class="pdfgen-tipo" data-tipo="ficha" onclick="setTipo(this)"><i class="fa-solid fa-clipboard-list"></i> Ficha técnica</button>
+                <button class="pdfgen-tipo" data-tipo="receta" onclick="setTipo(this)"><i class="fa-solid fa-flask"></i> Receta / Fórmula</button>
+              </div>
+            </div>
+
+            <div class="pdfgen-campo">
+              <label class="pdfgen-label">Título del documento <span class="pdfgen-opcional">(opcional)</span></label>
+              <input type="text" id="pdfgenTitulo" class="pdfgen-input" placeholder="Ej: Presupuesto vajilla para María García">
+            </div>
+
+            <div class="pdfgen-campo">
+              <label class="pdfgen-label">Contenido</label>
+              <p class="pdfgen-hint">Pegá texto, contenido generado por IA, emojis, listas — lo que sea. La IA lo va a formatear correctamente para el PDF.</p>
+              <textarea id="pdfgenContenido" class="pdfgen-textarea" placeholder="Pegá acá el contenido que querés convertir en PDF..."></textarea>
+            </div>
+
+            <button class="pdfgen-btn-generar" id="btnGenerarPDF" onclick="generarConIA()">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Formatear con IA y previsualizar
+            </button>
+
+          </div>
+
+          <div class="pdfgen-card pdfgen-preview-card">
+
+            <div class="pdfgen-preview-header">
+              <span class="pdfgen-preview-titulo">Vista previa</span>
+              <button class="pdfgen-btn-pdf" id="btnDescargaPDF" onclick="descargarPDFGen()" style="display:none">
+                <i class="fa-solid fa-file-pdf"></i> Descargar PDF
+              </button>
+            </div>
+
+            <div class="pdfgen-preview-vacio" id="pdfgenVacio">
+              <i class="fa-solid fa-file-circle-plus"></i>
+              <p>La vista previa aparecerá aquí después de formatear con IA</p>
+            </div>
+
+            <div class="pdfgen-loading" id="pdfgenLoading" style="display:none">
+              <div class="pdfgen-spinner"></div>
+              <span>La IA está formateando el documento...</span>
+            </div>
+
+            <div class="pdfgen-preview-contenido" id="pdfgenPreview" style="display:none"></div>
+
+          </div>
+
+        </div>
+      </div>
+
     </main>
   </div>
 
@@ -1047,6 +1115,7 @@
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
