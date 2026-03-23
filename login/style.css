@@ -5,9 +5,9 @@
 .login-bg{
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 20px;
+  padding: 80px 20px 40px;
   background:
     radial-gradient(ellipse 60% 60% at 20% 30%, rgba(139,111,86,0.15) 0%, transparent 60%),
     radial-gradient(ellipse 50% 50% at 80% 70%, rgba(139,111,86,0.1) 0%, transparent 55%),
@@ -469,4 +469,11 @@
   height: 16px;
   accent-color: var(--color-primario);
   flex-shrink: 0;
+}
+
+@media(max-width:480px){
+  .login-bg{
+    padding: 60px 16px 30px;
+    align-items: flex-start;
+  }
 }
