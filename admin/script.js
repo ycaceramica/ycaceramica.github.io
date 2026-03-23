@@ -3581,7 +3581,7 @@ const PROMPTS_TIPO = {
 }
 
 const GEMINI_KEY = 'AIzaSyD7QczqKsCM6Inl97hTiL8mhTzB-TPAS2k'
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_KEY}`
 
 async function generarConIA(){
   const contenido = document.getElementById('pdfgenContenido').value.trim()
