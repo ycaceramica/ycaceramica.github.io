@@ -165,6 +165,8 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .pro-acceso-card.bloqueada{
@@ -217,6 +219,7 @@
   text-decoration: none;
   transition: background 0.2s, transform 0.15s;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .pro-btn-principal:hover{
