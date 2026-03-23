@@ -642,7 +642,19 @@ async function guardarEnTallerArc(){
   try {
     const res  = await fetch(API, {
       method:'POST',
-      body: JSON.stringify({ action, [idKey]: sesion.id, item:{ calculadora:'arcillas', nombre:item.nombre, datos:item } })
+      body: JSON.stringify({ action, [idKey]: sesion.id, item:{
+        calculadora: 'arcillas',
+        nombre:      item.nombre,
+        datos: {
+          materiales:  item.materiales,
+          plasticidad: item.plasticidad,
+          contraccion: item.contraccion,
+          tempMin:     item.tempMin,
+          tempMax:     item.tempMax,
+          porosidad:   item.porosidad,
+          fecha:       item.fecha
+        }
+      } })
     })
     const data = await res.json()
     if(data.ok){
