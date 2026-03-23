@@ -535,12 +535,13 @@ async function guardarEnTallerPruebas(){
 // INIT
 // ─────────────────────────────────────────────
 
-// Receta base de ejemplo
-agregarBase('Feldespato potásico', 40)
-agregarBase('Whiting', 20)
-agregarBase('Caolín', 20)
-agregarBase('Sílice', 20)
+window.addEventListener('DOMContentLoaded', () => {
+  agregarBase('Feldespato potásico', 40)
+  agregarBase('Whiting', 20)
+  agregarBase('Caolín', 20)
+  agregarBase('Sílice', 20)
 
-renderizarHistorial()
-previsualizarSerie()
-verificarSesionTaller()
+  renderizarHistorial()
+  previsualizarSerie()
+  verificarSesionTaller()
+})
