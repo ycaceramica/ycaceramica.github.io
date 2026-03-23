@@ -5,24 +5,7 @@ const API = "https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu
 
 // ─────────────────────────────────────────────
 // MODO OSCURO Y HAMBURGUESA
-// ─────────────────────────────────────────────
-function actualizarIcono(){
-  const btn = document.getElementById("toggleDark")
-  if(btn) btn.innerText = document.body.classList.contains("dark") ? "☀️" : "🌙"
-}
-function aplicarModoOscuro(){
-  if(localStorage.getItem("dark") === "true") document.body.classList.add("dark")
-  actualizarIcono()
-}
-aplicarModoOscuro()
-document.getElementById("toggleDark")?.addEventListener("click", () => {
-  document.body.classList.toggle("dark")
-  localStorage.setItem("dark", document.body.classList.contains("dark"))
-  actualizarIcono()
-})
-document.getElementById("hamburguesa")?.addEventListener("click", () => document.getElementById("nav").classList.toggle("active"))
-document.querySelectorAll(".nav a").forEach(l => l.addEventListener("click", () => document.getElementById("nav").classList.remove("active")))
-window.addEventListener("scroll", () => document.getElementById("nav")?.classList.remove("active"))
+// Dark mode y nav manejados por nav-ceramista.js
 
 // ─────────────────────────────────────────────
 // INFO
