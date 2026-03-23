@@ -69,6 +69,13 @@ body{
   font-family:'Asap', 'Plus Jakarta Sans', sans-serif;
 }
 
+.logo a{
+  text-decoration:none !important;
+  color:inherit !important;
+  display:flex;
+  align-items:center;
+}
+
 .nav{
   display:flex;
   align-items:center;
