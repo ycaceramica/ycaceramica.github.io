@@ -406,7 +406,10 @@ const CALC_LABELS = {
   esmaltes:    { emoji:'⚗️', nombre:'Esmaltes',            pdfNombre:'Esmaltes' },
   densidad:    { emoji:'⚗️', nombre:'Densidad de esmalte', pdfNombre:'Densidad' },
   absorcion:   { emoji:'💧', nombre:'Absorcion de agua',   pdfNombre:'Absorcion' },
-  breakeven:   { emoji:'📊', nombre:'Punto de equilibrio', pdfNombre:'BreakEven' }
+  breakeven:   { emoji:'📊', nombre:'Punto de equilibrio', pdfNombre:'BreakEven' },
+  seger:       { emoji:'🔬', nombre:'Formula Seger',        pdfNombre:'Seger' },
+  arcillas:    { emoji:'🧱', nombre:'Mezcla de Arcillas',   pdfNombre:'Arcillas' },
+  pruebas:     { emoji:'🧪', nombre:'Pruebas de colorantes',pdfNombre:'Pruebas' }
 }
 
 function formatFecha(fecha){
@@ -521,6 +524,30 @@ function renderDatosCard(calc, datos){
     const comps = datos.componentes || []
     return comps.slice(0,3).map(c => `<div class="htcard-chip">${c.nombre}: ${c.porcentaje}%</div>`).join('') +
       (comps.length > 3 ? `<div class="htcard-chip">+${comps.length-3} más</div>` : '')
+  }
+  if(calc === 'seger'){
+    const mats = datos.materiales || []
+    const cone = datos.cone === 'cone06' ? 'Cone 06' : datos.cone === 'cone6' ? 'Cone 6' : 'Cone 10'
+    return `<div class="htcard-chip">${cone}</div>`
+      + `<div class="htcard-chip">Si: ${datos.si || '—'}</div>`
+      + `<div class="htcard-chip">Al: ${datos.al || '—'}</div>`
+      + `<div class="htcard-chip">Si:Al ${datos.siAl || '—'}</div>`
+      + mats.slice(0,2).map(m => `<div class="htcard-chip">${m.nombre.split('(')[0].trim()}: ${m.pct}%</div>`).join('')
+      + (mats.length > 2 ? `<div class="htcard-chip">+${mats.length-2} mas</div>` : '')
+  }
+  if(calc === 'arcillas'){
+    const mats = datos.materiales || []
+    return `<div class="htcard-chip">Plasticidad: ${datos.plasticidad || '—'}/10</div>`
+      + `<div class="htcard-chip">Contraccion: ${datos.contraccion || '—'}%</div>`
+      + `<div class="htcard-chip">${datos.tempMin || '—'}–${datos.tempMax || '—'}°C</div>`
+      + mats.slice(0,2).map(m => `<div class="htcard-chip">${m.nombre.split('(')[0].trim()}: ${m.pct}%</div>`).join('')
+  }
+  if(calc === 'pruebas'){
+    const pruebas = datos.pruebas || []
+    const cant = Array.isArray(pruebas) ? pruebas.length : pruebas
+    return `<div class="htcard-chip">${cant} pruebas</div>`
+      + `<div class="htcard-chip">${datos.gramos || '—'}g c/u</div>`
+      + (datos.base || []).slice(0,2).map(m => `<div class="htcard-chip">${m.nombre}: ${m.pct}%</div>`).join('')
   }
   return ''
 }
