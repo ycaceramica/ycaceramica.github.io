@@ -11,95 +11,80 @@ const API = 'https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu
 // ─────────────────────────────────────────────
 
 const MATERIALES_DESC = {
-  'Feldespato potásico':    'Fundente principal en alta temperatura. Aporta K₂O, sílice y alúmina. Base de la mayoría de esmaltes.',
-  'Feldespato sódico':      'Similar al potásico pero con Na₂O. Mayor expansión térmica, más riesgo de craquelado.',
-  'Feldespato de litio':    'Fundente poderoso de baja temperatura. El Li₂O es el fundente alcalino más activo.',
-  'Cornish Stone':          'Feldespato inglés impuro. Combina fundentes y silicatos. Clásico en esmaltes de alta temperatura.',
-  'Custer Feldspar':        'Feldespato potásico americano muy usado. Buena fuente de K₂O con moderada alúmina.',
-  'G-200 Feldspar':         'Feldespato potásico de alta pureza. Estándar en formulación de esmaltes.',
-  'Caolín (EPK)':           'Arcilla de alta pureza. Aporta alúmina y sílice. Espesa el esmalte crudo y evita el asentamiento.',
-  'Caolín calcined':        'Caolín calcinado sin agua. Menos contracción, mismo aporte de Al₂O₃ y SiO₂.',
-  'Ball clay':              'Arcilla plástica. Más impura que el caolín, aporta TiO₂ que puede dar tonos crema.',
-  'Bentonita':              'Arcilla coloidal. Se usa en pequeñas cantidades (1-2%) para suspender el esmalte.',
-  'Arcilla roja':           'Arcilla con óxido de hierro. Colorante y fundente secundario. Da tonos marrones y ámbar.',
-  'Sílice (cuarzo)':        'Formador de vidrio puro. Aumenta dureza, punto de fusión y resistencia al craquelado.',
-  'Pedernal (flint)':       'Sílice de origen orgánico. Más reactivo que el cuarzo, usado en esmaltes de baja temperatura.',
-  'Nefelina sienita':       'Feldespato sin cuarzo libre. Fundente a temperaturas medias, aporta Na₂O y K₂O.',
-  'Whiting (CaCO3)':        'Carbonato de calcio. Fundente secundario esencial. Mejora dureza y resistencia química del esmalte.',
-  'Wollastonita':           'Silicato de calcio. Aporta CaO y SiO₂ simultáneamente. Reduce contracción del esmalte crudo.',
-  'Dolomita':               'Carbonato doble de calcio y magnesio. Fundente suave, da superficies satinadas y sedosas.',
-  'Talco':                  'Silicato de magnesio. Fundente en baja temperatura, da esmaltes suaves y mates.',
-  'Calcita':                'Carbonato de calcio puro. Similar al Whiting. Fundente clásico de alta temperatura.',
-  'Óxido de zinc (ZnO)':    'Fundente activo que puede producir efectos cristalinos. Blanquea y opacifica en ciertas proporciones.',
-  'Carbonato de bario':     'Fundente pesado. Da superficies muy satinadas. Tóxico — manipular con precaución.',
-  'Frita boro (Ferro 3134)':'Frita con boro y calcio. Fundente de baja temperatura. Base de muchos esmaltes Cone 06.',
-  'Frita boro (Ferro 3195)':'Frita borocalcica. Muy usada en Cone 6. Aporta boro sin los riesgos del material crudo.',
-  'Frita boro (Ferro 3110)':'Frita alcalina con boro. Baja temperatura, colores brillantes con colorantes.',
-  'Colemanita':             'Borosilicato natural. Aporta B₂O₃ y CaO. Activo como fundente desde Cone 06.',
-  'Ulexita':                'Borosilicato con sodio. Similar a colemanita pero más soluble. Usar en fritas preferentemente.',
-  'Óxido de cobalto (CoO)': 'Colorante azul muy potente. 0.5-1% da azul intenso. Puede dar violeta con ciertos fundentes.',
-  'Óxido de cobre (CuO)':   'Colorante verde en atmósfera oxidante, rojo en reducción. 1-3% según intensidad deseada.',
-  'Óxido de hierro (Fe2O3)':'Colorante más versátil. Ocre/marrón en oxidación, celadón/tenmoku en reducción.',
-  'Óxido de manganeso':     'Colorante marrón-violeta. Se usa con cobalto para negros o solo para marrones cálidos.',
-  'Óxido de cromo':         'Colorante verde opaco. Reacciona con zinc dando marrón, con estaño dando rosado.',
-  'Óxido de titanio':       'Opacificante suave. Da efectos moteados o superficies satinadas. Útil en Shino y celadones.',
-  'Óxido de estaño':        'Opacificante clásico. 8-10% da blanco opaco brillante. Muy estable.',
-  'Rutilo':                 'TiO₂ impuro con hierro. Da texturas interesantes, veteados y efectos de cristalización.',
-  'Óxido de circonio':      'Opacificante moderno. Más económico que el estaño, da blancos muy limpios.',
+  'Feldespato potásico (K2O·Al2O3·6SiO2)':    'Fundente principal en alta temperatura. Aporta K₂O, sílice y alúmina. Base de la mayoría de esmaltes.',
+  'Feldespato sódico (Na2O·Al2O3·6SiO2)':     'Similar al potásico pero con Na₂O. Mayor expansión térmica, más riesgo de craquelado.',
+  'Feldespato de litio (Li2O·Al2O3·4SiO2)':   'Fundente poderoso de baja temperatura. El Li₂O es el fundente alcalino más activo.',
+  'Cornish Stone (K2O, Al2O3, SiO2)':          'Feldespato inglés impuro. Combina fundentes y silicatos. Clásico en esmaltes de alta temperatura.',
+  'Custer Feldspar (feldespato potásico)':      'Feldespato potásico americano. Buena fuente de K₂O con moderada alúmina.',
+  'G-200 Feldspar (feldespato potásico)':       'Feldespato potásico de alta pureza. Estándar en formulación de esmaltes.',
+  'Caolín (Al2O3·2SiO2·2H2O)':                'Arcilla de alta pureza. Aporta alúmina y sílice. Espesa el esmalte crudo y evita el asentamiento.',
+  'Caolín calcinado (Al2O3·2SiO2)':            'Caolín calcinado sin agua. Menos contracción, mismo aporte de Al₂O₃ y SiO₂.',
+  'Arcilla plástica (SiO2, Al2O3)':            'Arcilla plástica (ball clay). Más impura que el caolín, aporta TiO₂ que puede dar tonos crema.',
+  'Bentonita (arcilla muy plástica)':           'Arcilla coloidal. Se usa en pequeñas cantidades (1-2%) para suspender el esmalte.',
+  'Arcilla roja (Fe2O3, SiO2, Al2O3)':         'Arcilla con óxido de hierro. Colorante y fundente secundario. Da tonos marrones y ámbar.',
+  'Sílice / cuarzo (SiO2)':                    'Formador de vidrio puro. Aumenta dureza, punto de fusión y resistencia al craquelado.',
+  'Pedernal / flint (SiO2)':                   'Sílice de origen orgánico. Más reactivo que el cuarzo, usado en esmaltes de baja temperatura.',
+  'Nefelina sienita (Na2O·K2O·Al2O3·SiO2)':   'Feldespato sin cuarzo libre. Fundente a temperaturas medias, aporta Na₂O y K₂O.',
+  'Carbonato de calcio / Whiting (CaCO3)':     'Fundente secundario esencial. Mejora dureza y resistencia química del esmalte.',
+  'Wollastonita (CaSiO3)':                     'Silicato de calcio. Aporta CaO y SiO₂ simultáneamente. Reduce contracción del esmalte crudo.',
+  'Dolomita (CaCO3·MgCO3)':                    'Carbonato doble de calcio y magnesio. Fundente suave, da superficies satinadas y sedosas.',
+  'Talco (Mg3Si4O10(OH)2)':                    'Silicato de magnesio. Fundente en baja temperatura, da esmaltes suaves y mates.',
+  'Calcita (CaCO3)':                           'Carbonato de calcio puro. Similar al Whiting. Fundente clásico de alta temperatura.',
+  'Óxido de zinc (ZnO)':                       'Fundente activo que puede producir efectos cristalinos. Blanquea y opacifica en ciertas proporciones.',
+  'Carbonato de bario (BaCO3)':                'Fundente pesado. Da superficies muy satinadas. Tóxico — manipular con precaución.',
+  'Frita 3134 (B2O3, CaO, Na2O)':              'Frita con boro y calcio. Fundente de baja temperatura. Base de muchos esmaltes Cone 06.',
+  'Frita 3195 (B2O3, SiO2, CaO)':              'Frita borocalcica. Muy usada en Cone 6. Aporta boro sin los riesgos del material crudo.',
+  'Frita 3110 (Na2O, SiO2)':                   'Frita sódica con boro. Baja temperatura, colores brillantes con colorantes.',
+  'Colemanita (Ca2B6O11)':                     'Borosilicato natural. Aporta B₂O₃ y CaO. Activo como fundente desde Cone 06.',
+  'Ulexita (NaCaB5O9)':                        'Borosilicato con sodio. Similar a colemanita pero más soluble. Usar en fritas preferentemente.',
+  'Óxido de cobalto (CoO)':                    'Colorante azul muy potente. 0.5-1% da azul intenso. Puede dar violeta con ciertos fundentes.',
+  'Óxido de cobre (CuO)':                      'Colorante verde en oxidación, rojo en reducción. 1-3% según intensidad deseada.',
+  'Óxido de hierro (Fe2O3)':                   'Colorante más versátil. Ocre/marrón en oxidación, celadón/tenmoku en reducción.',
+  'Óxido de manganeso (MnO2)':                 'Colorante marrón-violeta. Con cobalto para negros o solo para marrones cálidos.',
+  'Óxido de cromo (Cr2O3)':                    'Colorante verde opaco. Con zinc da marrón, con estaño da rosado.',
+  'Óxido de titanio (TiO2)':                   'Opacificante suave. Da efectos moteados o superficies satinadas.',
+  'Óxido de estaño (SnO2)':                    'Opacificante clásico. 8-10% da blanco opaco brillante. Muy estable.',
+  'Rutilo (TiO2 + Fe2O3)':                     'TiO₂ impuro con hierro. Da texturas, veteados y efectos de cristalización.',
+  'Óxido de circonio / zirconio (ZrO2)':       'Opacificante moderno. Más económico que el estaño, da blancos muy limpios.',
 }
 
 const MATERIALES_DB = {
-  // ── FELDESPATOS ──
-  'Feldespato potásico':   { K2O:16.9, Al2O3:18.3, SiO2:64.8 },
-  'Feldespato sódico':     { Na2O:11.8, Al2O3:19.5, SiO2:68.7 },
-  'Feldespato de litio':   { Li2O:4.9,  Al2O3:23.4, SiO2:64.8 },
-  'Cornish Stone':         { K2O:4.5, Na2O:3.6, CaO:1.8, Al2O3:16.2, SiO2:72.5 },
-  'Custer Feldspar':       { K2O:9.5, Na2O:3.0, Al2O3:17.1, SiO2:68.5 },
-  'G-200 Feldspar':        { K2O:11.3, Na2O:3.5, Al2O3:18.0, SiO2:66.2 },
-
-  // ── ARCILLAS ──
-  'Caolín (EPK)':          { Al2O3:37.3, SiO2:45.7, TiO2:0.3 },
-  'Caolín calcined':       { Al2O3:38.5, SiO2:45.5 },
-  'Ball clay':             { Al2O3:30.5, SiO2:52.8, TiO2:1.5 },
-  'Bentonita':             { MgO:3.2, Na2O:2.5, Al2O3:21.0, SiO2:61.4 },
-  'Arcilla roja':          { Fe2O3:6.5, Al2O3:18.5, SiO2:65.0, TiO2:1.0 },
-
-  // ── SILICE ──
-  'Sílice (cuarzo)':       { SiO2:100.0 },
-  'Pedernal (flint)':      { SiO2:98.0 },
-  'Nefelina sienita':      { K2O:4.7, Na2O:9.8, Al2O3:23.3, SiO2:60.4 },
-
-  // ── CALCIO ──
-  'Whiting (CaCO3)':       { CaO:56.1 },
-  'Wollastonita':          { CaO:48.3, SiO2:51.7 },
-  'Dolomita':              { CaO:30.4, MgO:21.9 },
-  'Talco':                 { MgO:31.7, SiO2:63.5 },
-  'Calcita':               { CaO:56.0 },
-
-  // ── ZINC / BARIO ──
-  'Óxido de zinc (ZnO)':   { ZnO:100.0 },
-  'Carbonato de bario':    { BaO:77.7 },
-
-  // ── BORO ──
-  'Frita boro (Ferro 3134)':{ CaO:20.0, B2O3:23.0, Na2O:10.0, SiO2:47.0 },
-  'Frita boro (Ferro 3195)':{ CaO:14.7, B2O3:23.8, Na2O:5.0, ZnO:2.3, SiO2:52.9 },
-  'Frita boro (Ferro 3110)':{ Na2O:10.5, B2O3:2.0, SiO2:74.0, CaO:0.3, Al2O3:2.4 },
-  'Colemanita':            { CaO:27.3, B2O3:50.9 },
-  'Ulexita':               { CaO:13.7, Na2O:6.4, B2O3:43.0 },
-
-  // ── COLORANTES ──
-  'Óxido de cobalto (CoO)':{ CoO:100.0 },
-  'Óxido de cobre (CuO)':  { CuO:100.0 },
-  'Óxido de hierro (Fe2O3)':{ Fe2O3:100.0 },
-  'Óxido de manganeso':    { MnO2:100.0 },
-  'Óxido de cromo':        { Cr2O3:100.0 },
-  'Óxido de titanio':      { TiO2:100.0 },
-  'Óxido de estaño':       { SnO2:100.0 },
-  'Rutilo':                { TiO2:94.0, Fe2O3:4.0 },
-  'Óxido de circonio':     { ZrO2:100.0 },
+  'Feldespato potásico (K2O·Al2O3·6SiO2)':    { K2O:16.9, Al2O3:18.3, SiO2:64.8 },
+  'Feldespato sódico (Na2O·Al2O3·6SiO2)':     { Na2O:11.8, Al2O3:19.5, SiO2:68.7 },
+  'Feldespato de litio (Li2O·Al2O3·4SiO2)':   { Li2O:4.9, Al2O3:23.4, SiO2:64.8 },
+  'Cornish Stone (K2O, Al2O3, SiO2)':          { K2O:4.5, Na2O:3.6, CaO:1.8, Al2O3:16.2, SiO2:72.5 },
+  'Custer Feldspar (feldespato potásico)':      { K2O:9.5, Na2O:3.0, Al2O3:17.1, SiO2:68.5 },
+  'G-200 Feldspar (feldespato potásico)':       { K2O:11.3, Na2O:3.5, Al2O3:18.0, SiO2:66.2 },
+  'Caolín (Al2O3·2SiO2·2H2O)':                { Al2O3:37.3, SiO2:45.7, TiO2:0.3 },
+  'Caolín calcinado (Al2O3·2SiO2)':            { Al2O3:38.5, SiO2:45.5 },
+  'Arcilla plástica (SiO2, Al2O3)':            { Al2O3:30.5, SiO2:52.8, TiO2:1.5 },
+  'Bentonita (arcilla muy plástica)':           { MgO:3.2, Na2O:2.5, Al2O3:21.0, SiO2:61.4 },
+  'Arcilla roja (Fe2O3, SiO2, Al2O3)':         { Fe2O3:6.5, Al2O3:18.5, SiO2:65.0, TiO2:1.0 },
+  'Sílice / cuarzo (SiO2)':                    { SiO2:100.0 },
+  'Pedernal / flint (SiO2)':                   { SiO2:98.0 },
+  'Nefelina sienita (Na2O·K2O·Al2O3·SiO2)':   { K2O:4.7, Na2O:9.8, Al2O3:23.3, SiO2:60.4 },
+  'Carbonato de calcio / Whiting (CaCO3)':     { CaO:56.1 },
+  'Wollastonita (CaSiO3)':                     { CaO:48.3, SiO2:51.7 },
+  'Dolomita (CaCO3·MgCO3)':                    { CaO:30.4, MgO:21.9 },
+  'Talco (Mg3Si4O10(OH)2)':                    { MgO:31.7, SiO2:63.5 },
+  'Calcita (CaCO3)':                           { CaO:56.0 },
+  'Óxido de zinc (ZnO)':                       { ZnO:100.0 },
+  'Carbonato de bario (BaCO3)':                { BaO:77.7 },
+  'Frita 3134 (B2O3, CaO, Na2O)':              { CaO:20.0, B2O3:23.0, Na2O:10.0, SiO2:47.0 },
+  'Frita 3195 (B2O3, SiO2, CaO)':              { CaO:14.7, B2O3:23.8, Na2O:5.0, ZnO:2.3, SiO2:52.9 },
+  'Frita 3110 (Na2O, SiO2)':                   { Na2O:10.5, B2O3:2.0, SiO2:74.0, CaO:0.3, Al2O3:2.4 },
+  'Colemanita (Ca2B6O11)':                     { CaO:27.3, B2O3:50.9 },
+  'Ulexita (NaCaB5O9)':                        { CaO:13.7, Na2O:6.4, B2O3:43.0 },
+  'Óxido de cobalto (CoO)':                    { CoO:100.0 },
+  'Óxido de cobre (CuO)':                      { CuO:100.0 },
+  'Óxido de hierro (Fe2O3)':                   { Fe2O3:100.0 },
+  'Óxido de manganeso (MnO2)':                 { MnO2:100.0 },
+  'Óxido de cromo (Cr2O3)':                    { Cr2O3:100.0 },
+  'Óxido de titanio (TiO2)':                   { TiO2:100.0 },
+  'Óxido de estaño (SnO2)':                    { SnO2:100.0 },
+  'Rutilo (TiO2 + Fe2O3)':                     { TiO2:94.0, Fe2O3:4.0 },
+  'Óxido de circonio / zirconio (ZrO2)':       { ZrO2:100.0 },
 }
-
-// Pesos moleculares de los óxidos
 const PM = {
   Li2O:29.88, Na2O:61.98, K2O:94.20, MgO:40.30, CaO:56.08,
   ZnO:81.38,  BaO:153.33, SrO:103.62,
@@ -788,10 +773,10 @@ async function guardarEnTallerSeger(){
 // ─────────────────────────────────────────────
 
 // Iniciar con 3 materiales de ejemplo
-agregarMaterial('Feldespato potásico', 40)
-agregarMaterial('Whiting (CaCO3)', 20)
-agregarMaterial('Caolín (EPK)', 20)
-agregarMaterial('Sílice (cuarzo)', 20)
+agregarMaterial('Feldespato potásico (K2O·Al2O3·6SiO2)', 40)
+agregarMaterial('Carbonato de calcio / Whiting (CaCO3)', 20)
+agregarMaterial('Caolín (Al2O3·2SiO2·2H2O)', 20)
+agregarMaterial('Sílice / cuarzo (SiO2)', 20)
 
 renderizarHistorial()
 verificarSesionTaller()
