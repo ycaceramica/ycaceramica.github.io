@@ -3580,13 +3580,16 @@ const PROMPTS_TIPO = {
   receta:       'Sos un asistente de YCA Cerámica. Formateá el siguiente contenido como una receta o fórmula cerámica. Organizá: nombre, materiales con porcentajes, proceso, notas. Respetá emojis. Sin comentarios extras, solo la receta.',
 }
 
-const GEMINI_KEY = 'AIzaSyBKaynWuT2BTd54SaoQay25c1OS7yXIQ1Q'
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`
-
 async function generarConIA(){
   const contenido = document.getElementById('pdfgenContenido').value.trim()
   if(!contenido){
     toast('⚠ Pegá el contenido primero', 'err')
+    return
+  }
+
+  const sesion = getSesion()
+  if(!sesion || !sesion.token){
+    toast('⚠ Necesitás estar logueado como admin', 'err')
     return
   }
 
@@ -3600,38 +3603,30 @@ async function generarConIA(){
   document.getElementById('btnDescargaPDF').style.display = 'none'
 
   try {
-    const prompt = PROMPTS_TIPO[tipoDocActual] || PROMPTS_TIPO.general
     const titulo = document.getElementById('pdfgenTitulo').value.trim()
-    const texto  = `${prompt}\n\n${titulo ? `Título: ${titulo}\n\n` : ''}Contenido:\n${contenido}`
 
-    const res  = await fetch(GEMINI_URL, {
+    const res  = await fetch(API, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: texto }] }],
-        generationConfig: { maxOutputTokens: 1500, temperature: 0.3 }
+        action:    'geminiFormat',
+        token:     sesion.token,
+        contenido: contenido,
+        tipo:      tipoDocActual,
+        titulo:    titulo
       })
     })
 
-    const data     = await res.json()
-    console.log('Gemini response:', JSON.stringify(data).substring(0, 200))
+    const data = await res.json()
 
-    if(data.error){
-      throw new Error(data.error.message || 'Error de Gemini')
+    if(!data.ok){
+      throw new Error(data.error || 'Error al formatear')
     }
 
-    const markdown = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
-
-    if(!markdown){
-      throw new Error('Respuesta vacía de Gemini')
-    }
-
-    contenidoFormateado = { markdown, titulo, tipo: tipoDocActual }
-    renderizarPreview(markdown, titulo)
+    contenidoFormateado = { markdown: data.markdown, titulo, tipo: tipoDocActual }
+    renderizarPreview(data.markdown, titulo)
 
   } catch(e) {
-    console.error('Gemini error:', e)
-    toast('❌ ' + (e.message || 'Error al conectar con Gemini'), 'err')
+    toast('❌ ' + (e.message || 'Error al conectar'), 'err')
     document.getElementById('pdfgenVacio').style.display = 'flex'
   } finally {
     document.getElementById('pdfgenLoading').style.display = 'none'
