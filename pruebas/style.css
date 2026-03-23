@@ -249,6 +249,18 @@
 .colorante-bloque.opcional{
   border:1.5px dashed rgba(139,111,86,0.2);
   background:transparent;
+  opacity:0.6;
+  transition:all 0.2s;
+}
+
+.colorante-bloque.opcional.activo{
+  border:1.5px solid rgba(82,120,168,0.5);
+  background:rgba(82,120,168,0.06);
+  opacity:1;
+}
+
+.colorante-bloque.opcional.activo .colorante-titulo{
+  color:#4a7ab5;
 }
 
 .colorante-titulo{
