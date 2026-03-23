@@ -152,9 +152,8 @@ function filtrarHistorial(calc, btn){
 
 function renderHistorial(){
   const grid = document.getElementById('historialTallerGrid')
-  const items = filtroActual === 'todos'
-    ? historialData
-    : historialData.filter(i => i.calculadora === filtroActual)
+  const baseItems = filtroActual === 'todos' ? historialData : historialData.filter(i => i.calculadora === filtroActual)
+  const items = seleccionados.size > 0 ? baseItems.filter(i => seleccionados.has(i.id)) : baseItems
 
   if(items.length === 0){
     grid.innerHTML = '<p class="taller-sin-items">No hay cálculos guardados de esta calculadora.</p>'
@@ -167,13 +166,16 @@ function renderHistorial(){
     let datos = {}
     try { datos = JSON.parse(item.datos || '{}') } catch(e){}
 
+    const esSel = seleccionados.has(item.id)
     const card = document.createElement('div')
-    card.className = 'historial-taller-card'
+    card.className = 'historial-taller-card' + (esSel ? ' seleccionada' : '')
+    card.onclick = (e) => toggleSeleccion(item.id, e)
     card.innerHTML = `
       <div class="htcard-header">
         <span class="htcard-calc">${label.emoji} ${label.nombre}</span>
         <span class="htcard-fecha">${formatFecha(item.fecha)}</span>
-        <button class="htcard-borrar" onclick="borrarItemTaller('${item.id}')" title="Eliminar">✕</button>
+        <div class="htcard-check">${esSel ? '<i class="fa-solid fa-check"></i>' : ''}</div>
+        <button class="htcard-borrar" onclick="event.stopPropagation();borrarItemTaller('${item.id}')" title="Eliminar">✕</button>
       </div>
       <div class="htcard-nombre">${item.nombre || 'Sin nombre'}</div>
       <div class="htcard-datos">${renderDatosCard(item.calculadora, datos)}</div>
