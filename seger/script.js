@@ -10,6 +10,44 @@ const API = 'https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu
 // Peso molecular incluido para conversión a moles
 // ─────────────────────────────────────────────
 
+const MATERIALES_DESC = {
+  'Feldespato potásico':    'Fundente principal en alta temperatura. Aporta K₂O, sílice y alúmina. Base de la mayoría de esmaltes.',
+  'Feldespato sódico':      'Similar al potásico pero con Na₂O. Mayor expansión térmica, más riesgo de craquelado.',
+  'Feldespato de litio':    'Fundente poderoso de baja temperatura. El Li₂O es el fundente alcalino más activo.',
+  'Cornish Stone':          'Feldespato inglés impuro. Combina fundentes y silicatos. Clásico en esmaltes de alta temperatura.',
+  'Custer Feldspar':        'Feldespato potásico americano muy usado. Buena fuente de K₂O con moderada alúmina.',
+  'G-200 Feldspar':         'Feldespato potásico de alta pureza. Estándar en formulación de esmaltes.',
+  'Caolín (EPK)':           'Arcilla de alta pureza. Aporta alúmina y sílice. Espesa el esmalte crudo y evita el asentamiento.',
+  'Caolín calcined':        'Caolín calcinado sin agua. Menos contracción, mismo aporte de Al₂O₃ y SiO₂.',
+  'Ball clay':              'Arcilla plástica. Más impura que el caolín, aporta TiO₂ que puede dar tonos crema.',
+  'Bentonita':              'Arcilla coloidal. Se usa en pequeñas cantidades (1-2%) para suspender el esmalte.',
+  'Arcilla roja':           'Arcilla con óxido de hierro. Colorante y fundente secundario. Da tonos marrones y ámbar.',
+  'Sílice (cuarzo)':        'Formador de vidrio puro. Aumenta dureza, punto de fusión y resistencia al craquelado.',
+  'Pedernal (flint)':       'Sílice de origen orgánico. Más reactivo que el cuarzo, usado en esmaltes de baja temperatura.',
+  'Nefelina sienita':       'Feldespato sin cuarzo libre. Fundente a temperaturas medias, aporta Na₂O y K₂O.',
+  'Whiting (CaCO3)':        'Carbonato de calcio. Fundente secundario esencial. Mejora dureza y resistencia química del esmalte.',
+  'Wollastonita':           'Silicato de calcio. Aporta CaO y SiO₂ simultáneamente. Reduce contracción del esmalte crudo.',
+  'Dolomita':               'Carbonato doble de calcio y magnesio. Fundente suave, da superficies satinadas y sedosas.',
+  'Talco':                  'Silicato de magnesio. Fundente en baja temperatura, da esmaltes suaves y mates.',
+  'Calcita':                'Carbonato de calcio puro. Similar al Whiting. Fundente clásico de alta temperatura.',
+  'Óxido de zinc (ZnO)':    'Fundente activo que puede producir efectos cristalinos. Blanquea y opacifica en ciertas proporciones.',
+  'Carbonato de bario':     'Fundente pesado. Da superficies muy satinadas. Tóxico — manipular con precaución.',
+  'Frita boro (Ferro 3134)':'Frita con boro y calcio. Fundente de baja temperatura. Base de muchos esmaltes Cone 06.',
+  'Frita boro (Ferro 3195)':'Frita borocalcica. Muy usada en Cone 6. Aporta boro sin los riesgos del material crudo.',
+  'Frita boro (Ferro 3110)':'Frita alcalina con boro. Baja temperatura, colores brillantes con colorantes.',
+  'Colemanita':             'Borosilicato natural. Aporta B₂O₃ y CaO. Activo como fundente desde Cone 06.',
+  'Ulexita':                'Borosilicato con sodio. Similar a colemanita pero más soluble. Usar en fritas preferentemente.',
+  'Óxido de cobalto (CoO)': 'Colorante azul muy potente. 0.5-1% da azul intenso. Puede dar violeta con ciertos fundentes.',
+  'Óxido de cobre (CuO)':   'Colorante verde en atmósfera oxidante, rojo en reducción. 1-3% según intensidad deseada.',
+  'Óxido de hierro (Fe2O3)':'Colorante más versátil. Ocre/marrón en oxidación, celadón/tenmoku en reducción.',
+  'Óxido de manganeso':     'Colorante marrón-violeta. Se usa con cobalto para negros o solo para marrones cálidos.',
+  'Óxido de cromo':         'Colorante verde opaco. Reacciona con zinc dando marrón, con estaño dando rosado.',
+  'Óxido de titanio':       'Opacificante suave. Da efectos moteados o superficies satinadas. Útil en Shino y celadones.',
+  'Óxido de estaño':        'Opacificante clásico. 8-10% da blanco opaco brillante. Muy estable.',
+  'Rutilo':                 'TiO₂ impuro con hierro. Da texturas interesantes, veteados y efectos de cristalización.',
+  'Óxido de circonio':      'Opacificante moderno. Más económico que el estaño, da blancos muy limpios.',
+}
+
 const MATERIALES_DB = {
   // ── FELDESPATOS ──
   'Feldespato potásico':   { K2O:16.9, Al2O3:18.3, SiO2:64.8 },
@@ -146,8 +184,9 @@ function agregarMaterial(nombre = '', pct = ''){
     `<option value="${m}" ${m === nombre ? 'selected' : ''}>${m}</option>`
   ).join('')
 
+  const descId = 'mat-desc-' + id
   div.innerHTML = `
-    <select class="seger-material-select" onchange="calcularSeger()">
+    <select class="seger-material-select" onchange="mostrarDescMaterial(this, '${descId}'); calcularSeger()">
       <option value="">— Seleccionar material —</option>
       ${opciones}
     </select>
@@ -160,8 +199,23 @@ function agregarMaterial(nombre = '', pct = ''){
       <i class="fa-solid fa-xmark"></i>
     </button>
   `
+  // Agregar descripción debajo
+  const desc = document.createElement('div')
+  desc.className = 'seger-mat-desc'
+  desc.id = descId
+  desc.style.display = nombre ? 'block' : 'none'
+  desc.innerText = nombre ? (MATERIALES_DESC[nombre] || '') : ''
+  div.appendChild(desc)
   cont.appendChild(div)
   calcularSeger()
+}
+
+function mostrarDescMaterial(select, descId){
+  const desc = document.getElementById(descId)
+  if(!desc) return
+  const texto = MATERIALES_DESC[select.value] || ''
+  desc.innerText      = texto
+  desc.style.display  = texto ? 'block' : 'none'
 }
 
 function borrarMaterial(id){
@@ -260,10 +314,45 @@ function calcularSeger(){
   // ── Diagnóstico ──
   renderizarDiagnostico(seger, si, al, siAl)
 
+  // ── Gráfico de balance ──
+  renderizarBalance(seger)
+
   // ── Guardar resultado ──
   resultadoActual = { seger, si, al, siAl, oxidosPct, materiales }
   document.getElementById('segerResultado').style.display = 'flex'
   verificarSesionTaller()
+}
+
+// ─────────────────────────────────────────────
+// GRÁFICO DE BALANCE
+// ─────────────────────────────────────────────
+
+function renderizarBalance(seger){
+  const sumaRO   = GRUPO_RO.reduce((s, o)   => s + (seger[o] || 0), 0)
+  const sumaR2O3 = GRUPO_R2O3.reduce((s, o) => s + (seger[o] || 0), 0)
+  const sumaRO2  = GRUPO_RO2.reduce((s, o)  => s + (seger[o] || 0), 0)
+  const total    = sumaRO + sumaR2O3 + sumaRO2 || 1
+
+  const barras = [
+    { label:'Fundentes',      val:sumaRO,   clase:'ro',   pct:(sumaRO/total*100)   },
+    { label:'Estabilizantes', val:sumaR2O3, clase:'r2o3', pct:(sumaR2O3/total*100) },
+    { label:'Formadores',     val:sumaRO2,  clase:'ro2',  pct:(sumaRO2/total*100)  },
+  ]
+
+  const cont = document.getElementById('segerBarras')
+  cont.innerHTML = ''
+  barras.forEach(b => {
+    const fila = document.createElement('div')
+    fila.className = 'seger-barra-fila'
+    fila.innerHTML = `
+      <span class="seger-barra-label">${b.label}</span>
+      <div class="seger-barra-track">
+        <div class="seger-barra-fill ${b.clase}" style="width:${b.pct.toFixed(1)}%"></div>
+      </div>
+      <span class="seger-barra-valor">${b.val.toFixed(2)}</span>
+    `
+    cont.appendChild(fila)
+  })
 }
 
 function renderizarGrupo(elId, grupo, seger){
@@ -302,10 +391,13 @@ function renderizarDiagnostico(seger, si, al, siAl){
 
   const diags = diagnosticar(seger, si, al, siAl)
   diags.forEach(d => {
-    const div = document.createElement('div')
+    const div   = document.createElement('div')
     div.className = 'seger-diag-item ' + d.tipo
     const icono = d.tipo === 'ok' ? 'fa-circle-check' : d.tipo === 'aviso' ? 'fa-triangle-exclamation' : 'fa-circle-xmark'
-    div.innerHTML = `<i class="fa-solid ${icono}"></i> <span>${d.texto}</span>`
+    div.innerHTML = `
+      <div class="seger-diag-header"><i class="fa-solid ${icono}"></i> ${d.titulo}</div>
+      <div class="seger-diag-detalle">${d.detalle}</div>
+    `
     cont.appendChild(div)
   })
 }
@@ -313,8 +405,8 @@ function renderizarDiagnostico(seger, si, al, siAl){
 function diagnosticar(seger, si, al, siAl){
   const diags = []
   const cone  = coneActual
+  const coneLabel = cone === 'cone06' ? 'Cone 06' : cone === 'cone6' ? 'Cone 6' : 'Cone 10'
 
-  // Rangos de referencia por temperatura
   const rangos = {
     cone06: { siMin:1.5, siMax:2.5, alMin:0.2, alMax:0.4, siAlMin:5,  siAlMax:8  },
     cone6:  { siMin:2.5, siMax:4.0, alMin:0.3, alMax:0.5, siAlMin:6,  siAlMax:10 },
@@ -324,59 +416,99 @@ function diagnosticar(seger, si, al, siAl){
 
   // ── Sílice ──
   if(si < r.siMin){
-    diags.push({ tipo:'error', texto:`SiO₂ muy bajo (${si.toFixed(2)}) — el esmalte puede ser demasiado fluido o sin brillo para ${cone.replace('cone','Cone ')}.` })
+    diags.push({ tipo:'error',
+      titulo: 'Sílice muy bajo — esmalte inestable',
+      detalle: `Con SiO₂ = ${si.toFixed(2)} el esmalte puede fluir demasiado, perderse del borde o quedar sin brillo. Para ${coneLabel} lo ideal es entre ${r.siMin} y ${r.siMax}. Agregá más cuarzo, sílice o feldespato.`
+    })
   } else if(si > r.siMax){
-    diags.push({ tipo:'aviso', texto:`SiO₂ alto (${si.toFixed(2)}) — posible subcocción o esmalte mate. Rango ideal: ${r.siMin}–${r.siMax}.` })
+    diags.push({ tipo:'aviso',
+      titulo: 'Sílice alto — posible subcocción',
+      detalle: `SiO₂ = ${si.toFixed(2)} es alto para ${coneLabel}. El esmalte puede no fundir completamente o quedar mate y áspero. Considerá reducir cuarzo o aumentar fundentes.`
+    })
   } else {
-    diags.push({ tipo:'ok', texto:`SiO₂ en rango ideal (${si.toFixed(2)}) para ${cone.replace('cone','Cone ')}.` })
+    diags.push({ tipo:'ok',
+      titulo: 'Sílice en rango ideal',
+      detalle: `SiO₂ = ${si.toFixed(2)}. El esmalte debería tener buena resistencia y durabilidad para ${coneLabel}.`
+    })
   }
 
   // ── Alúmina ──
   if(al < r.alMin){
-    diags.push({ tipo:'aviso', texto:`Al₂O₃ bajo (${al.toFixed(3)}) — el esmalte puede ser inestable o muy fluido.` })
+    diags.push({ tipo:'aviso',
+      titulo: 'Alúmina baja — esmalte puede ser fluido',
+      detalle: `Al₂O₃ = ${al.toFixed(3)} es bajo. La alúmina da cuerpo y estabilidad al esmalte fundido. Agregá caolín o feldespato.`
+    })
   } else if(al > r.alMax){
-    diags.push({ tipo:'aviso', texto:`Al₂O₃ alto (${al.toFixed(3)}) — tendencia a esmalte mate o con cáscara de naranja.` })
+    diags.push({ tipo:'aviso',
+      titulo: 'Alúmina alta — tendencia a mate',
+      detalle: `Al₂O₃ = ${al.toFixed(3)} es alto. El esmalte puede quedar mate, rugoso o con textura de cáscara de naranja. Reducí caolín o arcilla.`
+    })
   } else {
-    diags.push({ tipo:'ok', texto:`Al₂O₃ en rango adecuado (${al.toFixed(3)}).` })
+    diags.push({ tipo:'ok',
+      titulo: 'Alúmina en rango adecuado',
+      detalle: `Al₂O₃ = ${al.toFixed(3)}. Buena estabilidad y viscosidad del esmalte fundido.`
+    })
   }
 
   // ── Ratio Si:Al ──
   if(siAl < r.siAlMin){
-    diags.push({ tipo:'aviso', texto:`Ratio Si:Al bajo (${siAl.toFixed(1)}) — posible esmalte mate o sin brillo.` })
+    diags.push({ tipo:'aviso',
+      titulo: 'Ratio Si:Al bajo — posible esmalte mate',
+      detalle: `Si:Al = ${siAl.toFixed(1)}. Un ratio bajo puede dar superficies sin brillo o con aspecto yesoso. El ideal para ${coneLabel} es entre ${r.siAlMin} y ${r.siAlMax}.`
+    })
   } else if(siAl > r.siAlMax){
-    diags.push({ tipo:'aviso', texto:`Ratio Si:Al alto (${siAl.toFixed(1)}) — puede craquelar o tener tensión en la superficie.` })
+    diags.push({ tipo:'aviso',
+      titulo: 'Ratio Si:Al alto — riesgo de craquelado',
+      detalle: `Si:Al = ${siAl.toFixed(1)}. Demasiada sílice respecto a la alúmina puede causar tensiones en la superficie y craqueladuras al enfriar.`
+    })
   } else {
-    diags.push({ tipo:'ok', texto:`Ratio Si:Al adecuado (${siAl.toFixed(1)}).` })
+    diags.push({ tipo:'ok',
+      titulo: 'Ratio Si:Al equilibrado',
+      detalle: `Si:Al = ${siAl.toFixed(1)}. El esmalte debería tener buena superficie y adherencia a la pieza.`
+    })
   }
 
   // ── Boro ──
   const b2o3 = seger['B2O3'] || 0
-  if(b2o3 > 0){
-    if(b2o3 > 0.6){
-      diags.push({ tipo:'aviso', texto:`B₂O₃ elevado (${b2o3.toFixed(3)}) — puede ablandar mucho el esmalte y aumentar expansión.` })
-    } else {
-      diags.push({ tipo:'ok', texto:`B₂O₃ presente (${b2o3.toFixed(3)}) — mejora la fluidez y reduce temperatura de fusión.` })
-    }
+  if(b2o3 > 0.6){
+    diags.push({ tipo:'aviso',
+      titulo: 'Boro elevado — esmalte muy activo',
+      detalle: `B₂O₃ = ${b2o3.toFixed(3)}. Mucho boro puede hacer que el esmalte fluya demasiado y aumente el coeficiente de expansión. Considerá usar menos frita borocalcica.`
+    })
+  } else if(b2o3 > 0.05){
+    diags.push({ tipo:'ok',
+      titulo: 'Boro presente — mejor fusión',
+      detalle: `B₂O₃ = ${b2o3.toFixed(3)}. El boro mejora la fluidez, el brillo y reduce la temperatura de fusión. Muy útil en esmaltes de temperatura media.`
+    })
+  }
+
+  // ── Álcalis ──
+  const k2o  = seger['K2O']  || 0
+  const na2o = seger['Na2O'] || 0
+  const alkTotal = k2o + na2o
+  if(alkTotal > 0.4){
+    diags.push({ tipo:'aviso',
+      titulo: 'Álcalis altos — mayor riesgo de craquelado',
+      detalle: `K₂O + Na₂O = ${alkTotal.toFixed(3)}. Los álcalis aumentan el coeficiente de expansión térmica del esmalte. Si hay craquelado, reducí feldespato alcalino y reemplazá por whiting o dolomita.`
+    })
   }
 
   // ── Calcio ──
   const cao = seger['CaO'] || 0
   if(cao > 0.8){
-    diags.push({ tipo:'aviso', texto:`CaO alto (${cao.toFixed(3)}) — posible cristalización o efecto mate en bajas temperaturas.` })
-  }
-
-  // ── Potasio/Sodio (craqueladuras) ──
-  const k2o  = seger['K2O']  || 0
-  const na2o = seger['Na2O'] || 0
-  const alkTotal = k2o + na2o
-  if(alkTotal > 0.4){
-    diags.push({ tipo:'aviso', texto:`Álcalis altos (K₂O+Na₂O: ${alkTotal.toFixed(3)}) — mayor coeficiente de expansión, riesgo de craquelado.` })
+    diags.push({ tipo:'aviso',
+      titulo: 'Calcio alto — posible efecto mate',
+      detalle: `CaO = ${cao.toFixed(3)}. Mucho calcio puede generar superficies satinadas o cristalizaciones no deseadas, especialmente en bajas temperaturas.`
+    })
   }
 
   // ── Zinc ──
   const zno = seger['ZnO'] || 0
   if(zno > 0.3){
-    diags.push({ tipo:'aviso', texto:`ZnO elevado (${zno.toFixed(3)}) — puede producir efectos cristalinos o aumento de viscosidad.` })
+    diags.push({ tipo:'aviso',
+      titulo: 'Zinc elevado — posibles efectos visuales',
+      detalle: `ZnO = ${zno.toFixed(3)}. El zinc en cantidades altas puede producir cristalizaciones, opacidad o aumentar la viscosidad del esmalte fundido.`
+    })
   }
 
   return diags
