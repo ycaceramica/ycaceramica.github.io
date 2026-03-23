@@ -95,22 +95,24 @@
               Colorante 1
             </div>
             <div class="colorante-fila">
-              <select id="color1Nombre" class="colorante-select">
+              <select id="color1Nombre" class="colorante-select" onchange="mostrarDescColorante(this, 'desc-color1')">
                 <option value="">— Seleccionar colorante —</option>
-                <option>Óxido de cobalto</option>
-                <option>Óxido de cobre</option>
-                <option>Óxido de hierro</option>
-                <option>Óxido de manganeso</option>
-                <option>Óxido de cromo</option>
-                <option>Óxido de titanio</option>
-                <option>Óxido de estaño</option>
-                <option>Rutilo</option>
-                <option>Carbonato de cobalto</option>
-                <option>Carbonato de cobre</option>
+                <option>Óxido de cobalto (CoO)</option>
+                <option>Óxido de cobre (CuO)</option>
+                <option>Óxido de hierro (Fe2O3)</option>
+                <option>Óxido de manganeso (MnO2)</option>
+                <option>Óxido de cromo (Cr2O3)</option>
+                <option>Óxido de titanio (TiO2)</option>
+                <option>Óxido de estaño (SnO2)</option>
+                <option>Rutilo (TiO2 + Fe2O3)</option>
+                <option>Óxido de circonio / zirconio (ZrO2)</option>
+                <option>Carbonato de cobalto (CoCO3)</option>
+                <option>Carbonato de cobre (CuCO3)</option>
                 <option>Pigmento comercial</option>
                 <option>Otro</option>
               </select>
             </div>
+            <div class="colorante-desc" id="desc-color1"></div>
             <div class="colorante-rangos">
               <div class="colorante-rango-item">
                 <label>Desde</label>
@@ -147,22 +149,24 @@
             </div>
             <div id="color2Controles" style="display:none">
               <div class="colorante-fila">
-                <select id="color2Nombre" class="colorante-select">
+                <select id="color2Nombre" class="colorante-select" onchange="mostrarDescColorante(this, 'desc-color2')">
                   <option value="">— Seleccionar colorante —</option>
-                  <option>Óxido de cobalto</option>
-                  <option>Óxido de cobre</option>
-                  <option>Óxido de hierro</option>
-                  <option>Óxido de manganeso</option>
-                  <option>Óxido de cromo</option>
-                  <option>Óxido de titanio</option>
-                  <option>Óxido de estaño</option>
-                  <option>Rutilo</option>
-                  <option>Carbonato de cobalto</option>
-                  <option>Carbonato de cobre</option>
-                  <option>Pigmento comercial</option>
-                  <option>Otro</option>
+                <option>Óxido de cobalto (CoO)</option>
+                <option>Óxido de cobre (CuO)</option>
+                <option>Óxido de hierro (Fe2O3)</option>
+                <option>Óxido de manganeso (MnO2)</option>
+                <option>Óxido de cromo (Cr2O3)</option>
+                <option>Óxido de titanio (TiO2)</option>
+                <option>Óxido de estaño (SnO2)</option>
+                <option>Rutilo (TiO2 + Fe2O3)</option>
+                <option>Óxido de circonio / zirconio (ZrO2)</option>
+                <option>Carbonato de cobalto (CoCO3)</option>
+                <option>Carbonato de cobre (CuCO3)</option>
+                <option>Pigmento comercial</option>
+                <option>Otro</option>
                 </select>
               </div>
+              <div class="colorante-desc" id="desc-color2"></div>
               <div class="colorante-rangos">
                 <div class="colorante-rango-item">
                   <label>Desde</label>
