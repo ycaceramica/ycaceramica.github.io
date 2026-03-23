@@ -163,8 +163,7 @@ function filtrarHistorial(calc, btn){
 
 function renderHistorial(){
   const grid = document.getElementById('historialTallerGrid')
-  const baseItems = filtroActual === 'todos' ? historialData : historialData.filter(i => i.calculadora === filtroActual)
-  const items = seleccionados.size > 0 ? baseItems.filter(i => seleccionados.has(i.id)) : baseItems
+  const items = filtroActual === 'todos' ? historialData : historialData.filter(i => i.calculadora === filtroActual)
 
   if(items.length === 0){
     grid.innerHTML = '<p class="taller-sin-items">No hay cálculos guardados de esta calculadora.</p>'
