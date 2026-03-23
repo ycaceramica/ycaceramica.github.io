@@ -3558,3 +3558,250 @@ async function togglePlanUsuario(id, hoja, plan) {
     toast('❌ Error de conexión', 'err')
   }
 }
+
+// ─────────────────────────────────────────────
+// GENERADOR PDF CON IA
+// ─────────────────────────────────────────────
+
+let tipoDocActual    = 'general'
+let contenidoFormateado = null
+
+function setTipo(btn){
+  document.querySelectorAll('.pdfgen-tipo').forEach(b => b.classList.remove('activo'))
+  btn.classList.add('activo')
+  tipoDocActual = btn.dataset.tipo
+}
+
+const PROMPTS_TIPO = {
+  general:      'Sos un asistente de YCA Cerámica. Formateá el siguiente contenido como un documento general prolijo y bien organizado. Respetá emojis. Usá títulos con ##, subtítulos con ###, listas con -, negritas con **texto**. Sin comentarios extras, solo el documento formateado.',
+  presupuesto:  'Sos un asistente de YCA Cerámica. Formateá el siguiente contenido como un presupuesto profesional. Organizá claramente: destinatario, ítems con precios, subtotal, total. Respetá emojis. Usá ## para secciones, **texto** para negritas, - para ítems. Sin comentarios extras, solo el documento.',
+  certificado:  'Sos un asistente de YCA Cerámica. Formateá el siguiente contenido como un certificado de participación o logro. Tono formal y cálido. Respetá emojis. Incluí una línea destacada para el nombre del destinatario. Sin comentarios extras, solo el documento.',
+  ficha:        'Sos un asistente de YCA Cerámica. Formateá el siguiente contenido como una ficha técnica. Organizá en secciones claras con ## y tablas o listas de propiedades. Respetá emojis. Sin comentarios extras, solo la ficha.',
+  receta:       'Sos un asistente de YCA Cerámica. Formateá el siguiente contenido como una receta o fórmula cerámica. Organizá: nombre, materiales con porcentajes, proceso, notas. Respetá emojis. Sin comentarios extras, solo la receta.',
+}
+
+async function generarConIA(){
+  const contenido = document.getElementById('pdfgenContenido').value.trim()
+  if(!contenido){
+    toast('⚠ Pegá el contenido primero', 'err')
+    return
+  }
+
+  const btn = document.getElementById('btnGenerarPDF')
+  btn.disabled = true
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Formateando...'
+
+  document.getElementById('pdfgenVacio').style.display    = 'none'
+  document.getElementById('pdfgenPreview').style.display  = 'none'
+  document.getElementById('pdfgenLoading').style.display  = 'flex'
+  document.getElementById('btnDescargaPDF').style.display = 'none'
+
+  try {
+    const prompt = PROMPTS_TIPO[tipoDocActual] || PROMPTS_TIPO.general
+    const titulo = document.getElementById('pdfgenTitulo').value.trim()
+
+    const res  = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `${prompt}\n\n${titulo ? `Título: ${titulo}\n\n` : ''}Contenido:\n${contenido}`
+        }]
+      })
+    })
+
+    const data     = await res.json()
+    const markdown = data.content?.[0]?.text || ''
+
+    contenidoFormateado = { markdown, titulo, tipo: tipoDocActual }
+    renderizarPreview(markdown, titulo)
+
+  } catch(e) {
+    toast('❌ Error al conectar con la IA', 'err')
+    document.getElementById('pdfgenVacio').style.display = 'flex'
+  } finally {
+    document.getElementById('pdfgenLoading').style.display = 'none'
+    btn.disabled = false
+    btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Formatear con IA y previsualizar'
+  }
+}
+
+// ─────────────────────────────────────────────
+// RENDERIZAR PREVIEW
+// ─────────────────────────────────────────────
+
+function renderizarPreview(markdown, titulo){
+  const el  = document.getElementById('pdfgenPreview')
+  const hoy = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'long', year:'numeric' })
+
+  // Convertir markdown simple a HTML
+  let html = markdown
+    .replace(/^### (.+)$/gm,       '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm,        '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm,         '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g,     '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,         '<em>$1</em>')
+    .replace(/^- (.+)$/gm,         '<li>$1</li>')
+    .replace(/^(\d+)\. (.+)$/gm,   '<li>$2</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`)
+    .replace(/^---$/gm,            '<hr>')
+    .replace(/\n\n/g,              '</p><p>')
+    .replace(/\n/g,                '<br>')
+
+  html = `<p>${html}</p>`
+    .replace(/<p><h/g, '<h').replace(/<\/h(\d)><\/p>/g, '</h$1>')
+    .replace(/<p><ul>/g, '<ul>').replace(/<\/ul><\/p>/g, '</ul>')
+    .replace(/<p><hr><\/p>/g, '<hr>')
+    .replace(/<p><\/p>/g, '')
+
+  el.innerHTML = `
+    <div class="membrete">
+      <strong>YCA Cerámica</strong> — ycaceramica.github.io<br>
+      📷 @ycaceramica  |  🎵 @yca.ceramica  |  ${hoy}
+      ${titulo ? `<br><strong>📄 ${titulo}</strong>` : ''}
+    </div>
+    ${html}
+  `
+
+  el.style.display = 'flex'
+  el.style.flexDirection = 'column'
+  document.getElementById('btnDescargaPDF').style.display = 'flex'
+}
+
+// ─────────────────────────────────────────────
+// GENERAR PDF
+// ─────────────────────────────────────────────
+
+async function descargarPDFGen(){
+  if(!contenidoFormateado) return
+
+  const { jsPDF }  = window.jspdf
+  const doc        = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' })
+  const W = 210, m = 18
+  const MARRON=[139,111,86], NEGRO=[40,35,30], BLANCO=[255,255,255], GRIS=[245,240,235]
+
+  // Encabezado membrete
+  doc.setFillColor(...MARRON)
+  doc.rect(0, 0, W, 38, 'F')
+
+  // Logo
+  try {
+    const img = await cargarLogoBase64Gen()
+    if(img) doc.addImage(img, 'PNG', m, 7, 22, 22)
+  } catch(e){}
+
+  doc.setTextColor(...BLANCO)
+  doc.setFontSize(20); doc.setFont('helvetica','bold')
+  doc.text('YCA Ceramica', m + 26, 17)
+  doc.setFontSize(9); doc.setFont('helvetica','normal')
+  doc.text('ycaceramica.github.io  |  @ycaceramica  |  @yca.ceramica', m + 26, 24)
+
+  const hoy = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'long', year:'numeric' })
+  doc.setFontSize(8)
+  doc.text(hoy, W - m, 31, { align:'right' })
+
+  const tipoLabel = { general:'Documento', presupuesto:'Presupuesto', certificado:'Certificado', ficha:'Ficha Tecnica', receta:'Receta / Formula' }
+  doc.text(tipoLabel[contenidoFormateado.tipo] || 'Documento', m + 26, 31)
+
+  let y = 46
+
+  // Título si existe
+  if(contenidoFormateado.titulo){
+    doc.setTextColor(...MARRON)
+    doc.setFontSize(16); doc.setFont('helvetica','bold')
+    const lines = doc.splitTextToSize(contenidoFormateado.titulo, W - m*2)
+    doc.text(lines, m, y)
+    y += lines.length * 8 + 4
+    doc.setDrawColor(...MARRON); doc.setLineWidth(0.5)
+    doc.line(m, y, W - m, y)
+    y += 8
+  }
+
+  // Contenido — parsear markdown línea por línea
+  const lineas = contenidoFormateado.markdown.split('\n')
+
+  lineas.forEach(linea => {
+    if(y > 272){ doc.addPage(); y = 20 }
+
+    if(linea.startsWith('## ')){
+      y += 4
+      doc.setTextColor(...MARRON); doc.setFontSize(13); doc.setFont('helvetica','bold')
+      const txt = linea.replace(/^## /, '').replace(/\*\*/g,'')
+      const lines = doc.splitTextToSize(txt, W - m*2)
+      doc.text(lines, m, y)
+      y += lines.length * 6 + 2
+      doc.setDrawColor(200,185,170); doc.setLineWidth(0.3)
+      doc.line(m, y, W - m, y)
+      y += 5
+
+    } else if(linea.startsWith('### ')){
+      y += 3
+      doc.setTextColor(...NEGRO); doc.setFontSize(11); doc.setFont('helvetica','bold')
+      const txt = linea.replace(/^### /, '').replace(/\*\*/g,'')
+      const lines = doc.splitTextToSize(txt, W - m*2)
+      doc.text(lines, m, y)
+      y += lines.length * 5.5 + 3
+
+    } else if(linea.startsWith('# ')){
+      y += 4
+      doc.setTextColor(...MARRON); doc.setFontSize(16); doc.setFont('helvetica','bold')
+      const txt = linea.replace(/^# /, '').replace(/\*\*/g,'')
+      const lines = doc.splitTextToSize(txt, W - m*2)
+      doc.text(lines, m, y)
+      y += lines.length * 8 + 4
+
+    } else if(linea.startsWith('- ') || linea.match(/^\d+\. /)){
+      doc.setTextColor(...NEGRO); doc.setFontSize(10); doc.setFont('helvetica','normal')
+      const txt = linea.replace(/^- /, '').replace(/^\d+\. /, '').replace(/\*\*(.+?)\*\*/g, '$1')
+      const lines = doc.splitTextToSize('• ' + txt, W - m*2 - 4)
+      doc.text(lines, m + 4, y)
+      y += lines.length * 5.5
+
+    } else if(linea.startsWith('---')){
+      doc.setDrawColor(200,185,170); doc.setLineWidth(0.3)
+      doc.line(m, y, W - m, y)
+      y += 6
+
+    } else if(linea.trim() === ''){
+      y += 3
+
+    } else {
+      doc.setTextColor(...NEGRO); doc.setFontSize(10); doc.setFont('helvetica','normal')
+      const txt = linea.replace(/\*\*(.+?)\*\*/g, '$1').replace(/\*(.+?)\*/g, '$1')
+      const lines = doc.splitTextToSize(txt, W - m*2)
+      doc.text(lines, m, y)
+      y += lines.length * 5.5
+    }
+  })
+
+  // Pie
+  const totalPages = doc.getNumberOfPages()
+  for(let i = 1; i <= totalPages; i++){
+    doc.setPage(i)
+    doc.setFillColor(...GRIS); doc.rect(0, 287, W, 10, 'F')
+    doc.setTextColor(160,150,140); doc.setFontSize(7); doc.setFont('helvetica','normal')
+    doc.text('ycaceramica.github.io  |  YCA Ceramica 2026', W/2, 293, { align:'center' })
+    doc.text(`${i} / ${totalPages}`, W - m, 293, { align:'right' })
+  }
+
+  const nombreArchivo = (contenidoFormateado.titulo || 'YCA_Documento').replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'')
+  doc.save(`YCA_${nombreArchivo}.pdf`)
+}
+
+function cargarLogoBase64Gen(){
+  return new Promise(resolve => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.width; canvas.height = img.height
+      canvas.getContext('2d').drawImage(img, 0, 0)
+      resolve(canvas.toDataURL('image/png'))
+    }
+    img.onerror = () => resolve(null)
+    img.src = '../imagenes/logo.png'
+  })
+}
