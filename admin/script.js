@@ -3580,6 +3580,9 @@ const PROMPTS_TIPO = {
   receta:       'Sos un asistente de YCA Cerámica. Formateá el siguiente contenido como una receta o fórmula cerámica. Organizá: nombre, materiales con porcentajes, proceso, notas. Respetá emojis. Sin comentarios extras, solo la receta.',
 }
 
+const GEMINI_KEY = 'AIzaSyD7QczqKsCM6Inl97hTiL8mhTzB-TPAS2k'
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`
+
 async function generarConIA(){
   const contenido = document.getElementById('pdfgenContenido').value.trim()
   if(!contenido){
@@ -3599,28 +3602,29 @@ async function generarConIA(){
   try {
     const prompt = PROMPTS_TIPO[tipoDocActual] || PROMPTS_TIPO.general
     const titulo = document.getElementById('pdfgenTitulo').value.trim()
+    const texto  = `${prompt}\n\n${titulo ? `Título: ${titulo}\n\n` : ''}Contenido:\n${contenido}`
 
-    const res  = await fetch('https://api.anthropic.com/v1/messages', {
+    const res  = await fetch(GEMINI_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: `${prompt}\n\n${titulo ? `Título: ${titulo}\n\n` : ''}Contenido:\n${contenido}`
-        }]
+        contents: [{ parts: [{ text: texto }] }],
+        generationConfig: { maxOutputTokens: 1500, temperature: 0.3 }
       })
     })
 
     const data     = await res.json()
-    const markdown = data.content?.[0]?.text || ''
+    const markdown = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+
+    if(!markdown){
+      throw new Error('Respuesta vacía')
+    }
 
     contenidoFormateado = { markdown, titulo, tipo: tipoDocActual }
     renderizarPreview(markdown, titulo)
 
   } catch(e) {
-    toast('❌ Error al conectar con la IA', 'err')
+    toast('❌ Error al conectar con Gemini — revisá la conexión', 'err')
     document.getElementById('pdfgenVacio').style.display = 'flex'
   } finally {
     document.getElementById('pdfgenLoading').style.display = 'none'
