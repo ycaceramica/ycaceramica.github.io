@@ -29,6 +29,7 @@ function cerrarSesion(){
 let sesion         = null
 let historialData  = []
 let filtroActual   = 'todos'
+let seleccionados  = new Set()
 
 // ─────────────────────────────────────────────
 // INIT
@@ -124,9 +125,7 @@ async function cargarHistorial(){
     renderHistorial()
 
   } catch(e){
-    console.error('Error cargarHistorial:', e)
-    console.error('sesion.id:', sesion?.id)
-    grid.innerHTML = '<p style="opacity:0.5;text-align:center;padding:20px">Error: ' + e.message + '</p>'
+    grid.innerHTML = '<p style="opacity:0.5;text-align:center;padding:20px">Error al cargar. Revisá tu conexión.</p>'
   }
 }
 
