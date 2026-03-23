@@ -454,8 +454,9 @@ async function cargarHistorial(){
 
 function filtrarHistorial(calc, btn){
   filtroActual = calc
-  document.querySelectorAll('.hfiltro').forEach(b => b.classList.remove('activo'))
-  if(btn) btn.classList.add('activo')
+  // Sincronizar el select si existe
+  const sel = document.getElementById('hfiltroSelect')
+  if(sel && sel.value !== calc) sel.value = calc
   renderHistorial()
 }
 
@@ -655,6 +656,9 @@ async function renderItemPDF(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NE
   if(item.calculadora === 'densidad')    return renderPDF_Densidad(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
   if(item.calculadora === 'absorcion')   return renderPDF_Absorcion(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
   if(item.calculadora === 'breakeven')   return renderPDF_Breakeven(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
+  if(item.calculadora === 'seger')        return renderPDF_Seger(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
+  if(item.calculadora === 'arcillas')     return renderPDF_Arcillas(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
+  if(item.calculadora === 'pruebas')      return renderPDF_Pruebas(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
   // Fallback
   const h = 20
   if(y+h > 272){ doc.addPage(); y=20 }
@@ -667,6 +671,127 @@ async function renderItemPDF(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NE
 }
 
 // ── 1. YESO ───────────────────────────────────
+function renderPDF_Seger(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO){
+  const mats = datos.materiales || []
+  const cone = datos.cone === 'cone06' ? 'Cone 06' : datos.cone === 'cone6' ? 'Cone 6' : 'Cone 10'
+  const h    = 28 + Math.ceil(mats.length / 2) * 6
+  if(y+h > 272){ doc.addPage(); y=20 }
+  doc.setFillColor(...GRIS); doc.roundedRect(m,y,W-m*2,h,4,4,'F')
+  doc.setTextColor(...NEGRO); doc.setFontSize(12); doc.setFont('helvetica','bold')
+  doc.text(item.nombre || 'Sin nombre', m+5, y+9)
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(120,110,100)
+  doc.text(formatFecha(item.fecha)||'', W-m-5, y+9, {align:'right'})
+  // Chips de ratios
+  const chips = [
+    {l:'CONO',   v: cone},
+    {l:'Si',     v: String(datos.si||'—')},
+    {l:'Al',     v: String(datos.al||'—')},
+    {l:'Si:Al',  v: String(datos.siAl||'—')}
+  ]
+  const cw = (W-m*2-9)/4
+  chips.forEach((c,ci) => {
+    const x = m+ci*(cw+3), cx = x+cw/2
+    doc.setFillColor(...BLANCO); doc.roundedRect(x,y+13,cw,11,2,2,'F')
+    doc.setTextColor(120,110,100); doc.setFontSize(5.5); doc.setFont('helvetica','bold')
+    doc.text(c.l, cx, y+17, {align:'center'})
+    doc.setTextColor(...MARRON); doc.setFontSize(7.5); doc.setFont('helvetica','bold')
+    doc.text(c.v, cx, y+21.5, {align:'center'})
+  })
+  // Materiales
+  let my = y+27
+  mats.forEach((mat, mi) => {
+    const col = mi%2, row = Math.floor(mi/2)
+    const mx  = m + col*((W-m*2)/2+3)
+    doc.setTextColor(...NEGRO); doc.setFontSize(7); doc.setFont('helvetica','normal')
+    const nombre = (mat.nombre||'').split('(')[0].trim()
+    doc.text(nombre, mx+2, my+row*6, {maxWidth:(W-m*2)/2-15})
+    doc.setFont('helvetica','bold'); doc.setTextColor(...MARRON)
+    doc.text(mat.pct+'%', mx+(W-m*2)/2-5, my+row*6, {align:'right'})
+  })
+  return y+h+6
+}
+
+function renderPDF_Arcillas(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO){
+  const mats = datos.materiales || []
+  const h    = 28 + Math.ceil(mats.length / 2) * 6
+  if(y+h > 272){ doc.addPage(); y=20 }
+  doc.setFillColor(...GRIS); doc.roundedRect(m,y,W-m*2,h,4,4,'F')
+  doc.setTextColor(...NEGRO); doc.setFontSize(12); doc.setFont('helvetica','bold')
+  doc.text(item.nombre || 'Sin nombre', m+5, y+9)
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(120,110,100)
+  doc.text(formatFecha(item.fecha)||'', W-m-5, y+9, {align:'right'})
+  const chips = [
+    {l:'PLASTICIDAD', v:(datos.plasticidad||'—')+'/10'},
+    {l:'CONTRACCION', v:(datos.contraccion||'—')+'%'},
+    {l:'TEMPERATURA', v:(datos.tempMin||'—')+'-'+(datos.tempMax||'—')+'C'},
+    {l:'POROSIDAD',   v:(datos.porosidad||'—')+'%'}
+  ]
+  const cw = (W-m*2-9)/4
+  chips.forEach((c,ci) => {
+    const x = m+ci*(cw+3), cx = x+cw/2
+    doc.setFillColor(...BLANCO); doc.roundedRect(x,y+13,cw,11,2,2,'F')
+    doc.setTextColor(120,110,100); doc.setFontSize(5.5); doc.setFont('helvetica','bold')
+    doc.text(c.l, cx, y+17, {align:'center'})
+    doc.setTextColor(...MARRON); doc.setFontSize(7.5); doc.setFont('helvetica','bold')
+    doc.text(c.v, cx, y+21.5, {align:'center'})
+  })
+  let my = y+27
+  mats.forEach((mat, mi) => {
+    const col = mi%2, row = Math.floor(mi/2)
+    const mx  = m + col*((W-m*2)/2+3)
+    doc.setTextColor(...NEGRO); doc.setFontSize(7); doc.setFont('helvetica','normal')
+    const nombre = (mat.nombre||'').split('(')[0].trim()
+    doc.text(nombre, mx+2, my+row*6, {maxWidth:(W-m*2)/2-15})
+    doc.setFont('helvetica','bold'); doc.setTextColor(...MARRON)
+    doc.text(mat.pct+'%', mx+(W-m*2)/2-5, my+row*6, {align:'right'})
+  })
+  return y+h+6
+}
+
+function renderPDF_Pruebas(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO){
+  const pruebas = Array.isArray(datos.pruebas) ? datos.pruebas : []
+  const cols = 3
+  const cardW = (W-m*2-(cols-1)*3)/cols
+  const cardH = 38
+  // Encabezado de la serie
+  if(y+20 > 272){ doc.addPage(); y=20 }
+  doc.setFillColor(...GRIS); doc.roundedRect(m,y,W-m*2,18,4,4,'F')
+  doc.setTextColor(...NEGRO); doc.setFontSize(12); doc.setFont('helvetica','bold')
+  doc.text(item.nombre||'Sin nombre', m+5, y+8)
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(120,110,100)
+  doc.text(pruebas.length+' pruebas  |  '+(datos.gramos||'?')+'g c/u', m+5, y+14)
+  doc.text(formatFecha(item.fecha)||'', W-m-5, y+8, {align:'right'})
+  y += 22
+  // Grid de pruebas
+  pruebas.forEach((p, idx) => {
+    const col = idx % cols
+    const row = Math.floor(idx / cols)
+    if(col === 0 && row > 0) y += cardH+3
+    if(col === 0 && y+cardH > 272){ doc.addPage(); y=20 }
+    const x = m + col*(cardW+3)
+    doc.setFillColor(...GRIS); doc.roundedRect(x,y,cardW,cardH,3,3,'F')
+    doc.setFillColor(...MARRON); doc.roundedRect(x,y,cardW,7,3,3,'F')
+    doc.rect(x,y+4,cardW,3,'F')
+    doc.setTextColor(255,255,255); doc.setFontSize(6.5); doc.setFont('helvetica','bold')
+    doc.text(p.codigo||('P-'+String(idx+1).padStart(3,'0')), x+cardW/2, y+5.5, {align:'center'})
+    const c1text = (p.c1?.nombre||'')+(p.c1?.pct ? ' '+p.c1.pct+'%' : '')
+    const c2text = p.c2 ? (p.c2.nombre||'')+(p.c2.pct ? ' '+p.c2.pct+'%' : '') : ''
+    doc.setTextColor(...MARRON); doc.setFontSize(5.5); doc.setFont('helvetica','bold')
+    doc.text(c1text+(c2text ? ' + '+c2text : ''), x+2, y+12, {maxWidth:cardW-4})
+    let my = y+17
+    ;(p.mats||[]).forEach(mat => {
+      if(my > y+cardH-4) return
+      doc.setTextColor(...NEGRO); doc.setFontSize(5); doc.setFont('helvetica','normal')
+      doc.text(mat.nombre||'', x+2, my, {maxWidth:cardW-14})
+      doc.setFont('helvetica','bold'); doc.setTextColor(...MARRON)
+      doc.text(mat.gramos+'g', x+cardW-2, my, {align:'right'})
+      my += 4.5
+    })
+  })
+  if(pruebas.length > 0) y += cardH+6
+  return y
+}
+
 function renderPDF_Yeso(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO){
   const h = 32
   if(y+h > 272){ doc.addPage(); y=20 }
