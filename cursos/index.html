@@ -19,6 +19,9 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap">
 </head>
 <body>
   <div id="nav-placeholder"></div>
@@ -51,8 +54,9 @@
     <div class="cursos-grid" id="cursosGrid">
       <!-- Las tarjetas se cargan dinámicamente desde el panel admin -->
     </div>
-    <div id="cursosCargando" style="text-align:center;padding:40px;opacity:0.5;font-size:15px;">
-      <i class="fa-solid fa-spinner fa-spin"></i> Cargando cursos...
+    <div class="estado" id="cursosCargando">
+      <div class="spinner"></div>
+      <p>Cargando cursos...</p>
     </div>
 
     <div class="sin-resultados" id="sinResultados" style="display:none">
