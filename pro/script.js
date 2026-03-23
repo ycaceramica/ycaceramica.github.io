@@ -148,12 +148,13 @@ window.addEventListener('DOMContentLoaded', () => {
     </div>
   `
 
-  // Llenar acciones según plan
+  // Llenar acciones según plan — se agrega dentro de proContenido
   const acciones = document.getElementById('proAcciones')
+  acciones.innerHTML = ''
 
   if(esPro){
     // Usuario Pro — acceso directo
-    acciones.innerHTML = `
+    contenido.innerHTML += `
       <div class="pro-acceso-card">
         <div class="pro-acceso-badge">⭐ Tenés acceso Pro</div>
         <p>Ya podés usar esta calculadora. Tus cálculos se guardan en tu historial.</p>
@@ -167,7 +168,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const nombre = sesion ? sesion.nombre : ''
     const email  = sesion ? sesion.id     : ''
 
-    acciones.innerHTML = `
+    contenido.innerHTML += `
       <div class="pro-acceso-card bloqueada">
         <div class="pro-acceso-badge bloqueada-badge">🔒 Acceso Pro requerido</div>
         <p>Esta calculadora es parte del plan Pro. Contactanos para obtener acceso.</p>
