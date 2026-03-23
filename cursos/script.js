@@ -44,7 +44,8 @@ const CURSOS_CON_PAGINA_PROPIA = ['taller-inicial', 'arcilla-y-luna']
 // ─────────────────────────────────────────────
 
 async function cargarCursos(){
-  const grid = document.getElementById("cursosGrid")
+  const grid     = document.getElementById("cursosGrid")
+  const spinner  = document.getElementById("cursosCargando")
 
   try {
     const res    = await fetch(`${API}?action=getCursos`)
@@ -53,8 +54,10 @@ async function cargarCursos(){
       c.visible !== 'false' && c.visible !== false
     )
 
+    if(spinner) spinner.style.display = 'none'
     if(cursos.length === 0) return
 
+    if(spinner) spinner.style.display = 'none'
     grid.innerHTML = ''
 
     cursos.forEach(c => {
