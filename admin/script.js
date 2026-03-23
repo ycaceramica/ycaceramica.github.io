@@ -3580,8 +3580,8 @@ const PROMPTS_TIPO = {
   receta:       'Sos un asistente de YCA Cerámica. Formateá el siguiente contenido como una receta o fórmula cerámica. Organizá: nombre, materiales con porcentajes, proceso, notas. Respetá emojis. Sin comentarios extras, solo la receta.',
 }
 
-const GEMINI_KEY = 'AIzaSyD7QczqKsCM6Inl97hTiL8mhTzB-TPAS2k'
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_KEY}`
+const GEMINI_KEY = 'AIzaSyBKaynWuT2BTd54SaoQay25c1OS7yXIQ1Q'
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`
 
 async function generarConIA(){
   const contenido = document.getElementById('pdfgenContenido').value.trim()
