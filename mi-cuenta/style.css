@@ -548,3 +548,31 @@
 .taller-vacio-sub{ font-size:14px; opacity:0.7; }
 .btn-ir-herramientas{ display:inline-flex; align-items:center; gap:8px; margin-top:16px; padding:10px 20px; background:var(--color-primario); color:white; border-radius:30px; font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; font-weight:700; text-decoration:none; }
 .taller-sin-items{ grid-column:1/-1; text-align:center; padding:20px; font-size:14px; opacity:0.5; }
+
+/* ── FILTRO DESPLEGABLE ── */
+.hfiltro-select-wrapper{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 14px;
+  background:var(--color-superficie);
+  border-radius:30px;
+  box-shadow:0 2px 10px var(--color-sombra);
+  border:1.5px solid rgba(139,111,86,0.15);
+}
+.hfiltro-select-wrapper i{
+  color:var(--color-primario);
+  font-size:13px;
+  flex-shrink:0;
+}
+.hfiltro-select{
+  border:none;
+  background:transparent;
+  color:var(--color-texto);
+  font-family:'Plus Jakarta Sans', sans-serif;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  outline:none;
+  min-width:200px;
+}
