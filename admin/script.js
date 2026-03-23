@@ -3693,25 +3693,260 @@ async function precargarEmojis(markdown){
 // Devuelve el nuevo valor de y
 function normalizarUnicode(txt){
   if(!txt) return ''
-  return txt
-    // Subíndices numéricos → normales
-    .replace(/₀/g,'0').replace(/₁/g,'1').replace(/₂/g,'2').replace(/₃/g,'3')
-    .replace(/₄/g,'4').replace(/₅/g,'5').replace(/₆/g,'6').replace(/₇/g,'7')
-    .replace(/₈/g,'8').replace(/₉/g,'9')
-    // Superíndices numéricos → normales
-    .replace(/⁰/g,'0').replace(/¹/g,'1').replace(/²/g,'2').replace(/³/g,'3')
-    .replace(/⁴/g,'4').replace(/⁵/g,'5').replace(/⁶/g,'6').replace(/⁷/g,'7')
-    .replace(/⁸/g,'8').replace(/⁹/g,'9')
-    // Fórmulas químicas comunes
-    .replace(/Al₂O₃/g,'Al2O3').replace(/SiO₂/g,'SiO2').replace(/B₂O₃/g,'B2O3')
-    .replace(/K₂O/g,'K2O').replace(/Na₂O/g,'Na2O').replace(/Li₂O/g,'Li2O')
-    .replace(/Fe₂O₃/g,'Fe2O3').replace(/Cr₂O₃/g,'Cr2O3').replace(/TiO₂/g,'TiO2')
-    .replace(/ZrO₂/g,'ZrO2').replace(/SnO₂/g,'SnO2').replace(/MnO₂/g,'MnO2')
-    .replace(/CO₂/g,'CO2').replace(/H₂O/g,'H2O').replace(/CaCO₃/g,'CaCO3')
-    .replace(/MgCO₃/g,'MgCO3')
-    // Puntos medios y caracteres especiales
-    .replace(/·/g,'.').replace(/×/g,'x').replace(/°/g,' grados ')
-    // Comillas tipográficas
-    .replace(/[‘’]/g,"'").replace(/[“”]/g,'"')
-    // Caracteres latinos extendidos que jsPDF no soporta
-    .replace(/[^
+  var r = txt
+  // Subindices numericos
+  var sub = {'\u2080':'0','\u2081':'1','\u2082':'2','\u2083':'3','\u2084':'4',
+             '\u2085':'5','\u2086':'6','\u2087':'7','\u2088':'8','\u2089':'9'}
+  // Superindices
+  var sup = {'\u2070':'0','\u00B9':'1','\u00B2':'2','\u00B3':'3','\u2074':'4',
+             '\u2075':'5','\u2076':'6','\u2077':'7','\u2078':'8','\u2079':'9'}
+  // Caracteres especiales
+  var map = {
+    '\u2192':'->','\u2190':'<-','\u2191':'^','\u2193':'v',
+    '\u2248':'~','\u2260':'!=','\u2264':'<=','\u2265':'>=',
+    '\u00B1':'+/-','\u00D7':'x','\u00F7':'/',
+    '\u2014':'-','\u2013':'-','\u2026':'...',
+    '\u00B7':'.','\u00B0':' grados ',
+    '\u2018':"'",'\u2019':"'",'\u201C':'"','\u201D':'"',
+    '\u00E1':'a','\u00E9':'e','\u00ED':'i','\u00F3':'o','\u00FA':'u',
+    '\u00C1':'A','\u00C9':'E','\u00CD':'I','\u00D3':'O','\u00DA':'U',
+    '\u00F1':'n','\u00D1':'N','\u00FC':'u','\u00DC':'U',
+    '\u00E0':'a','\u00E8':'e','\u00EC':'i','\u00F2':'o','\u00F9':'u',
+    '\u00E7':'c','\u00C7':'C'
+  }
+  var result = ''
+  for(var i = 0; i < r.length; i++){
+    var ch = r[i]
+    var code = r.charCodeAt(i)
+    if(sub[ch] !== undefined){ result += sub[ch] }
+    else if(sup[ch] !== undefined){ result += sup[ch] }
+    else if(map[ch] !== undefined){ result += map[ch] }
+    else if(code <= 255){ result += ch }
+    // chars > 255 que no estan en el map se eliminan
+  }
+  return result
+}
+
+async function renderLineaConEmojis(doc, texto, x, y, fontSize, maxW){
+  const EMOJI_RE = /\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu
+  const partes   = []
+  let ultimo = 0
+  let match
+
+  EMOJI_RE.lastIndex = 0
+  while((match = EMOJI_RE.exec(texto)) !== null){
+    if(match.index > ultimo) partes.push({ tipo:'texto', val: texto.slice(ultimo, match.index) })
+    partes.push({ tipo:'emoji', val: match[0] })
+    ultimo = match.index + match[0].length
+  }
+  if(ultimo < texto.length) partes.push({ tipo:'texto', val: texto.slice(ultimo) })
+
+  if(partes.length === 0 || (partes.length === 1 && partes[0].tipo === 'texto')){
+    // Sin emojis — render normal
+    const lines = doc.splitTextToSize(texto, maxW)
+    doc.text(lines, x, y)
+    return y + lines.length * (fontSize * 0.352778 * 1.4)
+  }
+
+  // Con emojis — render inline
+  const emojiSizeMM = fontSize * 0.352778 * 1.1
+  let cx = x
+
+  for(const parte of partes){
+    if(parte.tipo === 'texto' && parte.val.trim()){
+      doc.setFontSize(fontSize)
+      const w = doc.getTextWidth(parte.val)
+      if(cx + w > x + maxW){ cx = x; y += fontSize * 0.352778 * 1.4 }
+      doc.text(parte.val, cx, y)
+      cx += w
+    } else if(parte.tipo === 'emoji'){
+      const b64 = _twemojiCache[emojiToCodepoint(parte.val)]
+      if(b64){
+        if(cx + emojiSizeMM > x + maxW){ cx = x; y += fontSize * 0.352778 * 1.4 }
+        try {
+          doc.addImage(b64, 'PNG', cx, y - emojiSizeMM * 0.8, emojiSizeMM, emojiSizeMM)
+        } catch(e){}
+        cx += emojiSizeMM + 0.5
+      }
+    } else if(parte.tipo === 'texto' && parte.val === ' '){
+      cx += doc.getTextWidth(' ')
+    }
+  }
+  return y + fontSize * 0.352778 * 1.4
+}
+
+
+function renderizarPreview(markdown, titulo){
+  const el  = document.getElementById('pdfgenPreview')
+  const hoy = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'long', year:'numeric' })
+
+  // Convertir markdown simple a HTML
+  let html = markdown
+    .replace(/^### (.+)$/gm,       '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm,        '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm,         '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g,     '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,         '<em>$1</em>')
+    .replace(/^- (.+)$/gm,         '<li>$1</li>')
+    .replace(/^(\d+)\. (.+)$/gm,   '<li>$2</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`)
+    .replace(/^---$/gm,            '<hr>')
+    .replace(/\n\n/g,              '</p><p>')
+    .replace(/\n/g,                '<br>')
+
+  html = `<p>${html}</p>`
+    .replace(/<p><h/g, '<h').replace(/<\/h(\d)><\/p>/g, '</h$1>')
+    .replace(/<p><ul>/g, '<ul>').replace(/<\/ul><\/p>/g, '</ul>')
+    .replace(/<p><hr><\/p>/g, '<hr>')
+    .replace(/<p><\/p>/g, '')
+
+  el.innerHTML = `
+    <div class="membrete">
+      <strong>YCA Cerámica</strong> — ycaceramica.github.io<br>
+      📷 @ycaceramica  |  🎵 @yca.ceramica  |  ${hoy}
+      ${titulo ? `<br><strong>📄 ${titulo}</strong>` : ''}
+    </div>
+    ${html}
+  `
+
+  el.style.display = 'flex'
+  el.style.flexDirection = 'column'
+  document.getElementById('btnDescargaPDF').style.display = 'flex'
+}
+
+// ─────────────────────────────────────────────
+// GENERAR PDF
+// ─────────────────────────────────────────────
+
+async function descargarPDFGen(){
+  if(!contenidoFormateado) return
+
+  const btn = document.getElementById('btnDescargaPDF')
+  btn.disabled = true
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...'
+
+  try {
+    // Pre-cargar todos los emojis del documento
+    await precargarEmojis(contenidoFormateado.markdown + ' ' + (contenidoFormateado.titulo || ''))
+
+    const { jsPDF }  = window.jspdf
+    const doc        = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' })
+    const W = 210, m = 18
+    const MARRON=[139,111,86], NEGRO=[40,35,30], BLANCO=[255,255,255], GRIS=[245,240,235]
+
+    // Encabezado membrete
+    doc.setFillColor(...MARRON)
+    doc.rect(0, 0, W, 38, 'F')
+
+    try {
+      const logo = await cargarLogoBase64Gen()
+      if(logo) doc.addImage(logo, 'PNG', m, 7, 22, 22)
+    } catch(e){}
+
+    doc.setTextColor(...BLANCO)
+    doc.setFontSize(20); doc.setFont('helvetica','bold')
+    doc.text('YCA Ceramica', m + 26, 17)
+    doc.setFontSize(9); doc.setFont('helvetica','normal')
+    doc.text('ycaceramica.github.io  |  @ycaceramica  |  @yca.ceramica', m + 26, 24)
+
+    const hoy = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'long', year:'numeric' })
+    doc.setFontSize(8)
+    doc.text(hoy, W - m, 31, { align:'right' })
+    const tipoLabel = { general:'Documento', presupuesto:'Presupuesto', certificado:'Certificado', ficha:'Ficha Tecnica', receta:'Receta / Formula' }
+    doc.text(tipoLabel[contenidoFormateado.tipo] || 'Documento', m + 26, 31)
+
+    let y = 46
+
+    // Título
+    if(contenidoFormateado.titulo){
+      doc.setTextColor(...MARRON)
+      doc.setFontSize(16); doc.setFont('helvetica','bold')
+      y = await renderLineaConEmojis(doc, normalizarUnicode(contenidoFormateado.titulo), m, y, 16, W - m*2)
+      y += 2
+      doc.setDrawColor(...MARRON); doc.setLineWidth(0.5)
+      doc.line(m, y, W - m, y)
+      y += 8
+    }
+
+    // Contenido
+    const lineas = contenidoFormateado.markdown.split('\n')
+
+    for(const linea of lineas){
+      if(y > 272){ doc.addPage(); y = 20 }
+
+      if(linea.startsWith('## ')){
+        y += 4
+        doc.setTextColor(...MARRON); doc.setFontSize(13); doc.setFont('helvetica','bold')
+        const txt = normalizarUnicode(linea.replace(/^## /, '').replace(/\*\*/g,''))
+        y = await renderLineaConEmojis(doc, txt, m, y, 13, W - m*2)
+        doc.setDrawColor(200,185,170); doc.setLineWidth(0.3)
+        doc.line(m, y, W - m, y)
+        y += 5
+
+      } else if(linea.startsWith('### ')){
+        y += 3
+        doc.setTextColor(...NEGRO); doc.setFontSize(11); doc.setFont('helvetica','bold')
+        const txt = normalizarUnicode(linea.replace(/^### /, '').replace(/\*\*/g,''))
+        y = await renderLineaConEmojis(doc, txt, m, y, 11, W - m*2)
+        y += 2
+
+      } else if(linea.startsWith('# ')){
+        y += 4
+        doc.setTextColor(...MARRON); doc.setFontSize(16); doc.setFont('helvetica','bold')
+        const txt = normalizarUnicode(linea.replace(/^# /, '').replace(/\*\*/g,''))
+        y = await renderLineaConEmojis(doc, txt, m, y, 16, W - m*2)
+        y += 2
+
+      } else if(linea.startsWith('- ') || linea.match(/^\d+\. /)){
+        doc.setTextColor(...NEGRO); doc.setFontSize(10); doc.setFont('helvetica','normal')
+        const txt = '• ' + normalizarUnicode(linea.replace(/^- /, '').replace(/^\d+\. /, '').replace(/\*\*(.+?)\*\*/g,'$1'))
+        y = await renderLineaConEmojis(doc, txt, m + 4, y, 10, W - m*2 - 4)
+
+      } else if(linea.startsWith('---')){
+        doc.setDrawColor(200,185,170); doc.setLineWidth(0.3)
+        doc.line(m, y, W - m, y)
+        y += 6
+
+      } else if(linea.trim() === ''){
+        y += 3
+
+      } else {
+        doc.setTextColor(...NEGRO); doc.setFontSize(10); doc.setFont('helvetica','normal')
+        const txt = normalizarUnicode(linea.replace(/\*\*(.+?)\*\*/g,'$1').replace(/\*(.+?)\*/g,'$1'))
+        y = await renderLineaConEmojis(doc, txt, m, y, 10, W - m*2)
+      }
+    }
+
+    // Pie
+    const totalPages = doc.getNumberOfPages()
+    for(let i = 1; i <= totalPages; i++){
+      doc.setPage(i)
+      doc.setFillColor(...GRIS); doc.rect(0, 287, W, 10, 'F')
+      doc.setTextColor(160,150,140); doc.setFontSize(7); doc.setFont('helvetica','normal')
+      doc.text('ycaceramica.github.io  |  YCA Ceramica 2026', W/2, 293, { align:'center' })
+      doc.text(`${i} / ${totalPages}`, W - m, 293, { align:'right' })
+    }
+
+    const nombreArchivo = (contenidoFormateado.titulo || 'YCA_Documento').replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'')
+    doc.save(`YCA_${nombreArchivo}.pdf`)
+
+  } finally {
+    btn.disabled = false
+    btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Descargar PDF'
+  }
+}
+
+function cargarLogoBase64Gen(){
+  return new Promise(resolve => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.width; canvas.height = img.height
+      canvas.getContext('2d').drawImage(img, 0, 0)
+      resolve(canvas.toDataURL('image/png'))
+    }
+    img.onerror = () => resolve(null)
+    img.src = '../imagenes/logo.png'
+  })
+}
