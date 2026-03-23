@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────
-// NAV — Avatar de sesión (ceramista y alumno)
-// Se incluye en todas las páginas públicas
+// NAV — Header unificado + Avatar de sesión
+// Un solo archivo controla la barra de todas las páginas
 // ─────────────────────────────────────────────
 
 (function(){
@@ -11,7 +11,6 @@
     var sesion = null
     var rol    = null
 
-    // Ceramista: localStorage (sincronizado desde mi-taller) o sessionStorage
     try {
       sesion = JSON.parse(localStorage.getItem('ceramista_sesion') || 'null')
       if(sesion && sesion.token){ rol = 'ceramista' }
@@ -22,7 +21,7 @@
         var ss = JSON.parse(sessionStorage.getItem('yca_sesion') || 'null')
         if(ss && ss.token){
           if(ss.rol === 'ceramista'){
-            sesion = { token: ss.token, nombre: ss.nombre, id: ss.id }
+            sesion = { token: ss.token, nombre: ss.nombre, id: ss.id, plan: ss.plan }
             localStorage.setItem('ceramista_sesion', JSON.stringify(sesion))
             rol = 'ceramista'
           } else if(ss.rol === 'alumno'){
@@ -33,25 +32,62 @@
       } catch(e){}
     }
 
-    // ── 2. Calcular paths relativos ─────────
-    var path   = window.location.pathname
-    var segs   = path.split('/').filter(Boolean)
-    var depth  = segs.length > 0 ? segs.length - 1 : 0
+    // ── 2. Detectar profundidad de ruta ─────
+    var path  = window.location.pathname
+    var segs  = path.split('/').filter(Boolean)
+    // GitHub Pages: /ycaceramica.github.io/ cuenta como raíz
+    var depth = segs.length > 0 ? segs.length - 1 : 0
     if(path.endsWith('/') || path.endsWith('.html')){
       depth = segs.length - (path.endsWith('.html') ? 1 : 0)
     }
     var prefix = depth === 0 ? '' : depth === 1 ? '../' : '../../'
 
-    // ── 3. Inyectar estilos ─────────────────
+    // ── 3. Inyectar header si hay placeholder ──
+    var placeholder = document.getElementById('nav-placeholder')
+    if(placeholder){
+      // Detectar la página actual para marcar el link activo
+      var pagina = segs[segs.length - (path.endsWith('.html') ? 2 : 1)] || 'home'
+
+      // Links del nav — cada uno lleva su href completo según profundidad
+      var links = [
+        { label: 'Inicio',           href: prefix + 'index.html',                  key: 'home' },
+        { label: 'Productos',        href: prefix + 'index.html#productos',         key: 'productos' },
+        { label: 'Herramientas',     href: prefix + 'herramientas/index.html',      key: 'herramientas' },
+        { label: 'Cursos y Talleres',href: prefix + 'cursos/index.html',            key: 'cursos' },
+        { label: 'Galería',          href: prefix + 'index.html#galeria',           key: 'galeria' },
+        { label: 'Contacto',         href: prefix + 'index.html#contacto',          key: 'contacto' }
+      ]
+
+      var navLinks = links.map(function(l){
+        return '<a href="' + l.href + '">' + l.label + '</a>'
+      }).join('\n        ')
+
+      placeholder.outerHTML = [
+        '<header class="header">',
+        '  <div class="header-container">',
+        '    <div class="logo">',
+        '      <a href="' + prefix + 'index.html">',
+        '        <img src="' + prefix + 'imagenes/logo.png" alt="YCA Cerámica" style="height:38px;width:38px;border-radius:50%;vertical-align:middle;margin-right:8px;">YCA Cerámica',
+        '      </a>',
+        '    </div>',
+        '    <nav class="nav" id="nav">',
+        '      ' + navLinks,
+        '      <button id="toggleDark">🌙</button>',
+        '    </nav>',
+        '    <span class="hamburguesa" id="hamburguesa">☰</span>',
+        '  </div>',
+        '</header>'
+      ].join('\n')
+    }
+
+    // ── 4. Inyectar estilos del avatar ──────
     if(!document.getElementById('nav-sesion-styles')){
       var style = document.createElement('style')
       style.id  = 'nav-sesion-styles'
       style.textContent = [
-        // Botón "Soy ceramista"
         '.nav-sesion-registro{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1.5px solid var(--color-primario);background:transparent;color:var(--color-primario);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;white-space:nowrap;transition:0.2s;}',
         '.nav-sesion-registro:hover{background:var(--color-primario);color:white;}',
         '@media(max-width:768px){.nav-sesion-registro span{display:none;}}',
-        // Avatar con menú
         '.nav-sesion-btn{position:relative;display:flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;}',
         '.nav-sesion-avatar-wrapper{position:relative;flex-shrink:0;}',
         '.nav-sesion-avatar{width:32px;height:32px;min-width:32px;min-height:32px;border-radius:50%;background:var(--color-primario);color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;border:2px solid white;box-sizing:border-box;flex-shrink:0;}',
@@ -69,61 +105,75 @@
       document.head.appendChild(style)
     }
 
-    // ── 4. Encontrar punto de inserción ─────
-    // En mobile: insertar antes del hamburguesa (fuera del nav, siempre visible)
-    // En desktop: insertar antes del toggleDark (dentro del nav)
-    var toggleDark  = document.getElementById('toggleDark')
-    var hamburguesa = document.getElementById('hamburguesa')
-    if(!toggleDark || !toggleDark.parentNode) return
-
-    // ── 5. Insertar según el estado ─────────
-    if(!rol){
-      // Sin sesión → botón "Soy ceramista"
-      var loginUrl = prefix + 'login/index.html'
-      var btn = document.createElement('a')
-      btn.className = 'nav-sesion-registro'
-      btn.href      = loginUrl
-      btn.innerHTML = '🏺 <span>Soy ceramista</span>'
-      if(hamburguesa && hamburguesa.parentNode){
-        hamburguesa.parentNode.insertBefore(btn, hamburguesa)
-      } else {
-        if(hamburguesa && hamburguesa.parentNode){
-      hamburguesa.parentNode.insertBefore(btn, hamburguesa)
-    } else {
-      toggleDark.parentNode.insertBefore(btn, toggleDark)
-    }
+    // ── 5. Modo oscuro ──────────────────────
+    var toggleDark = document.getElementById('toggleDark')
+    if(toggleDark){
+      if(localStorage.getItem('dark') === 'true'){
+        document.body.classList.add('dark')
       }
+      toggleDark.innerText = document.body.classList.contains('dark') ? '☀️' : '🌙'
+      toggleDark.addEventListener('click', function(){
+        document.body.classList.toggle('dark')
+        localStorage.setItem('dark', document.body.classList.contains('dark'))
+        toggleDark.innerText = document.body.classList.contains('dark') ? '☀️' : '🌙'
+      })
+    }
+
+    // ── 6. Hamburguesa ──────────────────────
+    var hamburguesa = document.getElementById('hamburguesa')
+    var nav         = document.getElementById('nav')
+    if(hamburguesa && nav){
+      hamburguesa.addEventListener('click', function(){ nav.classList.toggle('active') })
+      document.querySelectorAll('.nav a').forEach(function(l){
+        l.addEventListener('click', function(){ nav.classList.remove('active') })
+      })
+      window.addEventListener('scroll', function(){ nav.classList.remove('active') })
+    }
+
+    // ── 7. Avatar de sesión ─────────────────
+    var insertPoint = hamburguesa || toggleDark
+    if(!insertPoint || !insertPoint.parentNode) return
+
+    // Páginas sin avatar (login, mi-cuenta, mi-taller manejan su propio estado)
+    var sinAvatar = ['login', 'mi-cuenta', 'mi-taller']
+    var paginaActual = window.location.pathname.split('/').filter(Boolean)
+    var carpeta = paginaActual[paginaActual.length - (window.location.pathname.endsWith('.html') ? 2 : 1)] || ''
+    if(sinAvatar.indexOf(carpeta) !== -1) return
+
+    if(!rol){
+      // Sin sesión → botón Soy ceramista
+      var btnReg = document.createElement('a')
+      btnReg.className = 'nav-sesion-registro'
+      btnReg.href      = prefix + 'login/index.html'
+      btnReg.innerHTML = '🏺 <span>Soy ceramista</span>'
+      insertPoint.parentNode.insertBefore(btnReg, insertPoint)
       return
     }
 
-    // Con sesión → avatar + menú
+    // Con sesión → avatar
     var nombreCompleto = sesion.nombre || (rol === 'ceramista' ? 'Mi taller' : 'Mi cuenta')
     var nombre  = nombreCompleto.split(' ')[0]
     var inicial = nombre[0].toUpperCase()
     var destUrl = prefix + (rol === 'ceramista' ? 'mi-taller/index.html' : 'mi-cuenta/index.html')
     var labelDestino = rol === 'ceramista' ? 'Mi taller' : 'Mi cuenta'
     var iconoDestino = rol === 'ceramista' ? 'fa-store' : 'fa-user'
+    var esPro   = sesion.plan === 'pro'
 
-    var btn = document.createElement('button')
-    btn.className = 'nav-sesion-btn'
-    btn.setAttribute('aria-label', labelDestino)
-    var esPro = sesion.plan === 'pro'
     var avatarHtml = '<div class="nav-sesion-avatar-wrapper">' +
       '<div class="nav-sesion-avatar">' + inicial + '</div>' +
       (esPro ? '<div class="nav-pro-badge">⭐</div>' : '') +
       '</div>'
 
+    var btn = document.createElement('button')
+    btn.className = 'nav-sesion-btn'
+    btn.setAttribute('aria-label', labelDestino)
     btn.innerHTML = [
       avatarHtml,
       '<span class="nav-sesion-nombre">' + nombre + '</span>',
       '<div class="nav-sesion-menu">',
-        '<a href="' + destUrl + '">',
-          '<i class="fa-solid ' + iconoDestino + '"></i> ' + labelDestino,
-        '</a>',
+        '<a href="' + destUrl + '"><i class="fa-solid ' + iconoDestino + '"></i> ' + labelDestino + '</a>',
         '<div class="nav-sesion-sep"></div>',
-        '<button class="nav-sesion-salir" id="nav-btn-salir">',
-          '<i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión',
-        '</button>',
+        '<button class="nav-sesion-salir" id="nav-btn-salir"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>',
       '</div>'
     ].join('')
 
@@ -131,18 +181,10 @@
       e.stopPropagation()
       btn.classList.toggle('abierto')
     })
+    document.addEventListener('click', function(){ btn.classList.remove('abierto') })
 
-    document.addEventListener('click', function(){
-      btn.classList.remove('abierto')
-    })
+    insertPoint.parentNode.insertBefore(btn, insertPoint)
 
-    if(hamburguesa && hamburguesa.parentNode){
-      hamburguesa.parentNode.insertBefore(btn, hamburguesa)
-    } else {
-      toggleDark.parentNode.insertBefore(btn, toggleDark)
-    }
-
-    // Botón cerrar sesión
     var btnSalir = btn.querySelector('#nav-btn-salir')
     if(btnSalir){
       btnSalir.addEventListener('click', function(e){
@@ -155,7 +197,6 @@
 
   } // fin init()
 
-  // Ejecutar cuando el DOM esté listo
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', init)
   } else {
