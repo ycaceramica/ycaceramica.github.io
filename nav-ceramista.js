@@ -13,7 +13,16 @@
 
     try {
       sesion = JSON.parse(localStorage.getItem('ceramista_sesion') || 'null')
-      if(sesion && sesion.token){ rol = 'ceramista' }
+      if(sesion && sesion.token){
+        rol = 'ceramista'
+        // Si falta el plan, intentar recuperarlo de sessionStorage
+        if(!sesion.plan){
+          try {
+            var ss2 = JSON.parse(sessionStorage.getItem('yca_sesion') || 'null')
+            if(ss2 && ss2.plan) sesion.plan = ss2.plan
+          } catch(e){}
+        }
+      }
     } catch(e){}
 
     if(!rol){
@@ -21,7 +30,7 @@
         var ss = JSON.parse(sessionStorage.getItem('yca_sesion') || 'null')
         if(ss && ss.token){
           if(ss.rol === 'ceramista'){
-            sesion = { token: ss.token, nombre: ss.nombre, id: ss.id, plan: ss.plan }
+            sesion = { token: ss.token, nombre: ss.nombre, id: ss.id, plan: ss.plan || 'free' }
             localStorage.setItem('ceramista_sesion', JSON.stringify(sesion))
             rol = 'ceramista'
           } else if(ss.rol === 'alumno'){
