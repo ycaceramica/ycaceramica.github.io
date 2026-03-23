@@ -55,7 +55,7 @@
         '.nav-sesion-btn{position:relative;display:flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;}',
         '.nav-sesion-avatar-wrapper{position:relative;flex-shrink:0;}',
         '.nav-sesion-avatar{width:32px;height:32px;min-width:32px;min-height:32px;border-radius:50%;background:var(--color-primario);color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;border:2px solid white;box-sizing:border-box;flex-shrink:0;}',
-        '.nav-pro-badge{position:absolute;bottom:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:#c9a227;border:2.5px solid white;display:flex;align-items:center;justify-content:center;font-size:11px;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,0.3);}',
+        '.nav-pro-badge{position:absolute;bottom:-4px;right:-6px;font-size:13px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.4));}',
         '.nav-sesion-nombre{font-size:14px;font-weight:700;color:var(--color-texto);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
         '.nav-sesion-menu{position:absolute;top:calc(100% + 10px);right:0;background:var(--color-superficie);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.15);padding:8px;min-width:180px;z-index:1000;display:none;flex-direction:column;gap:4px;overflow:hidden;}',
         '.nav-sesion-btn.abierto .nav-sesion-menu{display:flex;}',
