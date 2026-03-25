@@ -239,6 +239,38 @@
             <i class="fa-solid fa-plus"></i> Nuevo insumo
           </button>
         </div>
+        <!-- TOGGLES VISIBILIDAD INSUMOS -->
+        <div class="elaboracion-config-box" style="margin-bottom:12px">
+          <div>
+            <div class="elaboracion-config-titulo">💰 Mostrar precio</div>
+            <div class="elaboracion-config-desc">Muestra el precio de cada insumo en el catálogo público</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="switchInsumoMostrarPrecio" onchange="toggleConfigInsumos('insumos_mostrar_precio', this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="elaboracion-config-box" style="margin-bottom:12px">
+          <div>
+            <div class="elaboracion-config-titulo">📦 Mostrar stock</div>
+            <div class="elaboracion-config-desc">Muestra la cantidad disponible en el catálogo público</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="switchInsumoMostrarStock" onchange="toggleConfigInsumos('insumos_mostrar_stock', this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="elaboracion-config-box" style="margin-bottom:20px">
+          <div>
+            <div class="elaboracion-config-titulo">🛒 Permitir elegir cantidad</div>
+            <div class="elaboracion-config-desc">El usuario puede elegir cuántas unidades quiere antes de consultar por WhatsApp</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="switchInsumoPermitirCantidad" onchange="toggleConfigInsumos('insumos_permitir_cantidad', this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
         <div class="admin-filtros-wrapper">
           <div class="admin-buscador-wrapper">
             <i class="fa-solid fa-magnifying-glass"></i>
