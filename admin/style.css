@@ -573,7 +573,16 @@ body.dark #exportCurso option{
 .multimedia-card-body{ padding:12px 14px; display:flex; flex-direction:column; gap:6px; flex:1; }
 .multimedia-card-titulo{ font-size:13px; font-weight:700; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .multimedia-card-curso{ font-size:11px; opacity:0.5; font-weight:600; }
-.multimedia-card-acciones{ display:flex; gap:6px; padding-top:8px; border-top:1px solid rgba(139,111,86,0.1); }
+.multimedia-card-acciones{ display:flex; gap:6px; padding-top:8px; border-top:1px solid rgba(139,111,86,0.1); align-items:center; }
+
+.multimedia-card-acciones .btn-editar-item{
+  display:flex; align-items:center; justify-content:center;
+  width:32px; height:32px; border-radius:8px;
+  background:rgba(82,120,168,0.15); border:none; cursor:pointer;
+  color:var(--color-texto); font-size:13px; transition:background 0.2s;
+  flex-shrink:0;
+}
+.multimedia-card-acciones .btn-editar-item:hover{ background:rgba(82,120,168,0.3); }
 
 .multimedia-tipo-selector{ display:flex; gap:10px; }
 .mtipo-btn{
