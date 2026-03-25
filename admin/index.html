@@ -174,6 +174,38 @@
             <i class="fa-solid fa-plus"></i> Nueva pieza
           </button>
         </div>
+        <!-- TOGGLES VISIBILIDAD PIEZAS -->
+        <div class="elaboracion-config-box" style="margin-bottom:12px">
+          <div>
+            <div class="elaboracion-config-titulo">💰 Mostrar precio</div>
+            <div class="elaboracion-config-desc">Muestra el precio de cada pieza en el catálogo público</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="switchMostrarPrecio" onchange="toggleConfigPiezas('piezas_mostrar_precio', this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="elaboracion-config-box" style="margin-bottom:12px">
+          <div>
+            <div class="elaboracion-config-titulo">📦 Mostrar stock</div>
+            <div class="elaboracion-config-desc">Muestra la cantidad disponible en el catálogo público</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="switchMostrarStock" onchange="toggleConfigPiezas('piezas_mostrar_stock', this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="elaboracion-config-box" style="margin-bottom:20px">
+          <div>
+            <div class="elaboracion-config-titulo">🛒 Permitir elegir cantidad</div>
+            <div class="elaboracion-config-desc">El usuario puede elegir cuántas unidades quiere antes de consultar por WhatsApp</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="switchPermitirCantidad" onchange="toggleConfigPiezas('piezas_permitir_cantidad', this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
         <div class="admin-filtros-wrapper">
           <div class="admin-buscador-wrapper">
             <i class="fa-solid fa-magnifying-glass"></i>
