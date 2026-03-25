@@ -131,6 +131,7 @@ async function cargarSeccion(nombre){
   if(nombre === 'suscriptores') { await cargarSuscriptores(); return }
   if(nombre === 'emails')       { await cargarEmails();       return }
   if(nombre === 'pastas')       { await cargarPastas();       return }
+  if(nombre === 'piezas')       { cargarConfigPiezas() }
 
   const grid    = document.getElementById('grid-' + nombre)
   const loading = document.getElementById('loading-' + nombre)
@@ -422,7 +423,8 @@ async function ejecutarBorrarItem(borrarDrive){
 // FOTO EN ITEMS
 // ─────────────────────────────────────────────
 
-let fotoModalBase64 = null
+let fotoModalBase64  = null
+let fotosExtra       = { foto2: null, foto3: null, foto4: null }
 let fotoModalNombre = null
 
 function elegirFotoModal(){
@@ -492,6 +494,7 @@ function abrirModal(hoja, item = null){
   modalItem        = item
   fotoModalBase64  = null
   fotoModalNombre  = null
+  fotosExtra        = { foto2: null, foto3: null, foto4: null }
 
   const esApuntes = hoja === 'apuntes' || hoja === 'apuntes_ceramistas'
   const esMoldes  = hoja === 'moldes' || hoja.endsWith('_inv')
@@ -531,6 +534,23 @@ function abrirModal(hoja, item = null){
       </div>
     </div>
   ` : ''
+
+  const conFotosExtra  = !esApuntes && !esPastas
+  const bloqFotosExtra = conFotosExtra ? (() => {
+    const slots = [2,3,4].map(n => {
+      const fUrl = (item && item['foto'+n]) || ''
+      const img  = fUrl
+        ? '<img src="'+fUrl+'" class="mform-foto-extra-img">'
+          + '<button class="mform-foto-extra-quitar" onclick="event.stopPropagation();quitarFotoExtra('+n+')" type="button">×</button>'
+        : '<div class="mform-foto-extra-placeholder"><i class="fa-solid fa-plus"></i><span>Foto '+(n-1)+'</span></div>'
+      return '<div class="mform-foto-extra-slot" id="mFotoExtraSlot'+n+'" onclick="elegirFotoExtra('+n+')">'+img+'</div>'
+    }).join('')
+    return '<div class="mform-grupo mform-fotos-extra">'
+      + '<label>📷 Fotos adicionales <small style="opacity:0.5;font-weight:400">(hasta 3 fotos extra)</small></label>'
+      + '<div class="mform-fotos-extra-grid">'+slots+'</div>'
+      + '<input type="file" id="mFotoExtraInput" accept="image/*" style="display:none" onchange="onFotoExtraChange(this)">'
+      + '</div>'
+  })() : ''
 
   let html = bloqFoto
 
@@ -704,6 +724,7 @@ function abrirModal(hoja, item = null){
           <span>✅ Publicar en la web pública</span>
         </label>
       `
+      html += bloqFotosExtra
     }
 
     if(esMoldes){
@@ -727,6 +748,7 @@ function abrirModal(hoja, item = null){
           <textarea id="mNotas" rows="2" placeholder="Notas...">${item?.notas || ''}</textarea>
         </div>
       `
+      html += bloqFotosExtra
     }
   }
 
@@ -749,6 +771,76 @@ function cerrarModal(e){
 }
 
 // ─────────────────────────────────────────────
+// FOTOS EXTRA
+// ─────────────────────────────────────────────
+
+let _fotoExtraSlot = 2
+
+function elegirFotoExtra(n){
+  _fotoExtraSlot = n
+  document.getElementById('mFotoExtraInput').click()
+}
+
+function onFotoExtraChange(input){
+  const file = input.files[0]
+  if(!file) return
+  const n = _fotoExtraSlot
+  const reader = new FileReader()
+  reader.onload = async e => {
+    const b64  = await convertirAJpg(e.target.result)
+    fotosExtra['foto'+n] = b64
+    const slot = document.getElementById('mFotoExtraSlot'+n)
+    if(slot){
+      slot.innerHTML = '<img src="'+b64+'" class="mform-foto-extra-img">'
+        + '<button class="mform-foto-extra-quitar" onclick="event.stopPropagation();quitarFotoExtra('+n+')" type="button">×</button>'
+    }
+  }
+  reader.readAsDataURL(file)
+  input.value = ''
+}
+
+function quitarFotoExtra(n){
+  fotosExtra['foto'+n]    = null
+  fotosExtra['_borrar'+n] = true
+  const slot = document.getElementById('mFotoExtraSlot'+n)
+  if(slot){
+    slot.innerHTML = '<div class="mform-foto-extra-placeholder"><i class="fa-solid fa-plus"></i><span>Foto '+(n-1)+'</span></div>'
+  }
+}
+
+// TOGGLES CONFIG PIEZAS
+// ─────────────────────────────────────────────
+
+async function cargarConfigPiezas(){
+  try {
+    const res  = await fetch(API + '?action=getConfigIndex')
+    const data = await res.json()
+    const cfg  = data.data || {}
+    const sw1  = document.getElementById('switchMostrarPrecio')
+    const sw2  = document.getElementById('switchMostrarStock')
+    const sw3  = document.getElementById('switchPermitirCantidad')
+    if(sw1) sw1.checked = cfg.piezas_mostrar_precio   === 'true'
+    if(sw2) sw2.checked = cfg.piezas_mostrar_stock     === 'true'
+    if(sw3) sw3.checked = cfg.piezas_permitir_cantidad === 'true'
+  } catch(e){}
+}
+
+async function toggleConfigPiezas(clave, valor){
+  try {
+    const sesion = getSesion()
+    const id = clave === 'piezas_mostrar_precio'   ? 'CFG-precio'   :
+               clave === 'piezas_mostrar_stock'     ? 'CFG-stock'    : 'CFG-cantidad'
+    await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'guardar', hoja: 'config_index',
+        fila: { id, clave, valor: valor ? 'true' : 'false',
+                creadoEn: new Date().toLocaleDateString('es-AR') },
+        token: sesion.token })
+    })
+    toast(valor ? '✅ Activado' : '⭕ Desactivado', 'ok')
+  } catch(e){ toast('❌ Error al guardar', 'err') }
+}
+
 // CÓDIGO AUTOMÁTICO
 // ─────────────────────────────────────────────
 
@@ -856,6 +948,17 @@ async function guardarModal(){
       }).catch(() => {})
     }
 
+    ;[2,3,4].forEach(n => {
+      const b64e = fotosExtra['foto'+n]
+      if(b64e){
+        const nomE = (fila.codigo||fila.id)+'_foto'+n+'_'+Date.now()
+        fetch(API, { method:'POST', body:JSON.stringify({
+          action:'subirFoto', hoja:modalHoja, id:fila.id,
+          b64:b64e, nombre:nomE, campo:'foto'+n,
+          categoria:fila.categoria||'', token:sesion.token
+        })}).catch(()=>{})
+      }
+    })
     delete cache[modalHoja]
     cerrarModal()
     await cargarSeccion(modalHoja)
@@ -897,6 +1000,9 @@ function construirFila(){
     categoria:   document.getElementById('mCategoria')?.value || '',
     descripcion: document.getElementById('mDescripcion')?.value.trim() || '',
     foto:        modalItem?.foto || '',
+    foto2:       fotosExtra._borrar2 ? '' : (modalItem?.foto2 || ''),
+    foto3:       fotosExtra._borrar3 ? '' : (modalItem?.foto3 || ''),
+    foto4:       fotosExtra._borrar4 ? '' : (modalItem?.foto4 || ''),
     creadoEn:    modalItem?.creadoEn || new Date().toLocaleDateString('es-AR')
   }
 
