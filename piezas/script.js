@@ -50,8 +50,9 @@ function abrirModalPieza(e){
   const pieza = card._piezaData
   if(!pieza) return
   modalPiezaActual = pieza
+  fotoActualIdx    = 0
 
-  const fotos = [pieza.foto, pieza.foto2, pieza.foto3, pieza.foto4].filter(Boolean)
+  const fotos           = [pieza.foto, pieza.foto2, pieza.foto3, pieza.foto4].filter(Boolean)
   const mostrarPrecio   = configPublica.piezas_mostrar_precio   === 'true'
   const mostrarStock    = configPublica.piezas_mostrar_stock     === 'true'
   const permitirCantidad= configPublica.piezas_permitir_cantidad === 'true'
@@ -71,20 +72,29 @@ function abrirModalPieza(e){
   } else if(fotos.length === 1){
     carruselHTML = `<div class="pm-carrusel"><img class="pm-foto" src="${fotos[0]}" alt="${pieza.nombre}" loading="lazy"></div>`
   } else {
-    carruselHTML = `<div class="pm-carrusel pm-sin-foto">🏺</div>`
+    carruselHTML = `<div class="pm-carrusel"><div class="pm-sin-foto">🏺</div></div>`
   }
 
-  // Datos
+  // Chips de detalles
+  const chips = [
+    pieza.tecnica  ? `<div class="pm-detalle-chip"><span>Técnica:</span> ${pieza.tecnica}</div>`  : '',
+    pieza.esmalte  ? `<div class="pm-detalle-chip"><span>Esmalte:</span> ${pieza.esmalte}</div>`  : '',
+    pieza.medidas  ? `<div class="pm-detalle-chip"><span>Medidas:</span> ${pieza.medidas}</div>`  : '',
+  ].filter(Boolean).join('')
+
   const datosHTML = `
     <div class="pm-datos">
-      ${pieza.categoria ? `<div class="pm-categoria">${pieza.categoria}</div>` : ''}
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        ${pieza.categoria ? `<div class="pm-categoria">${pieza.categoria}</div>` : '<div></div>'}
+        ${pieza.codigo    ? `<div class="pm-codigo">${pieza.codigo}</div>`       : ''}
+      </div>
       <h2 class="pm-nombre">${pieza.nombre}</h2>
       ${pieza.descripcion ? `<p class="pm-descripcion">${pieza.descripcion}</p>` : ''}
-      ${pieza.tecnica    ? `<div class="pm-detalle"><span>Técnica:</span> ${pieza.tecnica}</div>` : ''}
-      ${pieza.esmalte    ? `<div class="pm-detalle"><span>Esmalte:</span> ${pieza.esmalte}</div>` : ''}
-      ${pieza.medidas    ? `<div class="pm-detalle"><span>Medidas:</span> ${pieza.medidas}</div>` : ''}
+      ${chips ? `<div class="pm-detalles">${chips}</div>` : ''}
       ${mostrarPrecio && pieza.precio ? `<div class="pm-precio">$${Number(pieza.precio).toLocaleString('es-AR')}</div>` : ''}
-      ${mostrarStock  && pieza.cantidad !== undefined && pieza.cantidad !== '' ? `<div class="pm-stock">${Number(pieza.cantidad) > 0 ? Number(pieza.cantidad)+' disponibles' : 'Sin stock'}</div>` : ''}
+      ${mostrarStock && pieza.cantidad !== undefined && pieza.cantidad !== ''
+        ? `<div class="pm-stock">${Number(pieza.cantidad) > 0 ? Number(pieza.cantidad)+' disponibles' : 'Sin stock'}</div>`
+        : ''}
       ${permitirCantidad ? `
         <div class="pm-cantidad-wrap">
           <label>Cantidad:</label>
@@ -97,10 +107,13 @@ function abrirModalPieza(e){
       <button class="pm-btn-wa" onclick="consultarWA()">
         <i class="fa-brands fa-whatsapp"></i> Consultar por WhatsApp
       </button>
+      <button class="pm-btn-cerrar-bottom" onclick="cerrarModalPiezaBtn()">Cerrar</button>
     </div>
   `
 
   document.getElementById('pmContenido').innerHTML = carruselHTML + datosHTML
+  const hTit = document.getElementById('pmHeaderTitulo')
+  if(hTit) hTit.innerText = pieza.nombre
   document.getElementById('modalPieza').style.display = 'flex'
   document.body.style.overflow = 'hidden'
 }
@@ -260,7 +273,10 @@ async function cargarPiezas(){
       m.onclick   = cerrarModalPieza
       m.innerHTML = `
         <div class="pm-box">
-          <button class="pm-cerrar" onclick="cerrarModalPiezaBtn()">&times;</button>
+          <div class="pm-header">
+            <span class="pm-header-titulo" id="pmHeaderTitulo"></span>
+            <button class="pm-cerrar" onclick="cerrarModalPiezaBtn()">&times;</button>
+          </div>
           <div id="pmContenido"></div>
         </div>`
       document.body.appendChild(m)
