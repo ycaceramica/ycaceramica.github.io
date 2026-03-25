@@ -132,6 +132,7 @@ async function cargarSeccion(nombre){
   if(nombre === 'emails')       { await cargarEmails();       return }
   if(nombre === 'pastas')       { await cargarPastas();       return }
   if(nombre === 'piezas')       { cargarConfigPiezas() }
+  if(nombre === 'insumos')      { cargarConfigInsumos() }
 
   const grid    = document.getElementById('grid-' + nombre)
   const loading = document.getElementById('loading-' + nombre)
@@ -830,6 +831,39 @@ async function toggleConfigPiezas(clave, valor){
     const sesion = getSesion()
     const id = clave === 'piezas_mostrar_precio'   ? 'CFG-precio'   :
                clave === 'piezas_mostrar_stock'     ? 'CFG-stock'    : 'CFG-cantidad'
+    await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'guardar', hoja: 'config_index',
+        fila: { id, clave, valor: valor ? 'true' : 'false',
+                creadoEn: new Date().toLocaleDateString('es-AR') },
+        token: sesion.token })
+    })
+    toast(valor ? '✅ Activado' : '⭕ Desactivado', 'ok')
+  } catch(e){ toast('❌ Error al guardar', 'err') }
+}
+
+// TOGGLES CONFIG INSUMOS
+// ─────────────────────────────────────────────
+
+async function cargarConfigInsumos(){
+  try {
+    const res  = await fetch(API + '?action=getConfigIndex')
+    const data = await res.json()
+    const cfg  = data.data || {}
+    const sw1  = document.getElementById('switchInsumoMostrarPrecio')
+    const sw2  = document.getElementById('switchInsumoMostrarStock')
+    const sw3  = document.getElementById('switchInsumoPermitirCantidad')
+    if(sw1) sw1.checked = cfg.insumos_mostrar_precio    === 'true'
+    if(sw2) sw2.checked = cfg.insumos_mostrar_stock      === 'true'
+    if(sw3) sw3.checked = cfg.insumos_permitir_cantidad  === 'true'
+  } catch(e){}
+}
+
+async function toggleConfigInsumos(clave, valor){
+  try {
+    const sesion = getSesion()
+    const id = clave === 'insumos_mostrar_precio'    ? 'CFG-ins-precio'   :
+               clave === 'insumos_mostrar_stock'      ? 'CFG-ins-stock'    : 'CFG-ins-cantidad'
     await fetch(API, {
       method: 'POST',
       body: JSON.stringify({ action: 'guardar', hoja: 'config_index',
