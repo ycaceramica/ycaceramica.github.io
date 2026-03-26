@@ -2341,7 +2341,7 @@ function exportarListaPDF(){
     </div>
   </div>
   <table>${tablas}</table>
-  <div class="footer">YCA Cerámica · ycaceramica.github.io</div>
+  <div class="footer">YCA Cerámica · ycaceramica.com.ar</div>
   </body></html>`
 
   const ventana = window.open('', '_blank')
@@ -4031,7 +4031,7 @@ function renderizarPreview(markdown, titulo){
 
   el.innerHTML = `
     <div class="membrete">
-      <strong>YCA Cerámica</strong> — ycaceramica.github.io<br>
+      <strong>YCA Cerámica</strong> — ycaceramica.com.ar<br>
       📷 @ycaceramica  |  🎵 @yca.ceramica  |  ${hoy}
       ${titulo ? `<br><strong>📄 ${titulo}</strong>` : ''}
     </div>
@@ -4076,7 +4076,7 @@ async function descargarPDFGen(){
     doc.setFontSize(20); doc.setFont('helvetica','bold')
     doc.text('YCA Ceramica', m + 26, 17)
     doc.setFontSize(9); doc.setFont('helvetica','normal')
-    doc.text('ycaceramica.github.io  |  @ycaceramica  |  @yca.ceramica', m + 26, 24)
+    doc.text('ycaceramica.com.ar  |  @ycaceramica  |  @yca.ceramica', m + 26, 24)
 
     const hoy = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'long', year:'numeric' })
     doc.setFontSize(8)
@@ -4152,7 +4152,7 @@ async function descargarPDFGen(){
       doc.setPage(i)
       doc.setFillColor(...GRIS); doc.rect(0, 287, W, 10, 'F')
       doc.setTextColor(160,150,140); doc.setFontSize(7); doc.setFont('helvetica','normal')
-      doc.text('ycaceramica.github.io  |  YCA Ceramica 2026', W/2, 293, { align:'center' })
+      doc.text('ycaceramica.com.ar  |  YCA Ceramica 2026', W/2, 293, { align:'center' })
       doc.text(`${i} / ${totalPages}`, W - m, 293, { align:'right' })
     }
 
