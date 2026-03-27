@@ -104,7 +104,7 @@ body{ margin:0; overflow-x:hidden; }
   min-height:calc(100vh - 56px); background:var(--color-fondo);
 }
 
-.seccion{ max-width:1200px; padding-top:18px; }
+.seccion{ max-width:1200px; padding-top:6px; }
 
 /* ── HEADER SECCIÓN ── */
 
