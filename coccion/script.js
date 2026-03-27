@@ -538,7 +538,7 @@ async function descargarPDF(){
   doc.setTextColor(160, 150, 140)
   doc.setFontSize(7)
   doc.setFont("helvetica", "normal")
-  doc.text("ycaceramica.github.io  |  YCA Ceramica © 2026", W / 2, 293, { align: "center" })
+  doc.text("ycaceramica.com.ar  |  YCA Ceramica © 2026", W / 2, 293, { align: "center" })
 
   doc.save(`YCA_Coccion_${info.nombre.replace(/ /g,"_")}.pdf`)
 
