@@ -102,9 +102,10 @@ body{ margin:0; overflow-x:hidden; }
 .admin-main{
   flex:1; margin-left:220px; padding:0 36px 36px;
   min-height:calc(100vh - 56px); background:var(--color-fondo);
+  overflow-x:hidden;
 }
 
-.seccion{ max-width:1200px; padding-top:6px; }
+.seccion{ max-width:1200px; padding-top:12px; }
 
 /* ── HEADER SECCIÓN ── */
 
@@ -112,7 +113,7 @@ body{ margin:0; overflow-x:hidden; }
   display:flex; justify-content:space-between; align-items:flex-start;
   margin-bottom:24px; flex-wrap:wrap; gap:12px;
 }
-.seccion-header h2{ font-size:22px; margin:0 0 4px 0; }
+.seccion-header h2{ font-size:22px; margin:0 0 4px 0; line-height:1.2; }
 .seccion-header p{ font-size:13px; opacity:0.5; margin:0; }
 .seccion-header-der{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
 
