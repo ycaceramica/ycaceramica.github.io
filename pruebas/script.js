@@ -506,7 +506,7 @@ async function descargarPDF(){
   // Pie
   doc.setFillColor(...GRIS); doc.rect(0,285,W,12,'F')
   doc.setTextColor(160,150,140); doc.setFontSize(7); doc.setFont('helvetica','normal')
-  doc.text('ycaceramica.github.io  |  YCA Ceramica 2026', W/2, 291, {align:'center'})
+  doc.text('ycaceramica.com.ar  |  YCA Ceramica 2026', W/2, 291, {align:'center'})
 
   doc.save(`YCA_Pruebas_${serieActual.nombre.replace(/\s/g,'_')}.pdf`)
 }
