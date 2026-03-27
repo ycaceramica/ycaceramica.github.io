@@ -100,7 +100,7 @@ body{ margin:0; overflow-x:hidden; }
 /* ── MAIN ── */
 
 .admin-main{
-  flex:1; margin-left:220px; padding:10px 36px 36px;
+  flex:1; margin-left:220px; padding:4px 36px 36px;
   min-height:calc(100vh - 56px); background:var(--color-fondo);
 }
 
@@ -774,6 +774,19 @@ body.dark #exportCurso option{
   opacity: 0.5;
   line-height: 1.4;
 }
+
+/* Config box (fila título + descripción + toggle) */
+.elaboracion-config-box{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px 18px;
+  background: var(--color-superficie);
+  border-radius: 12px;
+  border: 1px solid rgba(139,111,86,0.1);
+}
+.elaboracion-config-box .toggle-switch{ flex-shrink: 0; }
 
 /* Toggle switch */
 .toggle-switch{
