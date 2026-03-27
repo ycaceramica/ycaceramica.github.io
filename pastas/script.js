@@ -570,7 +570,7 @@ async function generarPDFItems(items, filename){
 
   doc.setFillColor(...GRIS); doc.rect(0,287,W,10,"F")
   doc.setTextColor(160,150,140); doc.setFontSize(7); doc.setFont("helvetica","normal")
-  doc.text("ycaceramica.github.io  |  YCA Ceramica © 2026",W/2,293,{align:"center"})
+  doc.text("ycaceramica.com.ar  |  YCA Ceramica © 2026",W/2,293,{align:"center"})
   doc.save(filename || "YCA_Ceramica_Pastas.pdf")
 }
 
