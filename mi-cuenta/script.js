@@ -233,8 +233,9 @@ async function cargarMultimediaCuenta(sesion){
       return
     }
 
-    const fotos  = items.filter(m => m.tipo === 'foto'  && m.foto)
-    const videos = items.filter(m => m.tipo === 'video' && m.url)
+    const esPublicado = m => m.publicado === true || m.publicado === 'true' || m.publicado === 'TRUE' || m.publicado === 1
+    const fotos  = items.filter(m => esPublicado(m) && m.tipo === 'foto'  && m.foto)
+    const videos = items.filter(m => esPublicado(m) && m.tipo === 'video' && m.url)
 
     // Fotos
     if(fotos.length > 0){
