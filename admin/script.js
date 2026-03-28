@@ -37,14 +37,30 @@ function getSesion(){
 
 window.addEventListener('DOMContentLoaded', () => {
   const sesion = getSesion()
-  if(!sesion || sesion.rol !== 'admin'){
+  if(!sesion || (sesion.rol !== 'admin' && sesion.rol !== 'superadmin')){
     window.location.href = '../login/index.html'
     return
   }
   cargarSeccion('piezas')
   cargarInventarios()
   cargarCursosSilencioso()
+
+  // Superadmin: mostrar panel de mantenimiento y cargar estado actual
+  if(sesion.rol === 'superadmin'){
+    const panelSA = document.getElementById('sidebar-superadmin')
+    if(panelSA) panelSA.style.display = ''
+    cargarEstadoMantenimiento()
+  }
 })
+
+async function cargarEstadoMantenimiento(){
+  try {
+    const res  = await fetch(API + '?action=getConfigIndex')
+    const data = await res.json()
+    const sw   = document.getElementById('switchMantenimiento')
+    if(sw && data.data) sw.checked = data.data.mantenimiento === 'true'
+  } catch(e){}
+}
 
 function cerrarSesion(){
   sessionStorage.removeItem('yca_sesion')
@@ -4178,4 +4194,33 @@ function cargarLogoBase64Gen(){
     img.onerror = () => resolve(null)
     img.src = '../imagenes/logo.png'
   })
+}
+
+// ─────────────────────────────────────────────
+// SUPERADMIN — TOGGLE MANTENIMIENTO
+// ─────────────────────────────────────────────
+
+async function toggleMantenimiento(valor){
+  try {
+    const sesion = getSesion()
+    const res = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'toggleMantenimiento',
+        valor:  valor,
+        token:  sesion.token
+      })
+    })
+    const data = await res.json()
+    if(data.ok){
+      toast(valor ? '🔒 Modo mantenimiento activado' : '✅ Sitio visible para todos', 'ok')
+    } else {
+      toast('❌ Error: ' + (data.error || 'No autorizado'), 'err')
+      // Revertir el toggle visualmente
+      document.getElementById('switchMantenimiento').checked = !valor
+    }
+  } catch(e){
+    toast('❌ Error de conexión', 'err')
+    document.getElementById('switchMantenimiento').checked = !valor
+  }
 }
