@@ -276,6 +276,39 @@
   <script src="nav-ceramista.js"></script>
 
 
+
+<div id="pantalla-mantenimiento" style="display:none;position:fixed;inset:0;z-index:9999;background:#f5f0eb;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;font-family:'Plus Jakarta Sans',sans-serif;">
+  <img src="imagenes/logo.png" alt="YCA Cerámica" style="width:80px;height:80px;border-radius:50%;margin-bottom:24px;object-fit:cover;">
+  <h1 style="font-size:28px;color:#4a3728;margin:0 0 12px;">Estamos trabajando</h1>
+  <p style="font-size:16px;color:#8a7a6a;max-width:400px;line-height:1.6;margin:0;">El sitio está en mantenimiento. Volvemos pronto 🏺</p>
+  <p style="margin-top:32px;font-size:13px;color:#b0a090;">@ycaceramica</p>
+</div>
+
+<script>
+(async function chequearMantenimiento(){
+  try {
+    // Si tiene sesión de superadmin, no mostrar mantenimiento
+    var sesion = null
+    try { sesion = JSON.parse(sessionStorage.getItem('yca_sesion')) } catch(e){}
+    if(sesion && sesion.rol === 'superadmin') return
+
+    var API = "https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec"
+    var res  = await fetch(API + '?action=getConfigIndex')
+    var data = await res.json()
+    if(data.data && data.data.mantenimiento === 'true'){
+      var panel = document.getElementById('pantalla-mantenimiento')
+      if(panel){
+        panel.style.display = 'flex'
+        // Ocultar el contenido principal
+        document.querySelectorAll('body > *:not(#pantalla-mantenimiento)').forEach(function(el){
+          el.style.visibility = 'hidden'
+        })
+        panel.style.visibility = 'visible'
+      }
+    }
+  } catch(e){}
+})()
+</script>
 </body>
 
 </html>
