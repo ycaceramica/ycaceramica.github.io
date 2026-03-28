@@ -459,7 +459,13 @@ async function cargarMultimedia(){
     }
 
     lista.innerHTML = ''
-    items.forEach(item => {
+    const esPublicado = m => m.publicado === true || m.publicado === 'true' || m.publicado === 'TRUE' || m.publicado === 1
+    const visibles = items.filter(esPublicado)
+    if(visibles.length === 0){
+      lista.innerHTML = '<div class="cuenta-vacio"><i class="fa-solid fa-photo-film"></i><p>No hay multimedia disponible todavía.</p></div>'
+      return
+    }
+    visibles.forEach(item => {
       const div = document.createElement('div')
       div.className = 'multimedia-item'
       const esVideo = item.tipo === 'video' || (item.url || '').includes('youtube') || (item.url || '').includes('vimeo')
