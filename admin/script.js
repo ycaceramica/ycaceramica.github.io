@@ -53,9 +53,10 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 })
 
-async function cargarEstadoMantenimiento(){
+async function cargarEstadoMantenimiento(delay = 0){
   try {
-    const res  = await fetch(API + '?action=getConfigIndex')
+    if(delay) await new Promise(r => setTimeout(r, delay))
+    const res  = await fetch(API + '?action=getConfigIndex&t=' + Date.now())
     const data = await res.json()
     const sw   = document.getElementById('switchMantenimiento')
     if(sw && data.data) sw.checked = data.data.mantenimiento === 'true'
@@ -4214,6 +4215,8 @@ async function toggleMantenimiento(valor){
     const data = await res.json()
     if(data.ok){
       toast(valor ? '🔒 Modo mantenimiento activado' : '✅ Sitio visible para todos', 'ok')
+      // Recargar estado con delay para que Sheets actualice
+      setTimeout(() => cargarEstadoMantenimiento(), 2000)
     } else {
       toast('❌ Error: ' + (data.error || 'No autorizado'), 'err')
       // Revertir el toggle visualmente
