@@ -306,7 +306,14 @@
         panel.style.visibility = 'visible'
       }
     }
-  } catch(e){}
+  } catch(e){
+    // Si falla la consulta (adblocker, red, etc) mostrar el sitio normal
+    var panel = document.getElementById('pantalla-mantenimiento')
+    if(panel) panel.style.display = 'none'
+    document.querySelectorAll('body > *:not(#pantalla-mantenimiento)').forEach(function(el){
+      el.style.visibility = 'visible'
+    })
+  }
 })()
 </script>
 </body>
