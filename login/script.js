@@ -20,7 +20,8 @@ aplicarModoOscuro()
 window.addEventListener('DOMContentLoaded', () => {
   const sesion = getSesion()
   if(sesion){
-    if(sesion.rol === 'admin')          window.location.href = '../admin/index.html'
+    if(sesion.rol === 'superadmin')      window.location.href = '../admin/index.html'
+    else if(sesion.rol === 'admin')     window.location.href = '../admin/index.html'
     else if(sesion.rol === 'ceramista') window.location.href = '../mi-taller/index.html'
     else                                window.location.href = '../mi-cuenta/index.html'
   }
@@ -198,7 +199,8 @@ async function ingresar(){
 
     if(data.ok){
       guardarSesion(data)
-      if(data.rol === 'admin')          window.location.href = '../admin/index.html'
+      if(data.rol === 'superadmin')      window.location.href = '../admin/index.html'
+      else if(data.rol === 'admin')     window.location.href = '../admin/index.html'
       else if(data.rol === 'ceramista') window.location.href = '../mi-taller/index.html'
       else                              window.location.href = '../mi-cuenta/index.html'
     } else {
