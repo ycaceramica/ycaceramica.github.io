@@ -93,6 +93,13 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   const sesion = getSesion()
+
+  // Protección: si no hay sesión, redirigir al login
+  if(!sesion){
+    window.location.href = '../login/index.html'
+    return
+  }
+
   const esPro  = sesion && sesion.plan === 'pro'
 
   // Llenar hero
@@ -168,19 +175,8 @@ window.addEventListener('DOMContentLoaded', () => {
             <span id="proErrorMsg"></span>
           </div>
 
-          <button class="pro-btn-principal" id="btnSolicitar" onclick="solicitarAcceso('${calcId}')">
-            <i class="fa-solid fa-paper-plane"></i> Quiero acceso Pro
-          </button>
-        </div>
-
-        <div class="pro-separador">o contactanos directamente</div>
-
-        <div class="pro-contacto-directo">
-          <a class="pro-btn-wa" href="${WA}?text=${encodeURIComponent('Hola! Me interesa el acceso Pro a la calculadora ' + calc.titulo + ' de YCA Cerámica.')}" target="_blank">
-            <i class="fa-brands fa-whatsapp"></i> WhatsApp
-          </a>
-          <a class="pro-btn-email" href="mailto:ycaceramica@gmail.com?subject=${encodeURIComponent('Solicitud acceso Pro — ' + calc.titulo)}&body=${encodeURIComponent('Hola! Me interesa el acceso Pro a la calculadora ' + calc.titulo + '.\n\nMi nombre: \nMi email: ')}">
-            <i class="fa-solid fa-envelope"></i> Email directo
+          <a class="pro-btn-wa" id="btnSolicitar" href="#" target="_blank" onclick="abrirWAConDatos(event, '${calcId}', '${calc.titulo}')">
+            <i class="fa-brands fa-whatsapp"></i> Quiero acceso Pro
           </a>
         </div>
 
@@ -254,3 +250,21 @@ document.querySelectorAll('.pro-modal-overlay').forEach(overlay => {
     if(e.target === overlay) cerrarModal()
   })
 })
+
+// ─────────────────────────────────────────────
+// WHATSAPP CON DATOS DEL FORMULARIO
+// ─────────────────────────────────────────────
+
+function abrirWAConDatos(e, calcId, calcTitulo){
+  e.preventDefault()
+  const nombre  = document.getElementById('proNombre')?.value.trim() || ''
+  const email   = document.getElementById('proEmail')?.value.trim()  || ''
+  const mensaje = document.getElementById('proMensaje')?.value.trim() || ''
+
+  let texto = 'Hola! Me interesa el acceso Pro a la calculadora ' + calcTitulo + ' de YCA Cerámica.'
+  if(nombre)  texto += '\n\nMi nombre: ' + nombre
+  if(email)   texto += '\nMi email: '  + email
+  if(mensaje) texto += '\n\n' + mensaje
+
+  window.open(WA + '?text=' + encodeURIComponent(texto), '_blank')
+}
