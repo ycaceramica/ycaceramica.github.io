@@ -27,6 +27,19 @@
 </div>
     </div>
 
+
+    <!-- TABS -->
+    <div class="pastas-tabs" style="margin-bottom:24px">
+      <button class="pastas-tab activo" id="tabCalculadora" onclick="setTabEngobes('calculadora')">
+        <i class="fa-solid fa-flask"></i> Calculadora
+      </button>
+      <button class="pastas-tab" id="tabCatalogo" onclick="setTabEngobes('catalogo')">
+        <i class="fa-solid fa-book-open"></i> Engobes del taller
+      </button>
+    </div>
+
+    <!-- SECCIÓN CALCULADORA -->
+    <div id="seccionCalculadora">
     <!-- INFO -->
     <div class="calc-info-box">
       <button class="calc-info-toggle" onclick="toggleInfo()">
@@ -222,6 +235,71 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+
+    </div><!-- /seccionCalculadora -->
+
+    <!-- SECCIÓN CATÁLOGO -->
+    <div id="seccionCatalogo" style="display:none">
+      <div class="pastas-estado" id="estadoCatalogo">
+        <div class="spinner"></div>
+        <p>Cargando engobes...</p>
+      </div>
+      <div class="pastas-buscador-wrapper" id="engobeBuscadorWrapper" style="display:none">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="engobeBuscador" placeholder="Buscar engobe..." oninput="filtrarEngobes()">
+      </div>
+      <div class="pastas-grid" id="engobesGrid"></div>
+    </div>
+
+  </div><!-- /lab-wrapper -->
+
+  <!-- MODAL ENGOBE DEL CATÁLOGO -->
+  <div class="pasta-modal-overlay" id="engobeModal" style="display:none" onclick="if(event.target===this)cerrarEngobeModal()">
+    <div class="pasta-modal">
+      <div class="pasta-modal-header-sticky">
+        <span id="engobeModalHeaderNombre"></span>
+        <button class="pasta-modal-cerrar" onclick="cerrarEngobeModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="pasta-modal-foto" id="engobeModalFoto" onclick="toggleFotoExpandida(this)"></div>
+      <div class="pasta-modal-body">
+        <div id="engobeModalCodigo" class="pasta-modal-codigo" style="display:none"></div>
+        <h2 id="engobeModalNombre"></h2>
+        <p id="engobeModalDesc" class="pasta-modal-desc"></p>
+        <div class="pasta-modal-componentes">
+          <h4>Composición</h4>
+          <div id="engobeModalTabla"></div>
+        </div>
+        <div class="pasta-modal-calc">
+          <div class="calc-paso-titulo" style="margin-bottom:12px">
+            <span class="calc-paso-num">→</span>
+            <span>¿Cuántos gramos querés preparar?</span>
+          </div>
+          <div class="dim-input-wrapper" style="max-width:180px;margin-bottom:16px">
+            <input type="number" id="engobeModalGramos" placeholder="0" min="1" oninput="engobeModalCalcular()">
+            <span class="dim-unidad">g</span>
+          </div>
+          <div id="engobeModalResultado" style="display:none">
+            <div class="cont-tabla" id="engobeModalResultadoGrid"></div>
+            <div class="resultado-acciones" style="margin-top:12px">
+              <button class="btn-accion btn-guardar" onclick="engobeModalGuardar()">
+                <i class="fa-solid fa-floppy-disk"></i> Guardar en historial
+              </button>
+              <button class="btn-accion btn-copiar" onclick="engobeModalCopiar()">
+                <i class="fa-regular fa-copy"></i> Copiar
+              </button>
+              <button class="btn-accion btn-pdf-directo" onclick="engobeModalPDF()">
+                <i class="fa-solid fa-file-pdf"></i> PDF
+              </button>
+            </div>
+          </div>
+        </div>
+        <button class="pasta-modal-cerrar-bottom" onclick="cerrarEngobeModal()">
+          <i class="fa-solid fa-xmark"></i> Cerrar
+        </button>
+      </div>
     </div>
   </div>
 
