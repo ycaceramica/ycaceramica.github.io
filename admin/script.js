@@ -660,11 +660,9 @@ function abrirModal(hoja, item = null){
         <textarea id="mDescripcion" rows="2" placeholder="Características, temperatura, notas...">${item?.descripcion || ''}</textarea>
       </div>
       <div class="mform-grupo">
-        <label>Componentes <span id="pastaTotalLabel" style="font-size:12px;font-weight:700;margin-left:8px;color:#c85028"></span>
-          <small style="opacity:0.5;font-weight:400;margin-left:6px">— ingresá en % o en gramos (se normaliza automáticamente)</small>
-        </label>
-        <div class="pasta-comp-headers engobe-comp-headers">
-          <span>Ingrediente</span><span>Valor</span><span>Unidad</span>
+        <label>Componentes <span id="pastaTotalLabel" style="font-size:12px;font-weight:700;margin-left:8px;color:#c85028"></span></label>
+        <div class="pasta-comp-headers">
+          <span>Ingrediente</span><span>%</span>
         </div>
         <div id="pastaComponentes">${compHtml}</div>
         <div class="pasta-comp-agregar">
@@ -1252,10 +1250,7 @@ function leerComponentes(){
   filas.forEach(fila => {
     const nombre  = fila.querySelector('.pasta-comp-nombre')?.value.trim()
     const esEngobe = fila.classList.contains('engobe-comp-fila')
-    if(esEngobe){
-      const valor  = parseFloat(fila.querySelector('.engobe-valor')?.value) || 0
-      const unidad = fila.querySelector('.engobe-unidad')?.value || '%'
-      if(nombre) comp.push({ nombre, valor, unidad, porcentaje: unidad === '%' ? valor : 0 })
+    if(false){ // engobe-unidad eliminado, usa la rama estándar
     } else {
       const pct = parseFloat(fila.querySelector('.pasta-comp-pct')?.value) || 0
       if(nombre) comp.push({ nombre, porcentaje: pct })
@@ -1289,14 +1284,11 @@ function agregarEngobeComponente(nombre){
   const cont = document.getElementById('pastaComponentes')
   if(!cont) return
   const div = document.createElement('div')
-  div.className = 'pasta-comp-fila engobe-comp-fila'
+  div.className = 'pasta-comp-fila'
   div.innerHTML = `
-    <input class="pasta-comp-nombre" type="text" placeholder="Ingrediente" value="${nombre}" oninput="recalcularEngobes()">
-    <input class="pasta-comp-pct engobe-valor" type="number" min="0" step="0.1" placeholder="0" value="0" oninput="recalcularEngobes()">
-    <select class="engobe-unidad" onchange="recalcularEngobes()">
-      <option value="%">%</option>
-      <option value="g">g</option>
-    </select>
+    <input class="pasta-comp-nombre" type="text" placeholder="Ej: Arcilla" value="${nombre}" oninput="recalcularEngobes()">
+    <input class="pasta-comp-pct" type="number" min="0" max="200" step="1" placeholder="%" value="0" oninput="recalcularEngobes()">
+    <span class="pasta-comp-pct-label">%</span>
     <button class="pasta-btn-quitar" onclick="quitarComponente(this)" type="button"><i class="fa-solid fa-xmark"></i></button>
   `
   cont.appendChild(div)
@@ -1305,33 +1297,22 @@ function agregarEngobeComponente(nombre){
 }
 
 function recalcularEngobes(){
-  const filas = document.querySelectorAll('#pastaComponentes .engobe-comp-fila')
+  const filas = document.querySelectorAll('#pastaComponentes .pasta-comp-fila')
   const label = document.getElementById('pastaTotalLabel')
   if(!label) return
-  let totalPct = 0, totalG = 0, tieneG = false, tienePct = false
+  let total = 0
   filas.forEach(fila => {
-    const val    = parseFloat(fila.querySelector('.engobe-valor')?.value) || 0
-    const unidad = fila.querySelector('.engobe-unidad')?.value || '%'
-    if(unidad === '%'){ totalPct += val; tienePct = true }
-    else { totalG += val; tieneG = true }
+    total += parseFloat(fila.querySelector('.pasta-comp-pct')?.value) || 0
   })
-  if(tieneG && tienePct){
-    label.style.color = 'var(--color-primario)'
-    label.innerText   = `${totalPct}% + ${totalG}g (mixto)`
-  } else if(tienePct){
-    if(totalPct === 100){
-      label.style.color = '#2d7a2d'
-      label.innerText   = '✅ 100%'
-    } else if(totalPct < 100){
-      label.style.color = '#c85028'
-      label.innerText   = `⚠️ ${totalPct}% (falta ${100 - totalPct}%)`
-    } else {
-      label.style.color = 'var(--color-primario)'
-      label.innerText   = `✅ ${totalPct}% (base + ${totalPct - 100}% cargas)`
-    }
+  if(total === 100){
+    label.style.color = '#2d7a2d'
+    label.innerText   = '✅ 100%'
+  } else if(total < 100){
+    label.style.color = '#c85028'
+    label.innerText   = `⚠️ ${total}% (falta ${100 - total}%)`
   } else {
     label.style.color = 'var(--color-primario)'
-    label.innerText   = `${totalG}g total`
+    label.innerText   = `✅ ${total}% (base + ${total - 100}% cargas)`
   }
 }
 
