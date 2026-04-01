@@ -768,9 +768,14 @@ function engobeModalGuardar(){
   if(!gramosTotal){ mostrarModal({ titulo:'⚠️ Sin datos', texto:'Ingresá los gramos antes de guardar.', confirmar:'Entendido', cancelar:false }); return }
   let comps = []
   try { comps = JSON.parse(engobeActivo.componentes || '[]') } catch(e){}
+  const baseG2   = comps.filter(c => c.unidad === 'g').reduce((s,c) => s + (c.valor||c.porcentaje||0), 0)
+  const gramosPct2 = comps.filter(c => c.unidad !== 'g').reduce((s,c) => s + (c.valor||c.porcentaje||0) * baseG2 / 100, 0)
+  const totalRef2  = baseG2 + gramosPct2
+  const escala2    = totalRef2 > 0 ? gramosTotal / totalRef2 : 1
   const resultados = comps.map(c => {
-    const val = c.valor||c.porcentaje||0
-    const g = c.unidad === 'g' ? val : Math.round(gramosTotal * val / 100)
+    const val  = c.valor||c.porcentaje||0
+    const gRef = c.unidad === 'g' ? val : val * baseG2 / 100
+    const g    = Math.round(gRef * escala2)
     return { nombre: c.nombre, porcentaje: val, unidad: c.unidad||'%', gramos: g }
   })
   const totalFinal = resultados.reduce((s,r) => s + r.g, 0)
