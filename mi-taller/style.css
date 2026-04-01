@@ -168,8 +168,7 @@
 /* Preview — miniatura, PDF o ícono */
 .apunte-preview{
   width: 100%;
-  aspect-ratio: 4/3;
-  max-height: 220px;
+  aspect-ratio: 1/1;
   overflow: hidden;
   background: var(--color-fondo);
   position: relative;
