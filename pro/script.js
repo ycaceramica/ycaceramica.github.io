@@ -25,7 +25,8 @@ const CALCS_PRO = {
       { icono: '📊', texto: 'Calculá la fórmula Seger normalizada (fundentes, alúmina, sílice)' },
       { icono: '🔍', texto: 'Detectá problemas automáticamente: craquelado, esmalte muy fluido, mate excesivo' },
       { icono: '💡', texto: 'Recibí sugerencias de corrección concretas (qué agregar o reducir)' },
-      { icono: '📁', texto: 'Guardá tus recetas en el historial y descargalas en PDF' }
+      { icono: '📁', texto: 'Guardá tus recetas en el historial y descargalas en PDF' },
+      { icono: '💾', texto: 'Guardá hasta 30 resultados en tu historial (10 con plan gratuito)' }
     ]
   },
   pruebas: {
@@ -43,7 +44,8 @@ const CALCS_PRO = {
       { icono: '🔢', texto: 'El sistema genera todas las combinaciones posibles (hasta 40)' },
       { icono: '📋', texto: 'Visualizá la tabla o la matriz de pruebas lista para llevar al taller' },
       { icono: '🏷️', texto: 'Numeración automática para marcar tus piezas de testeo' },
-      { icono: '📄', texto: 'Exportá la grilla en PDF para tener en el taller' }
+      { icono: '📄', texto: 'Exportá la grilla en PDF para tener en el taller' },
+      { icono: '💾', texto: 'Guardá hasta 30 resultados en tu historial (10 con plan gratuito)' }
     ]
   },
   arcillas: {
@@ -61,7 +63,8 @@ const CALCS_PRO = {
       { icono: '🔄', texto: 'Normalizá la mezcla automáticamente si los porcentajes no suman 100' },
       { icono: '📈', texto: 'Estimá plasticidad, contracción y temperatura de cocción de la pasta resultante' },
       { icono: '📝', texto: 'Guardá tus fórmulas en el historial con nombre propio' },
-      { icono: '📄', texto: 'Descargá cada fórmula en PDF' }
+      { icono: '📄', texto: 'Descargá cada fórmula en PDF' },
+      { icono: '💾', texto: 'Guardá hasta 30 resultados en tu historial (10 con plan gratuito)' }
     ]
   }
 }
