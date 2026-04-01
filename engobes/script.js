@@ -700,11 +700,11 @@ function abrirEngobeModal(engobe){
   const tabla = document.getElementById('engobeModalTabla')
   tabla.innerHTML = `
     <div class="cont-tabla">
-      <div class="cont-tabla-header" style="grid-template-columns:1fr 80px"><span>Ingrediente</span><span>%</span></div>
+      <div class="cont-tabla-header" style="grid-template-columns:1fr 80px"><span>Ingrediente</span><span>Ref.</span></div>
       ${comps.map(c => `
         <div class="cont-tabla-fila" style="grid-template-columns:1fr 80px">
           <span>${c.nombre}</span>
-          <span style="font-weight:700;color:var(--color-primario)">${c.porcentaje}%</span>
+          <span style="font-weight:700;color:var(--color-primario)">${c.unidad === 'g' ? (c.valor||c.porcentaje||0) + ' g' : (c.valor||c.porcentaje||0) + '%'}</span>
         </div>`).join('')}
     </div>`
 
@@ -733,14 +733,13 @@ function engobeModalCalcular(){
   // Los componentes en g son fijos (no escalan)
   // Los componentes en % se calculan sobre gramosBase
   // El total real = gramosBase + suma de gramos fijos
-  const totalPct = comps.filter(c => c.unidad !== 'g').reduce((s,c) => s + (c.valor||c.porcentaje||0), 0) || 100
-
   const resultados = comps.map(c => {
     const val = c.valor || c.porcentaje || 0
     if(c.unidad === 'g'){
       return { nombre: c.nombre, g: val, label: val + ' g (fijo)' }
     } else {
-      const g = Math.round(gramosBase * val / totalPct)
+      // % siempre sobre 100, no sobre la suma de porcentajes
+      const g = Math.round(gramosBase * val / 100)
       return { nombre: c.nombre, g, label: val + '%' }
     }
   })
@@ -769,10 +768,9 @@ function engobeModalGuardar(){
   if(!gramosTotal){ mostrarModal({ titulo:'⚠️ Sin datos', texto:'Ingresá los gramos antes de guardar.', confirmar:'Entendido', cancelar:false }); return }
   let comps = []
   try { comps = JSON.parse(engobeActivo.componentes || '[]') } catch(e){}
-  const totalPct = comps.filter(c => c.unidad !== 'g').reduce((s,c) => s + (c.valor||c.porcentaje||0), 0) || 100
   const resultados = comps.map(c => {
     const val = c.valor||c.porcentaje||0
-    const g = c.unidad === 'g' ? val : Math.round(gramosTotal * val / totalPct)
+    const g = c.unidad === 'g' ? val : Math.round(gramosTotal * val / 100)
     return { nombre: c.nombre, porcentaje: val, unidad: c.unidad||'%', gramos: g }
   })
   const totalFinal = resultados.reduce((s,r) => s + r.g, 0)
