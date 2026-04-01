@@ -524,7 +524,7 @@ function abrirModal(hoja, item = null){
 
   document.getElementById('modalTitulo').innerText = item
     ? `Editar ${esApuntes ? 'apunte' : esPastas ? 'pasta' : esEngobes ? 'engobe' : 'item'}`
-    : `Nueva ${esPastas ? 'pasta' : esEngobes ? 'engobe' : esApuntes ? 'apunte' : 'item'}`
+    : `Nuevo ${esPastas ? 'pasta' : esEngobes ? 'engobe' : esApuntes ? 'apunte' : 'item'}`
 
   const cats   = CATEGORIAS[hoja] || ['General','Otros']
   const opsCat = cats.map(c =>
