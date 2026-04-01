@@ -30,16 +30,16 @@
 
     <!-- TABS -->
     <div class="pastas-tabs" style="margin-bottom:24px">
-      <button class="pastas-tab activo" id="tabCalculadora" onclick="setTabEngobes('calculadora')">
-        <i class="fa-solid fa-flask"></i> Calculadora
-      </button>
-      <button class="pastas-tab" id="tabCatalogo" onclick="setTabEngobes('catalogo')">
+      <button class="pastas-tab activo" id="tabCatalogo" onclick="setTabEngobes('catalogo')">
         <i class="fa-solid fa-book-open"></i> Engobes del taller
+      </button>
+      <button class="pastas-tab" id="tabCalculadora" onclick="setTabEngobes('calculadora')">
+        <i class="fa-solid fa-flask"></i> Calculadora libre
       </button>
     </div>
 
     <!-- SECCIÓN CALCULADORA -->
-    <div id="seccionCalculadora">
+    <div id="seccionCalculadora" style="display:none">
     <!-- INFO -->
     <div class="calc-info-box">
       <button class="calc-info-toggle" onclick="toggleInfo()">
@@ -242,7 +242,7 @@
     </div><!-- /seccionCalculadora -->
 
     <!-- SECCIÓN CATÁLOGO -->
-    <div id="seccionCatalogo" style="display:none">
+    <div id="seccionCatalogo">
       <div class="pastas-estado" id="estadoCatalogo">
         <div class="spinner"></div>
         <p>Cargando engobes...</p>
