@@ -631,10 +631,13 @@ function abrirModal(hoja, item = null){
     try { compExistentes = JSON.parse(item?.componentes || '[]') } catch(e){}
     const compHtml = compExistentes.length > 0
       ? compExistentes.map((c,i) => `
-          <div class="pasta-comp-fila" id="pcomp-${i}">
-            <input class="pasta-comp-nombre" type="text" placeholder="Ingrediente" value="${c.nombre||''}" oninput="recalcularPorcentajes()">
-            <input class="pasta-comp-pct" type="number" min="0" step="0.1" placeholder="%" value="${c.porcentaje||0}" oninput="recalcularPorcentajes()">
-            <span class="pasta-comp-pct-label">%</span>
+          <div class="pasta-comp-fila engobe-comp-fila" id="pcomp-${i}">
+            <input class="pasta-comp-nombre" type="text" placeholder="Ingrediente" value="${c.nombre||''}" oninput="recalcularEngobes()">
+            <input class="pasta-comp-pct engobe-valor" type="number" min="0" step="0.1" placeholder="0" value="${c.valor||c.porcentaje||0}" oninput="recalcularEngobes()">
+            <select class="engobe-unidad" onchange="recalcularEngobes()">
+              <option value="%" ${(c.unidad||'%')==='%' ? 'selected' : ''}>%</option>
+              <option value="g"  ${c.unidad==='g' ? 'selected' : ''}>g</option>
+            </select>
             <button class="pasta-btn-quitar" onclick="quitarComponente(this)" type="button"><i class="fa-solid fa-xmark"></i></button>
           </div>`).join('')
       : ''
@@ -660,17 +663,17 @@ function abrirModal(hoja, item = null){
         <label>Componentes <span id="pastaTotalLabel" style="font-size:12px;font-weight:700;margin-left:8px;color:#c85028"></span>
           <small style="opacity:0.5;font-weight:400;margin-left:6px">— ingresá en % o en gramos (se normaliza automáticamente)</small>
         </label>
-        <div class="pasta-comp-headers">
-          <span>Ingrediente</span><span>%</span>
+        <div class="pasta-comp-headers engobe-comp-headers">
+          <span>Ingrediente</span><span>Valor</span><span>Unidad</span>
         </div>
         <div id="pastaComponentes">${compHtml}</div>
         <div class="pasta-comp-agregar">
           <div class="pasta-ingredientes-predefinidos">
             ${['Arcilla','Agua','Fundente','Colorante']
-              .map(ing => `<button class="pasta-ing-btn" onclick="agregarComponentePredefinido('${ing}')" type="button">${ing}</button>`)
+              .map(ing => `<button class="pasta-ing-btn" onclick="agregarEngobeComponente('${ing}')" type="button">${ing}</button>`)
               .join('')}
           </div>
-          <button class="pasta-btn-agregar" onclick="agregarComponenteLibre()" type="button">
+          <button class="pasta-btn-agregar" onclick="agregarEngobeComponente('')" type="button">
             <i class="fa-solid fa-plus"></i> Agregar otro
           </button>
         </div>
@@ -1241,9 +1244,16 @@ function leerComponentes(){
   const filas = document.querySelectorAll('#pastaComponentes .pasta-comp-fila')
   const comp  = []
   filas.forEach(fila => {
-    const nombre = fila.querySelector('.pasta-comp-nombre')?.value.trim()
-    const pct    = parseFloat(fila.querySelector('.pasta-comp-pct')?.value) || 0
-    if(nombre) comp.push({ nombre, porcentaje: pct })
+    const nombre  = fila.querySelector('.pasta-comp-nombre')?.value.trim()
+    const esEngobe = fila.classList.contains('engobe-comp-fila')
+    if(esEngobe){
+      const valor  = parseFloat(fila.querySelector('.engobe-valor')?.value) || 0
+      const unidad = fila.querySelector('.engobe-unidad')?.value || '%'
+      if(nombre) comp.push({ nombre, valor, unidad, porcentaje: unidad === '%' ? valor : 0 })
+    } else {
+      const pct = parseFloat(fila.querySelector('.pasta-comp-pct')?.value) || 0
+      if(nombre) comp.push({ nombre, porcentaje: pct })
+    }
   })
   return comp
 }
@@ -1262,6 +1272,52 @@ function recalcularPorcentajes(){
   } else {
     label.style.color = 'var(--color-primario)'
     label.innerText   = `✅ ${total}% (base + ${total - 100}% cargas)`
+  }
+}
+
+// ─────────────────────────────────────────────
+// COMPONENTES DE ENGOBES
+// ─────────────────────────────────────────────
+
+function agregarEngobeComponente(nombre){
+  const cont = document.getElementById('pastaComponentes')
+  if(!cont) return
+  const div = document.createElement('div')
+  div.className = 'pasta-comp-fila engobe-comp-fila'
+  div.innerHTML = `
+    <input class="pasta-comp-nombre" type="text" placeholder="Ingrediente" value="${nombre}" oninput="recalcularEngobes()">
+    <input class="pasta-comp-pct engobe-valor" type="number" min="0" step="0.1" placeholder="0" value="0" oninput="recalcularEngobes()">
+    <select class="engobe-unidad" onchange="recalcularEngobes()">
+      <option value="%">%</option>
+      <option value="g">g</option>
+    </select>
+    <button class="pasta-btn-quitar" onclick="quitarComponente(this)" type="button"><i class="fa-solid fa-xmark"></i></button>
+  `
+  cont.appendChild(div)
+  div.querySelector('.pasta-comp-nombre')?.focus()
+  recalcularEngobes()
+}
+
+function recalcularEngobes(){
+  const filas = document.querySelectorAll('#pastaComponentes .engobe-comp-fila')
+  const label = document.getElementById('pastaTotalLabel')
+  if(!label) return
+  let totalPct = 0, totalG = 0, tieneG = false, tienePct = false
+  filas.forEach(fila => {
+    const val    = parseFloat(fila.querySelector('.engobe-valor')?.value) || 0
+    const unidad = fila.querySelector('.engobe-unidad')?.value || '%'
+    if(unidad === '%'){ totalPct += val; tienePct = true }
+    else { totalG += val; tieneG = true }
+  })
+  if(tieneG && tienePct){
+    label.style.color = 'var(--color-primario)'
+    label.innerText   = `${totalPct}% + ${totalG}g (mixto)`
+  } else if(tienePct){
+    label.style.color = totalPct === 100 ? '#2d7a2d' : '#c85028'
+    label.innerText   = totalPct === 100 ? '✅ 100%' : `⚠️ ${totalPct}%`
+  } else {
+    label.style.color = 'var(--color-primario)'
+    label.innerText   = `${totalG}g total`
   }
 }
 
