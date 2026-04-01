@@ -723,47 +723,41 @@ function cerrarEngobeModal(){
 
 function engobeModalCalcular(){
   if(!engobeActivo) return
-  const gramosTotal = parseFloat(document.getElementById('engobeModalGramos').value) || 0
+  const gramosBase = parseFloat(document.getElementById('engobeModalGramos').value) || 0
   const resDiv = document.getElementById('engobeModalResultado')
-  if(!gramosTotal){ resDiv.style.display = 'none'; return }
+  if(!gramosBase){ resDiv.style.display = 'none'; return }
 
   let comps = []
   try { comps = JSON.parse(engobeActivo.componentes || '[]') } catch(e){}
 
-  // Separar componentes fijos (g) de proporcionales (%)
-  const fijos = comps.filter(c => c.unidad === 'g')
-  const pcts  = comps.filter(c => c.unidad !== 'g' || !c.unidad)
+  // Los componentes en g son fijos (no escalan)
+  // Los componentes en % se calculan sobre gramosBase
+  // El total real = gramosBase + suma de gramos fijos
+  const totalPct = comps.filter(c => c.unidad !== 'g').reduce((s,c) => s + (c.valor||c.porcentaje||0), 0) || 100
 
-  // Gramos fijos ya definidos
-  const gramosFijos = fijos.reduce((s,c) => s + (c.valor || c.porcentaje || 0), 0)
-  // Gramos disponibles para los porcentuales
-  const gramosLibres = gramosTotal - gramosFijos
-  // Total de % para normalizar
-  const totalPct = pcts.reduce((s,c) => s + (c.valor || c.porcentaje || 0), 0) || 100
+  const resultados = comps.map(c => {
+    const val = c.valor || c.porcentaje || 0
+    if(c.unidad === 'g'){
+      return { nombre: c.nombre, g: val, label: val + ' g (fijo)' }
+    } else {
+      const g = Math.round(gramosBase * val / totalPct)
+      return { nombre: c.nombre, g, label: val + '%' }
+    }
+  })
+
+  const totalFinal = resultados.reduce((s,r) => s + r.g, 0)
 
   const grid = document.getElementById('engobeModalResultadoGrid')
-  const filas = comps.map(c => {
-    let g, pct
-    if(c.unidad === 'g'){
-      g   = c.valor || c.porcentaje || 0
-      pct = gramosTotal > 0 ? ((g / gramosTotal) * 100).toFixed(1) : '—'
-    } else {
-      const val = c.valor || c.porcentaje || 0
-      g   = Math.round(gramosLibres * val / totalPct)
-      pct = val + '%'
-    }
-    return `<div class="cont-tabla-fila" style="grid-template-columns:1fr 60px 80px">
-      <span>${c.nombre}</span>
-      <span>${pct}</span>
-      <span style="font-weight:700;color:var(--color-primario)">${g} g</span>
-    </div>`
-  }).join('')
-
   grid.innerHTML = `
-    <div class="cont-tabla-header" style="grid-template-columns:1fr 60px 80px"><span>Ingrediente</span><span>%</span><span>Gramos</span></div>
-    ${filas}
+    <div class="cont-tabla-header" style="grid-template-columns:1fr 80px 80px"><span>Ingrediente</span><span>Ref.</span><span>Gramos</span></div>
+    ${resultados.map(r => `
+      <div class="cont-tabla-fila" style="grid-template-columns:1fr 80px 80px">
+        <span>${r.nombre}</span>
+        <span>${r.label}</span>
+        <span style="font-weight:700;color:var(--color-primario)">${r.g} g</span>
+      </div>`).join('')}
     <div class="cont-tabla-fila contraccion-total" style="grid-template-columns:1fr 80px">
-      <span>Total</span><span>${gramosTotal} g</span>
+      <span>Total</span><span>${totalFinal} g</span>
     </div>`
 
   resDiv.style.display = 'block'
@@ -775,22 +769,19 @@ function engobeModalGuardar(){
   if(!gramosTotal){ mostrarModal({ titulo:'⚠️ Sin datos', texto:'Ingresá los gramos antes de guardar.', confirmar:'Entendido', cancelar:false }); return }
   let comps = []
   try { comps = JSON.parse(engobeActivo.componentes || '[]') } catch(e){}
-  const fijos      = comps.filter(c => c.unidad === 'g')
-  const pcts       = comps.filter(c => c.unidad !== 'g' || !c.unidad)
-  const gramosFijos   = fijos.reduce((s,c) => s + (c.valor||c.porcentaje||0), 0)
-  const gramosLibres  = gramosTotal - gramosFijos
-  const totalPct      = pcts.reduce((s,c) => s + (c.valor||c.porcentaje||0), 0) || 100
+  const totalPct = comps.filter(c => c.unidad !== 'g').reduce((s,c) => s + (c.valor||c.porcentaje||0), 0) || 100
+  const resultados = comps.map(c => {
+    const val = c.valor||c.porcentaje||0
+    const g = c.unidad === 'g' ? val : Math.round(gramosTotal * val / totalPct)
+    return { nombre: c.nombre, porcentaje: val, unidad: c.unidad||'%', gramos: g }
+  })
+  const totalFinal = resultados.reduce((s,r) => s + r.g, 0)
   historial.unshift({
     id: Date.now(),
     nombre: engobeActivo.nombre,
     tipo: 'catalogo',
-    gramos: gramosTotal,
-    componentes: comps.map(c => {
-      const g = c.unidad === 'g'
-        ? (c.valor||c.porcentaje||0)
-        : Math.round(gramosLibres * (c.valor||c.porcentaje||0) / totalPct)
-      return { nombre: c.nombre, porcentaje: c.valor||c.porcentaje||0, unidad: c.unidad||'%', gramos: g }
-    }),
+    gramos: totalFinal,
+    componentes: resultados,
     fecha: new Date().toLocaleDateString('es-AR')
   })
   guardarHistorial()
