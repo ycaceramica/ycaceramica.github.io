@@ -1,3 +1,8 @@
+const API = 'https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec'
+let engobesData  = []
+let engobeActivo = null
+let accesoLibreEngobes = true
+
 // Dark mode y nav manejados por nav-ceramista.js
 
 // ─────────────────────────────────────────────
@@ -574,3 +579,212 @@ function guardarEnTaller(){
 }
 
 verificarSesionTaller()
+
+
+// ─────────────────────────────────────────────
+// TABS ENGOBES
+// ─────────────────────────────────────────────
+
+function setTabEngobes(tab){
+  const esCalc = tab === 'calculadora'
+  document.getElementById('seccionCalculadora').style.display = esCalc ? '' : 'none'
+  document.getElementById('seccionCatalogo').style.display    = esCalc ? 'none' : ''
+  document.getElementById('tabCalculadora').classList.toggle('activo', esCalc)
+  document.getElementById('tabCatalogo').classList.toggle('activo', !esCalc)
+  if(!esCalc && engobesData.length === 0) cargarEngobes()
+}
+
+// ─────────────────────────────────────────────
+// CATÁLOGO DE ENGOBES DEL TALLER
+// ─────────────────────────────────────────────
+
+async function cargarEngobes(){
+  const estado = document.getElementById('estadoCatalogo')
+  const grid   = document.getElementById('engobesGrid')
+  try {
+    const [resEngobes, resConfig] = await Promise.all([
+      fetch(`${API}?action=getEngobes`),
+      fetch(`${API}?action=getConfigIndex`)
+    ])
+    const dataEngobes = await resEngobes.json()
+    const dataConfig  = await resConfig.json()
+    engobesData = dataEngobes.data || []
+    accesoLibreEngobes = String(dataConfig.data?.engobes_acceso_libre ?? 'true') !== 'false'
+
+    estado.style.display = 'none'
+    if(engobesData.length === 0){
+      grid.innerHTML = '<p class="pastas-vacio">Próximamente — estamos preparando los engobes 🎨</p>'
+      return
+    }
+    const wrapper = document.getElementById('engobeBuscadorWrapper')
+    if(wrapper) wrapper.style.display = 'flex'
+    renderEngobes(engobesData)
+  } catch(e){
+    estado.innerHTML = '<p style="opacity:0.5">Error al cargar. Revisá tu conexión.</p>'
+  }
+}
+
+function filtrarEngobes(){
+  const busq = document.getElementById('engobeBuscador')?.value.trim().toLowerCase()
+  if(!busq){ renderEngobes(engobesData); return }
+  const filtradas = engobesData.filter(e =>
+    (e.nombre||'').toLowerCase().includes(busq) ||
+    (e.codigo||'').toLowerCase().includes(busq)
+  )
+  renderEngobes(filtradas)
+}
+
+function renderEngobes(engobes){
+  const grid = document.getElementById('engobesGrid')
+  grid.innerHTML = ''
+  const ordenados = [...engobes].sort((a,b) => {
+    const ca = a.codigo || '', cb = b.codigo || ''
+    if(!ca && !cb) return 0
+    if(!ca) return 1
+    if(!cb) return -1
+    return ca.localeCompare(cb, 'es', { numeric: true })
+  })
+  ordenados.forEach(engobe => {
+    let comps = []
+    try { comps = JSON.parse(engobe.componentes || '[]') } catch(e){}
+    const card = document.createElement('div')
+    card.className = 'pasta-card'
+    card.onclick = () => abrirEngobeModal(engobe)
+    card.innerHTML = `
+      <div class="pasta-card-foto">
+        ${engobe.foto
+          ? `<img src="${engobe.foto}" alt="${engobe.nombre}" loading="lazy">`
+          : `<div class="pasta-card-foto-placeholder"><i class="fa-solid fa-paint-brush"></i></div>`}
+      </div>
+      <div class="pasta-card-body">
+        ${engobe.codigo ? `<div class="pasta-card-codigo">${engobe.codigo}</div>` : ''}
+        <h3 class="pasta-card-nombre">${String(engobe.nombre||'')}</h3>
+        <div class="pasta-card-chips">
+          ${comps.slice(0,3).map(c => `<span class="pasta-chip">${c.nombre} ${c.porcentaje}%</span>`).join('')}
+          ${comps.length > 3 ? `<span class="pasta-chip pasta-chip-mas">+${comps.length - 3} más</span>` : ''}
+        </div>
+        <div class="pasta-card-cta">Ver fórmula →</div>
+      </div>
+    `
+    grid.appendChild(card)
+  })
+}
+
+// ─────────────────────────────────────────────
+// MODAL ENGOBE
+// ─────────────────────────────────────────────
+
+function abrirEngobeModal(engobe){
+  engobeActivo = engobe
+  let comps = []
+  try { comps = JSON.parse(engobe.componentes || '[]') } catch(e){}
+
+  const fotoEl = document.getElementById('engobeModalFoto')
+  fotoEl.style.display = engobe.foto ? 'block' : 'none'
+  if(engobe.foto) fotoEl.innerHTML = `<img src="${engobe.foto}" alt="${engobe.nombre}">`
+
+  const codigoEl = document.getElementById('engobeModalCodigo')
+  if(codigoEl){ codigoEl.innerText = engobe.codigo || ''; codigoEl.style.display = engobe.codigo ? 'block' : 'none' }
+
+  const nombreStr = String(engobe.nombre || '')
+  document.getElementById('engobeModalNombre').innerText = nombreStr
+  document.getElementById('engobeModalHeaderNombre').innerText = nombreStr
+
+  const descEl = document.getElementById('engobeModalDesc')
+  descEl.innerText     = engobe.descripcion || ''
+  descEl.style.display = engobe.descripcion ? 'block' : 'none'
+
+  const tabla = document.getElementById('engobeModalTabla')
+  tabla.innerHTML = `
+    <div class="cont-tabla">
+      <div class="cont-tabla-header" style="grid-template-columns:1fr 80px"><span>Ingrediente</span><span>%</span></div>
+      ${comps.map(c => `
+        <div class="cont-tabla-fila" style="grid-template-columns:1fr 80px">
+          <span>${c.nombre}</span>
+          <span style="font-weight:700;color:var(--color-primario)">${c.porcentaje}%</span>
+        </div>`).join('')}
+    </div>`
+
+  document.getElementById('engobeModalGramos').value = ''
+  document.getElementById('engobeModalResultado').style.display = 'none'
+
+  document.getElementById('engobeModal').style.display = 'flex'
+  document.body.style.overflow = 'hidden'
+}
+
+function cerrarEngobeModal(){
+  document.getElementById('engobeModal').style.display = 'none'
+  document.body.style.overflow = ''
+  engobeActivo = null
+}
+
+function engobeModalCalcular(){
+  if(!engobeActivo) return
+  const gramos = parseFloat(document.getElementById('engobeModalGramos').value) || 0
+  const resDiv = document.getElementById('engobeModalResultado')
+  if(!gramos){ resDiv.style.display = 'none'; return }
+
+  let comps = []
+  try { comps = JSON.parse(engobeActivo.componentes || '[]') } catch(e){}
+
+  const totalPct = comps.reduce((s,c) => s + c.porcentaje, 0) || 100
+  const grid = document.getElementById('engobeModalResultadoGrid')
+  grid.innerHTML = `
+    <div class="cont-tabla-header" style="grid-template-columns:1fr 80px 80px"><span>Ingrediente</span><span>%</span><span>Gramos</span></div>
+    ${comps.map(c => {
+      const g = Math.round(gramos * c.porcentaje / totalPct)
+      return `<div class="cont-tabla-fila" style="grid-template-columns:1fr 80px 80px">
+        <span>${c.nombre}</span>
+        <span>${c.porcentaje}%</span>
+        <span style="font-weight:700;color:var(--color-primario)">${g} g</span>
+      </div>`
+    }).join('')}
+    <div class="cont-tabla-fila contraccion-total" style="grid-template-columns:1fr 80px">
+      <span>Total</span><span>${gramos} g</span>
+    </div>`
+
+  resDiv.style.display = 'block'
+}
+
+function engobeModalGuardar(){
+  if(!engobeActivo) return
+  const gramos = parseFloat(document.getElementById('engobeModalGramos').value) || 0
+  if(!gramos){ mostrarModal({ titulo:'⚠️ Sin datos', texto:'Ingresá los gramos antes de guardar.', confirmar:'Entendido', cancelar:false }); return }
+  let comps = []
+  try { comps = JSON.parse(engobeActivo.componentes || '[]') } catch(e){}
+  historial.unshift({
+    id: Date.now(),
+    nombre: engobeActivo.nombre,
+    tipo: 'catalogo',
+    gramos,
+    componentes: comps.map(c => ({ nombre: c.nombre, porcentaje: c.porcentaje, gramos: Math.round(gramos * c.porcentaje / (comps.reduce((s,x)=>s+x.porcentaje,0)||100)) })),
+    fecha: new Date().toLocaleDateString('es-AR')
+  })
+  guardarHistorial()
+  mostrarModal({ titulo:'✅ Guardado', texto:`El engobe "${engobeActivo.nombre}" fue guardado en el historial.`, confirmar:'¡Genial!', cancelar:false })
+}
+
+function engobeModalCopiar(){
+  if(!engobeActivo) return
+  const gramos = parseFloat(document.getElementById('engobeModalGramos').value) || 0
+  let comps = []
+  try { comps = JSON.parse(engobeActivo.componentes || '[]') } catch(e){}
+  let txt = `${engobeActivo.nombre} — ${gramos}g\n`
+  const totalPct = comps.reduce((s,c)=>s+c.porcentaje,0)||100
+  comps.forEach(c => { txt += `${c.nombre}: ${Math.round(gramos * c.porcentaje / totalPct)}g (${c.porcentaje}%)\n` })
+  navigator.clipboard.writeText(txt)
+}
+
+async function engobeModalPDF(){
+  if(!engobeActivo) return
+  const gramos = parseFloat(document.getElementById('engobeModalGramos').value) || 0
+  if(!gramos){ mostrarModal({ titulo:'⚠️ Sin datos', texto:'Ingresá los gramos antes de descargar.', confirmar:'Entendido', cancelar:false }); return }
+  let comps = []
+  try { comps = JSON.parse(engobeActivo.componentes || '[]') } catch(e){}
+  const item = {
+    nombre: engobeActivo.nombre, tipo: 'catalogo', gramos,
+    componentes: comps.map(c => ({ nombre: c.nombre, porcentaje: c.porcentaje, gramos: Math.round(gramos * c.porcentaje / (comps.reduce((s,x)=>s+x.porcentaje,0)||100)) })),
+    fecha: new Date().toLocaleDateString('es-AR')
+  }
+  await generarPDFItems([item], `YCA_Ceramica_Engobe_${String(engobeActivo.nombre||'engobe').replace(/ /g,'_')}.pdf`)
+}
