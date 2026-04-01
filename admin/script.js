@@ -148,6 +148,7 @@ async function cargarSeccion(nombre){
   if(nombre === 'suscriptores') { await cargarSuscriptores(); return }
   if(nombre === 'emails')       { await cargarEmails();       return }
   if(nombre === 'pastas')       { await cargarPastas();       return }
+  if(nombre === 'engobes')      { await cargarEngobes();      return }
   if(nombre === 'piezas')       { cargarConfigPiezas() }
   if(nombre === 'insumos')      { cargarConfigInsumos() }
 
@@ -1073,6 +1074,21 @@ function construirFila(){
     unidad:      document.getElementById('mUnidad')?.value.trim() || '',
     temperatura: document.getElementById('mTemperatura')?.value.trim() || '',
     publicado:   document.getElementById('mPublicado')?.checked ? 'true' : 'false'
+  }
+
+  if(hoja === 'engobes'){
+    const componentes = leerComponentes()
+    const total = componentes.reduce((s, c) => s + c.porcentaje, 0)
+    return {
+      id,
+      codigo:      document.getElementById('mCodigo')?.value.trim() || '',
+      nombre,
+      descripcion: document.getElementById('mDescripcion')?.value.trim() || '',
+      componentes: JSON.stringify(componentes),
+      foto:        modalItem?.foto || '',
+      publicado:   document.getElementById('mPublicado')?.checked ? 'true' : 'false',
+      creadoEn:    modalItem?.creadoEn || new Date().toLocaleDateString('es-AR')
+    }
   }
 
   if(hoja === 'pastas'){
@@ -2936,6 +2952,66 @@ async function togglePastasAcceso(activo){
         action: 'actualizarCampo',
         hoja:   'config_index',
         id:     'CFG-pastas',
+        campo:  'valor',
+        valor:  activo ? 'true' : 'false',
+        token:  sesion.token
+      })
+    })
+    const data = await res.json()
+    if(data.ok){
+      toast(activo ? '🔓 Calculadora libre abierta para todos' : '🔒 Calculadora libre restringida a ceramistas', 'ok')
+    } else {
+      toast('❌ Error al actualizar', 'err')
+      if(sw) sw.checked = !activo
+    }
+  } catch(e) {
+    toast('❌ Error de conexión', 'err')
+    if(sw) sw.checked = !activo
+  }
+}
+
+async function cargarEngobes(){
+  const grid    = document.getElementById('grid-engobes')
+  const loading = document.getElementById('loading-engobes')
+  if(!grid) return
+
+  // Cargar toggle de acceso libre
+  try {
+    const resConfig  = await fetch(`${API}?action=getConfigIndex`)
+    const dataConfig = await resConfig.json()
+    const val = String(dataConfig.data?.engobes_acceso_libre ?? 'true')
+    const sw  = document.getElementById('switchEngobesAcceso')
+    if(sw) sw.checked = val !== 'false'
+  } catch(e){}
+
+  if(cache['engobes']){
+    renderGrid('engobes', cache['engobes'])
+    return
+  }
+  if(loading) loading.style.display = 'block'
+  grid.innerHTML = ''
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(`${API}?action=getEngobesAdmin&token=${encodeURIComponent(sesion.token)}`)
+    const data   = await res.json()
+    cache['engobes'] = data.data || []
+    renderGrid('engobes', cache['engobes'])
+  } catch(e) {
+    grid.innerHTML = '<p style="opacity:0.5;padding:20px;grid-column:1/-1">Error al cargar. Revisá tu conexión.</p>'
+  }
+  if(loading) loading.style.display = 'none'
+}
+
+async function toggleEngobesAcceso(activo){
+  const sw = document.getElementById('switchEngobesAcceso')
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'actualizarCampo',
+        hoja:   'config_index',
+        id:     'CFG-engobes',
         campo:  'valor',
         valor:  activo ? 'true' : 'false',
         token:  sesion.token
