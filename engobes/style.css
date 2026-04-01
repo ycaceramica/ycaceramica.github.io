@@ -704,3 +704,48 @@
   .pastas-grid{ grid-template-columns:repeat(2, 1fr); gap:12px; }
   .pasta-modal{ border-radius:16px; }
 }
+
+/* ── FIX: sección catálogo dentro del wrapper ── */
+#seccionCatalogo, #seccionCalculadora {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ── FIX: dim-input-wrapper en modal engobes ── */
+.dim-input-wrapper{
+  display:flex; align-items:center; gap:6px;
+  background:var(--color-fondo);
+  border-radius:8px;
+  border:1.5px solid #d8cfc4;
+  padding:8px 12px;
+  transition:border-color 0.2s;
+  max-width:180px;
+}
+.dim-input-wrapper:focus-within{ border-color:var(--color-primario); }
+.dim-input-wrapper input{
+  flex:1; border:none; background:transparent;
+  color:var(--color-texto);
+  font-size:15px; font-weight:700;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  min-width:0;
+}
+.dim-input-wrapper input:focus{ outline:none; }
+.dim-unidad{ font-size:12px; font-weight:700; opacity:0.4; flex-shrink:0; }
+
+/* ── FIX: pasta-modal-calc en modal engobes ── */
+.pasta-modal-calc{
+  background:var(--color-fondo);
+  border-radius:12px;
+  padding:16px;
+}
+.calc-paso-titulo{
+  display:flex; align-items:center; gap:10px;
+  font-size:15px; font-weight:700;
+}
+.calc-paso-num{
+  background:var(--color-primario); color:white;
+  width:26px; height:26px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:700; flex-shrink:0;
+}
