@@ -423,18 +423,28 @@ async function cargarRecursos(){
     items.forEach(item => {
       const div = document.createElement('div')
       div.className = 'apunte-card'
-      const miniatura = item.miniatura
-        ? `<img src="${item.miniatura}" alt="${item.titulo}" class="apunte-miniatura">`
-        : item.archivoUrl
-          ? `<iframe src="${item.archivoUrl}" class="apunte-preview" loading="lazy"></iframe>`
-          : `<div class="apunte-sin-preview"><i class="fa-solid fa-file-pdf"></i></div>`
+
+      let previewHTML = ''
+      if(item.miniatura){
+        previewHTML = `<div class="apunte-preview"><img src="${item.miniatura}" alt="${item.titulo || ''}"></div>`
+      } else if(item.archivoUrl){
+        previewHTML = `
+          <div class="apunte-preview apunte-preview-pdf">
+            <iframe src="${item.archivoUrl}" scrolling="no" frameborder="0" loading="lazy"></iframe>
+            <div class="apunte-preview-overlay"><i class="fa-solid fa-file-pdf"></i></div>
+          </div>`
+      } else {
+        previewHTML = `<div class="apunte-preview apunte-preview-icon"><i class="fa-solid fa-file-pdf"></i></div>`
+      }
 
       div.innerHTML = `
-        <div class="apunte-preview-wrapper">${miniatura}</div>
-        <div class="apunte-info">
+        ${previewHTML}
+        <div class="apunte-card-body">
           <div class="apunte-titulo">${item.titulo || 'Sin título'}</div>
-          ${item.descripcion ? `<div class="apunte-desc">${item.descripcion}</div>` : ''}
-          ${item.archivoUrl ? `<a class="apunte-btn" href="${item.archivoUrl}" target="_blank"><i class="fa-solid fa-download"></i> Descargar PDF</a>` : ''}
+          ${item.descripcion ? `<div class="apunte-contenido">${item.descripcion}</div>` : ''}
+          <div class="apunte-footer">
+            ${item.archivoUrl ? `<a class="apunte-btn" href="${item.archivoUrl}" target="_blank"><i class="fa-solid fa-file-pdf"></i> Ver PDF</a>` : ''}
+          </div>
         </div>`
       grid.appendChild(div)
     })
