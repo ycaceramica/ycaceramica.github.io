@@ -594,6 +594,9 @@ function setTabEngobes(tab){
   if(!esCalc && engobesData.length === 0) cargarEngobes()
 }
 
+// Cargar catálogo al inicio (tab por defecto)
+window.addEventListener('DOMContentLoaded', () => { cargarEngobes() })
+
 // ─────────────────────────────────────────────
 // CATÁLOGO DE ENGOBES DEL TALLER
 // ─────────────────────────────────────────────
