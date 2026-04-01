@@ -356,8 +356,8 @@ function renderGrid(hoja, items){
 
     card.innerHTML = `
       <div class="item-card-img">
-        ${item.foto
-          ? `<img src="${item.foto}" alt="${item.nombre || ''}" loading="lazy">`
+        ${(esApunte ? item.miniatura : item.foto)
+          ? `<img src="${esApunte ? item.miniatura : item.foto}" alt="${item.nombre || item.titulo || ''}" loading="lazy">`
           : `<div class="item-card-img-placeholder"><i class="fa-solid ${icono}"></i></div>`
         }
         ${!esApunte ? `
@@ -1017,8 +1017,12 @@ async function guardarModal(){
             body: JSON.stringify({ action: modalHoja === 'apuntes_ceramistas' ? 'subirMiniaturaCeramista' : 'subirMiniaturaApunte', b64: apunteMiniaturaB64, nombre: 'miniatura_' + Date.now(), token: sesion.token })
           })
           const dataMin = await resMin.json()
-          if(dataMin.ok && dataMin.url) fila.miniatura = dataMin.url
-        } catch(e) {}
+          if(dataMin.ok && dataMin.url){
+            fila.miniatura = dataMin.url
+          } else {
+            toast('⚠️ Error al subir miniatura: ' + (dataMin.error || 'sin respuesta'), 'err')
+          }
+        } catch(e) { toast('⚠️ Error al subir miniatura: ' + e.message, 'err') }
         apunteMiniaturaB64 = null
       }
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'
@@ -1096,14 +1100,16 @@ function construirFila(){
   if(hoja === 'apuntes' || hoja === 'apuntes_ceramistas'){
     const titulo = document.getElementById('mTitulo')?.value.trim()
     if(!titulo){ toast('El título es obligatorio', 'err'); return null }
+    const esCer = hoja === 'apuntes_ceramistas'
     return {
       id, titulo,
-      curso:      document.getElementById('mCategoria')?.value || '',
-      contenido:  document.getElementById('mContenido')?.value.trim() || '',
-      archivoUrl: document.getElementById('mArchivoUrl')?.value.trim() || '',
-      miniatura:  modalItem?.miniatura || '',
-      publicado:  document.getElementById('mPublicado')?.checked ? 'true' : 'false',
-      creadoEn:   modalItem?.creadoEn || new Date().toLocaleDateString('es-AR')
+      curso:       esCer ? '' : (document.getElementById('mCategoria')?.value || ''),
+      descripcion: esCer ? (document.getElementById('mContenido')?.value.trim() || '') : '',
+      contenido:   esCer ? '' : (document.getElementById('mContenido')?.value.trim() || ''),
+      archivoUrl:  document.getElementById('mArchivoUrl')?.value.trim() || '',
+      miniatura:   modalItem?.miniatura || '',
+      publicado:   document.getElementById('mPublicado')?.checked ? 'true' : 'false',
+      creadoEn:    modalItem?.creadoEn || new Date().toLocaleDateString('es-AR')
     }
   }
 
