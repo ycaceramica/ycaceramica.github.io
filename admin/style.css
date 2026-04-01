@@ -1548,3 +1548,20 @@ body.dark #exportCurso option{
   margin: 4px 8px;
 }
 .sidebar-mant-toggle i{ color: #a85252; font-size: 13px; }
+
+/* ── ENGOBES — selector %/g ── */
+.engobe-comp-fila{ grid-template-columns:1fr 80px 60px 32px !important; }
+.engobe-comp-headers{ grid-template-columns:1fr 80px 60px 32px !important; }
+.engobe-unidad{
+  padding:6px 4px;
+  border-radius:8px;
+  border:1.5px solid #d8cfc4;
+  background:var(--color-fondo);
+  color:var(--color-texto);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+  text-align:center;
+}
+.engobe-unidad:focus{ outline:none; border-color:var(--color-primario); }
