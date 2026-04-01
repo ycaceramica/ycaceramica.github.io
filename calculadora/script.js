@@ -383,6 +383,24 @@ function guardarEnTaller(){
     const idKey   = esCeramista ? "ceramistaId" : "alumnoId"
     const userId  = esCeramista ? ceramista.id : alumno.id
     const destino = esCeramista ? "mi taller" : "mi cuenta"
+    // Chequear límite de historial
+    const esPro   = (esCeramista ? ceramista : alumno)?.plan === 'pro'
+    const limite  = esPro ? 30 : 10
+    const histAction = esCeramista ? 'getHistorialTaller' : 'getHistorialAlumno'
+    try {
+      const xhr = new XMLHttpRequest()
+      xhr.open('GET', API + '?action=' + histAction + '&id=' + encodeURIComponent(userId), false)
+      xhr.send()
+      const dataH = JSON.parse(xhr.responseText)
+      const totalGuardados = (dataH.data || []).length
+      if(totalGuardados >= limite){
+        const msg = esPro
+          ? `Llegaste al límite de ${limite} resultados guardados.`
+          : `Llegaste al límite de ${limite} resultados (plan gratuito). Eliminá alguno o pasá al plan Pro para guardar hasta 30.`
+        mostrarModal({ titulo: 'Límite alcanzado', texto: msg, confirmar: 'Entendido', cancelar: false })
+        return
+      }
+    } catch(e){ /* si falla el chequeo, permitir guardar igual */ }
     fetch("https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec", {
       method: "POST",
       body: JSON.stringify({
