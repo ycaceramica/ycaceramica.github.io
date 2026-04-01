@@ -1,4 +1,18 @@
 // ─────────────────────────────────────────────
+// PROTECCIÓN — solo plan Pro
+// ─────────────────────────────────────────────
+;(function protegerPro(){
+  try {
+    var sesion = JSON.parse(sessionStorage.getItem('yca_sesion'))
+    if(!sesion || sesion.plan !== 'pro'){
+      window.location.href = '../pro/index.html?calc=arcillas'
+    }
+  } catch(e) {
+    window.location.href = '../pro/index.html?calc=arcillas'
+  }
+})()
+
+// ─────────────────────────────────────────────
 // CONFIG
 // ─────────────────────────────────────────────
 
@@ -638,22 +652,6 @@ async function guardarEnTallerArc(){
   const action      = esCeramista ? 'guardarHistorialTaller' : 'guardarHistorialAlumno'
   const idKey       = esCeramista ? 'ceramistaId' : 'alumnoId'
   const destino     = esCeramista ? 'mi taller' : 'mi cuenta'
-
-  // Chequear límite de historial
-  const esPro   = sesion.plan === 'pro'
-  const limite  = esPro ? 30 : 10
-  try {
-    const resH  = await fetch(`${API}?action=${esCeramista ? 'getHistorialTaller' : 'getHistorialAlumno'}&id=${encodeURIComponent(sesion.id)}`)
-    const dataH = await resH.json()
-    const totalGuardados = (dataH.data || []).length
-    if(totalGuardados >= limite){
-      const msg = esPro
-        ? `Llegaste al límite de ${limite} resultados guardados.`
-        : `Llegaste al límite de ${limite} resultados (plan gratuito). Eliminá alguno o pasá al plan Pro para guardar hasta 30.`
-      mostrarModal({ titulo: 'Límite alcanzado', texto: msg, confirmar: 'Entendido', cancelar: false })
-      return
-    }
-  } catch(e){ /* si falla el chequeo, permitir guardar igual */ }
 
   try {
     const res  = await fetch(API, {
