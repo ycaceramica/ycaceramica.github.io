@@ -1319,8 +1319,16 @@ function recalcularEngobes(){
     label.style.color = 'var(--color-primario)'
     label.innerText   = `${totalPct}% + ${totalG}g (mixto)`
   } else if(tienePct){
-    label.style.color = totalPct === 100 ? '#2d7a2d' : '#c85028'
-    label.innerText   = totalPct === 100 ? '✅ 100%' : `⚠️ ${totalPct}%`
+    if(totalPct === 100){
+      label.style.color = '#2d7a2d'
+      label.innerText   = '✅ 100%'
+    } else if(totalPct < 100){
+      label.style.color = '#c85028'
+      label.innerText   = `⚠️ ${totalPct}% (falta ${100 - totalPct}%)`
+    } else {
+      label.style.color = 'var(--color-primario)'
+      label.innerText   = `✅ ${totalPct}% (base + ${totalPct - 100}% cargas)`
+    }
   } else {
     label.style.color = 'var(--color-primario)'
     label.innerText   = `${totalG}g total`
