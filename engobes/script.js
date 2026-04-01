@@ -700,11 +700,11 @@ function abrirEngobeModal(engobe){
   const tabla = document.getElementById('engobeModalTabla')
   tabla.innerHTML = `
     <div class="cont-tabla">
-      <div class="cont-tabla-header" style="grid-template-columns:1fr 80px"><span>Ingrediente</span><span>Ref.</span></div>
+      <div class="cont-tabla-header" style="grid-template-columns:1fr 80px"><span>Ingrediente</span><span>%</span></div>
       ${comps.map(c => `
         <div class="cont-tabla-fila" style="grid-template-columns:1fr 80px">
           <span>${c.nombre}</span>
-          <span style="font-weight:700;color:var(--color-primario)">${c.unidad === 'g' ? (c.valor||c.porcentaje||0) + ' g' : (c.valor||c.porcentaje||0) + '%'}</span>
+          <span style="font-weight:700;color:var(--color-primario)">${(c.valor||c.porcentaje||0)}%</span>
         </div>`).join('')}
     </div>`
 
@@ -768,17 +768,13 @@ function engobeModalGuardar(){
   if(!gramosTotal){ mostrarModal({ titulo:'⚠️ Sin datos', texto:'Ingresá los gramos antes de guardar.', confirmar:'Entendido', cancelar:false }); return }
   let comps = []
   try { comps = JSON.parse(engobeActivo.componentes || '[]') } catch(e){}
-  const baseG2   = comps.filter(c => c.unidad === 'g').reduce((s,c) => s + (c.valor||c.porcentaje||0), 0)
-  const gramosPct2 = comps.filter(c => c.unidad !== 'g').reduce((s,c) => s + (c.valor||c.porcentaje||0) * baseG2 / 100, 0)
-  const totalRef2  = baseG2 + gramosPct2
-  const escala2    = totalRef2 > 0 ? gramosTotal / totalRef2 : 1
+  const totalPct2 = comps.reduce((s,c) => s + (c.valor||c.porcentaje||0), 0) || 100
   const resultados = comps.map(c => {
-    const val  = c.valor||c.porcentaje||0
-    const gRef = c.unidad === 'g' ? val : val * baseG2 / 100
-    const g    = Math.round(gRef * escala2)
-    return { nombre: c.nombre, porcentaje: val, unidad: c.unidad||'%', gramos: g }
+    const pct = c.valor||c.porcentaje||0
+    const g   = Math.round(gramosTotal * pct / totalPct2)
+    return { nombre: c.nombre, porcentaje: pct, gramos: g }
   })
-  const totalFinal = resultados.reduce((s,r) => s + r.g, 0)
+  const totalFinal = gramosTotal
   historial.unshift({
     id: Date.now(),
     nombre: engobeActivo.nombre,
