@@ -1,4 +1,18 @@
 // ─────────────────────────────────────────────
+// PROTECCIÓN — solo plan Pro
+// ─────────────────────────────────────────────
+;(function protegerPro(){
+  try {
+    var sesion = JSON.parse(sessionStorage.getItem('yca_sesion'))
+    if(!sesion || sesion.plan !== 'pro'){
+      window.location.href = '../pro/index.html?calc=pruebas'
+    }
+  } catch(e) {
+    window.location.href = '../pro/index.html?calc=pruebas'
+  }
+})()
+
+// ─────────────────────────────────────────────
 // CONFIG
 // ─────────────────────────────────────────────
 
