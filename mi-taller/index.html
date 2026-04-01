@@ -29,14 +29,14 @@
 
     <!-- TABS -->
     <div class="cuenta-tabs">
-      <button class="ctab activo" onclick="setTab('historial')" id="ctab-historial">
-        <i class="fa-solid fa-clock-rotate-left"></i> Historial
-      </button>
-      <button class="ctab" onclick="setTab('recursos')" id="ctab-recursos">
+      <button class="ctab activo" onclick="setTab('recursos')" id="ctab-recursos">
         <i class="fa-solid fa-file-pdf"></i> Recursos
       </button>
       <button class="ctab" onclick="setTab('multimedia')" id="ctab-multimedia">
         <i class="fa-solid fa-photo-film"></i> Multimedia
+      </button>
+      <button class="ctab" onclick="setTab('historial')" id="ctab-historial">
+        <i class="fa-solid fa-clock-rotate-left"></i> Historial
       </button>
       <button class="ctab" onclick="setTab('contrasena')" id="ctab-contrasena">
         <i class="fa-solid fa-lock"></i> Contraseña
@@ -44,7 +44,7 @@
     </div>
 
     <!-- HISTORIAL -->
-    <div class="cuenta-seccion" id="sec-historial">
+    <div class="cuenta-seccion" id="sec-historial" style="display:none">
       <div class="historial-taller-header">
         <p>Tus cálculos guardados desde las calculadoras. Para agregar uno, usá el botón "Guardar en mi taller" en cualquier calculadora.</p>
       </div>
@@ -116,7 +116,7 @@
     </div>
 
     <!-- RECURSOS (PDFs) -->
-    <div class="cuenta-seccion" id="sec-recursos" style="display:none">
+    <div class="cuenta-seccion" id="sec-recursos">
       <div class="apuntes-grid" id="recursosGrid">
         <div class="cuenta-loading">
           <i class="fa-solid fa-spinner fa-spin"></i> Cargando recursos...
