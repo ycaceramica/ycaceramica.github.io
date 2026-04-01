@@ -54,6 +54,9 @@
         <button class="sidebar-item" onclick="setSeccion('pastas')" id="nav-pastas">
           <i class="fa-solid fa-mortar-pestle"></i> Pastas
         </button>
+        <button class="sidebar-item" onclick="setSeccion('engobes')" id="nav-engobes">
+          <i class="fa-solid fa-paint-brush"></i> Engobes
+        </button>
         <button class="sidebar-item" onclick="setSeccion('galeria')" id="nav-galeria">
           <i class="fa-solid fa-images"></i> Galería
         </button>
@@ -350,6 +353,52 @@
         </div>
         <div class="items-grid" id="grid-pastas"></div>
         <div class="loading" id="loading-pastas" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
+
+      <!-- ENGOBES -->
+      <div class="seccion" id="seccion-engobes" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>🎨 Engobes</h2>
+            <p>Catálogo público — solo se muestran los marcados como publicados</p>
+          </div>
+          <button class="btn-nuevo" onclick="abrirModal('engobes')">
+            <i class="fa-solid fa-plus"></i> Nuevo engobe
+          </button>
+        </div>
+
+        <!-- TOGGLE CALCULADORA LIBRE -->
+        <div class="elaboracion-config-box" style="margin-bottom:20px">
+          <div>
+            <div class="elaboracion-config-titulo">🔓 Calculadora libre</div>
+            <div class="elaboracion-config-desc">Cuando está activa, todos pueden usarla. Cuando está desactivada, solo los ceramistas registrados.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="switchEngobesAcceso" onchange="toggleEngobesAcceso(this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="admin-filtros-wrapper">
+          <div class="admin-buscador-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input class="admin-buscador" id="buscar-engobes" placeholder="Buscar por nombre..." oninput="filtrarGrid('engobes')">
+          </div>
+          <div class="admin-controles-row">
+            <div class="admin-filtros-cats" id="filtros-engobes"></div>
+            <div class="admin-pub-filtros">
+              <button class="admin-pub-btn activo" onclick="setFiltroPublicado('engobes','todos',this)">Todos</button>
+              <button class="admin-pub-btn" onclick="setFiltroPublicado('engobes','publicado',this)">Publicados</button>
+              <button class="admin-pub-btn" onclick="setFiltroPublicado('engobes','oculto',this)">Ocultos</button>
+            </div>
+            <div class="admin-orden-btns">
+              <button class="activo" onclick="setOrden('engobes','az',this)">A→Z</button>
+              <button onclick="setOrden('engobes','za',this)">Z→A</button>
+            </div>
+          </div>
+        </div>
+        <div class="items-grid" id="grid-engobes"></div>
+        <div class="loading" id="loading-engobes" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
       </div>
 
       <!-- MOLDES -->
