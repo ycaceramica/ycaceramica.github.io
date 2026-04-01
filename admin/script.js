@@ -520,10 +520,11 @@ function abrirModal(hoja, item = null){
   const esPiezas  = hoja === 'piezas'
   const esInsumos = hoja === 'insumos'
   const esPastas  = hoja === 'pastas'
+  const esEngobes = hoja === 'engobes'
 
   document.getElementById('modalTitulo').innerText = item
-    ? `Editar ${esApuntes ? 'apunte' : esPastas ? 'pasta' : 'item'}`
-    : `Nueva ${esPastas ? 'pasta' : esApuntes ? 'apunte' : 'item'}`
+    ? `Editar ${esApuntes ? 'apunte' : esPastas ? 'pasta' : esEngobes ? 'engobe' : 'item'}`
+    : `Nueva ${esPastas ? 'pasta' : esEngobes ? 'engobe' : esApuntes ? 'apunte' : 'item'}`
 
   const cats   = CATEGORIAS[hoja] || ['General','Otros']
   const opsCat = cats.map(c =>
@@ -554,7 +555,7 @@ function abrirModal(hoja, item = null){
     </div>
   ` : ''
 
-  const conFotosExtra  = !esApuntes && !esPastas
+  const conFotosExtra  = !esApuntes && !esPastas && !esEngobes
   const bloqFotosExtra = conFotosExtra ? (() => {
     const slots = [2,3,4].map(n => {
       const fUrl = (item && item['foto'+n]) || ''
@@ -622,6 +623,61 @@ function abrirModal(hoja, item = null){
       <label class="publicado-toggle">
         <input type="checkbox" id="mPublicado" ${(item?.publicado === true || item?.publicado === 'TRUE' || item?.publicado === 'true') ? 'checked' : ''}>
         <span>✅ Visible para ${modalHoja === 'apuntes_ceramistas' ? 'ceramistas' : 'los alumnos'}</span>
+      </label>
+    `
+  } else if(esEngobes){
+    // Parsear componentes existentes
+    let compExistentes = []
+    try { compExistentes = JSON.parse(item?.componentes || '[]') } catch(e){}
+    const compHtml = compExistentes.length > 0
+      ? compExistentes.map((c,i) => `
+          <div class="pasta-comp-fila" id="pcomp-${i}">
+            <input class="pasta-comp-nombre" type="text" placeholder="Ingrediente" value="${c.nombre||''}" oninput="recalcularPorcentajes()">
+            <input class="pasta-comp-pct" type="number" min="0" step="0.1" placeholder="%" value="${c.porcentaje||0}" oninput="recalcularPorcentajes()">
+            <span class="pasta-comp-pct-label">%</span>
+            <button class="pasta-btn-quitar" onclick="quitarComponente(this)" type="button"><i class="fa-solid fa-xmark"></i></button>
+          </div>`).join('')
+      : ''
+    html += `
+      <div class="mform-fila">
+        <div class="mform-grupo">
+          <label>Código</label>
+          <div class="mform-codigo-wrapper">
+            <input id="mCodigo" value="${item?.codigo || ''}" placeholder="Auto">
+            <button class="btn-generar-codigo" onclick="generarCodigoEngobe()" type="button">↺ Auto</button>
+          </div>
+        </div>
+        <div class="mform-grupo">
+          <label>Nombre del engobe *</label>
+          <input id="mNombre" value="${item?.nombre || ''}" placeholder="Ej: Engobe blanco base, Engobe negro...">
+        </div>
+      </div>
+      <div class="mform-grupo">
+        <label>Descripción <small style="opacity:0.5;font-weight:400">(opcional)</small></label>
+        <textarea id="mDescripcion" rows="2" placeholder="Características, temperatura, notas...">${item?.descripcion || ''}</textarea>
+      </div>
+      <div class="mform-grupo">
+        <label>Componentes <span id="pastaTotalLabel" style="font-size:12px;font-weight:700;margin-left:8px;color:#c85028"></span>
+          <small style="opacity:0.5;font-weight:400;margin-left:6px">— ingresá en % o en gramos (se normaliza automáticamente)</small>
+        </label>
+        <div class="pasta-comp-headers">
+          <span>Ingrediente</span><span>%</span>
+        </div>
+        <div id="pastaComponentes">${compHtml}</div>
+        <div class="pasta-comp-agregar">
+          <div class="pasta-ingredientes-predefinidos">
+            ${['Arcilla','Agua','Fundente','Colorante']
+              .map(ing => `<button class="pasta-ing-btn" onclick="agregarComponentePredefinido('${ing}')" type="button">${ing}</button>`)
+              .join('')}
+          </div>
+          <button class="pasta-btn-agregar" onclick="agregarComponenteLibre()" type="button">
+            <i class="fa-solid fa-plus"></i> Agregar otro
+          </button>
+        </div>
+      </div>
+      <label class="publicado-toggle">
+        <input type="checkbox" id="mPublicado" ${(item?.publicado === true || item?.publicado === 'TRUE' || item?.publicado === 'true') ? 'checked' : ''}>
+        <span>✅ Visible en la web</span>
       </label>
     `
   } else if(esPastas){
@@ -775,7 +831,8 @@ function abrirModal(hoja, item = null){
   document.getElementById('modalOverlay').style.display = 'flex'
 
   if(!item && !esApuntes && !esPastas) setTimeout(() => generarCodigo(), 100)
-  if(!item && esPastas) setTimeout(() => generarCodigoPasta(), 100)
+  if(!item && esPastas)  setTimeout(() => generarCodigoPasta(), 100)
+  if(!item && esEngobes) setTimeout(() => generarCodigoEngobe(), 100)
 }
 
 function editarItem(hoja, item){ abrirModal(hoja, item) }
@@ -965,8 +1022,13 @@ async function guardarModal(){
     }
 
     // Para apuntes/multimedia ceramistas usar acción específica
-    const accionGuardar = modalHoja === 'apuntes_ceramistas' ? 'guardarApunteCeramista' : 'guardar'
-    const bodyGuardar   = modalHoja === 'apuntes_ceramistas'
+    const accionGuardar = modalHoja === 'apuntes_ceramistas' ? 'guardarApunteCeramista'
+      : modalHoja === 'pastas'  ? 'guardarPasta'
+      : modalHoja === 'engobes' ? 'guardarEngobe'
+      : 'guardar'
+    const bodyGuardar   = (modalHoja === 'apuntes_ceramistas')
+      ? JSON.stringify({ action: accionGuardar, fila, token: sesion.token })
+      : (modalHoja === 'pastas' || modalHoja === 'engobes')
       ? JSON.stringify({ action: accionGuardar, fila, token: sesion.token })
       : JSON.stringify({ action: accionGuardar, hoja: modalHoja, fila, token: sesion.token })
     const res  = await fetch(API, {
@@ -1126,6 +1188,16 @@ async function generarCodigoPasta(){
   if(!codEl) return
   try {
     const res  = await fetch(`${API}?action=siguienteCodigo&hoja=pastas&categoria=PAS`)
+    const data = await res.json()
+    if(data.codigo) codEl.value = data.codigo
+  } catch(e){}
+}
+
+async function generarCodigoEngobe(){
+  const codEl = document.getElementById('mCodigo')
+  if(!codEl) return
+  try {
+    const res  = await fetch(`${API}?action=siguienteCodigo&hoja=engobes&categoria=ENG`)
     const data = await res.json()
     if(data.codigo) codEl.value = data.codigo
   } catch(e){}
