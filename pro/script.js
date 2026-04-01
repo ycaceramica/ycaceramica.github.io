@@ -93,13 +93,6 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   const sesion = getSesion()
-
-  // Protección: si no hay sesión, redirigir al login
-  if(!sesion){
-    window.location.href = '../login/index.html'
-    return
-  }
-
   const esPro  = sesion && sesion.plan === 'pro'
 
   // Llenar hero
@@ -175,9 +168,14 @@ window.addEventListener('DOMContentLoaded', () => {
             <span id="proErrorMsg"></span>
           </div>
 
-          <a class="pro-btn-wa" id="btnSolicitar" href="#" target="_blank" onclick="abrirWAConDatos(event, '${calcId}', '${calc.titulo}')">
-            <i class="fa-brands fa-whatsapp"></i> Quiero acceso Pro
-          </a>
+          <div class="pro-contacto-directo">
+            <a class="pro-btn-wa" href="#" target="_blank" onclick="abrirWAConDatos(event, '${calcId}', '${calc.titulo}')">
+              <i class="fa-brands fa-whatsapp"></i> WhatsApp
+            </a>
+            <a class="pro-btn-email" href="#" onclick="abrirEmailConDatos(event, '${calcId}', '${calc.titulo}')">
+              <i class="fa-solid fa-envelope"></i> Email directo
+            </a>
+          </div>
         </div>
 
       </div>
@@ -252,7 +250,7 @@ document.querySelectorAll('.pro-modal-overlay').forEach(overlay => {
 })
 
 // ─────────────────────────────────────────────
-// WHATSAPP CON DATOS DEL FORMULARIO
+// CONTACTO CON DATOS DEL FORMULARIO
 // ─────────────────────────────────────────────
 
 function abrirWAConDatos(e, calcId, calcTitulo){
@@ -267,4 +265,19 @@ function abrirWAConDatos(e, calcId, calcTitulo){
   if(mensaje) texto += '\n\n' + mensaje
 
   window.open(WA + '?text=' + encodeURIComponent(texto), '_blank')
+}
+
+function abrirEmailConDatos(e, calcId, calcTitulo){
+  e.preventDefault()
+  const nombre  = document.getElementById('proNombre')?.value.trim() || ''
+  const email   = document.getElementById('proEmail')?.value.trim()  || ''
+  const mensaje = document.getElementById('proMensaje')?.value.trim() || ''
+
+  const asunto = 'Solicitud acceso Pro — ' + calcTitulo
+  let cuerpo = 'Hola! Me interesa el acceso Pro a la calculadora ' + calcTitulo + ' de YCA Cerámica.'
+  if(nombre)  cuerpo += '\n\nMi nombre: ' + nombre
+  if(email)   cuerpo += '\nMi email: '  + email
+  if(mensaje) cuerpo += '\n\n' + mensaje
+
+  window.location.href = 'mailto:ycaceramica@gmail.com?subject=' + encodeURIComponent(asunto) + '&body=' + encodeURIComponent(cuerpo)
 }
