@@ -423,7 +423,6 @@ async function guardarEnTallerAbs(){
   const action      = esCeramista ? 'guardarHistorialTaller' : 'guardarHistorialAlumno'
   const idKey       = esCeramista ? 'ceramistaId' : 'alumnoId'
   const destino     = esCeramista ? 'mi taller' : 'mi cuenta'
-
   // Chequear límite de historial
   const esPro   = sesion.plan === 'pro'
   const limite  = esPro ? 30 : 10
