@@ -38,7 +38,7 @@
 </head>
 
 
-<body style="visibility:hidden">
+<body style="opacity:0;transition:opacity 0.3s ease">
 
 
 <div id="nav-placeholder"></div>
@@ -286,31 +286,33 @@
 </div>
 
 <script>
-(async function(){
-  var API = "https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec"
+(function(){
+  // Mostrar el sitio inmediatamente — sin bloquear la carga
+  document.body.style.opacity = '1'
+
+  // Chequear mantenimiento en segundo plano
   try {
-    // Superadmin siempre ve el sitio
     var sesion = null
     try { sesion = JSON.parse(sessionStorage.getItem('yca_sesion')) } catch(e){}
-    if(sesion && sesion.rol === 'superadmin'){
-      document.body.style.visibility = 'visible'
-      return
-    }
+    if(sesion && sesion.rol === 'superadmin') return
 
-    var res  = await fetch(API + '?action=getConfigIndex&t=' + Date.now())
-    var data = await res.json()
-
-    if(data.data && data.data.mantenimiento === 'true'){
-      var panel = document.getElementById('pantalla-mantenimiento')
-      panel.style.display = 'flex'
-    }
-
-    document.body.style.visibility = 'visible'
-
-  } catch(e){
-    // Si falla la consulta, mostrar el sitio normal
-    document.body.style.visibility = 'visible'
-  }
+    var API = 'https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec'
+    fetch(API + '?action=getConfigIndex&t=' + Date.now())
+      .then(function(r){ return r.json() })
+      .then(function(data){
+        if(data.data && data.data.mantenimiento === 'true'){
+          document.body.style.opacity = '0'
+          setTimeout(function(){
+            var panel = document.getElementById('pantalla-mantenimiento')
+            if(panel){
+              panel.style.display = 'flex'
+              document.body.style.opacity = '1'
+            }
+          }, 300)
+        }
+      })
+      .catch(function(){}) // Si falla la consulta, el sitio ya está visible
+  } catch(e){}
 })()
 </script>
 </body>
