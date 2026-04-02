@@ -315,6 +315,30 @@
   } catch(e){}
 })()
 </script>
+
+<script>
+// Precarga silenciosa — espera 4 segundos para no competir con la carga del inicio
+setTimeout(function(){
+  var API = 'https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec'
+  var acciones = ['getPiezas','getInsumos','getPastas','getEngobes']
+  var claves   = ['yca_piezas','yca_insumos','yca_pastas','yca_engobes']
+  acciones.forEach(function(action, i){
+    // Solo precargar si no hay caché reciente (menos de 5 minutos)
+    var cached = sessionStorage.getItem(claves[i])
+    var ts     = sessionStorage.getItem(claves[i] + '_ts')
+    if(cached && ts && (Date.now() - parseInt(ts)) < 300000) return
+    fetch(API + '?action=' + action)
+      .then(function(r){ return r.json() })
+      .then(function(data){
+        if(data.data){
+          sessionStorage.setItem(claves[i], JSON.stringify(data.data))
+          sessionStorage.setItem(claves[i] + '_ts', Date.now())
+        }
+      })
+      .catch(function(){})
+  })
+}, 4000)
+</script>
 </body>
 
 </html>
