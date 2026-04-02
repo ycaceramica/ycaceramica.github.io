@@ -1,16 +1,18 @@
-function mostrarSkeleton(gridId, cantidad, claseGrid) {
-  const grid = document.getElementById(gridId)
-  if(!grid) return
-  grid.innerHTML = Array(cantidad).fill(0).map(() => `
-    <div class="skeleton-card">
-      <div class="skeleton-foto"></div>
-      <div class="skeleton-body">
-        <div class="skeleton-line titulo"></div>
-        <div class="skeleton-line subtitulo"></div>
-        <div class="skeleton-line precio"></div>
-      </div>
-    </div>`).join('')
+// ── PAGINADO ──
+let _piezasTodos = []
+let _piezasPagina = 0
+
+function mostrarMasPiezas(){
+  const grid = document.getElementById('piezasGrid')
+  const desde = _piezasPagina * 8
+  const hasta = desde + 8
+  const batch = _piezasTodos.slice(desde, hasta)
+  batch.forEach(item => grid.appendChild(crearTarjeta(item)))
+  _piezasPagina++
+  const btnMas = document.getElementById('btnMasPiezas')
+  if(btnMas) btnMas.style.display = hasta >= _piezasTodos.length ? 'none' : 'block'
 }
+
 // ─────────────────────────────────────────────
 // CONFIGURACIÓN
 // ─────────────────────────────────────────────
@@ -256,8 +258,27 @@ document.addEventListener("DOMContentLoaded", () => {
 async function cargarPiezas(){
   const estado = document.getElementById("estado")
   const grid   = document.getElementById("piezasGrid")
-  estado.classList.add("oculto")
-  mostrarSkeleton('piezasGrid', 8)
+
+  // Usar caché si existe y es reciente (menos de 5 min)
+  const cached = sessionStorage.getItem('yca_piezas')
+  const ts     = sessionStorage.getItem('yca_piezas_ts')
+  if(cached && ts && (Date.now() - parseInt(ts)) < 300000){
+    try{
+      const piezas = JSON.parse(cached)
+      if(piezas && piezas.length > 0){
+        estado.classList.add("oculto")
+        armarFiltros(piezas)
+        _piezasTodos  = piezas
+        _piezasPagina = 0
+        mostrarMasPiezas()
+        // Refrescar en segundo plano
+        fetch(`${API}?action=getPiezas`).then(r=>r.json()).then(d=>{
+          if(d.data){ sessionStorage.setItem('yca_piezas',JSON.stringify(d.data)); sessionStorage.setItem('yca_piezas_ts',Date.now()) }
+        }).catch(()=>{})
+        return
+      }
+    } catch(e){}
+  }
 
   try {
     // Cargar config y piezas en paralelo
@@ -297,8 +318,13 @@ async function cargarPiezas(){
       document.body.appendChild(m)
     }
 
-    armarFiltros(piezas)
-    piezas.forEach(pieza => grid.appendChild(crearTarjeta(pieza)))
+    // Intentar cargar desde caché primero
+    const cached = sessionStorage.getItem('yca_piezas')
+    const listado = cached ? JSON.parse(cached) : piezas
+    armarFiltros(listado)
+    _piezasTodos = listado
+    _piezasPagina = 0
+    mostrarMasPiezas()
 
   } catch(err) {
     estado.classList.remove("oculto")
