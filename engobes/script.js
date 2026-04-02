@@ -1,3 +1,16 @@
+function mostrarSkeleton(gridId, cantidad, claseGrid) {
+  const grid = document.getElementById(gridId)
+  if(!grid) return
+  grid.innerHTML = Array(cantidad).fill(0).map(() => `
+    <div class="skeleton-card">
+      <div class="skeleton-foto"></div>
+      <div class="skeleton-body">
+        <div class="skeleton-line titulo"></div>
+        <div class="skeleton-line subtitulo"></div>
+        <div class="skeleton-line precio"></div>
+      </div>
+    </div>`).join('')
+}
 const API = 'https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec'
 let engobesData  = []
 let engobeActivo = null
@@ -604,6 +617,8 @@ window.addEventListener('DOMContentLoaded', () => { cargarEngobes() })
 async function cargarEngobes(){
   const estado = document.getElementById('estadoCatalogo')
   const grid   = document.getElementById('engobesGrid')
+  estado.style.display = 'none'
+  mostrarSkeleton('engobesGrid', 6)
   try {
     const [resEngobes, resConfig] = await Promise.all([
       fetch(`${API}?action=getEngobes`),
@@ -613,6 +628,8 @@ async function cargarEngobes(){
     const dataConfig  = await resConfig.json()
     engobesData = dataEngobes.data || []
     accesoLibreEngobes = String(dataConfig.data?.engobes_acceso_libre ?? 'true') !== 'false'
+    sessionStorage.setItem('yca_engobes', JSON.stringify(engobesData))
+    sessionStorage.setItem('yca_engobes_ts', Date.now())
 
     estado.style.display = 'none'
     if(engobesData.length === 0){
