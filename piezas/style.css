@@ -493,3 +493,51 @@
 }
 
 .pm-btn-cerrar-bottom:hover { background: rgba(139,111,86,0.08); }
+
+/* ── SKELETON LOADING ── */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton-card {
+  background: var(--color-superficie);
+  border-radius: 14px;
+  box-shadow: 0 4px 16px var(--color-sombra);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.skeleton-foto {
+  width: 100%;
+  aspect-ratio: 1/1;
+  background: linear-gradient(90deg,
+    var(--color-fondo) 25%,
+    rgba(139,111,86,0.08) 50%,
+    var(--color-fondo) 75%
+  );
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.4s infinite linear;
+}
+
+.skeleton-body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-line {
+  border-radius: 6px;
+  background: linear-gradient(90deg,
+    var(--color-fondo) 25%,
+    rgba(139,111,86,0.08) 50%,
+    var(--color-fondo) 75%
+  );
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.4s infinite linear;
+}
+
+.skeleton-line.titulo  { height: 16px; width: 70%; }
+.skeleton-line.subtitulo { height: 12px; width: 45%; }
+.skeleton-line.precio  { height: 14px; width: 30%; }
