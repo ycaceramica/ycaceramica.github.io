@@ -110,6 +110,26 @@ function verificarAccesoLibre(){
 async function cargarPastas(){
   const estado = document.getElementById("estadoCatalogo")
   const grid   = document.getElementById("pastasGrid")
+
+  const cached = sessionStorage.getItem('yca_pastas')
+  const ts     = sessionStorage.getItem('yca_pastas_ts')
+  if(cached && ts && (Date.now() - parseInt(ts)) < 300000){
+    try{
+      const lista = JSON.parse(cached)
+      if(lista && lista.length > 0){
+        estado.style.display = "none"
+        pastasData = lista
+        const wrapper = document.getElementById("pastaBuscadorWrapper")
+        if(wrapper) wrapper.style.display = "flex"
+        renderPastas(pastasData)
+        fetch(`${API}?action=getPastas`).then(r=>r.json()).then(d=>{
+          if(d.data){ sessionStorage.setItem('yca_pastas',JSON.stringify(d.data)); sessionStorage.setItem('yca_pastas_ts',Date.now()) }
+        }).catch(()=>{})
+        return
+      }
+    } catch(e){}
+  }
+
   try {
     const [resPastas, resConfig] = await Promise.all([
       fetch(`${API}?action=getPastas`),
@@ -119,6 +139,8 @@ async function cargarPastas(){
     const dataConfig  = await resConfig.json()
     pastasData  = dataPastas.data || []
     accesoLibre = String(dataConfig.data?.pastas_acceso_libre ?? 'true') !== 'false'
+    sessionStorage.setItem('yca_pastas', JSON.stringify(pastasData))
+    sessionStorage.setItem('yca_pastas_ts', Date.now())
 
     estado.style.display = "none"
     if(pastasData.length === 0){
