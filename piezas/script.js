@@ -1,3 +1,16 @@
+function mostrarSkeleton(gridId, cantidad, claseGrid) {
+  const grid = document.getElementById(gridId)
+  if(!grid) return
+  grid.innerHTML = Array(cantidad).fill(0).map(() => `
+    <div class="skeleton-card">
+      <div class="skeleton-foto"></div>
+      <div class="skeleton-body">
+        <div class="skeleton-line titulo"></div>
+        <div class="skeleton-line subtitulo"></div>
+        <div class="skeleton-line precio"></div>
+      </div>
+    </div>`).join('')
+}
 // ─────────────────────────────────────────────
 // CONFIGURACIÓN
 // ─────────────────────────────────────────────
@@ -243,6 +256,8 @@ document.addEventListener("DOMContentLoaded", () => {
 async function cargarPiezas(){
   const estado = document.getElementById("estado")
   const grid   = document.getElementById("piezasGrid")
+  estado.classList.add("oculto")
+  mostrarSkeleton('piezasGrid', 8)
 
   try {
     // Cargar config y piezas en paralelo
