@@ -1,3 +1,18 @@
+// ── PAGINADO ──
+let _insumosTodos = []
+let _insumosPagina = 0
+
+function mostrarMasInsumos(){
+  const grid = document.getElementById('insumosGrid')
+  const desde = _insumosPagina * 8
+  const hasta = desde + 8
+  const batch = _insumosTodos.slice(desde, hasta)
+  batch.forEach(item => grid.appendChild(crearTarjeta(item)))
+  _insumosPagina++
+  const btnMas = document.getElementById('btnMasInsumos')
+  if(btnMas) btnMas.style.display = hasta >= _insumosTodos.length ? 'none' : 'block'
+}
+
 // ─────────────────────────────────────────────
 // CONFIGURACIÓN
 // ─────────────────────────────────────────────
@@ -240,6 +255,27 @@ async function cargarInsumos(){
   const estado = document.getElementById("estado")
   const grid   = document.getElementById("insumosGrid")
 
+  // Usar caché si existe y es reciente (menos de 5 min)
+  const cached = sessionStorage.getItem('yca_insumos')
+  const ts     = sessionStorage.getItem('yca_insumos_ts')
+  if(cached && ts && (Date.now() - parseInt(ts)) < 300000){
+    try{
+      const insumos = JSON.parse(cached)
+      if(insumos && insumos.length > 0){
+        estado.classList.add("oculto")
+        armarFiltros(insumos)
+        _insumosTodos  = insumos
+        _insumosPagina = 0
+        mostrarMasInsumos()
+        // Refrescar en segundo plano
+        fetch(`${API}?action=getInsumos`).then(r=>r.json()).then(d=>{
+          if(d.data){ sessionStorage.setItem('yca_insumos',JSON.stringify(d.data)); sessionStorage.setItem('yca_insumos_ts',Date.now()) }
+        }).catch(()=>{})
+        return
+      }
+    } catch(e){}
+  }
+
   try {
     const [resConf, resInsumos] = await Promise.all([
       fetch(`${API}?action=getConfigIndex`),
@@ -252,6 +288,7 @@ async function cargarInsumos(){
     const insumos = (dataInsumos.data || []).filter(p => p.nombre)
 
     estado.classList.add("oculto")
+    sessionStorage.setItem('yca_insumos', JSON.stringify(insumos))
 
     if(insumos.length === 0){
       estado.classList.remove("oculto")
