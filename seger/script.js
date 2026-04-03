@@ -702,9 +702,22 @@ async function descargarPDF(){
 
   let y = 50
 
-  const VERDE  = [60, 140, 90]
+  const VERDE    = [60, 140, 90]
   const AMARILLO = [180, 130, 20]
-  const ROJO   = [190, 60, 30]
+  const ROJO     = [190, 60, 30]
+
+  // jsPDF no renderiza bien subíndices Unicode — reemplazar por texto plano
+  const pdfTxt = s => (s || '')
+    .replace(/SiO₂/g, 'SiO2')
+    .replace(/Al₂O₃/g, 'Al2O3')
+    .replace(/Fe₂O₃/g, 'Fe2O3')
+    .replace(/TiO₂/g, 'TiO2')
+    .replace(/MnO₂/g, 'MnO2')
+    .replace(/B₂O₃/g, 'B2O3')
+    .replace(/K₂O/g, 'K2O')
+    .replace(/Na₂O/g, 'Na2O')
+    .replace(/[₀-₉]/g, d => String.fromCharCode(d.charCodeAt(0) - 0x2080 + 48))
+    .replace(/[²³¹]/g, n => ({'\u00b2':'2','\u00b3':'3','\u00b9':'1'}[n]||n))
 
   historial.forEach((f, idx) => {
     const coneLabel = f.cone === 'cone06' ? 'Cone 06' : f.cone === 'cone6' ? 'Cone 6' : 'Cone 10'
@@ -767,10 +780,10 @@ async function descargarPDF(){
 
         // Título
         doc.setFontSize(8.5); doc.setFont('helvetica','bold'); doc.setTextColor(...NEGRO)
-        doc.text(d.titulo || '', m+11, dy + 4)
+        doc.text(pdfTxt(d.titulo), m+11, dy + 4)
 
         // Detalle — multilínea
-        const lines = doc.splitTextToSize(d.detalle || '', W - m*2 - 20)
+        const lines = doc.splitTextToSize(pdfTxt(d.detalle), W - m*2 - 20)
         doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.setTextColor(100, 90, 80)
         doc.text(lines, m+11, dy + 9)
 
