@@ -608,7 +608,7 @@ function setTabEngobes(tab){
 }
 
 // Cargar catálogo al inicio (tab por defecto)
-window.addEventListener('DOMContentLoaded', () => { cargarEngobes() })
+window.addEventListener('DOMContentLoaded', () => { cargarEngobes(); renderHistorialEngobeCatalogo() })
 
 // ─────────────────────────────────────────────
 // CATÁLOGO DE ENGOBES DEL TALLER
@@ -801,6 +801,7 @@ function engobeModalGuardar(){
     fecha: new Date().toLocaleDateString('es-AR')
   })
   guardarHistorial()
+  renderHistorialEngobeCatalogo()
   mostrarModal({ titulo:'✅ Guardado', texto:`El engobe "${engobeActivo.nombre}" fue guardado en el historial.`, confirmar:'¡Genial!', cancelar:false })
 }
 
@@ -827,4 +828,65 @@ async function engobeModalPDF(){
     fecha: new Date().toLocaleDateString('es-AR')
   }
   await generarPDFItems([item], `YCA_Ceramica_Engobe_${String(engobeActivo.nombre||'engobe').replace(/ /g,'_')}.pdf`)
+}
+
+// ─────────────────────────────────────────────
+// HISTORIAL DEL CATÁLOGO DE ENGOBES
+// ─────────────────────────────────────────────
+
+function renderHistorialEngobeCatalogo(){
+  const panel  = document.getElementById('historialEngobeCatalogoPanel')
+  const lista  = document.getElementById('historialEngobeCatalogoLista')
+  const btnPDF = document.getElementById('btnPDFEngobeCatalogo')
+  const btnLim = document.getElementById('btnLimpiarEngobeCatalogo')
+  if(!panel || !lista) return
+
+  const items = historial.filter(i => i.tipo === 'catalogo')
+  if(items.length === 0){
+    lista.innerHTML = '<p class="historial-vacio">Calculá un engobe para verlo aquí.</p>'
+    if(btnPDF) btnPDF.disabled = true
+    if(btnLim) btnLim.style.display = 'none'
+    return
+  }
+
+  if(btnPDF) btnPDF.disabled = false
+  if(btnLim) btnLim.style.display = 'inline-flex'
+  lista.innerHTML = ''
+  items.forEach(item => {
+    const div = document.createElement('div')
+    div.className = 'historial-item'
+    div.innerHTML = `
+      <button class="historial-item-borrar" onclick="borrarItemEngobeCatalogo(${item.id})">✕</button>
+      <div class="historial-item-nombre">${item.nombre}</div>
+      <div class="historial-item-meta">${item.gramos}g · ${item.fecha}</div>
+      <div class="historial-item-componentes">
+        ${(item.componentes||[]).map(c => `<span class="historial-chip">${c.nombre}: ${c.gramos}g</span>`).join('')}
+      </div>`
+    lista.appendChild(div)
+  })
+}
+
+function borrarItemEngobeCatalogo(id){
+  historial = historial.filter(i => i.id !== id)
+  guardarHistorial()
+  renderHistorialEngobeCatalogo()
+}
+
+async function descargarPDFEngobeCatalogo(){
+  const items = historial.filter(i => i.tipo === 'catalogo')
+  if(!items.length) return
+  await generarPDFItems(items, 'YCA_Ceramica_MisEngobes.pdf')
+}
+
+function limpiarHistorialEngobeCatalogo(){
+  mostrarModal({
+    titulo: '🗑 Limpiar historial',
+    texto: '¿Borrar todos los engobes guardados? Esta acción no se puede deshacer.',
+    confirmar: 'Borrar todo',
+    accion: () => {
+      historial = historial.filter(i => i.tipo !== 'catalogo')
+      guardarHistorial()
+      renderHistorialEngobeCatalogo()
+    }
+  })
 }
