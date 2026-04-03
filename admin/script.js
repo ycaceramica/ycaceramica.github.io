@@ -4432,8 +4432,10 @@ async function toggleMantenimiento(valor){
 // BLOC DE NOTAS
 // ─────────────────────────────────────────────
 
-let notasDebounce = null
-let notasCargadas = false
+let notasDebounce   = null
+let notasCargadas   = false
+let notasData       = []   // [{ id, titulo, texto }]
+let notaActivaId    = null
 
 async function cargarNotas() {
   if (notasCargadas) return
@@ -4444,25 +4446,80 @@ async function cargarNotas() {
     if (!data.ok) { toast('❌ Error al cargar notas', 'err'); return }
 
     const notas = data.notas || {}
+    notasData       = notas.libres     || []
+    pendientesData  = notas.pendientes || []
 
-    // Notas libres
-    document.getElementById('notasTexto').value = notas.texto || ''
+    // Si no hay ninguna nota, crear una por defecto
+    if (notasData.length === 0) notasData.push({ id: Date.now(), titulo: 'Mi primera nota', texto: '' })
 
-    // Pendientes
-    pendientesData = notas.pendientes || []
+    renderNotasLista()
+    seleccionarNota(notasData[0].id)
     renderPendientes()
-
     notasCargadas = true
 
-    // Auto-save al escribir
     document.getElementById('notasTexto').addEventListener('input', () => {
+      const nota = notasData.find(n => n.id === notaActivaId)
+      if (nota) nota.texto = document.getElementById('notasTexto').value
       clearTimeout(notasDebounce)
       setGuardadoMsg('Guardando...')
-      notasDebounce = setTimeout(guardarNotasTexto, 1200)
+      notasDebounce = setTimeout(guardarNotasLibres, 1200)
     })
   } catch(e) {
     toast('❌ Error de conexión', 'err')
   }
+}
+
+function renderNotasLista() {
+  const lista = document.getElementById('notasLista')
+  if (!lista) return
+  lista.innerHTML = ''
+  notasData.forEach(nota => {
+    const chip = document.createElement('div')
+    chip.className = 'nota-chip' + (nota.id === notaActivaId ? ' activa' : '')
+    chip.innerHTML = `
+      <span class="nota-chip-titulo">${nota.titulo || 'Sin título'}</span>
+      <button class="nota-chip-borrar" onclick="event.stopPropagation(); borrarNota(${nota.id})" title="Eliminar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>`
+    chip.addEventListener('click', () => seleccionarNota(nota.id))
+    lista.appendChild(chip)
+  })
+}
+
+function seleccionarNota(id) {
+  notaActivaId = id
+  const nota = notasData.find(n => n.id === id)
+  if (!nota) return
+  document.getElementById('notaTituloActivo').value = nota.titulo || ''
+  document.getElementById('notasTexto').value       = nota.texto  || ''
+  renderNotasLista()
+}
+
+function crearNota() {
+  const nueva = { id: Date.now(), titulo: 'Nueva nota', texto: '' }
+  notasData.unshift(nueva)
+  renderNotasLista()
+  seleccionarNota(nueva.id)
+  document.getElementById('notaTituloActivo').focus()
+  document.getElementById('notaTituloActivo').select()
+  guardarNotasLibres()
+}
+
+function borrarNota(id) {
+  if (notasData.length === 1) { toast('Necesitás al menos una nota', 'err'); return }
+  notasData = notasData.filter(n => n.id !== id)
+  if (notaActivaId === id) seleccionarNota(notasData[0].id)
+  else renderNotasLista()
+  guardarNotasLibres()
+}
+
+function onTituloInput() {
+  const nota = notasData.find(n => n.id === notaActivaId)
+  if (nota) nota.titulo = document.getElementById('notaTituloActivo').value
+  renderNotasLista()
+  clearTimeout(notasDebounce)
+  setGuardadoMsg('Guardando...')
+  notasDebounce = setTimeout(guardarNotasLibres, 1200)
 }
 
 function setNotasTab(tab) {
@@ -4477,14 +4534,13 @@ function setGuardadoMsg(msg) {
   if (el) el.textContent = msg
 }
 
-async function guardarNotasTexto() {
+async function guardarNotasLibres() {
   const sesion = getSesion()
-  const texto  = document.getElementById('notasTexto').value
   try {
     const res  = await fetch(API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'guardarNotas', token: sesion.token, tipo: 'texto', valor: texto })
+      body: JSON.stringify({ action: 'guardarNotas', token: sesion.token, tipo: 'libres', valor: notasData })
     })
     const data = await res.json()
     setGuardadoMsg(data.ok ? 'Guardado ✓' : '❌ Error al guardar')
