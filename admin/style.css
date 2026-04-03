@@ -1647,6 +1647,22 @@ body.dark #exportCurso option{
   outline: none;
   border-color: var(--color-primario);
 }
+.notas-btn-agregar {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  border: none;
+  background: var(--color-primario);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+}
+.notas-btn-agregar:hover { opacity: 0.85; }
 .pendientes-lista {
   list-style: none;
   padding: 0;
