@@ -378,13 +378,23 @@ function renderDatosCard(calc, datos){
   }
   if(calc === 'seger'){
     const mats = datos.materiales || []
+    const diags = datos.diagnosticos || []
     const cone = datos.cone === 'cone06' ? 'Cone 06' : datos.cone === 'cone6' ? 'Cone 6' : 'Cone 10'
-    return `<div class="htcard-chip">${cone}</div>`
+    const chips = `<div class="htcard-chip">${cone}</div>`
       + `<div class="htcard-chip">Si: ${datos.si || '—'}</div>`
       + `<div class="htcard-chip">Al: ${datos.al || '—'}</div>`
       + `<div class="htcard-chip">Si:Al ${datos.siAl || '—'}</div>`
       + mats.slice(0,2).map(m => `<div class="htcard-chip">${m.nombre.split('(')[0].trim()}: ${m.pct}%</div>`).join('')
       + (mats.length > 2 ? `<div class="htcard-chip">+${mats.length-2} mas</div>` : '')
+    const diagsHtml = diags.length ? `
+      <div class="htcard-diags">
+        ${diags.map(d => `
+          <div class="htcard-diag htcard-diag-${d.tipo}">
+            <span class="htcard-diag-titulo">${d.titulo}</span>
+            <span class="htcard-diag-detalle">${d.detalle}</span>
+          </div>`).join('')}
+      </div>` : ''
+    return chips + diagsHtml
   }
   if(calc === 'arcillas'){
     const mats = datos.materiales || []
