@@ -4537,12 +4537,10 @@ function setGuardadoMsg(msg) {
 async function guardarNotasLibres() {
   const sesion = getSesion()
   try {
-    const res  = await fetch(API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'guardarNotas', token: sesion.token, tipo: 'libres', valor: notasData })
-    })
-    const data = await res.json()
+    const valor = encodeURIComponent(JSON.stringify(notasData))
+    const url   = `${API}?action=guardarNotas&token=${encodeURIComponent(sesion.token)}&tipo=libres&valor=${valor}`
+    const res   = await fetch(url)
+    const data  = await res.json()
     setGuardadoMsg(data.ok ? 'Guardado ✓' : '❌ Error al guardar')
     if (data.ok) setTimeout(() => setGuardadoMsg(''), 2500)
   } catch(e) {
@@ -4597,10 +4595,8 @@ function borrarPendiente(i) {
 async function guardarPendientes() {
   const sesion = getSesion()
   try {
-    await fetch(API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'guardarNotas', token: sesion.token, tipo: 'pendientes', valor: pendientesData })
-    })
+    const valor = encodeURIComponent(JSON.stringify(pendientesData))
+    const url   = `${API}?action=guardarNotas&token=${encodeURIComponent(sesion.token)}&tipo=pendientes&valor=${valor}`
+    await fetch(url)
   } catch(e) { /* silencioso */ }
 }
