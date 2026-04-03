@@ -147,6 +147,7 @@ async function cargarSeccion(nombre){
   if(nombre === 'apuntes')      { await cargarApuntesTabs();    return }
   if(nombre === 'suscriptores') { await cargarSuscriptores(); return }
   if(nombre === 'emails')       { await cargarEmails();       return }
+  if(nombre === 'notas')        { await cargarNotas();        return }
   if(nombre === 'pastas')       { await cargarPastas();       return }
   if(nombre === 'engobes')      { await cargarEngobes();      return }
   if(nombre === 'piezas')       { cargarConfigPiezas() }
@@ -4425,4 +4426,125 @@ async function toggleMantenimiento(valor){
     toast('❌ Error de conexión', 'err')
     document.getElementById('switchMantenimiento').checked = !valor
   }
+}
+
+// ─────────────────────────────────────────────
+// BLOC DE NOTAS
+// ─────────────────────────────────────────────
+
+let notasDebounce = null
+let notasCargadas = false
+
+async function cargarNotas() {
+  if (notasCargadas) return
+  const sesion = getSesion()
+  try {
+    const res  = await fetch(`${API}?action=getNotas&token=${encodeURIComponent(sesion.token)}`)
+    const data = await res.json()
+    if (!data.ok) { toast('❌ Error al cargar notas', 'err'); return }
+
+    const notas = data.notas || {}
+
+    // Notas libres
+    document.getElementById('notasTexto').value = notas.texto || ''
+
+    // Pendientes
+    pendientesData = notas.pendientes || []
+    renderPendientes()
+
+    notasCargadas = true
+
+    // Auto-save al escribir
+    document.getElementById('notasTexto').addEventListener('input', () => {
+      clearTimeout(notasDebounce)
+      setGuardadoMsg('Guardando...')
+      notasDebounce = setTimeout(guardarNotasTexto, 1200)
+    })
+  } catch(e) {
+    toast('❌ Error de conexión', 'err')
+  }
+}
+
+function setNotasTab(tab) {
+  document.querySelectorAll('.notas-tab').forEach(b => b.classList.remove('activo'))
+  document.getElementById('ntab-' + tab).classList.add('activo')
+  document.getElementById('notas-panel-libres').style.display     = tab === 'libres'     ? 'flex' : 'none'
+  document.getElementById('notas-panel-pendientes').style.display = tab === 'pendientes' ? 'flex' : 'none'
+}
+
+function setGuardadoMsg(msg) {
+  const el = document.getElementById('notasGuardadoMsg')
+  if (el) el.textContent = msg
+}
+
+async function guardarNotasTexto() {
+  const sesion = getSesion()
+  const texto  = document.getElementById('notasTexto').value
+  try {
+    const res  = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'guardarNotas', token: sesion.token, tipo: 'texto', valor: texto })
+    })
+    const data = await res.json()
+    setGuardadoMsg(data.ok ? 'Guardado ✓' : '❌ Error al guardar')
+    if (data.ok) setTimeout(() => setGuardadoMsg(''), 2500)
+  } catch(e) {
+    setGuardadoMsg('❌ Error de conexión')
+  }
+}
+
+// ── Pendientes ──
+
+let pendientesData = []
+
+function renderPendientes() {
+  const lista = document.getElementById('pendientesLista')
+  if (!lista) return
+  lista.innerHTML = ''
+  pendientesData.forEach((item, i) => {
+    const li = document.createElement('li')
+    li.className = 'pendiente-item' + (item.hecho ? ' hecho' : '')
+    li.innerHTML = `
+      <input type="checkbox" class="pendiente-check" ${item.hecho ? 'checked' : ''}
+        onchange="togglePendiente(${i})">
+      <span class="pendiente-texto">${item.texto}</span>
+      <button class="pendiente-borrar" onclick="borrarPendiente(${i})" title="Eliminar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>`
+    lista.appendChild(li)
+  })
+}
+
+function agregarPendiente() {
+  const input = document.getElementById('pendienteInput')
+  const texto = input.value.trim()
+  if (!texto) return
+  pendientesData.push({ texto, hecho: false })
+  input.value = ''
+  renderPendientes()
+  guardarPendientes()
+}
+
+function togglePendiente(i) {
+  pendientesData[i].hecho = !pendientesData[i].hecho
+  renderPendientes()
+  guardarPendientes()
+}
+
+function borrarPendiente(i) {
+  pendientesData.splice(i, 1)
+  renderPendientes()
+  guardarPendientes()
+}
+
+async function guardarPendientes() {
+  const sesion = getSesion()
+  try {
+    await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'guardarNotas', token: sesion.token, tipo: 'pendientes', valor: pendientesData })
+    })
+  } catch(e) { /* silencioso */ }
 }
