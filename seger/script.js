@@ -702,10 +702,22 @@ async function descargarPDF(){
 
   let y = 50
 
+  const VERDE  = [60, 140, 90]
+  const AMARILLO = [180, 130, 20]
+  const ROJO   = [190, 60, 30]
+
   historial.forEach((f, idx) => {
     const coneLabel = f.cone === 'cone06' ? 'Cone 06' : f.cone === 'cone6' ? 'Cone 6' : 'Cone 10'
     const oxidos    = Object.entries(f.seger || {}).filter(([,v]) => v >= 0.001)
-    const h         = 30 + oxidos.length * 7
+    const diags     = f.diagnosticos || []
+
+    // Calcular altura total del bloque
+    const oxRows  = Math.ceil(oxidos.length / 2)
+    const diagH   = diags.reduce((acc, d) => {
+      const lines = doc.splitTextToSize(d.detalle || '', W - m*2 - 20)
+      return acc + 6 + lines.length * 4.5
+    }, diags.length > 0 ? 8 : 0)
+    const h = 24 + oxRows * 7 + diagH + (diags.length > 0 ? 4 : 0)
 
     if(y + h > 272){ doc.addPage(); y = 20 }
 
@@ -730,14 +742,43 @@ async function descargarPDF(){
       const row = Math.floor(ci / 2)
       const ox  = m + 5 + col*(colW+5)
       const oy2 = oy + row*7
-
       doc.setTextColor(...NEGRO); doc.setFontSize(8); doc.setFont('helvetica','normal')
       doc.text(oxido, ox, oy2)
       doc.setTextColor(...MARRON); doc.setFont('helvetica','bold')
       doc.text(String(val), ox + colW - 5, oy2, {align:'right'})
     })
 
-    y += h + 6
+    // Diagnósticos
+    if(diags.length > 0){
+      let dy = oy + oxRows * 7 + 6
+
+      // Línea separadora
+      doc.setDrawColor(210, 200, 190)
+      doc.setLineWidth(0.3)
+      doc.line(m+5, dy - 2, W-m-5, dy - 2)
+
+      diags.forEach(d => {
+        const color = d.tipo === 'ok' ? VERDE : d.tipo === 'error' ? ROJO : AMARILLO
+        const icono = d.tipo === 'ok' ? '✓' : d.tipo === 'error' ? '✕' : '!'
+
+        // Ícono
+        doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(...color)
+        doc.text(icono, m+5, dy + 4)
+
+        // Título
+        doc.setFontSize(8.5); doc.setFont('helvetica','bold'); doc.setTextColor(...NEGRO)
+        doc.text(d.titulo || '', m+11, dy + 4)
+
+        // Detalle — multilínea
+        const lines = doc.splitTextToSize(d.detalle || '', W - m*2 - 20)
+        doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.setTextColor(100, 90, 80)
+        doc.text(lines, m+11, dy + 9)
+
+        dy += 6 + lines.length * 4.5
+      })
+    }
+
+    y += h + 8
   })
 
   // Pie
