@@ -1643,26 +1643,50 @@ body.dark #exportCurso option{
   font-size: 14px;
   transition: border-color 0.2s;
 }
-.notas-input-nuevo:focus {
-  outline: none;
+.notas-agregar {
+  width: 100%;
+}
+.notas-agregar-wrap {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--color-borde);
+  border-radius: 12px;
+  background: var(--color-fondo);
+  padding: 4px 4px 4px 14px;
+  gap: 6px;
+  transition: border-color 0.2s;
+}
+.notas-agregar-wrap:focus-within {
   border-color: var(--color-primario);
 }
+.notas-input-nuevo {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--color-texto);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  padding: 6px 0;
+}
+.notas-input-nuevo:focus {
+  outline: none;
+}
 .notas-btn-agregar {
-  width: 42px;
-  height: 42px;
   flex-shrink: 0;
-  border-radius: 10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
   border: none;
   background: var(--color-primario);
   color: #fff;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.2s;
+  transition: background 0.2s;
 }
-.notas-btn-agregar:hover { opacity: 0.85; }
+.notas-btn-agregar:hover { background: var(--color-primario-hover); }
 .pendientes-lista {
   list-style: none;
   padding: 0;
