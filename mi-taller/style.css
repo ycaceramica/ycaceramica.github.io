@@ -887,3 +887,39 @@
   flex-shrink:0;
 }
 .btn-limpiar-historial:hover{ background:rgba(200,80,40,0.18); }
+
+/* ── SEGER: diagnósticos en historial ── */
+.htcard-diags{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-borde);
+}
+.htcard-diag{
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border-left: 3px solid transparent;
+}
+.htcard-diag-ok    { border-color: #5a9e6f; background: rgba(90,158,111,0.07); }
+.htcard-diag-aviso { border-color: #c49a2a; background: rgba(196,154,42,0.07); }
+.htcard-diag-error { border-color: #c85028; background: rgba(200,80,40,0.07);  }
+.htcard-diag-titulo{
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-texto);
+  margin-bottom: 2px;
+}
+.htcard-diag-detalle{
+  display: block;
+  font-size: 11px;
+  opacity: 0.65;
+  line-height: 1.5;
+  color: var(--color-texto);
+}
