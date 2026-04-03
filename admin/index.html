@@ -104,6 +104,9 @@
         <button class="sidebar-item" onclick="setSeccion('pdfgen')" id="nav-pdfgen">
           <i class="fa-solid fa-file-pdf"></i> Generador PDF
         </button>
+        <button class="sidebar-item" onclick="setSeccion('notas')" id="nav-notas">
+          <i class="fa-solid fa-note-sticky"></i> Bloc de notas
+        </button>
       </div>
 
       <!-- SUPERADMIN — solo visible con rol superadmin -->
@@ -853,6 +856,42 @@
 
           </div>
 
+        </div>
+      </div>
+
+      <!-- BLOC DE NOTAS -->
+      <div class="seccion" id="seccion-notas" style="display:none">
+        <div class="seccion-header">
+          <h2><i class="fa-solid fa-note-sticky"></i> Bloc de notas</h2>
+        </div>
+
+        <div class="notas-tabs">
+          <button class="notas-tab activo" id="ntab-libres" onclick="setNotasTab('libres')">
+            <i class="fa-solid fa-align-left"></i> Notas
+          </button>
+          <button class="notas-tab" id="ntab-pendientes" onclick="setNotasTab('pendientes')">
+            <i class="fa-solid fa-list-check"></i> Pendientes
+          </button>
+        </div>
+
+        <!-- Tab: Notas libres -->
+        <div id="notas-panel-libres" class="notas-panel">
+          <div class="notas-toolbar">
+            <span class="notas-guardado" id="notasGuardadoMsg"></span>
+          </div>
+          <textarea id="notasTexto" class="notas-textarea" placeholder="Escribí tus notas acá..."></textarea>
+        </div>
+
+        <!-- Tab: Pendientes -->
+        <div id="notas-panel-pendientes" class="notas-panel" style="display:none">
+          <div class="notas-agregar">
+            <input type="text" id="pendienteInput" class="notas-input-nuevo" placeholder="Nueva tarea..." maxlength="200"
+              onkeydown="if(event.key==='Enter') agregarPendiente()">
+            <button class="btn-primario" onclick="agregarPendiente()">
+              <i class="fa-solid fa-plus"></i> Agregar
+            </button>
+          </div>
+          <ul class="pendientes-lista" id="pendientesLista"></ul>
         </div>
       </div>
 
