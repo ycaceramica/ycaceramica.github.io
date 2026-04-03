@@ -735,21 +735,40 @@ async function renderItemPDF(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NE
 
 // ── 1. YESO ───────────────────────────────────
 function renderPDF_Seger(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO){
-  const mats = datos.materiales || []
-  const cone = datos.cone === 'cone06' ? 'Cone 06' : datos.cone === 'cone6' ? 'Cone 6' : 'Cone 10'
-  const h    = 28 + Math.ceil(mats.length / 2) * 6
+  const VERDE    = [60, 140, 90]
+  const AMARILLO = [180, 130, 20]
+  const ROJO     = [190, 60, 30]
+  const pdfTxt   = s => (s||'')
+    .replace(/SiO₂/g,'SiO2').replace(/Al₂O₃/g,'Al2O3')
+    .replace(/Fe₂O₃/g,'Fe2O3').replace(/TiO₂/g,'TiO2')
+    .replace(/B₂O₃/g,'B2O3').replace(/K₂O/g,'K2O').replace(/Na₂O/g,'Na2O')
+    .replace(/[₀-₉]/g, d => String.fromCharCode(d.charCodeAt(0)-0x2080+48))
+
+  const mats  = datos.materiales  || []
+  const diags = datos.diagnosticos || []
+  const cone  = datos.cone === 'cone06' ? 'Cone 06' : datos.cone === 'cone6' ? 'Cone 6' : 'Cone 10'
+
+  // Calcular altura total
+  const matsRows = Math.ceil(mats.length / 2)
+  const diagH    = diags.reduce((acc, d) => {
+    const lines = doc.splitTextToSize(pdfTxt(d.detalle||''), W-m*2-20)
+    return acc + 6 + lines.length * 4.5
+  }, diags.length > 0 ? 10 : 0)
+  const h = 28 + matsRows * 6 + diagH
+
   if(y+h > 272){ doc.addPage(); y=20 }
   doc.setFillColor(...GRIS); doc.roundedRect(m,y,W-m*2,h,4,4,'F')
   doc.setTextColor(...NEGRO); doc.setFontSize(12); doc.setFont('helvetica','bold')
   doc.text(item.nombre || 'Sin nombre', m+5, y+9)
   doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(120,110,100)
   doc.text(formatFecha(item.fecha)||'', W-m-5, y+9, {align:'right'})
+
   // Chips de ratios
   const chips = [
-    {l:'CONO',   v: cone},
-    {l:'Si',     v: String(datos.si||'—')},
-    {l:'Al',     v: String(datos.al||'—')},
-    {l:'Si:Al',  v: String(datos.siAl||'—')}
+    {l:'CONO',  v: cone},
+    {l:'Si',    v: String(datos.si||'—')},
+    {l:'Al',    v: String(datos.al||'—')},
+    {l:'Si:Al', v: String(datos.siAl||'—')}
   ]
   const cw = (W-m*2-9)/4
   chips.forEach((c,ci) => {
@@ -760,6 +779,7 @@ function renderPDF_Seger(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
     doc.setTextColor(...MARRON); doc.setFontSize(7.5); doc.setFont('helvetica','bold')
     doc.text(c.v, cx, y+21.5, {align:'center'})
   })
+
   // Materiales
   let my = y+27
   mats.forEach((mat, mi) => {
@@ -771,6 +791,27 @@ function renderPDF_Seger(doc, item, datos, y, W, m, MARRON, GRIS, BLANCO, NEGRO)
     doc.setFont('helvetica','bold'); doc.setTextColor(...MARRON)
     doc.text(mat.pct+'%', mx+(W-m*2)/2-5, my+row*6, {align:'right'})
   })
+
+  // Diagnósticos
+  if(diags.length > 0){
+    let dy = my + matsRows * 6 + 6
+    // Línea separadora
+    doc.setDrawColor(210,200,190); doc.setLineWidth(0.3)
+    doc.line(m+5, dy-2, W-m-5, dy-2)
+    diags.forEach(d => {
+      const color = d.tipo === 'ok' ? VERDE : d.tipo === 'error' ? ROJO : AMARILLO
+      const icono = d.tipo === 'ok' ? '✓' : d.tipo === 'error' ? '✕' : '!'
+      doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(...color)
+      doc.text(icono, m+5, dy+4)
+      doc.setFontSize(8.5); doc.setFont('helvetica','bold'); doc.setTextColor(...NEGRO)
+      doc.text(pdfTxt(d.titulo||''), m+11, dy+4)
+      const lines = doc.splitTextToSize(pdfTxt(d.detalle||''), W-m*2-20)
+      doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.setTextColor(100,90,80)
+      doc.text(lines, m+11, dy+9)
+      dy += 6 + lines.length * 4.5
+    })
+  }
+
   return y+h+6
 }
 
