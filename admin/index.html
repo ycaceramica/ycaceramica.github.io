@@ -885,11 +885,13 @@
         <!-- Tab: Pendientes -->
         <div id="notas-panel-pendientes" class="notas-panel" style="display:none">
           <div class="notas-agregar">
-            <input type="text" id="pendienteInput" class="notas-input-nuevo" placeholder="Nueva tarea..." maxlength="200"
-              onkeydown="if(event.key==='Enter') agregarPendiente()">
-            <button class="notas-btn-agregar" onclick="agregarPendiente()">
-              <i class="fa-solid fa-plus"></i>
-            </button>
+            <div class="notas-agregar-wrap">
+              <input type="text" id="pendienteInput" class="notas-input-nuevo" placeholder="Nueva tarea..." maxlength="200"
+                onkeydown="if(event.key==='Enter') agregarPendiente()">
+              <button class="notas-btn-agregar" onclick="agregarPendiente()" title="Agregar">
+                <i class="fa-solid fa-arrow-up"></i>
+              </button>
+            </div>
           </div>
           <ul class="pendientes-lista" id="pendientesLista"></ul>
         </div>
