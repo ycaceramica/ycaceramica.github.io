@@ -252,6 +252,24 @@
         <input type="text" id="engobeBuscador" placeholder="Buscar engobe..." oninput="filtrarEngobes()">
       </div>
       <div class="pastas-grid" id="engobesGrid"></div>
+
+      <!-- HISTORIAL DEL CATÁLOGO -->
+      <div id="historialEngobeCatalogoPanel" style="margin-top:32px">
+        <div class="historial-header">
+          <h3 class="historial-titulo">📋 Mis cálculos</h3>
+          <div class="historial-acciones">
+            <button class="btn-pdf" id="btnPDFEngobeCatalogo" onclick="descargarPDFEngobeCatalogo()" disabled>
+              <i class="fa-solid fa-file-pdf"></i> PDF
+            </button>
+            <button class="btn-limpiar" id="btnLimpiarEngobeCatalogo" onclick="limpiarHistorialEngobeCatalogo()" style="display:none">
+              <i class="fa-solid fa-trash"></i> Limpiar
+            </button>
+          </div>
+        </div>
+        <div id="historialEngobeCatalogoLista">
+          <p class="historial-vacio">Calculá un engobe para verlo aquí.</p>
+        </div>
+      </div>
     </div>
 
   </div><!-- /lab-wrapper -->
