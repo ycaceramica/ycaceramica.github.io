@@ -876,10 +876,30 @@
 
         <!-- Tab: Notas libres -->
         <div id="notas-panel-libres" class="notas-panel">
-          <div class="notas-toolbar">
-            <span class="notas-guardado" id="notasGuardadoMsg"></span>
+
+          <!-- Editor de nota activa -->
+          <div class="nota-editor-wrap">
+            <div class="nota-editor-header">
+              <input type="text" id="notaTituloActivo" class="nota-titulo-input"
+                placeholder="Título de la nota..."
+                oninput="onTituloInput()"
+                maxlength="60">
+              <span class="notas-guardado" id="notasGuardadoMsg"></span>
+            </div>
+            <textarea id="notasTexto" class="notas-textarea" placeholder="Escribí tus notas acá..."></textarea>
           </div>
-          <textarea id="notasTexto" class="notas-textarea" placeholder="Escribí tus notas acá..."></textarea>
+
+          <!-- Lista de notas -->
+          <div class="notas-lista-wrap">
+            <div class="notas-lista-header">
+              <span class="notas-lista-label">Mis notas</span>
+              <button class="notas-btn-nueva" onclick="crearNota()">
+                <i class="fa-solid fa-plus"></i> Nueva nota
+              </button>
+            </div>
+            <div class="notas-lista" id="notasLista"></div>
+          </div>
+
         </div>
 
         <!-- Tab: Pendientes -->
