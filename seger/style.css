@@ -592,6 +592,42 @@
 }
 .historial-item-borrar:hover{ opacity:1; color:#c85028; }
 
+/* ── DIAGNÓSTICOS EN HISTORIAL ── */
+.historial-item-diags{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-borde);
+}
+.historial-diag{
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border-left: 3px solid transparent;
+  background: var(--color-fondo);
+}
+.historial-diag-ok    { border-color: #5a9e6f; background: rgba(90,158,111,0.07); }
+.historial-diag-aviso { border-color: #c49a2a; background: rgba(196,154,42,0.07); }
+.historial-diag-error { border-color: #c85028; background: rgba(200,80,40,0.07);  }
+.historial-diag-titulo{
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-texto);
+  margin-bottom: 2px;
+}
+.historial-diag-detalle{
+  display: block;
+  font-size: 11px;
+  opacity: 0.65;
+  line-height: 1.55;
+  color: var(--color-texto);
+}
+
 /* ── INFO BOX ── */
 
 .calc-info-box{
