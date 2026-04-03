@@ -528,7 +528,8 @@ function guardarSeger(){
     return
   }
 
-  const { seger, si, al, siAl, materiales } = resultadoActual
+  const { seger, si, al, siAl, oxidosPct, materiales } = resultadoActual
+  const diagnosticos = diagnosticar(seger, si, al, siAl).map(d => ({ tipo: d.tipo, titulo: d.titulo, detalle: d.detalle }))
   const entrada = {
     id:        Date.now(),
     nombre,
@@ -540,6 +541,10 @@ function guardarSeger(){
     seger:     Object.fromEntries(
       Object.entries(seger).filter(([,v]) => v >= 0.001).map(([k,v]) => [k, parseFloat(v.toFixed(3))])
     ),
+    oxidosPct: Object.fromEntries(
+      Object.entries(oxidosPct).filter(([,v]) => v >= 0.01).map(([k,v]) => [k, parseFloat(v.toFixed(2))])
+    ),
+    diagnosticos,
     fecha: new Date().toLocaleDateString('es-AR')
   }
 
@@ -588,6 +593,14 @@ function renderizarHistorial(){
         <span class="historial-chip">Al: ${f.al}</span>
         <span class="historial-chip">Si:Al ${f.siAl}</span>
       </div>
+      ${f.diagnosticos && f.diagnosticos.length ? `
+      <div class="historial-item-diags">
+        ${f.diagnosticos.map(d => `
+          <div class="historial-diag historial-diag-${d.tipo}">
+            <span class="historial-diag-titulo">${d.titulo}</span>
+            <span class="historial-diag-detalle">${d.detalle}</span>
+          </div>`).join('')}
+      </div>` : ''}
     `
     lista.appendChild(item)
   })
@@ -788,13 +801,15 @@ async function guardarEnTallerSeger(){
         calculadora: 'seger',
         nombre:      item.nombre,
         datos: {
-          cone:       item.cone,
-          materiales: item.materiales,
-          si:         item.si,
-          al:         item.al,
-          siAl:       item.siAl,
-          seger:      item.seger,
-          fecha:      item.fecha
+          cone:        item.cone,
+          materiales:  item.materiales,
+          si:          item.si,
+          al:          item.al,
+          siAl:        item.siAl,
+          seger:       item.seger,
+          oxidosPct:   item.oxidosPct   || {},
+          diagnosticos: item.diagnosticos || [],
+          fecha:       item.fecha
         }
       } })
     })
