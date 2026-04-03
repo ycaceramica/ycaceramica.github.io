@@ -270,6 +270,13 @@ async function cargarPiezas(){
         armarFiltros(piezas)
         _piezasTodos  = piezas
         _piezasPagina = 0
+        // Inyectar modal si no existe
+        if(!document.getElementById('modalPieza')){
+          const m = document.createElement('div')
+          m.id = 'modalPieza'; m.className = 'pm-overlay'; m.onclick = cerrarModalPieza
+          m.innerHTML = `<div class="pm-box"><div class="pm-header"><span class="pm-header-titulo" id="pmHeaderTitulo"></span><button class="pm-cerrar" onclick="cerrarModalPiezaBtn()">&times;</button></div><div id="pmContenido"></div></div>`
+          document.body.appendChild(m)
+        }
         mostrarMasPiezas()
         // Refrescar en segundo plano
         fetch(`${API}?action=getPiezas`).then(r=>r.json()).then(d=>{
