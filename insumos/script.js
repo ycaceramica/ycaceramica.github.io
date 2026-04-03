@@ -266,6 +266,12 @@ async function cargarInsumos(){
         armarFiltros(insumos)
         _insumosTodos  = insumos
         _insumosPagina = 0
+        if(!document.getElementById('modalInsumo')){
+          const m = document.createElement('div')
+          m.id = 'modalInsumo'; m.className = 'pm-overlay'; m.onclick = cerrarModalInsumo
+          m.innerHTML = '<div class="pm-box"><div class="pm-header"><span class="pm-header-titulo" id="pmHeaderTitulo"></span><button class="pm-cerrar" onclick="cerrarModalInsumoBtn()">&times;</button></div><div id="pmContenido"></div></div>'
+          document.body.appendChild(m)
+        }
         mostrarMasInsumos()
         // Refrescar en segundo plano
         fetch(`${API}?action=getInsumos`).then(r=>r.json()).then(d=>{
