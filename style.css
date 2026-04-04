@@ -166,19 +166,34 @@ section h2{
 }
 
 .contenedor-servicios{
-  display:flex;
-  flex-wrap:wrap;
+  display:grid;
+  grid-template-columns:repeat(3, 350px);
   gap:25px;
   justify-content:center;
+  justify-items:center;
 }
 
+/* Cuando la 4ta tarjeta queda sola, centrarla en las 3 columnas */
 .contenedor-servicios .tarjeta{
-  flex: 0 1 320px;
+  width:100%;
+}
+
+.contenedor-servicios .tarjeta:last-child:nth-child(3n+1){
+  grid-column: 2 / 3;
+}
+
+@media(max-width:860px){
+  .contenedor-servicios{
+    grid-template-columns:repeat(2, 1fr);
+  }
+  .contenedor-servicios .tarjeta:last-child:nth-child(3n+1){
+    grid-column: auto;
+  }
 }
 
 @media(max-width:520px){
-  .contenedor-servicios .tarjeta{
-    flex: 1 1 100%;
+  .contenedor-servicios{
+    grid-template-columns:1fr;
   }
 }
 
