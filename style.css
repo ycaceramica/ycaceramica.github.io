@@ -166,21 +166,19 @@ section h2{
 }
 
 .contenedor-servicios{
-  display:grid;
-  grid-template-columns:repeat(3, minmax(220px, 300px));
+  display:flex;
+  flex-wrap:wrap;
   gap:25px;
   justify-content:center;
 }
 
-@media(max-width:860px){
-  .contenedor-servicios{
-    grid-template-columns:repeat(2, minmax(200px, 1fr));
-  }
+.contenedor-servicios .tarjeta{
+  flex: 0 1 320px;
 }
 
 @media(max-width:520px){
-  .contenedor-servicios{
-    grid-template-columns:1fr;
+  .contenedor-servicios .tarjeta{
+    flex: 1 1 100%;
   }
 }
 
