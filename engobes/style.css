@@ -463,18 +463,22 @@
 
 .btn-limpiar-todo,
 .btn-limpiar{
-  background:none;
+  -webkit-appearance:none;
+  appearance:none;
+  background:transparent;
   border:1px solid #d8cfc4;
   border-radius:20px;
-  padding:6px 10px;
+  padding:6px 14px;
   color:var(--color-texto);
   font-size:12px;
+  font-weight:600;
   font-family:'Plus Jakarta Sans',sans-serif;
   cursor:pointer;
   opacity:0.6;
   display:inline-flex;
   align-items:center;
-  gap:5px;
+  gap:6px;
+  transition:opacity 0.2s;
 }
 
 .btn-limpiar-todo:hover,
