@@ -2,7 +2,7 @@
 
 Sitio web completo para **YCA Cerámica — Yo Creo Arte**, un taller de cerámica artesanal en Buenos Aires. Incluye catálogo público, sistema de cursos, área de alumnos y panel de administración completo.
 
-🌐 **[ycaceramica.github.io](https://ycaceramica.github.io)**
+🌐 **ycaceramica.com.ar**
 
 ---
 
