@@ -1626,6 +1626,25 @@ body.dark #exportCurso option{
   outline: none;
   border-color: var(--color-primario);
 }
+.notas-btn-guardar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  background: var(--color-primario);
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.notas-btn-guardar:hover { background: var(--color-primario-hover); }
+.notas-btn-guardar:disabled { opacity: 0.5; cursor: default; }
 .notas-guardado {
   font-size: 12px;
   opacity: 0.5;
