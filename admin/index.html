@@ -884,6 +884,9 @@
                 placeholder="Título de la nota..."
                 oninput="onTituloInput()"
                 maxlength="60">
+              <button class="notas-btn-guardar" onclick="guardarNotasLibres()" id="btnGuardarNota">
+                <i class="fa-solid fa-floppy-disk"></i> Guardar
+              </button>
               <span class="notas-guardado" id="notasGuardadoMsg"></span>
             </div>
             <textarea id="notasTexto" class="notas-textarea" placeholder="Escribí tus notas acá..."></textarea>
