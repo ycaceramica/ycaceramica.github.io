@@ -4476,7 +4476,17 @@ function renderNotasLista() {
   })
 }
 
+function syncNotaActiva() {
+  // Persiste título y texto del editor al objeto en memoria antes de cambiar de nota
+  if (!notaActivaId) return
+  const nota = notasData.find(n => n.id === notaActivaId)
+  if (!nota) return
+  nota.titulo = document.getElementById('notaTituloActivo').value
+  nota.texto  = document.getElementById('notasTexto').value
+}
+
 function seleccionarNota(id) {
+  syncNotaActiva()   // guardar la nota actual antes de cambiar
   notaActivaId = id
   const nota = notasData.find(n => n.id === id)
   if (!nota) return
@@ -4496,6 +4506,7 @@ function crearNota() {
 
 function borrarNota(id) {
   if (notasData.length === 1) { toast('Necesitás al menos una nota', 'err'); return }
+  syncNotaActiva()
   notasData = notasData.filter(n => n.id !== id)
   if (notaActivaId === id) seleccionarNota(notasData[0].id)
   else renderNotasLista()
