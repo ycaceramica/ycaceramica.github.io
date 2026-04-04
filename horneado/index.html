@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servicio de Horneado — YCA Cerámica</title>
+
+  <!-- SEO -->
+  <meta name="description" content="¿Tenés piezas listas y ningún horno? En YCA Cerámica podés hornear tus piezas con nosotros. Cocción de bizcocho y esmalte, baja y media temperatura.">
+  <meta property="og:title" content="Servicio de Horneado — YCA Cerámica">
+  <meta property="og:description" content="Cocción de bizcocho y esmalte. Ideal para producciones pequeñas, emprendedores o pruebas de materiales.">
+  <meta property="og:image" content="https://ycaceramica.com.ar/imagenes/horneado-hero.jpg">
+  <meta property="og:url" content="https://ycaceramica.com.ar/horneado/">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://ycaceramica.com.ar/imagenes/horneado-hero.jpg">
+  <link rel="canonical" href="https://ycaceramica.com.ar/horneado/">
+
+  <link rel="icon" type="image/png" href="../imagenes/logo.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap">
+
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+
+  <!-- HERO -->
+  <section class="horn-hero">
+    <div class="horn-hero-contenido">
+      <div class="horn-badge">🔥 Servicio de horneado</div>
+      <h1>¿Tenés piezas listas<br>y ningún horno?</h1>
+      <p>En YCA podés hornear tus piezas sin tener que invertir en uno propio.<br>Cuidamos cada pieza con el mismo amor con el que hacemos las nuestras. ✨</p>
+      <a class="boton" href="#consultar">Reservar lugar</a>
+    </div>
+  </section>
+
+  <!-- QUE OFRECEMOS -->
+  <section class="horn-seccion">
+    <h2>¿Qué te ofrecemos?</h2>
+    <div class="horn-cards">
+
+      <div class="horn-card">
+        <div class="horn-card-icono">🌡️</div>
+        <h3>Cocción completa</h3>
+        <p>Bizcocho y esmalte a baja y media temperatura. Tu pieza pasa por el proceso completo para quedar impecable.</p>
+      </div>
+
+      <div class="horn-card">
+        <div class="horn-card-icono">🎨</div>
+        <h3>Ideal para vos si...</h3>
+        <p>Sos ceramista independiente, emprendedor/a o estás haciendo pruebas de materiales y necesitás acceso a un horno.</p>
+      </div>
+
+      <div class="horn-card">
+        <div class="horn-card-icono">📦</div>
+        <h3>Coordinación personalizada</h3>
+        <p>Organizamos juntos la entrega y retiro de tus piezas. Todo coordinado para que salga perfecto.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- AVISO CUPOS -->
+  <section class="horn-cupos">
+    <div class="horn-cupos-contenido">
+      <span class="horn-cupos-icono">⚠️</span>
+      <div>
+        <strong>Cupos limitados</strong>
+        <p>Al ser un taller comunitario, organizamos las horneadas con tiempo para asegurar el mejor resultado. ¡No dejes tus piezas esperando!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMO FUNCIONA -->
+  <section class="horn-seccion" id="como-funciona">
+    <h2>¿Cómo funciona?</h2>
+    <p class="seccion-subtitulo">Cuatro pasos simples para que tus piezas queden perfectas.</p>
+    <div class="pasos">
+
+      <div class="paso">
+        <div class="paso-icono">💬</div>
+        <h3>1. Consultás</h3>
+        <p>Nos escribís por WhatsApp, contándonos qué piezas tenés, el tipo de cocción que necesitás y la cantidad aproximada.</p>
+      </div>
+
+      <div class="paso">
+        <div class="paso-icono">📅</div>
+        <h3>2. Coordinamos</h3>
+        <p>Te avisamos la fecha de la próxima horneada disponible y acordamos la entrega de tus piezas en El Jagüel.</p>
+      </div>
+
+      <div class="paso">
+        <div class="paso-icono">🔥</div>
+        <h3>3. Horneamos</h3>
+        <p>Cargamos el horno con cuidado. Cada pieza ocupa su lugar para que la cocción sea pareja y el resultado impecable.</p>
+      </div>
+
+      <div class="paso">
+        <div class="paso-icono">✨</div>
+        <h3>4. Retirás</h3>
+        <p>Te avisamos cuando está listo y coordinamos el retiro. Tus piezas, listas para usar o entregar.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FORMULARIO -->
+  <section class="horn-seccion" id="consultar">
+    <h2>Reservá tu lugar</h2>
+    <p class="seccion-subtitulo">Completá el formulario y te respondemos a la brevedad. 📍 Estamos en El Jagüel.</p>
+
+    <div class="formulario-wrapper">
+      <div class="formulario-card">
+
+        <div class="campo">
+          <label>Nombre y apellido *</label>
+          <input type="text" id="nombre" placeholder="Tu nombre completo">
+        </div>
+
+        <div class="campo">
+          <label>Teléfono *</label>
+          <input type="tel" id="telefono" placeholder="Ej: 11 1234-5678">
+        </div>
+
+        <div class="campo">
+          <label>Tipo de cocción que necesitás *</label>
+          <select id="tipoCoccion">
+            <option value="">Seleccioná una opción</option>
+            <option value="Bizcocho (primera cocción)">Bizcocho (primera cocción)</option>
+            <option value="Esmalte (segunda cocción)">Esmalte (segunda cocción)</option>
+            <option value="Bizcocho y esmalte (las dos)">Bizcocho y esmalte (las dos)</option>
+            <option value="No sé todavía / necesito asesoramiento">No sé todavía / necesito asesoramiento</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label>Temperatura aproximada *</label>
+          <select id="temperatura">
+            <option value="">Seleccioná una opción</option>
+            <option value="Baja temperatura (900°–1050°C)">Baja temperatura (900°–1050°C)</option>
+            <option value="Media temperatura (1160°–1220°C)">Media temperatura (1160°–1220°C)</option>
+            <option value="No sé / necesito asesoramiento">No sé / necesito asesoramiento</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label>Cantidad de piezas aproximada *</label>
+          <select id="cantidad">
+            <option value="">Seleccioná una opción</option>
+            <option value="Menos de 10 piezas">Menos de 10 piezas</option>
+            <option value="Entre 10 y 30 piezas">Entre 10 y 30 piezas</option>
+            <option value="Más de 30 piezas">Más de 30 piezas</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label>Fecha estimada (opcional)</label>
+          <input type="date" id="fecha">
+        </div>
+
+        <div class="campo">
+          <label>Mensaje adicional</label>
+          <textarea id="mensaje" placeholder="Contanos más sobre tus piezas, materiales, tamaño, etc." rows="4"></textarea>
+        </div>
+
+        <div class="formulario-botones">
+          <button class="boton-formulario" onclick="enviarWhatsApp()">
+            <i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp
+          </button>
+          <p id="formError" style="display:none;color:#c85028;font-size:13px;font-weight:600;margin-top:8px;text-align:center"></p>
+        </div>
+
+        <p class="formulario-nota">* Campos obligatorios. Te respondemos dentro de las 24hs.</p>
+
+      </div>
+    </div>
+  </section>
+
+  <a class="whatsapp" href="https://wa.me/5491160387535" target="_blank">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <footer>
+    <p>© 2026 YCA Cerámica</p>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="../nav-ceramista.js"></script>
+
+</body>
+</html>
