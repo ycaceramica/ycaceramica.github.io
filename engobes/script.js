@@ -513,6 +513,66 @@ async function descargarPDF(){
 // INIT
 // ─────────────────────────────────────────────
 
+function guardarHistorial(){
+  localStorage.setItem('engobes_historial', JSON.stringify(historial))
+}
+
+async function generarPDFItems(items, filename){
+  if(!items.length) return
+  const { jsPDF } = window.jspdf
+  const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' })
+  const W=210, m=18
+  const MARRON=[139,111,86], GRIS=[245,240,235], BLANCO=[255,255,255], NEGRO=[40,35,30]
+
+  doc.setFillColor(...MARRON); doc.rect(0,0,W,40,'F')
+  const logo = await cargarLogoBase64()
+  if(logo) doc.addImage(logo,'PNG',m,8,22,22)
+  doc.setTextColor(...BLANCO); doc.setFontSize(20); doc.setFont('helvetica','bold')
+  doc.text('YCA Ceramica', m+26, 17)
+  doc.setFontSize(10); doc.setFont('helvetica','normal')
+  doc.text('Engobes del Taller', m+26, 24)
+  doc.setFontSize(8)
+  doc.text('instagram: @ycaceramica   |   tiktok: @yca.ceramica', m+26, 31)
+  const fecha = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'})
+  doc.text(`Generado: ${fecha}`, W-m, 36, {align:'right'})
+  let y = 50
+
+  items.forEach((f, idx) => {
+    const comps = f.componentes || []
+    const h = 20 + 14 + 6
+    if(y+h > 272){ doc.addPage(); y=20 }
+
+    doc.setFillColor(...GRIS); doc.roundedRect(m,y,W-m*2,h,4,4,'F')
+    doc.setTextColor(...MARRON); doc.setFontSize(11); doc.setFont('helvetica','bold')
+    doc.text(`#${idx+1}`, m+5, y+9)
+    doc.setTextColor(...NEGRO); doc.setFontSize(13); doc.setFont('helvetica','bold')
+    doc.text(f.nombre||'Sin nombre', m+18, y+9)
+    doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(120,110,100)
+    doc.text(`${f.gramos||'—'}g  |  ${f.fecha||''}`, m+18, y+15)
+
+    y += 22
+    const n   = comps.length
+    const colW = n > 0 ? (W-m*2-(n-1)*3)/n : W-m*2
+    comps.forEach((c,ci) => {
+      const x  = m + ci*(colW+3)
+      const cx = x + colW/2
+      doc.setFillColor(...BLANCO); doc.roundedRect(x,y,colW,14,2,2,'F')
+      doc.setTextColor(120,110,100); doc.setFontSize(6.5); doc.setFont('helvetica','bold')
+      doc.text((c.nombre||'').toUpperCase(), cx, y+4.5, {align:'center', maxWidth:colW-4})
+      doc.setTextColor(...MARRON); doc.setFontSize(11); doc.setFont('helvetica','bold')
+      doc.text(`${c.gramos||0}g`, cx, y+10, {align:'center'})
+      doc.setTextColor(160,150,140); doc.setFontSize(6.5); doc.setFont('helvetica','normal')
+      doc.text(`${c.porcentaje||0}%`, cx, y+13.5, {align:'center'})
+    })
+    y += 18
+  })
+
+  doc.setFillColor(...GRIS); doc.rect(0,287,W,10,'F')
+  doc.setTextColor(160,150,140); doc.setFontSize(7); doc.setFont('helvetica','normal')
+  doc.text('ycaceramica.com.ar  |  YCA Ceramica 2026', W/2, 293, {align:'center'})
+  doc.save(filename || 'YCA_Ceramica_Engobes.pdf')
+}
+
 calcular()
 renderizarHistorial()
 
@@ -528,7 +588,7 @@ function verificarSesionTaller(){
     if(btn) btn.style.display = activo ? "flex" : "none"
   } catch(e){}
 }
-function guardarEnTaller(){
+async function guardarEnTaller(){
   try {
     const ceramista = JSON.parse(localStorage.getItem("ceramista_sesion") || "null")
     const alumno    = JSON.parse(sessionStorage.getItem("yca_sesion") || "null")
@@ -549,14 +609,13 @@ function guardarEnTaller(){
     const userId  = esCeramista ? ceramista.id : alumno.id
     const destino = esCeramista ? "mi taller" : "mi cuenta"
     // Chequear límite de historial
-    const esPro   = sesion.plan === 'pro'
+    const sesionActiva = esCeramista ? ceramista : alumno
+    const esPro   = sesionActiva && sesionActiva.plan === 'pro'
     const limite  = esPro ? 30 : 10
     const histAction = esCeramista ? 'getHistorialTaller' : 'getHistorialAlumno'
     try {
-      const xhr = new XMLHttpRequest()
-      xhr.open('GET', API + '?action=' + histAction + '&id=' + encodeURIComponent(sesion.id), false)
-      xhr.send()
-      const dataH = JSON.parse(xhr.responseText)
+      const resH  = await fetch(`${API}?action=${histAction}&id=${encodeURIComponent(userId)}`)
+      const dataH = await resH.json()
       const totalGuardados = (dataH.data || []).length
       if(totalGuardados >= limite){
         const msg = esPro
