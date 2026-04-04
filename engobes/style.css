@@ -461,18 +461,24 @@
   cursor:default;
 }
 
-.btn-limpiar-todo{
+.btn-limpiar-todo,
+.btn-limpiar{
   background:none;
   border:1px solid #d8cfc4;
   border-radius:20px;
   padding:6px 10px;
   color:var(--color-texto);
   font-size:12px;
+  font-family:'Plus Jakarta Sans',sans-serif;
   cursor:pointer;
   opacity:0.6;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
 }
 
-.btn-limpiar-todo:hover{
+.btn-limpiar-todo:hover,
+.btn-limpiar:hover{
   opacity:1;
 }
 
