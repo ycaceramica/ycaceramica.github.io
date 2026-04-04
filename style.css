@@ -187,6 +187,13 @@ section h2{
 @media(max-width:520px){
   .contenedor-servicios{
     grid-template-columns:1fr;
+    gap:16px;
+  }
+  .contenedor-servicios .tarjeta:last-child:nth-child(3n+1){
+    grid-column: auto;
+  }
+  .tarjeta:hover{
+    transform:none;
   }
 }
 
