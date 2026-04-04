@@ -170,12 +170,6 @@ section h2{
   grid-template-columns:repeat(3, 350px);
   gap:25px;
   justify-content:center;
-  justify-items:center;
-}
-
-/* Cuando la 4ta tarjeta queda sola, centrarla en las 3 columnas */
-.contenedor-servicios .tarjeta{
-  width:100%;
 }
 
 .contenedor-servicios .tarjeta:last-child:nth-child(3n+1){
