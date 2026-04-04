@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Páginas privadas — no indexar
+Disallow: /admin/
+Disallow: /login/
+Disallow: /mi-cuenta/
+Disallow: /mi-taller/
+Disallow: /pro/
+
+Sitemap: https://ycaceramica.com.ar/sitemap.xml
