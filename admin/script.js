@@ -4432,8 +4432,9 @@ async function toggleMantenimiento(valor){
 // BLOC DE NOTAS
 // ─────────────────────────────────────────────
 
-let notasDebounce = null
 let notasCargadas = false
+let notasData     = []
+let notaActivaId  = null
 
 async function cargarNotas() {
   if (notasCargadas) return
@@ -4444,25 +4445,66 @@ async function cargarNotas() {
     if (!data.ok) { toast('❌ Error al cargar notas', 'err'); return }
 
     const notas = data.notas || {}
-
-    // Notas libres
-    document.getElementById('notasTexto').value = notas.texto || ''
-
-    // Pendientes
+    notasData      = notas.libres     || []
     pendientesData = notas.pendientes || []
+
+    if (notasData.length === 0) notasData.push({ id: Date.now(), titulo: 'Mi primera nota', texto: '' })
+
+    renderNotasLista()
+    seleccionarNota(notasData[0].id)
     renderPendientes()
-
     notasCargadas = true
-
-    // Auto-save al escribir
-    document.getElementById('notasTexto').addEventListener('input', () => {
-      clearTimeout(notasDebounce)
-      setGuardadoMsg('Guardando...')
-      notasDebounce = setTimeout(guardarNotasTexto, 1200)
-    })
   } catch(e) {
     toast('❌ Error de conexión', 'err')
   }
+}
+
+function renderNotasLista() {
+  const lista = document.getElementById('notasLista')
+  if (!lista) return
+  lista.innerHTML = ''
+  notasData.forEach(nota => {
+    const chip = document.createElement('div')
+    chip.className = 'nota-chip' + (nota.id === notaActivaId ? ' activa' : '')
+    chip.innerHTML = `
+      <span class="nota-chip-titulo">${nota.titulo || 'Sin título'}</span>
+      <button class="nota-chip-borrar" onclick="event.stopPropagation(); borrarNota(${nota.id})" title="Eliminar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>`
+    chip.addEventListener('click', () => seleccionarNota(nota.id))
+    lista.appendChild(chip)
+  })
+}
+
+function seleccionarNota(id) {
+  notaActivaId = id
+  const nota = notasData.find(n => n.id === id)
+  if (!nota) return
+  document.getElementById('notaTituloActivo').value = nota.titulo || ''
+  document.getElementById('notasTexto').value       = nota.texto  || ''
+  renderNotasLista()
+}
+
+function crearNota() {
+  const nueva = { id: Date.now(), titulo: 'Nueva nota', texto: '' }
+  notasData.unshift(nueva)
+  renderNotasLista()
+  seleccionarNota(nueva.id)
+  document.getElementById('notaTituloActivo').focus()
+  document.getElementById('notaTituloActivo').select()
+}
+
+function borrarNota(id) {
+  if (notasData.length === 1) { toast('Necesitás al menos una nota', 'err'); return }
+  notasData = notasData.filter(n => n.id !== id)
+  if (notaActivaId === id) seleccionarNota(notasData[0].id)
+  else renderNotasLista()
+}
+
+function onTituloInput() {
+  const nota = notasData.find(n => n.id === notaActivaId)
+  if (nota) nota.titulo = document.getElementById('notaTituloActivo').value
+  renderNotasLista()
 }
 
 function setNotasTab(tab) {
@@ -4477,20 +4519,27 @@ function setGuardadoMsg(msg) {
   if (el) el.textContent = msg
 }
 
-async function guardarNotasTexto() {
+async function guardarNotasLibres() {
+  // Sync textarea al objeto activo antes de guardar
+  const nota = notasData.find(n => n.id === notaActivaId)
+  if (nota) nota.texto = document.getElementById('notasTexto').value
+
+  const btn = document.getElementById('btnGuardarNota')
+  if (btn) btn.disabled = true
+  setGuardadoMsg('Guardando...')
+
   const sesion = getSesion()
-  const texto  = document.getElementById('notasTexto').value
   try {
-    const res  = await fetch(API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'guardarNotas', token: sesion.token, tipo: 'texto', valor: texto })
-    })
-    const data = await res.json()
+    const valor = encodeURIComponent(JSON.stringify(notasData))
+    const url   = `${API}?action=guardarNotas&token=${encodeURIComponent(sesion.token)}&tipo=libres&valor=${valor}`
+    const res   = await fetch(url)
+    const data  = await res.json()
     setGuardadoMsg(data.ok ? 'Guardado ✓' : '❌ Error al guardar')
     if (data.ok) setTimeout(() => setGuardadoMsg(''), 2500)
   } catch(e) {
     setGuardadoMsg('❌ Error de conexión')
+  } finally {
+    if (btn) btn.disabled = false
   }
 }
 
@@ -4541,10 +4590,8 @@ function borrarPendiente(i) {
 async function guardarPendientes() {
   const sesion = getSesion()
   try {
-    await fetch(API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'guardarNotas', token: sesion.token, tipo: 'pendientes', valor: pendientesData })
-    })
+    const valor = encodeURIComponent(JSON.stringify(pendientesData))
+    const url   = `${API}?action=guardarNotas&token=${encodeURIComponent(sesion.token)}&tipo=pendientes&valor=${valor}`
+    await fetch(url)
   } catch(e) { /* silencioso */ }
 }
