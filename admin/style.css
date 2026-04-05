@@ -1877,3 +1877,73 @@ body.dark #exportCurso option{
   flex-shrink: 0;
 }
 .pendiente-borrar:hover { opacity: 0.8; }
+
+/* ── HORNEADO ── */
+
+.btn-accion-sm {
+  padding: 5px 12px;
+  border: none;
+  border-radius: 20px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.btn-accion-sm.btn-ok {
+  background: rgba(82,168,82,0.12);
+  color: #2e7d32;
+  border: 1.5px solid rgba(82,168,82,0.3);
+}
+.btn-accion-sm.btn-ok:hover {
+  background: #2e7d32;
+  color: white;
+}
+
+.btn-danger {
+  flex: 1;
+  padding: 11px;
+  border: 1.5px solid rgba(168,82,82,0.35);
+  border-radius: 30px;
+  background: rgba(168,82,82,0.08);
+  color: #a85252;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-danger:hover {
+  background: #a85252;
+  color: white;
+}
+
+/* Tarjetas horneado — igual que usuario-card pero con cursor pointer y sin flex fijo */
+#lista-horneado .usuario-card {
+  flex-direction: column;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+#lista-horneado .usuario-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px var(--color-sombra);
+}
+
+/* Badge sidebar horneado */
+#badgeHorneado {
+  background: #c85028;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: auto;
+}
