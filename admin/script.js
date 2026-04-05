@@ -4464,10 +4464,17 @@ function renderNotasLista() {
   if (!lista) return
   lista.innerHTML = ''
   notasData.forEach(nota => {
-    const chip = document.createElement('div')
-    chip.className = 'nota-chip' + (nota.id === notaActivaId ? ' activa' : '')
+    const chip    = document.createElement('div')
+    const activa  = nota.id === notaActivaId
+    chip.className = 'nota-chip' + (activa ? ' activa' : '')
+    const preview = (nota.texto || '').trim().slice(0, 40) || '—'
+    const fecha   = nota.fecha ? `<span class="nota-chip-fecha">${nota.fecha}</span>` : ''
     chip.innerHTML = `
-      <span class="nota-chip-titulo">${nota.titulo || 'Sin título'}</span>
+      <div class="nota-chip-body">
+        <span class="nota-chip-titulo">${nota.titulo || 'Sin título'}</span>
+        <span class="nota-chip-preview">${preview}${(nota.texto||'').length > 40 ? '...' : ''}</span>
+        ${fecha}
+      </div>
       <button class="nota-chip-borrar" onclick="event.stopPropagation(); borrarNota(${nota.id})" title="Eliminar">
         <i class="fa-solid fa-xmark"></i>
       </button>`
@@ -4496,7 +4503,7 @@ function seleccionarNota(id) {
 }
 
 function crearNota() {
-  const nueva = { id: Date.now(), titulo: 'Nueva nota', texto: '' }
+  const nueva = { id: Date.now(), titulo: 'Nueva nota', texto: '', fecha: new Date().toLocaleDateString('es-AR') }
   notasData.unshift(nueva)
   renderNotasLista()
   seleccionarNota(nueva.id)
@@ -4545,8 +4552,15 @@ async function guardarNotasLibres() {
     const url   = `${API}?action=guardarNotas&token=${encodeURIComponent(sesion.token)}&tipo=libres&valor=${valor}`
     const res   = await fetch(url)
     const data  = await res.json()
-    setGuardadoMsg(data.ok ? 'Guardado ✓' : '❌ Error al guardar')
-    if (data.ok) setTimeout(() => setGuardadoMsg(''), 2500)
+    if (data.ok) {
+      setGuardadoMsg('Guardado ✓')
+      setTimeout(() => {
+        setGuardadoMsg('')
+        crearNota()
+      }, 800)
+    } else {
+      setGuardadoMsg('❌ Error al guardar')
+    }
   } catch(e) {
     setGuardadoMsg('❌ Error de conexión')
   } finally {
