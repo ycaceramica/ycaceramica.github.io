@@ -150,6 +150,7 @@ async function cargarSeccion(nombre){
   if(nombre === 'notas')        { await cargarNotas();        return }
   if(nombre === 'pastas')       { await cargarPastas();       return }
   if(nombre === 'engobes')      { await cargarEngobes();      return }
+  if(nombre === 'horneado')     { await cargarHorneado();     return }
   if(nombre === 'piezas')       { cargarConfigPiezas() }
   if(nombre === 'insumos')      { cargarConfigInsumos() }
 
@@ -4619,4 +4620,262 @@ async function guardarPendientes() {
     const url   = `${API}?action=guardarNotas&token=${encodeURIComponent(sesion.token)}&tipo=pendientes&valor=${valor}`
     await fetch(url)
   } catch(e) { /* silencioso */ }
+}
+
+// ============================================================
+//  HORNEADO
+// ============================================================
+
+const ESTADOS_HORNEADO = ['pendiente', 'confirmado', 'en horno', 'listo', 'entregado']
+const COLORES_HORNEADO = {
+  'pendiente':  { bg: '#fff8e1', color: '#b26a00', label: 'Pendiente'  },
+  'confirmado': { bg: '#e8f5e9', color: '#2e7d32', label: 'Confirmado' },
+  'en horno':   { bg: '#fce4ec', color: '#c62828', label: 'En horno'   },
+  'listo':      { bg: '#e3f2fd', color: '#1565c0', label: 'Listo'      },
+  'entregado':  { bg: '#f3e5f5', color: '#6a1b9a', label: 'Entregado'  }
+}
+
+let pedidosHorneado   = []
+let horneadoTabActual = 'pendiente'
+let pedidoSeleccionado = null
+
+async function cargarHorneado() {
+  const loading = document.getElementById('loading-horneado')
+  const lista   = document.getElementById('lista-horneado')
+  if (loading) loading.style.display = 'block'
+  if (lista)   lista.innerHTML = ''
+
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(`${API}?action=getHorneado&token=${encodeURIComponent(sesion.token)}`)
+    const data   = await res.json()
+    pedidosHorneado = data.ok ? (data.data || []) : []
+    actualizarBadgesHorneado()
+    renderHorneado()
+  } catch(e) {
+    if (lista) lista.innerHTML = '<p style="opacity:.5;padding:20px">Error al cargar pedidos.</p>'
+  } finally {
+    if (loading) loading.style.display = 'none'
+  }
+}
+
+function actualizarBadgesHorneado() {
+  ESTADOS_HORNEADO.forEach(est => {
+    const cnt = pedidosHorneado.filter(p => (p.estado || 'pendiente') === est).length
+    const el  = document.getElementById('hcnt-' + est.replace(' ', '-'))
+    if (el) el.textContent = cnt
+  })
+  // Badge sidebar — solo pendientes
+  const pendientes = pedidosHorneado.filter(p => (p.estado || 'pendiente') === 'pendiente').length
+  const badge = document.getElementById('badgeHorneado')
+  if (badge) {
+    badge.style.display = pendientes > 0 ? 'inline-flex' : 'none'
+    badge.textContent   = pendientes
+  }
+}
+
+function setHorneadoTab(estado) {
+  horneadoTabActual = estado
+  document.querySelectorAll('[id^="htab-"]').forEach(b => b.classList.remove('activo'))
+  const tabId = 'htab-' + estado.replace(' ', '-')
+  const tab   = document.getElementById(tabId)
+  if (tab) tab.classList.add('activo')
+  renderHorneado()
+}
+
+function renderHorneado() {
+  const lista = document.getElementById('lista-horneado')
+  if (!lista) return
+
+  const filtrados = pedidosHorneado.filter(p => (p.estado || 'pendiente') === horneadoTabActual)
+
+  if (filtrados.length === 0) {
+    lista.innerHTML = '<p style="opacity:.5;padding:20px;text-align:center">No hay pedidos en este estado.</p>'
+    return
+  }
+
+  const col = COLORES_HORNEADO[horneadoTabActual] || COLORES_HORNEADO['pendiente']
+
+  lista.innerHTML = filtrados.map(p => {
+    const siguiente = ESTADOS_HORNEADO[ESTADOS_HORNEADO.indexOf(p.estado || 'pendiente') + 1]
+    const btnAvanzar = siguiente
+      ? `<button class="btn-accion-sm btn-ok" onclick="avanzarEstadoHorneado('${p.id}','${siguiente}',event)">
+           <i class="fa-solid fa-arrow-right"></i> ${COLORES_HORNEADO[siguiente].label}
+         </button>`
+      : `<span style="font-size:11px;color:#6a1b9a;font-weight:600">✓ Entregado</span>`
+
+    return `<div class="usuario-card" style="cursor:pointer" onclick="abrirModalHorneado('${p.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+            <span style="font-size:15px;font-weight:700;color:var(--color-primario)">${p.codigo || '—'}</span>
+            <span style="font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px;background:${col.bg};color:${col.color}">${col.label}</span>
+          </div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:2px">${p.nombre || '—'}</div>
+          <div style="font-size:12px;opacity:.65">${p.telefono || ''}${p.email ? ' · ' + p.email : ''}</div>
+          <div style="font-size:11px;opacity:.5;margin-top:3px">${p.etapa || ''} · ${p.cantidad || ''} piezas · ${p.fechaRegistro || ''}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0" onclick="event.stopPropagation()">
+          ${btnAvanzar}
+        </div>
+      </div>
+    </div>`
+  }).join('')
+}
+
+function abrirModalHorneado(id) {
+  const p = pedidosHorneado.find(x => x.id === id)
+  if (!p) return
+  pedidoSeleccionado = p
+
+  document.getElementById('mHorneadoTitulo').textContent = 'Pedido ' + (p.codigo || id)
+
+  const col = COLORES_HORNEADO[p.estado || 'pendiente'] || COLORES_HORNEADO['pendiente']
+
+  function fila(label, valor) {
+    if (!valor) return ''
+    return `<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--color-borde)">
+      <span style="font-size:12px;font-weight:700;color:var(--color-primario);width:160px;flex-shrink:0">${label}</span>
+      <span style="font-size:12px">${valor}</span>
+    </div>`
+  }
+
+  // Selector de estado
+  const optsEstado = ESTADOS_HORNEADO.map(e =>
+    `<option value="${e}" ${e === (p.estado || 'pendiente') ? 'selected' : ''}>${COLORES_HORNEADO[e].label}</option>`
+  ).join('')
+
+  document.getElementById('mHorneadoBody').innerHTML = `
+    <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px">
+      <label style="font-size:12px;font-weight:700;color:var(--color-primario)">Estado:</label>
+      <select id="selectEstadoHorneado" style="padding:6px 12px;border-radius:8px;border:1.5px solid var(--color-borde);font-size:13px;font-family:inherit">
+        ${optsEstado}
+      </select>
+      <button class="btn-accion-sm btn-ok" onclick="guardarEstadoHorneado()">Guardar</button>
+    </div>
+    ${fila('Nombre',   p.nombre)}
+    ${fila('Teléfono', p.telefono)}
+    ${fila('Email',    p.email)}
+    ${fila('Zona',     p.zona)}
+    ${fila('Uso',      p.uso)}
+    ${fila('Etapa',    p.etapa)}
+    ${fila('Cantidad', p.cantidad)}
+    ${fila('Tamaño',   p.tamano)}
+    ${fila('Pasta',    p.pasta)}
+    ${fila('Temp. pasta', p.tempPasta)}
+    ${fila('Piezas secas', p.secas)}
+    ${fila('¿Tiene esmalte?', p.tieneEsmalte)}
+    ${fila('Tipo esmalte', p.tipoEsmalte)}
+    ${fila('Temp. esmalte', p.tempEsmalte)}
+    ${fila('Esmalte en base', p.esmalteBase)}
+    ${fila('Partes gruesas', p.gruesosCerrados)}
+    ${fila('Fecha estimada', p.fechaNecesidad)}
+    ${fila('Comentarios', p.comentarios)}
+    ${fila('Fecha registro', p.fechaRegistro)}
+  `
+  document.getElementById('modalHorneado').style.display = 'flex'
+}
+
+function cerrarModalHorneado(e) {
+  if (e && e.target !== document.getElementById('modalHorneado')) return
+  document.getElementById('modalHorneado').style.display = 'none'
+  pedidoSeleccionado = null
+}
+
+async function guardarEstadoHorneado() {
+  if (!pedidoSeleccionado) return
+  const nuevoEstado = document.getElementById('selectEstadoHorneado').value
+  const sesion      = getSesion()
+
+  try {
+    const res  = await fetch(API, {
+      method: 'POST',
+      body:   JSON.stringify({
+        action: 'actualizarCampo',
+        hoja:   'pedidos_horneado',
+        id:     pedidoSeleccionado.id,
+        campo:  'estado',
+        valor:  nuevoEstado,
+        token:  sesion.token
+      })
+    })
+    const data = await res.json()
+    if (data.ok) {
+      pedidoSeleccionado.estado = nuevoEstado
+      actualizarBadgesHorneado()
+      renderHorneado()
+      cerrarModalHorneado()
+      toast('✅ Estado actualizado', 'ok')
+    } else {
+      toast('❌ Error: ' + (data.error || 'desconocido'), 'error')
+    }
+  } catch(e) {
+    toast('❌ Error de conexión', 'error')
+  }
+}
+
+async function avanzarEstadoHorneado(id, nuevoEstado, event) {
+  if (event) event.stopPropagation()
+  const sesion = getSesion()
+  try {
+    const res  = await fetch(API, {
+      method: 'POST',
+      body:   JSON.stringify({
+        action: 'actualizarCampo',
+        hoja:   'pedidos_horneado',
+        id:     id,
+        campo:  'estado',
+        valor:  nuevoEstado,
+        token:  sesion.token
+      })
+    })
+    const data = await res.json()
+    if (data.ok) {
+      const p = pedidosHorneado.find(x => x.id === id)
+      if (p) p.estado = nuevoEstado
+      actualizarBadgesHorneado()
+      renderHorneado()
+      toast('✅ ' + COLORES_HORNEADO[nuevoEstado].label, 'ok')
+    } else {
+      toast('❌ Error al actualizar', 'error')
+    }
+  } catch(e) {
+    toast('❌ Error de conexión', 'error')
+  }
+}
+
+async function eliminarPedidoHorneado() {
+  if (!pedidoSeleccionado) return
+  const p = pedidoSeleccionado
+
+  abrirModalConfirmarAccion(
+    '¿Eliminar pedido ' + (p.codigo || p.id) + '?',
+    'Esta acción no se puede deshacer.',
+    async function() {
+      const sesion = getSesion()
+      try {
+        const res  = await fetch(API, {
+          method: 'POST',
+          body:   JSON.stringify({
+            action: 'eliminar',
+            hoja:   'pedidos_horneado',
+            id:     p.id,
+            token:  sesion.token
+          })
+        })
+        const data = await res.json()
+        if (data.ok) {
+          pedidosHorneado = pedidosHorneado.filter(x => x.id !== p.id)
+          actualizarBadgesHorneado()
+          renderHorneado()
+          cerrarModalHorneado()
+          toast('🗑 Pedido eliminado', 'ok')
+        } else {
+          toast('❌ Error: ' + (data.error || 'desconocido'), 'error')
+        }
+      } catch(e) {
+        toast('❌ Error de conexión', 'error')
+      }
+    }
+  )
 }
