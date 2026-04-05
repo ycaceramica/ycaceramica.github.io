@@ -58,63 +58,33 @@
       <div class="horn-card">
         <div class="horn-card-icono">📦</div>
         <h3>Coordinación personalizada</h3>
-        <p>Organizamos juntos la entrega y retiro de tus piezas. Todo coordinado para que salga perfecto.</p>
+        <p>Cada horneada se coordina según tus piezas y materiales. Te contactamos para confirmar fecha y detalles.</p>
       </div>
 
     </div>
   </section>
 
   <!-- AVISO CUPOS -->
-  <section class="horn-cupos">
+  <div class="horn-cupos">
     <div class="horn-cupos-contenido">
-      <span class="horn-cupos-icono">⚠️</span>
+      <div class="horn-cupos-icono">⚠️</div>
       <div>
-        <strong>Cupos limitados</strong>
-        <p>Al ser un taller comunitario, organizamos las horneadas con tiempo para asegurar el mejor resultado. ¡No dejes tus piezas esperando!</p>
+        <strong>Los cupos son limitados</strong>
+        <p>Las horneadas se organizan por carga y temperatura. Completá el formulario y te avisamos la fecha disponible más cercana.</p>
       </div>
     </div>
-  </section>
-
-  <!-- COMO FUNCIONA -->
-  <section class="horn-seccion" id="como-funciona">
-    <h2>¿Cómo funciona?</h2>
-    <p class="seccion-subtitulo">Cuatro pasos simples para que tus piezas queden perfectas.</p>
-    <div class="pasos">
-
-      <div class="paso">
-        <div class="paso-icono">💬</div>
-        <h3>1. Consultás</h3>
-        <p>Nos escribís por WhatsApp, contándonos qué piezas tenés, el tipo de cocción que necesitás y la cantidad aproximada.</p>
-      </div>
-
-      <div class="paso">
-        <div class="paso-icono">📅</div>
-        <h3>2. Coordinamos</h3>
-        <p>Te avisamos la fecha de la próxima horneada disponible y acordamos la entrega de tus piezas en El Jagüel.</p>
-      </div>
-
-      <div class="paso">
-        <div class="paso-icono">🔥</div>
-        <h3>3. Horneamos</h3>
-        <p>Cargamos el horno con cuidado. Cada pieza ocupa su lugar para que la cocción sea pareja y el resultado impecable.</p>
-      </div>
-
-      <div class="paso">
-        <div class="paso-icono">✨</div>
-        <h3>4. Retirás</h3>
-        <p>Te avisamos cuando está listo y coordinamos el retiro. Tus piezas, listas para usar o entregar.</p>
-      </div>
-
-    </div>
-  </section>
+  </div>
 
   <!-- FORMULARIO -->
   <section class="horn-seccion" id="consultar">
-    <h2>Reservá tu lugar</h2>
-    <p class="seccion-subtitulo">Completá el formulario y te respondemos a la brevedad. 📍 Estamos en El Jagüel.</p>
+    <h2>Reservá tu lugar 🔥</h2>
+    <p class="seccion-subtitulo">Completá el formulario con toda la info de tus piezas. Así podemos evaluar la cocción y coordinar mejor. 📍 Estamos en El Jagüel.</p>
 
     <div class="formulario-wrapper">
       <div class="formulario-card">
+
+        <!-- SECCIÓN 1: DATOS GENERALES -->
+        <div class="form-seccion-titulo">📌 Datos generales</div>
 
         <div class="campo">
           <label>Nombre y apellido *</label>
@@ -122,63 +92,209 @@
         </div>
 
         <div class="campo">
-          <label>Teléfono *</label>
+          <label>Email (para enviarte la confirmación)</label>
+          <input type="email" id="email" placeholder="tu@email.com">
+        </div>
+
+        <div class="campo">
+          <label>Teléfono / WhatsApp *</label>
           <input type="tel" id="telefono" placeholder="Ej: 11 1234-5678">
         </div>
 
         <div class="campo">
-          <label>Tipo de cocción que necesitás *</label>
-          <select id="tipoCoccion">
-            <option value="">Seleccioná una opción</option>
-            <option value="Bizcocho (primera cocción)">Bizcocho (primera cocción)</option>
-            <option value="Esmalte (segunda cocción)">Esmalte (segunda cocción)</option>
-            <option value="Bizcocho y esmalte (las dos)">Bizcocho y esmalte (las dos)</option>
-            <option value="No sé todavía / necesito asesoramiento">No sé todavía / necesito asesoramiento</option>
-          </select>
+          <label>¿De qué zona sos?</label>
+          <input type="text" id="zona" placeholder="Ej: Ezeiza, Lomas de Zamora...">
+        </div>
+
+        <!-- SECCIÓN 2: SOBRE TUS PIEZAS -->
+        <div class="form-seccion-titulo">🎨 Sobre tus piezas</div>
+
+        <div class="campo">
+          <label>¿Las piezas son para uso personal o tenés taller / emprendimiento? *</label>
+          <div class="radio-group">
+            <label class="radio-opcion">
+              <input type="radio" name="uso" value="Uso personal"> Uso personal
+            </label>
+            <label class="radio-opcion">
+              <input type="radio" name="uso" value="Taller / emprendimiento"> Taller / emprendimiento
+            </label>
+          </div>
         </div>
 
         <div class="campo">
-          <label>Temperatura aproximada *</label>
-          <select id="temperatura">
-            <option value="">Seleccioná una opción</option>
-            <option value="Baja temperatura (900°–1050°C)">Baja temperatura (900°–1050°C)</option>
-            <option value="Media temperatura (1160°–1220°C)">Media temperatura (1160°–1220°C)</option>
-            <option value="No sé / necesito asesoramiento">No sé / necesito asesoramiento</option>
-          </select>
+          <label>¿En qué etapa están las piezas? *</label>
+          <div class="radio-group">
+            <label class="radio-opcion">
+              <input type="radio" name="etapa" value="Crudo (sin primera cocción)"> Crudo (sin primera cocción)
+            </label>
+            <label class="radio-opcion">
+              <input type="radio" name="etapa" value="Bizcochado"> Bizcochado
+            </label>
+            <label class="radio-opcion">
+              <input type="radio" name="etapa" value="Esmaltado"> Esmaltado
+            </label>
+          </div>
         </div>
 
         <div class="campo">
-          <label>Cantidad de piezas aproximada *</label>
-          <select id="cantidad">
-            <option value="">Seleccioná una opción</option>
-            <option value="Menos de 10 piezas">Menos de 10 piezas</option>
-            <option value="Entre 10 y 30 piezas">Entre 10 y 30 piezas</option>
-            <option value="Más de 30 piezas">Más de 30 piezas</option>
-          </select>
+          <label>¿Cuántas piezas son? *</label>
+          <input type="text" id="cantidad" placeholder="Ej: 12 tazas, 3 fuentes grandes...">
         </div>
 
         <div class="campo">
-          <label>Fecha estimada (opcional)</label>
-          <input type="date" id="fecha">
+          <label>¿Qué tamaño tienen aproximadamente?</label>
+          <input type="text" id="tamano" placeholder="Ej: tazas, platos, piezas grandes, etc.">
+        </div>
+
+        <!-- SECCIÓN 3: INFORMACIÓN TÉCNICA -->
+        <div class="form-seccion-titulo">🔥 Información técnica</div>
+
+        <div class="campo">
+          <label>¿Qué tipo de pasta usaste?</label>
+          <input type="text" id="pasta" placeholder="Ej: loza, gres, porcelana, no sé">
         </div>
 
         <div class="campo">
-          <label>Mensaje adicional</label>
-          <textarea id="mensaje" placeholder="Contanos más sobre tus piezas, materiales, tamaño, etc." rows="4"></textarea>
+          <label>¿Sabés a qué temperatura se hornea esa pasta?</label>
+          <input type="text" id="tempPasta" placeholder="Ej: 1000°C, 1200°C, no sé">
         </div>
 
+        <div class="campo">
+          <label>¿Las piezas están completamente secas? *</label>
+          <div class="radio-group">
+            <label class="radio-opcion">
+              <input type="radio" name="secas" value="Sí"> Sí
+            </label>
+            <label class="radio-opcion">
+              <input type="radio" name="secas" value="No"> No
+            </label>
+            <label class="radio-opcion">
+              <input type="radio" name="secas" value="No estoy segura/o"> No estoy segura/o
+            </label>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 4: ESMALTES -->
+        <div class="form-seccion-titulo">🎨 Esmaltes (si aplica)</div>
+
+        <div class="campo">
+          <label>¿Tus piezas tienen esmalte? *</label>
+          <div class="radio-group" id="tieneEsmalte">
+            <label class="radio-opcion">
+              <input type="radio" name="tieneEsmalte" value="Sí" onchange="toggleEsmaltes(true)"> Sí
+            </label>
+            <label class="radio-opcion">
+              <input type="radio" name="tieneEsmalte" value="No" onchange="toggleEsmaltes(false)"> No
+            </label>
+          </div>
+        </div>
+
+        <div id="bloque-esmaltes" style="display:none; display:flex; flex-direction:column; gap:18px;">
+          <div class="campo">
+            <label>¿Qué esmalte usaste?</label>
+            <input type="text" id="tipoEsmalte" placeholder="Nombre o descripción del esmalte">
+          </div>
+          <div class="campo">
+            <label>¿A qué temperatura va ese esmalte?</label>
+            <input type="text" id="tempEsmalte" placeholder="Ej: 1000°C, no sé">
+          </div>
+          <div class="campo">
+            <label>¿Las piezas tienen esmalte en la base?</label>
+            <div class="radio-group">
+              <label class="radio-opcion">
+                <input type="radio" name="esmalteBase" value="Sí"> Sí
+              </label>
+              <label class="radio-opcion">
+                <input type="radio" name="esmalteBase" value="No"> No
+              </label>
+              <label class="radio-opcion">
+                <input type="radio" name="esmalteBase" value="No estoy segura/o"> No estoy segura/o
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 5: DETALLES IMPORTANTES -->
+        <div class="form-seccion-titulo">⚠️ Detalles importantes</div>
+
+        <div class="campo">
+          <label>¿Las piezas tienen partes muy gruesas o cerradas?</label>
+          <div class="radio-group">
+            <label class="radio-opcion">
+              <input type="radio" name="gruesosCerrados" value="Sí"> Sí
+            </label>
+            <label class="radio-opcion">
+              <input type="radio" name="gruesosCerrados" value="No"> No
+            </label>
+            <label class="radio-opcion">
+              <input type="radio" name="gruesosCerrados" value="No estoy segura/o"> No estoy segura/o
+            </label>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label>¿Para cuándo necesitás las piezas?</label>
+          <input type="date" id="fechaNecesidad">
+        </div>
+
+        <div class="campo">
+          <label>Información adicional</label>
+          <textarea id="comentarios" rows="4" placeholder="Contanos cualquier detalle extra sobre tus piezas, materiales, dudas, etc."></textarea>
+        </div>
+
+        <!-- SECCIÓN 6: CONDICIONES -->
+        <div class="form-seccion-titulo">📜 Condiciones</div>
+
+        <div class="condiciones-box">
+          <ul>
+            <li>Las piezas deben venir listas para hornear.</li>
+            <li>Los tiempos de cocción pueden variar según la carga del horno.</li>
+            <li>YCA no se responsabiliza por roturas, rajaduras o fallas propias del proceso cerámico.</li>
+            <li>La temperatura de cocción se define en base a la información proporcionada.</li>
+          </ul>
+        </div>
+
+        <div class="campo">
+          <label class="checkbox-opcion">
+            <input type="checkbox" id="aceptaCondiciones">
+            <span>Acepto las condiciones de horneado *</span>
+          </label>
+        </div>
+
+        <!-- BOTÓN -->
         <div class="formulario-botones">
-          <button class="boton-formulario" onclick="enviarWhatsApp()">
-            <i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp
+          <button class="boton-formulario boton-enviar" id="btnEnviar" onclick="enviarFormulario()">
+            <i class="fa-solid fa-fire"></i> Enviar solicitud
           </button>
-          <p id="formError" style="display:none;color:#c85028;font-size:13px;font-weight:600;margin-top:8px;text-align:center"></p>
+          <p id="formError" style="display:none; color:#c85028; font-size:13px; font-weight:600; margin-top:8px; text-align:center;"></p>
         </div>
 
-        <p class="formulario-nota">* Campos obligatorios. Te respondemos dentro de las 24hs.</p>
+        <p class="formulario-nota">* Campos obligatorios. Te respondemos dentro de las 24hs. 📍 El Jagüel, Buenos Aires.</p>
 
       </div>
     </div>
   </section>
+
+  <!-- MODAL ÉXITO -->
+  <div id="modalExito" class="modal-overlay" style="display:none;">
+    <div class="modal-caja">
+      <div class="modal-icono">🔥</div>
+      <h3>¡Solicitud enviada!</h3>
+      <p id="modalExitoTexto">Tu pedido fue registrado. Te escribimos a la brevedad para coordinar la horneada.</p>
+      <p class="modal-codigo" id="modalCodigo"></p>
+      <button class="boton-modal" onclick="document.getElementById('modalExito').style.display='none'">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- MODAL ERROR -->
+  <div id="modalError" class="modal-overlay" style="display:none;">
+    <div class="modal-caja">
+      <div class="modal-icono">⚠️</div>
+      <h3>Algo salió mal</h3>
+      <p id="modalErrorTexto">Hubo un error al enviar tu solicitud. Por favor intentá de nuevo o escribinos por WhatsApp.</p>
+      <button class="boton-modal" onclick="document.getElementById('modalError').style.display='none'">Cerrar</button>
+    </div>
+  </div>
 
   <a class="whatsapp" href="https://wa.me/5491160387535" target="_blank">
     <i class="fa-brands fa-whatsapp"></i>
