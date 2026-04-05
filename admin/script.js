@@ -4647,12 +4647,17 @@ async function cargarHorneado() {
 
   try {
     const sesion = getSesion()
-    const res    = await fetch(`${API}?action=getHorneado&token=${encodeURIComponent(sesion.token)}`)
-    const data   = await res.json()
+    console.log('TOKEN:', sesion.token)
+    const url = `${API}?action=getHorneado&token=${encodeURIComponent(sesion.token)}`
+    console.log('URL:', url)
+    const res  = await fetch(url)
+    const data = await res.json()
+    console.log('RESPUESTA:', data)
     pedidosHorneado = data.ok ? (data.data || []) : []
     actualizarBadgesHorneado()
     renderHorneado()
   } catch(e) {
+    console.error('ERROR:', e)
     if (lista) lista.innerHTML = '<p style="opacity:.5;padding:20px">Error al cargar pedidos.</p>'
   } finally {
     if (loading) loading.style.display = 'none'
