@@ -725,12 +725,14 @@ async function descargarPDF(){
     const diags     = f.diagnosticos || []
 
     // Calcular altura total del bloque
+    const mats    = f.materiales || []
+    const matRows  = mats.length > 0 ? Math.ceil(mats.length/2)*6 + 14 : 0
     const oxRows  = Math.ceil(oxidos.length / 2)
     const diagH   = diags.reduce((acc, d) => {
       const lines = doc.splitTextToSize(d.detalle || '', W - m*2 - 20)
       return acc + 6 + lines.length * 4.5
     }, diags.length > 0 ? 8 : 0)
-    const h = 24 + oxRows * 7 + diagH + (diags.length > 0 ? 4 : 0)
+    const h = 24 + matRows + oxRows * 7 + diagH + (diags.length > 0 ? 4 : 0)
 
     if(y + h > 272){ doc.addPage(); y = 20 }
 
@@ -746,8 +748,32 @@ async function descargarPDF(){
     doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...MARRON)
     doc.text(`Si:${f.si}  Al:${f.al}  Si/Al:${f.siAl}`, W-m-5, y+9, {align:'right'})
 
+    // Materiales
+    let matY = y + 22
+    if(mats.length > 0){
+      doc.setTextColor(120,110,100); doc.setFontSize(7); doc.setFont('helvetica','bold')
+      doc.text('MATERIALES', m+5, matY)
+      matY += 5
+      const matColW = (W-m*2-10)/2
+      mats.forEach((mat, mi) => {
+        const col  = mi % 2
+        const row  = Math.floor(mi / 2)
+        const mx   = m + 5 + col*(matColW+5)
+        const my   = matY + row*6
+        const nombre = (mat.nombre||'').split('(')[0].trim()
+        doc.setTextColor(...NEGRO); doc.setFontSize(7.5); doc.setFont('helvetica','normal')
+        doc.text(nombre, mx, my, {maxWidth: matColW-15})
+        doc.setTextColor(...MARRON); doc.setFont('helvetica','bold')
+        doc.text(mat.pct+'%', mx+matColW-8, my, {align:'right'})
+      })
+      matY += Math.ceil(mats.length/2)*6 + 4
+      // Línea separadora
+      doc.setDrawColor(210,200,190); doc.setLineWidth(0.3)
+      doc.line(m+5, matY-2, W-m-5, matY-2)
+    }
+
     // Tabla óxidos
-    let oy = y + 22
+    let oy = mats.length > 0 ? matY + 4 : y + 22
     const colW = (W-m*2-10)/2
 
     oxidos.forEach(([ oxido, val ], ci) => {
