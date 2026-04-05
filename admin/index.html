@@ -109,6 +109,14 @@
         </button>
       </div>
 
+      <div class="sidebar-seccion">
+        <span class="sidebar-label">Servicios</span>
+        <button class="sidebar-item" onclick="setSeccion('horneado')" id="nav-horneado">
+          <i class="fa-solid fa-fire"></i> Horneado
+          <span class="badge-pendientes" id="badgeHorneado" style="display:none">0</span>
+        </button>
+      </div>
+
       <!-- SUPERADMIN — solo visible con rol superadmin -->
       <div class="sidebar-seccion" id="sidebar-superadmin" style="display:none">
         <div class="sidebar-label">SISTEMA</div>
@@ -917,6 +925,45 @@
             </div>
           </div>
           <ul class="pendientes-lista" id="pendientesLista"></ul>
+        </div>
+      </div>
+
+      <!-- HORNEADO -->
+      <div class="seccion" id="seccion-horneado" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>🔥 Pedidos de Horneado</h2>
+            <p>Gestión de solicitudes de cocción</p>
+          </div>
+        </div>
+
+        <!-- Tabs por estado -->
+        <div class="usuarios-tabs" style="margin-bottom:16px">
+          <button class="utab activo" onclick="setHorneadoTab('pendiente')"   id="htab-pendiente">Pendiente   <span id="hcnt-pendiente">0</span></button>
+          <button class="utab"        onclick="setHorneadoTab('confirmado')"  id="htab-confirmado">Confirmado  <span id="hcnt-confirmado">0</span></button>
+          <button class="utab"        onclick="setHorneadoTab('en horno')"    id="htab-en-horno">En horno    <span id="hcnt-en-horno">0</span></button>
+          <button class="utab"        onclick="setHorneadoTab('listo')"       id="htab-listo">Listo       <span id="hcnt-listo">0</span></button>
+          <button class="utab"        onclick="setHorneadoTab('entregado')"   id="htab-entregado">Entregado   <span id="hcnt-entregado">0</span></button>
+        </div>
+
+        <div class="usuarios-lista" id="lista-horneado"></div>
+        <div class="loading" id="loading-horneado" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
+
+      <!-- MODAL HORNEADO DETALLE -->
+      <div class="modal-overlay" id="modalHorneado" style="display:none" onclick="cerrarModalHorneado(event)">
+        <div class="modal-card" style="max-width:520px">
+          <div class="modal-header">
+            <h3 id="mHorneadoTitulo">Pedido HOR-000</h3>
+            <button class="modal-cerrar" onclick="cerrarModalHorneado()"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div class="modal-body" id="mHorneadoBody"></div>
+          <div class="modal-footer">
+            <button class="btn-cancelar" onclick="cerrarModalHorneado()">Cerrar</button>
+            <button class="btn-danger"   onclick="eliminarPedidoHorneado()" id="mHorneadoBtnEliminar">
+              <i class="fa-solid fa-trash"></i> Eliminar
+            </button>
+          </div>
         </div>
       </div>
 
