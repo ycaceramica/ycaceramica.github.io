@@ -154,41 +154,7 @@
   margin: 0;
 }
 
-/* ── PASOS (reusa los de cumpleaños) ── */
-
-.pasos {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 28px;
-  margin-top: 40px;
-}
-
-.paso {
-  background: var(--color-superficie);
-  padding: 30px;
-  border-radius: 14px;
-  box-shadow: 0 8px 20px var(--color-sombra);
-  text-align: center;
-}
-
-.paso-icono {
-  font-size: 44px;
-  margin-bottom: 14px;
-}
-
-.paso h3 {
-  font-size: 16px;
-  margin-bottom: 10px;
-  color: var(--color-primario);
-}
-
-.paso p {
-  font-size: 14px;
-  line-height: 1.6;
-  opacity: 0.8;
-}
-
-/* ── FORMULARIO (igual que cumpleaños) ── */
+/* ── FORMULARIO ── */
 
 .formulario-wrapper {
   display: flex;
@@ -201,11 +167,23 @@
   border-radius: 20px;
   padding: 40px;
   width: 100%;
-  max-width: 560px;
+  max-width: 580px;
   box-shadow: 0 8px 32px var(--color-sombra);
   display: flex;
   flex-direction: column;
   gap: 18px;
+}
+
+/* Título de sección dentro del form */
+.form-seccion-titulo {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-primario);
+  padding: 10px 0 4px;
+  border-bottom: 1.5px solid var(--color-borde, #e8e0d8);
+  margin-top: 8px;
 }
 
 .campo {
@@ -214,7 +192,7 @@
   gap: 6px;
 }
 
-.campo label {
+.campo > label:first-child {
   font-size: 13px;
   font-weight: 600;
   opacity: 0.75;
@@ -246,6 +224,88 @@
   resize: vertical;
 }
 
+/* ── RADIO GROUPS ── */
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.radio-opcion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--color-borde, #d8cfc4);
+  background: var(--color-fondo);
+  transition: border-color 0.15s, background 0.15s;
+  font-weight: 500;
+}
+
+.radio-opcion:hover {
+  border-color: var(--color-primario);
+}
+
+.radio-opcion input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primario);
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+}
+
+/* ── CHECKBOX ── */
+
+.checkbox-opcion {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-texto);
+}
+
+.checkbox-opcion input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primario);
+  flex-shrink: 0;
+  margin-top: 2px;
+  padding: 0;
+  border: none;
+}
+
+/* ── CONDICIONES BOX ── */
+
+.condiciones-box {
+  background: rgba(139, 111, 86, 0.08);
+  border: 1.5px solid rgba(139, 111, 86, 0.2);
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.condiciones-box ul {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.condiciones-box li {
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+/* ── BOTONES ── */
+
 .formulario-botones {
   margin-top: 6px;
 }
@@ -253,8 +313,6 @@
 .boton-formulario {
   width: 100%;
   padding: 14px;
-  background: #25d366;
-  color: white;
   border: none;
   border-radius: 12px;
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -265,11 +323,21 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  transition: background 0.2s;
+  transition: background 0.2s, opacity 0.2s;
 }
 
-.boton-formulario:hover {
-  background: #1ebe5d;
+.boton-enviar {
+  background: var(--color-primario, #8b6f56);
+  color: white;
+}
+
+.boton-enviar:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.boton-enviar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .formulario-nota {
@@ -277,6 +345,73 @@
   opacity: 0.5;
   text-align: center;
   margin: 0;
+}
+
+/* ── MODALES ── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-caja {
+  background: var(--color-superficie);
+  border-radius: 20px;
+  padding: 40px 36px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+}
+
+.modal-icono {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.modal-caja h3 {
+  font-size: 22px;
+  margin-bottom: 10px;
+  color: var(--color-primario);
+}
+
+.modal-caja p {
+  font-size: 15px;
+  line-height: 1.6;
+  opacity: 0.8;
+  margin-bottom: 8px;
+}
+
+.modal-codigo {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  color: var(--color-primario) !important;
+  margin: 12px 0 !important;
+}
+
+.boton-modal {
+  margin-top: 20px;
+  padding: 12px 32px;
+  background: var(--color-primario, #8b6f56);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.boton-modal:hover {
+  opacity: 0.85;
 }
 
 /* ── BOTÓN WHATSAPP FLOTANTE ── */
