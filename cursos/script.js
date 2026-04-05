@@ -50,9 +50,14 @@ async function cargarCursos(){
   try {
     const res    = await fetch(`${API}?action=getCursos`)
     const data   = await res.json()
-    const cursos = (data.data || []).filter(c =>
-      c.visible !== 'false' && c.visible !== false
-    )
+    const orden = { activo: 0, proximamente: 1, finalizado: 2 }
+    const cursos = (data.data || [])
+      .filter(c => c.visible !== 'false' && c.visible !== false)
+      .sort((a, b) => {
+        const ea = orden[a.estado] ?? 1
+        const eb = orden[b.estado] ?? 1
+        return ea - eb
+      })
 
     if(spinner) spinner.style.display = 'none'
     if(cursos.length === 0) return
