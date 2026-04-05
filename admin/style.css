@@ -1712,46 +1712,70 @@ body.dark #exportCurso option{
 .notas-lista {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 .nota-chip {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 12px;
-  border-radius: 10px;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
   border: 1.5px solid var(--color-borde);
-  background: var(--color-fondo);
+  background: var(--color-superficie);
   cursor: pointer;
   transition: all 0.18s;
-  max-width: 220px;
+  width: 180px;
+  box-shadow: 0 2px 8px var(--color-sombra);
 }
 .nota-chip:hover {
   border-color: var(--color-primario);
+  transform: translateY(-1px);
 }
 .nota-chip.activa {
   background: var(--color-primario);
   border-color: var(--color-primario);
   color: #fff;
+  box-shadow: 0 4px 12px rgba(139,111,86,0.3);
+}
+.nota-chip-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
 }
 .nota-chip-titulo {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex: 1;
+}
+.nota-chip-preview {
+  font-size: 11px;
+  opacity: 0.6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 400;
+}
+.nota-chip-fecha {
+  font-size: 10px;
+  opacity: 0.4;
+  font-weight: 600;
+  margin-top: 2px;
 }
 .nota-chip-borrar {
   background: none;
   border: none;
   cursor: pointer;
   font-size: 11px;
-  opacity: 0.5;
+  opacity: 0.35;
   padding: 2px;
   color: inherit;
   transition: opacity 0.2s;
   flex-shrink: 0;
+  margin-top: 1px;
 }
 .nota-chip-borrar:hover { opacity: 1; }
 .notas-agregar {
