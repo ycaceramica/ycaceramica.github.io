@@ -1,3 +1,23 @@
+// ─────────────────────────────────────────────
+// SINCRONIZAR ESTADO DESDE ADMIN
+// ─────────────────────────────────────────────
+
+const API = "https://script.google.com/macros/s/AKfycbzdwN7aMQVLT5qxzOPw78Cnyanu4BBkkiCXESmQN2Sx5SklNB-kQq-Xt2SGb0-Dgfv1/exec"
+
+async function sincronizarEstado(hojaId){
+  try {
+    const res  = await fetch(`${API}?action=getCursoDetalle&hojaId=${hojaId}`)
+    const data = await res.json()
+    if(!data.ok || !data.data) return
+    const estado = data.data.estado || 'proximamente'
+    const labels = { activo:'Activo', proximamente:'Próximamente', finalizado:'Finalizado' }
+    const badge  = document.querySelector('.curso-badge-estado')
+    if(badge){
+      badge.className  = `curso-badge-estado ${estado}`
+      badge.textContent = labels[estado] || estado
+    }
+  } catch(e) { /* silencioso */ }
+}
 // Dark mode y nav manejados por nav-ceramista.js
 
 // ─────────────────────────────────────────────
@@ -28,3 +48,6 @@ function enviarConsulta(){
 
   window.open(`https://wa.me/5491160387535?text=${encodeURIComponent(texto)}`, "_blank")
 }
+
+// Sincronizar estado al cargar
+document.addEventListener('DOMContentLoaded', () => sincronizarEstado('taller-inicial'))
