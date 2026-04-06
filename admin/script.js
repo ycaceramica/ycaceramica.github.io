@@ -4653,7 +4653,8 @@ async function cargarHorneado() {
     const res  = await fetch(url)
     const data = await res.json()
     console.log('RESPUESTA:', data)
-    pedidosHorneado = data.data || []
+    pedidosHorneado = Array.isArray(data.data) ? data.data : []
+    console.log('PEDIDOS CARGADOS:', pedidosHorneado.length, 'TAB ACTUAL:', horneadoTabActual)
     actualizarBadgesHorneado()
     renderHorneado()
   } catch(e) {
@@ -4666,7 +4667,7 @@ async function cargarHorneado() {
 
 function actualizarBadgesHorneado() {
   ESTADOS_HORNEADO.forEach(est => {
-    const cnt = pedidosHorneado.filter(p => (p.estado || 'pendiente') === est).length
+    const cnt = pedidosHorneado.filter(p => (String(p.estado || '').trim() || 'pendiente') === est).length
     const el  = document.getElementById('hcnt-' + est.replace(' ', '-'))
     if (el) el.textContent = cnt
   })
@@ -4692,7 +4693,7 @@ function renderHorneado() {
   const lista = document.getElementById('lista-horneado')
   if (!lista) return
 
-  const filtrados = pedidosHorneado.filter(p => (p.estado || 'pendiente') === horneadoTabActual)
+  const filtrados = pedidosHorneado.filter(p => (String(p.estado || '').trim() || 'pendiente') === horneadoTabActual)
 
   if (filtrados.length === 0) {
     lista.innerHTML = '<p style="opacity:.5;padding:20px;text-align:center">No hay pedidos en este estado.</p>'
@@ -4735,7 +4736,7 @@ function abrirModalHorneado(id) {
 
   document.getElementById('mHorneadoTitulo').textContent = 'Pedido ' + (p.codigo || id)
 
-  const col = COLORES_HORNEADO[p.estado || 'pendiente'] || COLORES_HORNEADO['pendiente']
+  const col = COLORES_HORNEADO[String(p.estado || '').trim() || 'pendiente'] || COLORES_HORNEADO['pendiente']
 
   function fila(label, valor) {
     if (!valor) return ''
