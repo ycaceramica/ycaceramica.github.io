@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seguimiento de pedido — YCA Cerámica</title>
+  <meta name="description" content="Consultá el estado de tu pedido de horneado en YCA Cerámica.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="../../imagenes/logo.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap">
+</head>
+<body>
+
+  <div id="nav-placeholder"></div>
+
+  <!-- HERO MINI -->
+  <section class="seg-hero">
+    <div class="seg-hero-contenido">
+      <div class="seg-badge">🔥 Seguimiento de pedido</div>
+      <h1>¿Cómo van tus piezas?</h1>
+      <p>Ingresá tu número de pedido para ver el estado de tu horneada.</p>
+    </div>
+  </section>
+
+  <!-- BUSCADOR -->
+  <section class="seg-seccion" id="buscador">
+    <div class="seg-buscador-card">
+      <div class="campo">
+        <label>Número de pedido</label>
+        <input type="text" id="inputCodigo" placeholder="Ej: HOR-016" autocomplete="off"
+          oninput="this.value = this.value.toUpperCase()"
+          onkeydown="if(event.key==='Enter') buscarPedido()">
+      </div>
+      <button class="seg-btn-buscar" onclick="buscarPedido()">
+        <i class="fa-solid fa-magnifying-glass"></i> Buscar pedido
+      </button>
+      <p id="segError" style="display:none; color:#c85028; font-size:13px; font-weight:600; text-align:center; margin:0;"></p>
+    </div>
+  </section>
+
+  <!-- RESULTADO -->
+  <section class="seg-seccion" id="resultado" style="display:none">
+    <div class="seg-resultado-card">
+
+      <!-- Encabezado del pedido -->
+      <div class="seg-pedido-header">
+        <div>
+          <div class="seg-codigo" id="resCodigo">HOR-000</div>
+          <div class="seg-nombre" id="resNombre"></div>
+          <div class="seg-fecha" id="resFecha"></div>
+        </div>
+        <div class="seg-estado-badge" id="resEstadoBadge"></div>
+      </div>
+
+      <!-- Línea de tiempo -->
+      <div class="seg-timeline" id="resTimeline"></div>
+
+      <!-- Mensaje según estado -->
+      <div class="seg-mensaje" id="resMensaje" style="display:none"></div>
+
+      <!-- Botón WhatsApp (solo Confirmado en adelante) -->
+      <div id="resWhatsapp" style="display:none">
+        <a class="seg-btn-whatsapp" id="linkWhatsapp" href="#" target="_blank">
+          <i class="fa-brands fa-whatsapp"></i> Escribinos por WhatsApp
+        </a>
+      </div>
+
+      <!-- Buscar otro -->
+      <button class="seg-btn-otro" onclick="resetBusqueda()">
+        <i class="fa-solid fa-arrow-left"></i> Buscar otro pedido
+      </button>
+
+    </div>
+  </section>
+
+  <!-- LOADING -->
+  <div class="seg-loading" id="segLoading" style="display:none">
+    <i class="fa-solid fa-spinner fa-spin"></i>
+    <p>Buscando tu pedido...</p>
+  </div>
+
+  <a class="whatsapp-flotante" href="https://wa.me/5491160387535" target="_blank">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <footer>
+    <p>© 2026 YCA Cerámica</p>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="../../nav-ceramista.js"></script>
+
+</body>
+</html>
