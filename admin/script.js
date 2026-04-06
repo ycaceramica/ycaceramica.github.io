@@ -4797,10 +4797,9 @@ async function guardarEstadoHorneado() {
     const res  = await fetch(API, {
       method: 'POST',
       body:   JSON.stringify({
-        action: 'actualizarCampo',
+        action: 'actualizarEstadoHorneado',
         hoja:   'pedidos_horneado',
         id:     pedidoSeleccionado.id,
-        campo:  'estado',
         valor:  nuevoEstado,
         token:  sesion.token
       })
@@ -4827,10 +4826,9 @@ async function avanzarEstadoHorneado(id, nuevoEstado, event) {
     const res  = await fetch(API, {
       method: 'POST',
       body:   JSON.stringify({
-        action: 'actualizarCampo',
+        action: 'actualizarEstadoHorneado',
         hoja:   'pedidos_horneado',
         id:     id,
-        campo:  'estado',
         valor:  nuevoEstado,
         token:  sesion.token
       })
