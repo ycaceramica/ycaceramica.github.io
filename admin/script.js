@@ -4653,7 +4653,7 @@ async function cargarHorneado() {
     const res  = await fetch(url)
     const data = await res.json()
     console.log('RESPUESTA:', data)
-    pedidosHorneado = data.ok ? (data.data || []) : []
+    pedidosHorneado = data.data || []
     actualizarBadgesHorneado()
     renderHorneado()
   } catch(e) {
