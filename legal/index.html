@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aviso Legal y Privacidad — YCA Cerámica</title>
+  <meta name="description" content="Términos y condiciones, política de privacidad y aviso legal de YCA Cerámica.">
+  <meta name="robots" content="noindex">
+
+  <link rel="icon" type="image/png" href="/imagenes/logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap">
+
+  <style>
+    :root {
+      --color-fondo:     #f2ede7;
+      --color-superficie:#ffffff;
+      --color-primario:  #8b6f56;
+      --color-primario-hover: #7a6048;
+      --color-texto:     #333;
+      --color-sombra:    rgba(0,0,0,0.08);
+      --color-borde:     rgba(139,111,86,0.15);
+      --color-acento:    #c89a6e;
+    }
+
+    body.dark {
+      --color-fondo:     #1f1f1f;
+      --color-superficie:#2b2b2b;
+      --color-primario:  #b18a6d;
+      --color-primario-hover: #c99a7d;
+      --color-texto:     #f1f1f1;
+      --color-sombra:    rgba(0,0,0,0.35);
+      --color-borde:     rgba(177,138,109,0.2);
+      --color-acento:    #d4a97a;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--color-fondo);
+      color: var(--color-texto);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HERO ─────────────────────────────── */
+    .legal-hero {
+      background: var(--color-primario);
+      padding: 60px 24px 50px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .legal-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 70% 0%, rgba(255,255,255,0.07) 0%, transparent 65%),
+                  radial-gradient(ellipse at 20% 100%, rgba(0,0,0,0.12) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .legal-hero-emoji {
+      font-size: 42px;
+      display: block;
+      margin-bottom: 14px;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
+    }
+
+    .legal-hero h1 {
+      font-size: clamp(22px, 5vw, 32px);
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.3px;
+      margin-bottom: 10px;
+    }
+
+    .legal-hero p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.75);
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* ── NAV INTERNO ──────────────────────── */
+    .legal-nav {
+      background: var(--color-superficie);
+      border-bottom: 1px solid var(--color-borde);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 2px 12px var(--color-sombra);
+    }
+
+    .legal-nav-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 16px;
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .legal-nav-inner::-webkit-scrollbar { display: none; }
+
+    .legal-nav a {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 18px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--color-texto);
+      text-decoration: none;
+      opacity: 0.55;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: opacity 0.2s, border-color 0.2s;
+    }
+
+    .legal-nav a:hover,
+    .legal-nav a.activo {
+      opacity: 1;
+      border-bottom-color: var(--color-primario);
+      color: var(--color-primario);
+    }
+
+    /* ── LAYOUT ───────────────────────────── */
+    .legal-body {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 24px 72px;
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+    }
+
+    /* ── SECCIÓN ──────────────────────────── */
+    .legal-seccion {
+      background: var(--color-superficie);
+      border-radius: 16px;
+      border: 1px solid var(--color-borde);
+      overflow: hidden;
+      box-shadow: 0 4px 20px var(--color-sombra);
+    }
+
+    .legal-seccion-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 26px 28px 22px;
+      border-bottom: 1px solid var(--color-borde);
+      background: linear-gradient(135deg, rgba(139,111,86,0.05) 0%, transparent 100%);
+    }
+
+    .legal-seccion-icono {
+      font-size: 28px;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .legal-seccion-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--color-primario);
+      letter-spacing: -0.2px;
+    }
+
+    .legal-seccion-header p {
+      font-size: 12.5px;
+      color: var(--color-texto);
+      opacity: 0.55;
+      margin-top: 2px;
+    }
+
+    .legal-seccion-body {
+      padding: 28px 28px 32px;
+    }
+
+    /* ── TIPOGRAFÍA ───────────────────────── */
+    .legal-seccion-body h3 {
+      font-size: 13.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--color-primario);
+      margin: 28px 0 10px;
+    }
+
+    .legal-seccion-body h3:first-child { margin-top: 0; }
+
+    .legal-seccion-body p {
+      font-size: 14px;
+      line-height: 1.75;
+      color: var(--color-texto);
+      opacity: 0.85;
+      margin-bottom: 12px;
+    }
+
+    .legal-seccion-body ul {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .legal-seccion-body ul li {
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--color-texto);
+      opacity: 0.85;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .legal-seccion-body ul li::before {
+      content: '·';
+      color: var(--color-acento);
+      font-size: 20px;
+      line-height: 1.2;
+      flex-shrink: 0;
+      font-weight: 700;
+    }
+
+    /* ── CALLOUT / DESTACADO ──────────────── */
+    .legal-callout {
+      background: rgba(139,111,86,0.07);
+      border-left: 3px solid var(--color-primario);
+      border-radius: 0 10px 10px 0;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 13.5px;
+      color: var(--color-texto);
+      opacity: 0.9;
+      line-height: 1.65;
+    }
+
+    body.dark .legal-callout {
+      background: rgba(177,138,109,0.1);
+    }
+
+    /* ── DERECHOS / COPYRIGHT ─────────────── */
+    .legal-copyright-bloque {
+      text-align: center;
+      padding: 32px 28px 36px;
+    }
+
+    .legal-copyright-anno {
+      font-size: 52px;
+      font-weight: 700;
+      color: var(--color-borde);
+      letter-spacing: -3px;
+      line-height: 1;
+      margin-bottom: 12px;
+      user-select: none;
+    }
+
+    body.dark .legal-copyright-anno {
+      color: rgba(177,138,109,0.15);
+    }
+
+    .legal-copyright-bloque p {
+      font-size: 14px;
+      opacity: 0.75;
+      margin-bottom: 8px;
+    }
+
+    .legal-copyright-bloque strong {
+      color: var(--color-primario);
+    }
+
+    /* ── FECHA ACTUALIZACIÓN ──────────────── */
+    .legal-fecha {
+      text-align: center;
+      font-size: 11.5px;
+      color: var(--color-texto);
+      opacity: 0.4;
+      padding: 0 24px 8px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── RESPONSIVE ───────────────────────── */
+    @media (max-width: 600px) {
+      .legal-seccion-header { padding: 20px 20px 16px; }
+      .legal-seccion-body   { padding: 20px 20px 24px; }
+      .legal-hero           { padding: 48px 20px 40px; }
+      .legal-body           { padding: 28px 16px 56px; gap: 28px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAV global -->
+  <div id="nav-placeholder"></div>
+
+  <!-- HERO -->
+  <div class="legal-hero">
+    <span class="legal-hero-emoji">📋</span>
+    <h1>Aviso legal y privacidad</h1>
+    <p>Información sobre el uso del sitio, protección de datos y condiciones del servicio de horneado.</p>
+  </div>
+
+  <!-- NAV INTERNO -->
+  <nav class="legal-nav" aria-label="Secciones">
+    <div class="legal-nav-inner">
+      <a href="#terminos">🔥 Términos de horneado</a>
+      <a href="#privacidad">🔒 Privacidad</a>
+      <a href="#derechos">© Derechos</a>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO -->
+  <main class="legal-body">
+
+    <!-- ── 1. TÉRMINOS Y CONDICIONES ─────── -->
+    <section class="legal-seccion" id="terminos">
+      <div class="legal-seccion-header">
+        <span class="legal-seccion-icono">🔥</span>
+        <div>
+          <h2>Términos y condiciones del servicio de horneado</h2>
+          <p>Condiciones que aplican al solicitar una cocción en nuestro taller.</p>
+        </div>
+      </div>
+      <div class="legal-seccion-body">
+
+        <h3>Alcance del servicio</h3>
+        <p>El servicio de horneado de YCA Cerámica consiste en la cocción de piezas cerámicas presentadas por clientes externos en nuestro taller. Al enviar el formulario de solicitud y aceptar estas condiciones, el cliente declara haber leído y comprendido los términos que se detallan a continuación.</p>
+
+        <h3>Estado de las piezas</h3>
+        <ul>
+          <li>Las piezas deben venir completamente secas y listas para hornear. YCA Cerámica no realiza verificaciones de secado previo.</li>
+          <li>El cliente es responsable de informar con exactitud el tipo de arcilla, temperatura de cocción requerida y si las piezas llevan esmalte o engobe.</li>
+          <li>No se aceptan piezas con humedad visible, fisuras estructurales evidentes o materiales que no sean aptos para cocción cerámica.</li>
+        </ul>
+
+        <h3>Proceso y tiempos</h3>
+        <ul>
+          <li>Los tiempos de cocción pueden variar según la carga del horno, la cantidad de pedidos en curso y las condiciones técnicas del proceso.</li>
+          <li>La temperatura de cocción se define exclusivamente en base a la información proporcionada por el cliente al momento del pedido.</li>
+          <li>YCA Cerámica se reserva el derecho de ajustar la carga del horno por criterios técnicos sin que ello implique responsabilidad alguna.</li>
+        </ul>
+
+        <h3>Responsabilidad y riesgos del proceso</h3>
+        <div class="legal-callout">
+          El proceso cerámico implica riesgos inherentes. YCA Cerámica no se responsabiliza por roturas, rajaduras, deformaciones, pérdida de color o cualquier falla derivada del proceso de cocción cuando la causa sea atribuible a la naturaleza del material, errores en la elaboración de las piezas o información incorrecta provista por el cliente.
+        </div>
+        <ul>
+          <li>Las roturas ocasionadas por mala preparación de la pieza (burbujas de aire, arcilla inadecuada, secado insuficiente) no son responsabilidad del taller.</li>
+          <li>En caso de falla técnica comprobable imputable al taller, se evaluará caso por caso.</li>
+        </ul>
+
+        <h3>Retiro de piezas</h3>
+        <ul>
+          <li>Una vez notificada la finalización del horneado, el cliente deberá coordinar el retiro dentro de los 15 días hábiles.</li>
+          <li>Pasado ese plazo, YCA Cerámica no garantiza la conservación de las piezas en el espacio del taller.</li>
+        </ul>
+
+        <h3>Aceptación</h3>
+        <p>Al completar y enviar el formulario de solicitud de horneado, el cliente acepta expresamente todas las condiciones descritas en esta sección.</p>
+
+      </div>
+      <p class="legal-fecha">Última actualización: enero 2026</p>
+    </section>
+
+    <!-- ── 2. PRIVACIDAD ──────────────────── -->
+    <section class="legal-seccion" id="privacidad">
+      <div class="legal-seccion-header">
+        <span class="legal-seccion-icono">🔒</span>
+        <div>
+          <h2>Política de privacidad</h2>
+          <p>Cómo recolectamos, usamos y protegemos tus datos personales.</p>
+        </div>
+      </div>
+      <div class="legal-seccion-body">
+
+        <h3>Responsable del tratamiento</h3>
+        <p><strong>YCA Cerámica</strong> (Yo Creo Arte) es responsable del tratamiento de los datos personales recolectados a través de este sitio web y sus formularios. Contacto: <a href="mailto:ycaceramica@gmail.com" style="color:var(--color-primario);font-weight:600;">ycaceramica@gmail.com</a>.</p>
+
+        <h3>Datos que recolectamos</h3>
+        <p>Los datos personales son recolectados únicamente a través de los formularios del sitio. Según el formulario, los datos pueden incluir:</p>
+        <ul>
+          <li><strong>Formulario de registro (alumnos y ceramistas):</strong> nombre completo, dirección de correo electrónico y contraseña.</li>
+          <li><strong>Formulario de horneado:</strong> nombre completo, número de teléfono, dirección de correo electrónico e información técnica sobre las piezas a hornear.</li>
+          <li><strong>Formulario de contacto y consultas:</strong> nombre y correo electrónico o número de teléfono según el canal elegido (email o WhatsApp).</li>
+        </ul>
+
+        <h3>Finalidad del tratamiento</h3>
+        <ul>
+          <li>Gestionar el acceso a la plataforma y los servicios ofrecidos por YCA Cerámica.</li>
+          <li>Procesar y coordinar solicitudes de horneado, cursos y otros servicios del taller.</li>
+          <li>Enviar comunicaciones relacionadas con los servicios contratados o solicitados.</li>
+          <li>Emitir comprobantes y documentación vinculada al servicio de horneado.</li>
+        </ul>
+
+        <h3>Almacenamiento y seguridad</h3>
+        <p>Los datos se almacenan en Google Sheets y Google Drive, servicios de Google LLC, bajo los estándares de seguridad de Google Workspace. Las contraseñas de los usuarios no se guardan en texto plano.</p>
+
+        <div class="legal-callout">
+          <strong>No compartimos tus datos con terceros.</strong> YCA Cerámica no vende, cede ni transfiere datos personales a empresas, organizaciones ni personas externas al taller, salvo obligación legal.
+        </div>
+
+        <h3>Cookies y rastreo</h3>
+        <p>Este sitio no utiliza cookies de rastreo publicitario ni herramientas de analítica de terceros que recopilen datos personales. Se utiliza <code style="background:rgba(139,111,86,0.1);padding:2px 6px;border-radius:4px;font-size:12.5px;">localStorage</code> y <code style="background:rgba(139,111,86,0.1);padding:2px 6px;border-radius:4px;font-size:12.5px;">sessionStorage</code> del navegador exclusivamente para mantener la sesión activa del usuario mientras navega el sitio.</p>
+
+        <h3>Derechos del titular (Ley 25.326)</h3>
+        <p>En cumplimiento de la <strong>Ley 25.326 de Protección de Datos Personales</strong> de la República Argentina, el titular de los datos tiene derecho a:</p>
+        <ul>
+          <li>Acceder a sus datos personales almacenados.</li>
+          <li>Solicitar la rectificación de datos incorrectos o desactualizados.</li>
+          <li>Solicitar la supresión de sus datos cuando ya no sean necesarios para la finalidad con que fueron recolectados.</li>
+          <li>Revocar el consentimiento otorgado para el tratamiento de sus datos.</li>
+        </ul>
+        <p>Para ejercer cualquiera de estos derechos, podés escribirnos a <a href="mailto:ycaceramica@gmail.com" style="color:var(--color-primario);font-weight:600;">ycaceramica@gmail.com</a>. La Agencia de Acceso a la Información Pública es el órgano de control en materia de protección de datos personales en Argentina.</p>
+
+      </div>
+      <p class="legal-fecha">Última actualización: enero 2026</p>
+    </section>
+
+    <!-- ── 3. DERECHOS RESERVADOS ─────────── -->
+    <section class="legal-seccion" id="derechos">
+      <div class="legal-seccion-header">
+        <span class="legal-seccion-icono">©</span>
+        <div>
+          <h2>Derechos reservados</h2>
+          <p>Propiedad intelectual y condiciones de uso del sitio.</p>
+        </div>
+      </div>
+      <div class="legal-seccion-body legal-copyright-bloque">
+        <div class="legal-copyright-anno">2026</div>
+        <p><strong>© 2026 YCA Cerámica — Yo Creo Arte.</strong></p>
+        <p>Todos los derechos reservados.</p>
+        <p>El contenido de este sitio web — incluyendo textos, imágenes, fotografías, videos, diseño gráfico, logotipos y materiales educativos — es propiedad de YCA Cerámica y está protegido por la legislación argentina e internacional en materia de propiedad intelectual.</p>
+        <p>Queda prohibida su reproducción total o parcial, distribución, comunicación pública o transformación sin autorización expresa y escrita de YCA Cerámica.</p>
+        <p>El uso de este sitio implica la aceptación de las condiciones aquí descritas.</p>
+      </div>
+      <p class="legal-fecha">ycaceramica.com.ar — El Jagüel, Buenos Aires, Argentina</p>
+    </section>
+
+  </main>
+
+  <!-- FOOTER global -->
+  <div id="footer-placeholder"></div>
+
+  <script src="../nav-ceramista.js"></script>
+  <script src="../footer.js"></script>
+
+  <!-- Activar tab del nav interno según scroll -->
+  <script>
+    (function () {
+      var secciones = document.querySelectorAll('.legal-seccion');
+      var links     = document.querySelectorAll('.legal-nav a');
+
+      function activarLink() {
+        var scrollY = window.scrollY + 120;
+        var activo  = null;
+        secciones.forEach(function (s) {
+          if (s.offsetTop <= scrollY) activo = s.id;
+        });
+        links.forEach(function (a) {
+          var href = a.getAttribute('href').replace('#', '');
+          a.classList.toggle('activo', href === activo);
+        });
+      }
+
+      window.addEventListener('scroll', activarLink, { passive: true });
+      activarLink();
+    })();
+  </script>
+
+</body>
+</html>
