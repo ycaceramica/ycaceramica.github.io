@@ -274,12 +274,7 @@
 .whatsapp:hover { transform: scale(1.08); }
 
 /* ── FOOTER ── */
-footer {
-  text-align: center;
-  padding: 30px 20px;
-  font-size: 13px;
-  opacity: 0.5;
-}
+
 
 /* ── RESPONSIVE ── */
 @media(max-width: 600px) {
