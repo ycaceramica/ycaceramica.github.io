@@ -4447,10 +4447,8 @@ async function cargarNotas() {
     notasData      = notas.libres     || []
     pendientesData = notas.pendientes || []
 
-    if (notasData.length === 0) notasData.push({ id: Date.now(), titulo: 'Mi primera nota', texto: '' })
-
     renderNotasLista()
-    seleccionarNota(notasData[0].id)
+    if (notasData.length > 0) seleccionarNota(notasData[0].id)
     renderPendientes()
   } catch(e) {
     toast('❌ Error de conexión', 'err')
@@ -4510,11 +4508,20 @@ function crearNota() {
 }
 
 function borrarNota(id) {
-  if (notasData.length === 1) { toast('Necesitás al menos una nota', 'err'); return }
   syncNotaActiva()
   notasData = notasData.filter(n => n.id !== id)
-  if (notaActivaId === id) seleccionarNota(notasData[0].id)
-  else renderNotasLista()
+  if (notasData.length === 0) {
+    notaActivaId = null
+    const titulo = document.getElementById('notaTituloActivo')
+    const texto  = document.getElementById('notasTexto')
+    if (titulo) titulo.value = ''
+    if (texto)  texto.value  = ''
+    renderNotasLista()
+  } else if (notaActivaId === id) {
+    seleccionarNota(notasData[0].id)
+  } else {
+    renderNotasLista()
+  }
 }
 
 function onTituloInput() {
