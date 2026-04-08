@@ -4522,6 +4522,8 @@ function borrarNota(id) {
   } else {
     renderNotasLista()
   }
+  // Guardar en servidor inmediatamente
+  _guardarLibresEnServidor()
 }
 
 function onTituloInput() {
@@ -4542,6 +4544,24 @@ function setGuardadoMsg(msg) {
   if (el) el.textContent = msg
 }
 
+async function _guardarLibresEnServidor() {
+  const sesion = getSesion()
+  try {
+    const valor = encodeURIComponent(JSON.stringify(notasData))
+    const url   = `${API}?action=guardarNotas&token=${encodeURIComponent(sesion.token)}&tipo=libres&valor=${valor}`
+    const res   = await fetch(url)
+    const data  = await res.json()
+    if (data.ok) {
+      setGuardadoMsg('Guardado ✓')
+      setTimeout(() => setGuardadoMsg(''), 2000)
+    } else {
+      setGuardadoMsg('❌ Error al guardar')
+    }
+  } catch(e) {
+    setGuardadoMsg('❌ Error de conexión')
+  }
+}
+
 async function guardarNotasLibres() {
   // Sync textarea al objeto activo antes de guardar
   const nota = notasData.find(n => n.id === notaActivaId)
@@ -4551,26 +4571,9 @@ async function guardarNotasLibres() {
   if (btn) btn.disabled = true
   setGuardadoMsg('Guardando...')
 
-  const sesion = getSesion()
-  try {
-    const valor = encodeURIComponent(JSON.stringify(notasData))
-    const url   = `${API}?action=guardarNotas&token=${encodeURIComponent(sesion.token)}&tipo=libres&valor=${valor}`
-    const res   = await fetch(url)
-    const data  = await res.json()
-    if (data.ok) {
-      setGuardadoMsg('Guardado ✓')
-      setTimeout(() => {
-        setGuardadoMsg('')
-        crearNota()
-      }, 800)
-    } else {
-      setGuardadoMsg('❌ Error al guardar')
-    }
-  } catch(e) {
-    setGuardadoMsg('❌ Error de conexión')
-  } finally {
-    if (btn) btn.disabled = false
-  }
+  await _guardarLibresEnServidor()
+
+  if (btn) btn.disabled = false
 }
 
 // ── Pendientes ──
