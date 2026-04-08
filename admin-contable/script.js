@@ -295,20 +295,19 @@ async function cargarAlumnos () {
     var alumnosContable = dataContable.ok ? (dataContable.data || []) : []
 
     // 2. Traer alumnos del GAS principal (los que ya están registrados en la web)
-    var dataPrincipal = await fetch(API_PRINCIPAL + '?action=getUsuarios').then(function (r) { return r.json() }).catch(function () { return { ok: false } })
+    var dataPrincipal = await fetch(API_PRINCIPAL + '?action=getAlumnosContable').then(function (r) { return r.json() }).catch(function () { return { ok: false } })
     var alumnosWeb = []
     if (dataPrincipal.ok && dataPrincipal.data) {
       // Solo los aprobados
-      alumnosWeb = dataPrincipal.data.filter(function (u) {
-        return u.estado === 'aprobado' || u.estado === 'activo'
-      }).map(function (u) {
+      alumnosWeb = dataPrincipal.data.map(function (u) {
         return {
           CODIGO:    'WEB-' + (u.id || u.email),
           NOMBRE:    u.nombre || u.email,
           EMAIL:     u.email  || '',
-          TELEFONO:  u.telefono || '',
-          INSTAGRAM: u.instagram || '',
-          ORIGEN:    'WEB'
+          TELEFONO:  '',
+          INSTAGRAM: '',
+          ORIGEN:    'WEB',
+          CURSO:     u.curso  || ''
         }
       })
     }
