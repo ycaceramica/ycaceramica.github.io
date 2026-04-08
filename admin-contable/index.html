@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Contable — YCA Cerámica</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" type="image/png" href="../imagenes/logo.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     PANTALLA DE LOGIN
+════════════════════════════════════════════ -->
+<div id="pantallaLogin">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="../imagenes/logo.png" alt="YCA">
+    </div>
+    <h1>Admin Contable</h1>
+    <p class="login-sub">YCA Cerámica — Acceso restringido</p>
+
+    <div class="login-campo">
+      <label>Usuario</label>
+      <input type="text" id="loginUser" placeholder="Usuario" autocomplete="username">
+    </div>
+    <div class="login-campo">
+      <label>Contraseña</label>
+      <div class="login-pass-wrap">
+        <input type="password" id="loginPass" placeholder="Contraseña" autocomplete="current-password">
+        <button class="login-ojo" type="button" onclick="toggleLoginPass()">
+          <i class="fa-solid fa-eye" id="loginOjoIcon"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="login-error" id="loginError" style="display:none"></div>
+
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">
+      <i class="fa-solid fa-right-to-bracket"></i> Ingresar
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     APP PRINCIPAL
+════════════════════════════════════════════ -->
+<div id="appContable" style="display:none">
+
+  <!-- TOPBAR -->
+  <header class="cont-topbar">
+    <div class="cont-topbar-izq">
+      <button class="cont-sidebar-toggle" onclick="toggleSidebar()">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div class="cont-topbar-logo">
+        <img src="../imagenes/logo.png" alt="YCA">
+        <div>
+          <span class="cont-topbar-titulo">Admin Contable</span>
+          <span class="cont-topbar-sub">YCA Cerámica</span>
+        </div>
+      </div>
+    </div>
+    <div class="cont-topbar-der">
+      <div class="cont-buscador-global">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="buscadorGlobal" placeholder="Buscar alumno o código..." oninput="buscarGlobal(this.value)">
+      </div>
+      <button class="cont-topbar-btn" onclick="toggleDark()" id="btnDark" title="Modo oscuro">🌙</button>
+      <button class="cont-topbar-btn cont-topbar-logout" onclick="cerrarSesion()" title="Cerrar sesión">
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- LAYOUT -->
+  <div class="cont-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="cont-sidebar" id="contSidebar">
+      <nav class="cont-nav">
+
+        <div class="cont-nav-grupo">
+          <span class="cont-nav-label">Principal</span>
+          <button class="cont-nav-item activo" onclick="setSeccion('dashboard')" id="nav-dashboard">
+            <i class="fa-solid fa-chart-pie"></i> Dashboard
+          </button>
+        </div>
+
+        <div class="cont-nav-grupo">
+          <span class="cont-nav-label">Gestión</span>
+          <button class="cont-nav-item" onclick="setSeccion('alumnos')" id="nav-alumnos">
+            <i class="fa-solid fa-user-graduate"></i> Alumnos
+          </button>
+          <button class="cont-nav-item" onclick="setSeccion('pagos')" id="nav-pagos">
+            <i class="fa-solid fa-money-bill-wave"></i> Pagos
+          </button>
+          <button class="cont-nav-item" onclick="setSeccion('contratos')" id="nav-contratos">
+            <i class="fa-solid fa-file-signature"></i> Contratos
+          </button>
+        </div>
+
+        <div class="cont-nav-grupo">
+          <span class="cont-nav-label">Configuración</span>
+          <button class="cont-nav-item" onclick="setSeccion('cursos')" id="nav-cursos">
+            <i class="fa-solid fa-chalkboard-teacher"></i> Cursos
+          </button>
+          <button class="cont-nav-item" onclick="setSeccion('profesoras')" id="nav-profesoras">
+            <i class="fa-solid fa-person-chalkboard"></i> Profesoras
+          </button>
+        </div>
+
+      </nav>
+    </aside>
+
+    <!-- CONTENIDO -->
+    <main class="cont-main" id="contMain">
+
+      <!-- Resultado búsqueda global -->
+      <div id="seccion-busqueda" class="cont-seccion" style="display:none">
+        <div class="cont-page-header">
+          <h2><i class="fa-solid fa-magnifying-glass"></i> Resultados de búsqueda</h2>
+          <button class="cont-btn-sec" onclick="cerrarBusqueda()">
+            <i class="fa-solid fa-xmark"></i> Cerrar
+          </button>
+        </div>
+        <div id="resultadosBusqueda" class="cont-lista"></div>
+      </div>
+
+      <!-- ── DASHBOARD ── -->
+      <div id="seccion-dashboard" class="cont-seccion">
+        <div class="cont-page-header">
+          <h2><i class="fa-solid fa-chart-pie"></i> Dashboard</h2>
+          <div class="cont-page-header-acc">
+            <input type="month" id="mesDashboard" onchange="cargarDashboard()">
+          </div>
+        </div>
+
+        <div class="dash-cards" id="dashCards">
+          <div class="dash-card dash-card-ingreso">
+            <div class="dash-card-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+            <div class="dash-card-info">
+              <span class="dash-card-label">Total ingresado</span>
+              <span class="dash-card-valor" id="dashIngresado">—</span>
+            </div>
+          </div>
+          <div class="dash-card dash-card-egreso">
+            <div class="dash-card-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
+            <div class="dash-card-info">
+              <span class="dash-card-label">A profesoras</span>
+              <span class="dash-card-valor" id="dashEgresos">—</span>
+            </div>
+          </div>
+          <div class="dash-card dash-card-saldo">
+            <div class="dash-card-icon"><i class="fa-solid fa-piggy-bank"></i></div>
+            <div class="dash-card-info">
+              <span class="dash-card-label">Saldo YCA</span>
+              <span class="dash-card-valor" id="dashSaldo">—</span>
+            </div>
+          </div>
+          <div class="dash-card dash-card-alerta">
+            <div class="dash-card-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div class="dash-card-info">
+              <span class="dash-card-label">Pagos vencidos</span>
+              <span class="dash-card-valor" id="dashVencidos">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-detalle" id="dashDetalleProfesoras"></div>
+      </div>
+
+      <!-- ── ALUMNOS ── -->
+      <div id="seccion-alumnos" class="cont-seccion" style="display:none">
+        <div class="cont-page-header">
+          <h2><i class="fa-solid fa-user-graduate"></i> Alumnos</h2>
+          <button class="cont-btn-pri" onclick="abrirModalAlumno()">
+            <i class="fa-solid fa-plus"></i> Nuevo alumno
+          </button>
+        </div>
+        <div class="cont-buscador">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" placeholder="Buscar por nombre o código..." oninput="filtrarAlumnos(this.value)" id="buscAlumnos">
+        </div>
+        <div id="listaAlumnos" class="cont-lista"></div>
+      </div>
+
+      <!-- ── PAGOS ── -->
+      <div id="seccion-pagos" class="cont-seccion" style="display:none">
+        <div class="cont-page-header">
+          <h2><i class="fa-solid fa-money-bill-wave"></i> Pagos</h2>
+          <button class="cont-btn-pri" onclick="abrirModalPago()">
+            <i class="fa-solid fa-plus"></i> Registrar pago
+          </button>
+        </div>
+        <div class="cont-filtros" id="filtrosPagos">
+          <button class="cont-filtro activo" onclick="filtrarPagos('todos', this)">Todos</button>
+          <button class="cont-filtro" onclick="filtrarPagos('AL DIA', this)">Al día</button>
+          <button class="cont-filtro" onclick="filtrarPagos('VENCIDO', this)">Vencidos</button>
+        </div>
+        <div id="listaPagos" class="cont-lista"></div>
+      </div>
+
+      <!-- ── CONTRATOS ── -->
+      <div id="seccion-contratos" class="cont-seccion" style="display:none">
+        <div class="cont-page-header">
+          <h2><i class="fa-solid fa-file-signature"></i> Contratos</h2>
+          <button class="cont-btn-pri" onclick="abrirModalContrato()">
+            <i class="fa-solid fa-plus"></i> Generar contrato
+          </button>
+        </div>
+        <div id="listaContratos" class="cont-lista"></div>
+      </div>
+
+      <!-- ── CURSOS ── -->
+      <div id="seccion-cursos" class="cont-seccion" style="display:none">
+        <div class="cont-page-header">
+          <h2><i class="fa-solid fa-chalkboard-teacher"></i> Cursos</h2>
+          <button class="cont-btn-pri" onclick="abrirModalCurso()">
+            <i class="fa-solid fa-plus"></i> Nuevo curso
+          </button>
+        </div>
+        <div id="listaCursos" class="cont-lista"></div>
+      </div>
+
+      <!-- ── PROFESORAS ── -->
+      <div id="seccion-profesoras" class="cont-seccion" style="display:none">
+        <div class="cont-page-header">
+          <h2><i class="fa-solid fa-person-chalkboard"></i> Profesoras</h2>
+          <button class="cont-btn-pri" onclick="abrirModalProfesora()">
+            <i class="fa-solid fa-plus"></i> Nueva profesora
+          </button>
+        </div>
+        <div id="listaProfesoras" class="cont-lista"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODALES
+════════════════════════════════════════════ -->
+
+<!-- Modal alumno -->
+<div class="cont-modal-overlay" id="modalAlumno" style="display:none">
+  <div class="cont-modal">
+    <div class="cont-modal-header">
+      <h3 id="modalAlumnoTitulo">Nuevo alumno</h3>
+      <button onclick="cerrarModal('modalAlumno')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="cont-modal-body">
+      <div class="cont-campo">
+        <label>Nombre completo *</label>
+        <input type="text" id="mAluNombre" placeholder="Nombre y apellido">
+      </div>
+      <div class="cont-campo-fila">
+        <div class="cont-campo">
+          <label>Teléfono</label>
+          <input type="text" id="mAluTel" placeholder="11 1234-5678">
+        </div>
+        <div class="cont-campo">
+          <label>Email</label>
+          <input type="email" id="mAluEmail" placeholder="ejemplo@mail.com">
+        </div>
+      </div>
+      <div class="cont-campo">
+        <label>Instagram</label>
+        <input type="text" id="mAluIg" placeholder="@usuario">
+      </div>
+    </div>
+    <div class="cont-modal-footer">
+      <button class="cont-btn-sec" onclick="cerrarModal('modalAlumno')">Cancelar</button>
+      <button class="cont-btn-pri" onclick="guardarAlumno()">
+        <i class="fa-solid fa-floppy-disk"></i> Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal pago -->
+<div class="cont-modal-overlay" id="modalPago" style="display:none">
+  <div class="cont-modal">
+    <div class="cont-modal-header">
+      <h3>Registrar pago</h3>
+      <button onclick="cerrarModal('modalPago')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="cont-modal-body">
+      <div class="cont-campo">
+        <label>Alumno *</label>
+        <input type="text" id="mPagoBuscador" placeholder="Buscar por nombre o código..." oninput="buscarAlumnoModal(this.value)">
+        <div id="mPagoResultados" class="cont-autocomplete"></div>
+        <input type="hidden" id="mPagoCodigo">
+      </div>
+      <div class="cont-campo" id="mPagoAlumnoSel" style="display:none">
+        <div class="cont-alumno-sel">
+          <i class="fa-solid fa-circle-check"></i>
+          <span id="mPagoAlumnoNombre"></span>
+          <span id="mPagoAlumnoCod" class="cont-codigo-badge"></span>
+        </div>
+      </div>
+      <div class="cont-campo">
+        <label>Curso *</label>
+        <select id="mPagoCurso">
+          <option value="">Seleccioná un curso...</option>
+        </select>
+      </div>
+      <div class="cont-campo-fila">
+        <div class="cont-campo">
+          <label>Monto *</label>
+          <input type="number" id="mPagoMonto" placeholder="0">
+        </div>
+        <div class="cont-campo">
+          <label>Método</label>
+          <select id="mPagoMetodo">
+            <option value="EFECTIVO">Efectivo</option>
+            <option value="TRANSFERENCIA">Transferencia</option>
+          </select>
+        </div>
+      </div>
+      <div class="cont-campo">
+        <label>Comprobante (link de Drive o imagen)</label>
+        <input type="text" id="mPagoComprobante" placeholder="https://drive.google.com/...">
+      </div>
+      <div class="cont-campo">
+        <label>Notas</label>
+        <textarea id="mPagoNotas" rows="2" placeholder="Observaciones opcionales..."></textarea>
+      </div>
+    </div>
+    <div class="cont-modal-footer">
+      <button class="cont-btn-sec" onclick="cerrarModal('modalPago')">Cancelar</button>
+      <button class="cont-btn-pri" onclick="guardarPago()">
+        <i class="fa-solid fa-floppy-disk"></i> Registrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal contrato -->
+<div class="cont-modal-overlay" id="modalContrato" style="display:none">
+  <div class="cont-modal">
+    <div class="cont-modal-header">
+      <h3>Generar contrato</h3>
+      <button onclick="cerrarModal('modalContrato')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="cont-modal-body">
+      <div class="cont-campo">
+        <label>Alumno *</label>
+        <input type="text" id="mConBuscador" placeholder="Buscar por nombre o código..." oninput="buscarAlumnoModal2(this.value)">
+        <div id="mConResultados" class="cont-autocomplete"></div>
+        <input type="hidden" id="mConCodigo">
+      </div>
+      <div class="cont-campo" id="mConAlumnoSel" style="display:none">
+        <div class="cont-alumno-sel">
+          <i class="fa-solid fa-circle-check"></i>
+          <span id="mConAlumnoNombre"></span>
+          <span id="mConAlumnoCod" class="cont-codigo-badge"></span>
+        </div>
+      </div>
+      <div class="cont-campo">
+        <label>Curso *</label>
+        <select id="mConCurso" onchange="autocompletarContrato()">
+          <option value="">Seleccioná un curso...</option>
+        </select>
+      </div>
+      <div class="cont-campo-fila">
+        <div class="cont-campo">
+          <label>Arcilla máx. por clase (kg)</label>
+          <input type="number" id="mConArcilla" placeholder="ej: 2" step="0.5">
+        </div>
+        <div class="cont-campo">
+          <label>Barbotina máx. por clase (ml)</label>
+          <input type="number" id="mConBarbotina" placeholder="ej: 500" step="50">
+        </div>
+      </div>
+    </div>
+    <div class="cont-modal-footer">
+      <button class="cont-btn-sec" onclick="cerrarModal('modalContrato')">Cancelar</button>
+      <button class="cont-btn-pri" id="btnGenerarContrato" onclick="generarContrato()">
+        <i class="fa-solid fa-file-pdf"></i> Generar PDFs
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal curso -->
+<div class="cont-modal-overlay" id="modalCurso" style="display:none">
+  <div class="cont-modal">
+    <div class="cont-modal-header">
+      <h3 id="modalCursoTitulo">Nuevo curso</h3>
+      <button onclick="cerrarModal('modalCurso')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="cont-modal-body">
+      <div class="cont-campo">
+        <label>Nombre del curso *</label>
+        <input type="text" id="mCurNombre" placeholder="Ej: Taller Inicial">
+      </div>
+      <div class="cont-campo">
+        <label>Profesora *</label>
+        <select id="mCurProfesora">
+          <option value="">Seleccioná una profesora...</option>
+        </select>
+      </div>
+      <div class="cont-campo-fila">
+        <div class="cont-campo">
+          <label>Modalidad</label>
+          <select id="mCurModalidad">
+            <option value="MENSUAL">Mensual</option>
+            <option value="CLASE SUELTA">Clase suelta</option>
+            <option value="EXPERIENCIA">Experiencia</option>
+          </select>
+        </div>
+        <div class="cont-campo">
+          <label>Valor ($)</label>
+          <input type="number" id="mCurValor" placeholder="0">
+        </div>
+      </div>
+      <div class="cont-campo-fila">
+        <div class="cont-campo">
+          <label>Arcilla máx. por clase (kg)</label>
+          <input type="number" id="mCurArcilla" placeholder="ej: 2" step="0.5">
+        </div>
+        <div class="cont-campo">
+          <label>Barbotina máx. por clase (ml)</label>
+          <input type="number" id="mCurBarbotina" placeholder="ej: 500" step="50">
+        </div>
+      </div>
+      <input type="hidden" id="mCurId">
+    </div>
+    <div class="cont-modal-footer">
+      <button class="cont-btn-sec" onclick="cerrarModal('modalCurso')">Cancelar</button>
+      <button class="cont-btn-pri" onclick="guardarCurso()">
+        <i class="fa-solid fa-floppy-disk"></i> Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal profesora -->
+<div class="cont-modal-overlay" id="modalProfesora" style="display:none">
+  <div class="cont-modal">
+    <div class="cont-modal-header">
+      <h3 id="modalProfesoraTitulo">Nueva profesora</h3>
+      <button onclick="cerrarModal('modalProfesora')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="cont-modal-body">
+      <div class="cont-campo">
+        <label>Nombre *</label>
+        <input type="text" id="mProNombre" placeholder="Nombre completo">
+      </div>
+      <div class="cont-campo">
+        <label>Porcentaje por alumno (%)</label>
+        <input type="number" id="mProPorcentaje" placeholder="ej: 40" min="0" max="100">
+      </div>
+      <input type="hidden" id="mProId">
+    </div>
+    <div class="cont-modal-footer">
+      <button class="cont-btn-sec" onclick="cerrarModal('modalProfesora')">Cancelar</button>
+      <button class="cont-btn-pri" onclick="guardarProfesora()">
+        <i class="fa-solid fa-floppy-disk"></i> Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="contToast" class="cont-toast"></div>
+
+<!-- Loading overlay -->
+<div id="contLoading" class="cont-loading" style="display:none">
+  <div class="cont-loading-inner">
+    <div class="cont-spinner"></div>
+    <p id="contLoadingMsg">Cargando...</p>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
