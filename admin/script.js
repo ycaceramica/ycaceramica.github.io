@@ -4433,12 +4433,10 @@ async function toggleMantenimiento(valor){
 // BLOC DE NOTAS
 // ─────────────────────────────────────────────
 
-let notasCargadas = false
-let notasData     = []
-let notaActivaId  = null
+let notasData    = []
+let notaActivaId = null
 
 async function cargarNotas() {
-  if (notasCargadas) return
   const sesion = getSesion()
   try {
     const res  = await fetch(`${API}?action=getNotas&token=${encodeURIComponent(sesion.token)}`)
@@ -4454,7 +4452,6 @@ async function cargarNotas() {
     renderNotasLista()
     seleccionarNota(notasData[0].id)
     renderPendientes()
-    notasCargadas = true
   } catch(e) {
     toast('❌ Error de conexión', 'err')
   }
