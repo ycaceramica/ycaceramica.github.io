@@ -22,6 +22,7 @@ window.addEventListener('DOMContentLoaded', () => {
   if(sesion){
     if(sesion.rol === 'superadmin')      window.location.href = '../admin/index.html'
     else if(sesion.rol === 'admin')     window.location.href = '../admin/index.html'
+    else if(sesion.rol === 'contable')  window.location.href = '../admin-contable/index.html'
     else if(sesion.rol === 'ceramista') window.location.href = '../mi-taller/index.html'
     else                                window.location.href = '../mi-cuenta/index.html'
   }
@@ -201,6 +202,7 @@ async function ingresar(){
       guardarSesion(data)
       if(data.rol === 'superadmin')      window.location.href = '../admin/index.html'
       else if(data.rol === 'admin')     window.location.href = '../admin/index.html'
+      else if(data.rol === 'contable')  window.location.href = '../admin-contable/index.html'
       else if(data.rol === 'ceramista') window.location.href = '../mi-taller/index.html'
       else                              window.location.href = '../mi-cuenta/index.html'
     } else {
