@@ -339,27 +339,84 @@ function renderAlumnos (lista) {
   })
 }
 
+var _filtroCursoAlumno = ''
+
 function filtrarAlumnos (q) {
   q = (q || '').toLowerCase().trim()
-  if (!q) { renderAlumnos(todosAlumnos); return }
   var filtrados = todosAlumnos.filter(function (a) {
-    return (a.NOMBRE + '').toLowerCase().indexOf(q) > -1 ||
-           (a.CODIGO + '').toLowerCase().indexOf(q) > -1 ||
-           (a.EMAIL  + '').toLowerCase().indexOf(q) > -1
+    var matchQ = !q || (
+      (a.NOMBRE + '').toLowerCase().indexOf(q) > -1 ||
+      (a.CODIGO + '').toLowerCase().indexOf(q) > -1 ||
+      (a.EMAIL  + '').toLowerCase().indexOf(q) > -1
+    )
+    var matchCurso = !_filtroCursoAlumno || (a.CURSO || '') === _filtroCursoAlumno
+    return matchQ && matchCurso
   })
   renderAlumnos(filtrados)
+}
+
+function filtrarAlumnosPorCurso (curso) {
+  _filtroCursoAlumno = curso || ''
+  var buscador = document.getElementById('buscAlumnos')
+  filtrarAlumnos(buscador ? buscador.value : '')
+
+  // Actualizar chips activos
+  document.querySelectorAll('.cont-filtro-curso').forEach(function (b) {
+    b.classList.toggle('activo', b.dataset.curso === _filtroCursoAlumno)
+  })
+}
+
+function renderFiltrosCursoAlumnos () {
+  var cont = document.getElementById('filtrosCursoAlumnos')
+  if (!cont) return
+  cont.innerHTML = ''
+
+  var todos = document.createElement('button')
+  todos.className = 'cont-filtro cont-filtro-curso' + (!_filtroCursoAlumno ? ' activo' : '')
+  todos.dataset.curso = ''
+  todos.textContent = 'Todos'
+  todos.onclick = function () { filtrarAlumnosPorCurso('') }
+  cont.appendChild(todos)
+
+  todosCursos.filter(function (c) {
+    return c.ACTIVO === true || c.ACTIVO === 'TRUE' || c.ACTIVO === 'true'
+  }).forEach(function (c) {
+    var btn = document.createElement('button')
+    btn.className = 'cont-filtro cont-filtro-curso' + (_filtroCursoAlumno === c.NOMBRE ? ' activo' : '')
+    btn.dataset.curso = c.NOMBRE
+    btn.textContent   = c.NOMBRE
+    btn.onclick = function () { filtrarAlumnosPorCurso(c.NOMBRE) }
+    cont.appendChild(btn)
+  })
 }
 
 function abrirModalAlumno () {
   var inp = document.getElementById('mAluNombre')
   inp.value = ''
   delete inp.dataset.codigo
-  document.getElementById('mAluTel').value      = ''
-  document.getElementById('mAluEmail').value    = ''
-  document.getElementById('mAluIg').value       = ''
+  document.getElementById('mAluTel').value   = ''
+  document.getElementById('mAluEmail').value = ''
+  document.getElementById('mAluIg').value    = ''
   document.getElementById('modalAlumnoTitulo').textContent = 'Nuevo alumno'
+  _poblarSelectCursoAlumno('mAluCurso')
   abrirModal('modalAlumno')
   setTimeout(function () { inp.focus() }, 100)
+}
+
+function _poblarSelectCursoAlumno (idSelect) {
+  var sel = document.getElementById(idSelect)
+  if (!sel) return
+  var val = sel.value
+  sel.innerHTML = '<option value="">Sin curso asignado</option>'
+  todosCursos.filter(function (c) {
+    return c.ACTIVO === true || c.ACTIVO === 'TRUE' || c.ACTIVO === 'true'
+  }).forEach(function (c) {
+    var opt = document.createElement('option')
+    opt.value       = c.NOMBRE
+    opt.textContent = c.NOMBRE + (c.DIAS ? ' (' + c.DIAS + ')' : '')
+    sel.appendChild(opt)
+  })
+  if (val) sel.value = val
 }
 
 async function guardarAlumno () {
@@ -381,6 +438,7 @@ async function guardarAlumno () {
       telefono:  document.getElementById('mAluTel').value.trim(),
       email:     document.getElementById('mAluEmail').value.trim(),
       instagram: document.getElementById('mAluIg').value.trim(),
+      curso:     document.getElementById('mAluCurso') ? document.getElementById('mAluCurso').value : '',
       origen:    'MANUAL'
     })
 
@@ -506,8 +564,74 @@ async function cargarCursos () {
     todosCursos = data.data || []
     renderCursos(todosCursos)
     poblarSelectCursos()
+    renderFiltrosCursoAlumnos()
   } catch (e) {}
 }
+
+// ── Materiales dinámicos ──────────────────────
+
+var _materialesCurso = []
+
+function renderMateriales () {
+  var cont = document.getElementById('mCurMaterialesEditor')
+  if (!cont) return
+  cont.innerHTML = ''
+
+  if (_materialesCurso.length === 0) {
+    cont.innerHTML = '<p style="font-size:12px;color:var(--color-texto-sub);padding:4px 0;">Sin materiales cargados. Usá los accesos rápidos o "+ Otro".</p>'
+    return
+  }
+
+  _materialesCurso.forEach(function (m, idx) {
+    var fila = document.createElement('div')
+    fila.className = 'cont-material-fila'
+    fila.innerHTML =
+      '<input type="text" value="' + (m.nombre || '') + '" placeholder="Material" ' +
+        'oninput="_materialesCurso[' + idx + '].nombre=this.value">' +
+      '<input type="number" value="' + (m.cantidad || '') + '" placeholder="Cant." min="0" step="0.1" ' +
+        'oninput="_materialesCurso[' + idx + '].cantidad=this.value">' +
+      '<select onchange="_materialesCurso[' + idx + '].unidad=this.value">' +
+        '<option value="kg"'    + (m.unidad==='kg'     ? ' selected' : '') + '>kg</option>' +
+        '<option value="gr"'    + (m.unidad==='gr'     ? ' selected' : '') + '>gr</option>' +
+        '<option value="ml"'    + (m.unidad==='ml'     ? ' selected' : '') + '>ml</option>' +
+        '<option value="l"'     + (m.unidad==='l'      ? ' selected' : '') + '>l</option>' +
+        '<option value="unidad"'+ (m.unidad==='unidad' ? ' selected' : '') + '>unid.</option>' +
+        '<option value="libre"' + (m.unidad==='libre'  ? ' selected' : '') + '>libre</option>' +
+      '</select>' +
+      '<button class="cont-material-del" onclick="eliminarMaterial(' + idx + ')">' +
+        '<i class="fa-solid fa-xmark"></i>' +
+      '</button>'
+    cont.appendChild(fila)
+  })
+}
+
+function agregarMaterial (nombre, cantidad, unidad) {
+  _materialesCurso.push({ nombre: nombre || '', cantidad: cantidad || '', unidad: unidad || 'kg' })
+  renderMateriales()
+}
+
+function eliminarMaterial (idx) {
+  _materialesCurso.splice(idx, 1)
+  renderMateriales()
+}
+
+function getMaterialesJSON () {
+  // Sincronizar valores actuales del DOM antes de serializar
+  var filas = document.querySelectorAll('.cont-material-fila')
+  filas.forEach(function (fila, idx) {
+    if (!_materialesCurso[idx]) return
+    var inputs  = fila.querySelectorAll('input')
+    var selects = fila.querySelectorAll('select')
+    if (inputs[0])  _materialesCurso[idx].nombre   = inputs[0].value.trim()
+    if (inputs[1])  _materialesCurso[idx].cantidad  = inputs[1].value
+    if (selects[0]) _materialesCurso[idx].unidad    = selects[0].value
+  })
+  // Filtrar vacíos
+  var validos = _materialesCurso.filter(function (m) { return m.nombre.trim() })
+  return JSON.stringify(validos)
+}
+
+// ── Cursos ────────────────────────────────────
 
 function renderCursos (lista) {
   var cont = document.getElementById('listaCursos')
@@ -521,17 +645,35 @@ function renderCursos (lista) {
   cont.innerHTML = ''
   lista.forEach(function (c) {
     var activo = c.ACTIVO === true || c.ACTIVO === 'TRUE' || c.ACTIVO === 'true'
-    var card   = document.createElement('div')
+
+    // Parsear materiales
+    var mats = []
+    try { mats = JSON.parse(c.MATERIALES || '[]') } catch(e) {}
+
+    var matsHtml = mats.length > 0
+      ? '<div class="cont-curso-materiales">' +
+          mats.map(function(m) {
+            return '<span class="cont-curso-mat-tag">' + m.nombre +
+              (m.cantidad ? ' ' + m.cantidad + m.unidad : '') + '</span>'
+          }).join('') +
+        '</div>'
+      : ''
+
+    var card = document.createElement('div')
     card.className = 'cont-card'
     card.innerHTML =
       '<div class="cont-card-icon"><i class="fa-solid fa-chalkboard-teacher"></i></div>' +
       '<div class="cont-card-info">' +
         '<div class="cont-card-titulo">' + (c.NOMBRE || '—') + '</div>' +
         '<div class="cont-card-sub">' +
-          (c.PROFESORA || '') + ' · ' + (c.MODALIDAD || '') +
+          (c.PROFESORA || '') +
+          (c.DIAS    ? ' · ' + c.DIAS    : '') +
+          (c.HORARIO ? ' · ' + c.HORARIO : '') +
+          ' · ' + (c.MODALIDAD || '') +
           ' · ' + pesos(c.VALOR) +
-          ' · Arcilla: ' + (c.ARCILLA_KG || 0) + 'kg · Barbotina: ' + (c.BARBOTINA_ML || 0) + 'ml' +
+          (c.MAX_ALUMNOS ? ' · Máx: ' + c.MAX_ALUMNOS + ' alumnos' : '') +
         '</div>' +
+        matsHtml +
       '</div>' +
       '<div class="cont-card-acc">' +
         '<span class="cont-badge ' + (activo ? 'cont-badge-verde' : 'cont-badge-gris') + '">' +
@@ -549,7 +691,7 @@ function renderCursos (lista) {
 }
 
 function poblarSelectCursos () {
-  var selects = ['mPagoCurso', 'mConCurso']
+  var selects = ['mPagoCurso', 'mConCurso', 'fichaEditCursoSel']
   selects.forEach(function (id) {
     var sel = document.getElementById(id)
     if (!sel) return
@@ -584,26 +726,40 @@ function poblarSelectProfesoras () {
 }
 
 function abrirModalCurso () {
-  document.getElementById('mCurNombre').value     = ''
-  document.getElementById('mCurProfesora').value  = ''
-  document.getElementById('mCurModalidad').value  = 'MENSUAL'
-  document.getElementById('mCurValor').value      = ''
-  document.getElementById('mCurArcilla').value    = ''
-  document.getElementById('mCurBarbotina').value  = ''
-  document.getElementById('mCurId').value         = ''
+  document.getElementById('mCurNombre').value       = ''
+  document.getElementById('mCurModalidad').value    = 'MENSUAL'
+  document.getElementById('mCurValor').value        = ''
+  document.getElementById('mCurMaxAlumnos').value   = ''
+  document.getElementById('mCurDias').value         = ''
+  document.getElementById('mCurHorario').value      = ''
+  document.getElementById('mCurFechaInicio').value  = ''
+  document.getElementById('mCurFechaFin').value     = ''
+  document.getElementById('mCurDescripcion').value  = ''
+  document.getElementById('mCurId').value           = ''
   document.getElementById('modalCursoTitulo').textContent = 'Nuevo curso'
+  _materialesCurso = []
+  renderMateriales()
   poblarSelectProfesoras()
   abrirModal('modalCurso')
 }
 
 function editarCurso (c) {
-  document.getElementById('mCurNombre').value     = c.NOMBRE     || ''
-  document.getElementById('mCurModalidad').value  = c.MODALIDAD  || 'MENSUAL'
-  document.getElementById('mCurValor').value      = c.VALOR      || ''
-  document.getElementById('mCurArcilla').value    = c.ARCILLA_KG || ''
-  document.getElementById('mCurBarbotina').value  = c.BARBOTINA_ML || ''
-  document.getElementById('mCurId').value         = c.ID         || ''
+  document.getElementById('mCurNombre').value       = c.NOMBRE       || ''
+  document.getElementById('mCurModalidad').value    = c.MODALIDAD     || 'MENSUAL'
+  document.getElementById('mCurValor').value        = c.VALOR         || ''
+  document.getElementById('mCurMaxAlumnos').value   = c.MAX_ALUMNOS   || ''
+  document.getElementById('mCurDias').value         = c.DIAS          || ''
+  document.getElementById('mCurHorario').value      = c.HORARIO       || ''
+  document.getElementById('mCurFechaInicio').value  = c.FECHA_INICIO  || ''
+  document.getElementById('mCurFechaFin').value     = c.FECHA_FIN     || ''
+  document.getElementById('mCurDescripcion').value  = c.DESCRIPCION   || ''
+  document.getElementById('mCurId').value           = c.ID            || ''
   document.getElementById('modalCursoTitulo').textContent = 'Editar curso'
+
+  // Materiales
+  try { _materialesCurso = JSON.parse(c.MATERIALES || '[]') } catch(e) { _materialesCurso = [] }
+  renderMateriales()
+
   poblarSelectProfesoras()
   setTimeout(function () {
     document.getElementById('mCurProfesora').value = c.PROFESORA || ''
@@ -616,7 +772,7 @@ async function guardarCurso () {
   var prof   = document.getElementById('mCurProfesora').value.trim()
   if (!nombre || !prof) { toast('Nombre y profesora son obligatorios', 'err'); return }
 
-  var id = document.getElementById('mCurId').value.trim()
+  var id     = document.getElementById('mCurId').value.trim()
   var action = id ? 'editCurso' : 'addCurso'
 
   showLoading('Guardando curso...')
@@ -627,8 +783,13 @@ async function guardarCurso () {
       profesora:    prof,
       modalidad:    document.getElementById('mCurModalidad').value,
       valor:        document.getElementById('mCurValor').value,
-      arcilla_kg:   document.getElementById('mCurArcilla').value,
-      barbotina_ml: document.getElementById('mCurBarbotina').value
+      max_alumnos:  document.getElementById('mCurMaxAlumnos').value,
+      dias:         document.getElementById('mCurDias').value.trim(),
+      horario:      document.getElementById('mCurHorario').value.trim(),
+      fecha_inicio: document.getElementById('mCurFechaInicio').value,
+      fecha_fin:    document.getElementById('mCurFechaFin').value,
+      descripcion:  document.getElementById('mCurDescripcion').value.trim(),
+      materiales:   getMaterialesJSON()
     })
 
     if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
@@ -642,6 +803,68 @@ async function guardarCurso () {
   } finally {
     hideLoading()
   }
+}
+
+// ── Importar descripción de la web ────────────
+
+var _cursosWebCache = []
+
+async function abrirImportarDescripcion () {
+  abrirModal('modalImportarDesc')
+  var cont = document.getElementById('listaCursosWeb')
+  cont.innerHTML = '<div class="cont-vacio"><div class="cont-spinner" style="margin:0 auto"></div></div>'
+
+  try {
+    var data = await get('importarDescripcionCursos')
+    if (!data.ok || !data.data) {
+      cont.innerHTML = '<div class="cont-vacio"><p>No se pudieron cargar los cursos de la web.</p></div>'
+      return
+    }
+
+    _cursosWebCache = data.data
+    cont.innerHTML = ''
+
+    if (_cursosWebCache.length === 0) {
+      cont.innerHTML = '<div class="cont-vacio"><p>No hay cursos publicados en la web.</p></div>'
+      return
+    }
+
+    _cursosWebCache.forEach(function (c) {
+      var card = document.createElement('div')
+      card.className = 'cont-card'
+      card.style.cursor = 'pointer'
+      card.innerHTML =
+        '<div class="cont-card-icon"><i class="fa-solid fa-globe"></i></div>' +
+        '<div class="cont-card-info">' +
+          '<div class="cont-card-titulo">' + (c.nombre || c.NOMBRE || '—') + '</div>' +
+          '<div class="cont-card-sub" style="max-height:36px;overflow:hidden;">' +
+            (c.descripcion || c.DESCRIPCION || 'Sin descripción') +
+          '</div>' +
+        '</div>' +
+        '<div class="cont-card-acc">' +
+          '<button class="cont-btn-pri cont-btn-sm" onclick="importarDescripcion(' + JSON.stringify(c).replace(/"/g, '&quot;') + ')">' +
+            'Usar' +
+          '</button>' +
+        '</div>'
+      cont.appendChild(card)
+    })
+
+  } catch (e) {
+    cont.innerHTML = '<div class="cont-vacio"><p>Error de conexión.</p></div>'
+  }
+}
+
+function importarDescripcion (c) {
+  var desc = c.descripcion || c.DESCRIPCION || ''
+  var nombre = c.nombre || c.NOMBRE || ''
+
+  if (desc) document.getElementById('mCurDescripcion').value = desc
+  if (nombre && !document.getElementById('mCurNombre').value) {
+    document.getElementById('mCurNombre').value = nombre
+  }
+
+  cerrarModal('modalImportarDesc')
+  toast('Descripción importada', 'ok')
 }
 
 async function toggleCurso (id) {
@@ -1137,6 +1360,13 @@ function abrirFichaAlumno (a) {
   // Solo mostrar si es alumno WEB que todavía no está en el contable (código empieza con WEB-)
   if (btnImportar) btnImportar.style.display = (a.CODIGO || '').startsWith('WEB-') ? 'inline-flex' : 'none'
 
+  // Poblar select de cursos en ficha
+  _poblarSelectCursoAlumno('fichaEditCursoSel')
+  setTimeout(function () {
+    var sel = document.getElementById('fichaEditCursoSel')
+    if (sel) { sel.value = a.CURSO || ''; calcularDescuento() }
+  }, 80)
+
   // Calcular descuento inicial
   calcularDescuento()
 
@@ -1171,7 +1401,8 @@ function setFichaTab (tab, btn) {
 function calcularDescuento () {
   var descPct  = parseFloat(document.getElementById('fichaEditDescuento').value) || 0
   var preview  = document.getElementById('descuentoPreview')
-  var curso    = document.getElementById('fichaEditCurso').value
+  var sel = document.getElementById('fichaEditCursoSel')
+  var curso = sel ? sel.value : (document.getElementById('fichaEditCurso') ? document.getElementById('fichaEditCurso').value : '')
 
   if (!preview) return
 
@@ -1203,12 +1434,14 @@ async function guardarEdicionAlumno () {
 
   showLoading('Guardando...')
   try {
+    var cursoSel = document.getElementById('fichaEditCursoSel')
     var data = await get('editAlumno', {
       codigo:     codigo,
       nombre:     document.getElementById('fichaEditNombre').value.trim(),
       telefono:   document.getElementById('fichaEditTel').value.trim(),
       email:      document.getElementById('fichaEditEmail').value.trim(),
       instagram:  document.getElementById('fichaEditIg').value.trim(),
+      curso:      cursoSel ? cursoSel.value : '',
       descuento:  document.getElementById('fichaEditDescuento').value || 0
     })
 
