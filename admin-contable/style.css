@@ -42,6 +42,7 @@ body {
   color: var(--color-texto);
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 /* ── LOGIN ───────────────────────────────── */
@@ -361,6 +362,7 @@ body {
   padding: 28px 24px;
   transition: margin-left 0.25s ease;
   max-width: 1100px;
+  overflow-x: hidden;
 }
 
 .cont-main.sin-sidebar { margin-left: 0; }
@@ -905,15 +907,25 @@ body {
 @media (max-width: 768px) {
   .cont-sidebar { transform: translateX(calc(-1 * var(--sidebar-w))); }
   .cont-sidebar.abierto { transform: translateX(0); }
-  .cont-main { margin-left: 0; padding: 16px; }
+  .cont-main { margin-left: 0; padding: 16px; min-width: 0; }
   .cont-buscador-global input { width: 130px; }
   .cont-campo-fila { grid-template-columns: 1fr; }
   .dash-cards { grid-template-columns: 1fr 1fr; }
+  .cont-card { flex-wrap: wrap; }
+  .cont-card-acc { flex-wrap: wrap; justify-content: flex-end; }
+  .cont-material-fila { grid-template-columns: 1fr 64px 70px 32px; }
+  .cont-modal { max-height: 95vh; }
+  .cont-modal-ficha { max-width: 100%; }
+  .cont-ficha-tabs { overflow-x: auto; scrollbar-width: none; }
+  .cont-ficha-tabs::-webkit-scrollbar { display: none; }
 }
 
 @media (max-width: 480px) {
   .dash-cards { grid-template-columns: 1fr; }
   .cont-buscador-global { display: none; }
+  .cont-material-fila { grid-template-columns: 1fr 56px 64px 32px; font-size: 12px; }
+  .cont-page-header { flex-direction: column; align-items: flex-start; }
+  .cont-topbar-logo span.cont-topbar-sub { display: none; }
 }
 
 /* ── FICHA ALUMNO ────────────────────────── */
