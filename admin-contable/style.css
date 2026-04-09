@@ -915,3 +915,221 @@ body {
   .dash-cards { grid-template-columns: 1fr; }
   .cont-buscador-global { display: none; }
 }
+
+/* ── FICHA ALUMNO ────────────────────────── */
+
+.cont-modal-ficha {
+  max-width: 620px;
+  max-height: 92vh;
+}
+
+.cont-ficha-header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cont-ficha-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(139,111,86,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.cont-ficha-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--color-borde);
+  padding: 0 24px;
+  gap: 0;
+}
+
+.cont-ficha-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  color: var(--color-texto-sub);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+  margin-bottom: -1px;
+}
+
+.cont-ficha-tab:hover { color: var(--color-primario); }
+
+.cont-ficha-tab.activo {
+  color: var(--color-primario);
+  border-bottom-color: var(--color-primario);
+}
+
+.cont-ficha-tab-panel { display: block; }
+
+.cont-ficha-tab-acc {
+  padding: 16px 24px 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cont-lista-ficha {
+  padding: 0 24px 24px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.cont-btn-sm {
+  padding: 7px 14px;
+  font-size: 12.5px;
+}
+
+/* ── DESCUENTO ───────────────────────────── */
+
+.cont-descuento-bloque {
+  background: var(--color-sup2);
+  border: 1px solid var(--color-borde);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cont-campo-desc label { color: var(--color-primario); }
+
+.cont-descuento-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.desc-fila {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--color-texto-sub);
+}
+
+.desc-fila-result {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--color-verde);
+  padding-top: 6px;
+  border-top: 1px solid var(--color-borde);
+}
+
+/* ── INPUT ARCHIVO ───────────────────────── */
+
+.cont-file-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cont-file-wrap input[type="file"] { display: none; }
+
+.cont-file-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-borde);
+  border-radius: 10px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--color-texto);
+  transition: border-color 0.2s;
+  white-space: nowrap;
+}
+
+.cont-file-btn:hover { border-color: var(--color-primario); color: var(--color-primario); }
+
+.cont-file-nombre {
+  font-size: 12.5px;
+  color: var(--color-texto-sub);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cont-file-preview {
+  margin-top: 8px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--color-borde);
+  max-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+}
+
+.cont-file-preview img {
+  max-width: 100%;
+  max-height: 160px;
+  object-fit: contain;
+}
+
+.cont-file-preview-pdf {
+  padding: 20px;
+  text-align: center;
+  color: var(--color-rojo);
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.cont-file-preview-pdf i { font-size: 28px; }
+
+/* ── VISOR COMPROBANTE ───────────────────── */
+
+.cont-modal-visor { max-width: 700px; }
+
+.cont-visor-body {
+  padding: 20px 24px 24px;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cont-visor-body img {
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.cont-visor-body iframe {
+  width: 100%;
+  height: 70vh;
+  border: none;
+  border-radius: 8px;
+}
+
+/* ── IMPORTAR WEB ────────────────────────── */
+
+.cont-btn-importar {
+  border-color: var(--color-verde);
+  color: var(--color-verde);
+}
+
+.cont-btn-importar:hover {
+  background: rgba(45,138,78,0.08);
+}
