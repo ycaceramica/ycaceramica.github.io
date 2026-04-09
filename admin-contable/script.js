@@ -290,39 +290,10 @@ async function cargarDashboard () {
 
 async function cargarAlumnos () {
   try {
-    // 1. Traer alumnos del sistema contable
-    var dataContable = await get('getAlumnos')
-    var alumnosContable = dataContable.ok ? (dataContable.data || []) : []
-
-    // 2. Traer alumnos del GAS principal (los que ya están registrados en la web)
-    var dataPrincipal = await fetch(API_PRINCIPAL + '?action=getAlumnosContable').then(function (r) { return r.json() }).catch(function () { return { ok: false } })
-    var alumnosWeb = []
-    if (dataPrincipal.ok && dataPrincipal.data) {
-      // Solo los aprobados
-      alumnosWeb = dataPrincipal.data.map(function (u) {
-        return {
-          CODIGO:    'WEB-' + (u.id || u.email),
-          NOMBRE:    u.nombre || u.email,
-          EMAIL:     u.email  || '',
-          TELEFONO:  '',
-          INSTAGRAM: '',
-          ORIGEN:    'WEB',
-          CURSO:     u.curso  || ''
-        }
-      })
-    }
-
-    // 3. Unir — los del contable primero, luego los de la web que no estén ya
-    var codigosContable = alumnosContable.map(function (a) { return a.CODIGO })
-    var emailsContable  = alumnosContable.map(function (a) { return (a.EMAIL + '').toLowerCase() })
-
-    var webNuevos = alumnosWeb.filter(function (u) {
-      return emailsContable.indexOf((u.EMAIL + '').toLowerCase()) === -1
-    })
-
-    todosAlumnos = alumnosContable.concat(webNuevos)
+    var data = await get('getAlumnos')
+    if (!data.ok) { toast('Error al cargar alumnos', 'err'); return }
+    todosAlumnos = data.data || []
     renderAlumnos(todosAlumnos)
-
   } catch (e) {
     toast('Error al cargar alumnos', 'err')
   }
@@ -341,6 +312,7 @@ function renderAlumnos (lista) {
   lista.forEach(function (a) {
     var card = document.createElement('div')
     card.className = 'cont-card'
+    var aEncoded = encodeURIComponent(JSON.stringify(a))
     card.innerHTML =
       '<div class="cont-card-icon"><i class="fa-solid fa-user"></i></div>' +
       '<div class="cont-card-info">' +
@@ -348,15 +320,19 @@ function renderAlumnos (lista) {
         '<div class="cont-card-sub">' +
           (a.EMAIL || '') +
           (a.INSTAGRAM ? ' · ' + a.INSTAGRAM : '') +
+          (a.TELEFONO ? ' · ' + a.TELEFONO : '') +
         '</div>' +
       '</div>' +
       '<div class="cont-card-acc">' +
         '<span class="cont-codigo-badge">' + (a.CODIGO || '') + '</span>' +
-        '<span class="cont-badge ' + (a.ORIGEN === 'WEB' ? 'cont-badge-verde' : 'cont-badge-gris') + '">' +
-          (a.ORIGEN === 'WEB' ? 'Web' : 'Manual') +
-        '</span>' +
-        '<button class="cont-btn-ico" onclick="verPagosAlumno(\'' + (a.CODIGO || '') + '\',\'' + (a.NOMBRE || '') + '\')" title="Ver pagos">' +
-          '<i class="fa-solid fa-money-bill-wave"></i>' +
+        '<button class="cont-btn-ico" onclick="abrirFichaAlumno(' + JSON.stringify(a) + ')" title="Ver ficha">' +
+          '<i class="fa-solid fa-folder-open"></i>' +
+        '</button>' +
+        '<button class="cont-btn-ico" onclick="editarAlumno(decodeURIComponent(\'' + aEncoded + '\'))" title="Editar">' +
+          '<i class="fa-solid fa-pen"></i>' +
+        '</button>' +
+        '<button class="cont-btn-ico danger" onclick="confirmarEliminarAlumno(\'' + (a.CODIGO || '') + '\')" title="Eliminar">' +
+          '<i class="fa-solid fa-trash"></i>' +
         '</button>' +
       '</div>'
     cont.appendChild(card)
@@ -375,18 +351,28 @@ function filtrarAlumnos (q) {
 }
 
 function abrirModalAlumno () {
-  document.getElementById('mAluNombre').value   = ''
+  var inp = document.getElementById('mAluNombre')
+  inp.value = ''
+  delete inp.dataset.codigo
   document.getElementById('mAluTel').value      = ''
   document.getElementById('mAluEmail').value    = ''
   document.getElementById('mAluIg').value       = ''
   document.getElementById('modalAlumnoTitulo').textContent = 'Nuevo alumno'
   abrirModal('modalAlumno')
-  setTimeout(function () { document.getElementById('mAluNombre').focus() }, 100)
+  setTimeout(function () { inp.focus() }, 100)
 }
 
 async function guardarAlumno () {
   var nombre = document.getElementById('mAluNombre').value.trim()
   if (!nombre) { toast('El nombre es obligatorio', 'err'); return }
+
+  // Si hay código guardado en el dataset, es una edición
+  var codigo = document.getElementById('mAluNombre').dataset.codigo || ''
+  if (codigo) {
+    await guardarAlumnoEdit(codigo)
+    delete document.getElementById('mAluNombre').dataset.codigo
+    return
+  }
 
   showLoading('Guardando alumno...')
   try {
@@ -408,6 +394,96 @@ async function guardarAlumno () {
     toast('Error de conexión', 'err')
   } finally {
     hideLoading()
+  }
+}
+
+function editarAlumno (aJson) {
+  var a = typeof aJson === 'string' ? JSON.parse(aJson) : aJson
+  document.getElementById('mAluNombre').value   = a.NOMBRE    || ''
+  document.getElementById('mAluTel').value      = a.TELEFONO  || ''
+  document.getElementById('mAluEmail').value    = a.EMAIL     || ''
+  document.getElementById('mAluIg').value       = a.INSTAGRAM || ''
+  document.getElementById('modalAlumnoTitulo').textContent = 'Editar alumno'
+  // Guardar código en campo oculto — reutilizamos el mismo modal
+  document.getElementById('mAluNombre').dataset.codigo = a.CODIGO || ''
+  abrirModal('modalAlumno')
+}
+
+async function guardarAlumnoEdit (codigo) {
+  var nombre = document.getElementById('mAluNombre').value.trim()
+  if (!nombre) { toast('El nombre es obligatorio', 'err'); return }
+
+  showLoading('Guardando cambios...')
+  try {
+    var data = await get('editAlumno', {
+      codigo:    codigo,
+      nombre:    nombre,
+      telefono:  document.getElementById('mAluTel').value.trim(),
+      email:     document.getElementById('mAluEmail').value.trim(),
+      instagram: document.getElementById('mAluIg').value.trim()
+    })
+    if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
+    toast('Alumno actualizado', 'ok')
+    cerrarModal('modalAlumno')
+    await cargarAlumnos()
+  } catch (e) {
+    toast('Error de conexión', 'err')
+  } finally {
+    hideLoading()
+  }
+}
+
+function confirmarEliminarAlumno (codigo) {
+  // Reutilizamos el modal de confirmación inline
+  var nombre = (todosAlumnos.find(function(a){ return a.CODIGO === codigo }) || {}).NOMBRE || codigo
+  _modalConfirm(
+    '¿Eliminar alumno?',
+    'Vas a eliminar a <strong>' + nombre + '</strong> (' + codigo + '). Esta acción no se puede deshacer.',
+    async function () {
+      showLoading('Eliminando...')
+      try {
+        var data = await get('deleteAlumno', { codigo: codigo })
+        if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
+        toast('Alumno eliminado', 'ok')
+        await cargarAlumnos()
+      } catch (e) {
+        toast('Error de conexión', 'err')
+      } finally {
+        hideLoading()
+      }
+    }
+  )
+}
+
+// Modal de confirmación genérico (inline, sin HTML extra)
+function _modalConfirm (titulo, mensaje, onConfirm) {
+  var existente = document.getElementById('_modalConfirmOverlay')
+  if (existente) existente.remove()
+
+  var overlay = document.createElement('div')
+  overlay.id  = '_modalConfirmOverlay'
+  overlay.className = 'cont-modal-overlay'
+  overlay.innerHTML =
+    '<div class="cont-modal" style="max-width:400px">' +
+      '<div class="cont-modal-header">' +
+        '<h3>' + titulo + '</h3>' +
+      '</div>' +
+      '<div class="cont-modal-body">' +
+        '<p style="font-size:14px;line-height:1.6;">' + mensaje + '</p>' +
+      '</div>' +
+      '<div class="cont-modal-footer">' +
+        '<button class="cont-btn-sec" id="_confirmCancelar">Cancelar</button>' +
+        '<button class="cont-btn-pri" id="_confirmOk" style="background:var(--color-rojo)">Eliminar</button>' +
+      '</div>' +
+    '</div>'
+
+  document.body.appendChild(overlay)
+  overlay.style.display = 'flex'
+
+  document.getElementById('_confirmCancelar').onclick = function () { overlay.remove() }
+  document.getElementById('_confirmOk').onclick = function () {
+    overlay.remove()
+    onConfirm()
   }
 }
 
@@ -1031,4 +1107,445 @@ setSeccion = function (nombre) {
   if (nombre === 'pagos' && !codigoAlumnoFiltro) {
     cargarPagos()
   }
+}
+
+// ─────────────────────────────────────────────
+// FICHA DE ALUMNO
+// ─────────────────────────────────────────────
+
+var alumnoFichaActual = null
+
+function abrirFichaAlumno (a) {
+  alumnoFichaActual = a
+
+  // Header
+  document.getElementById('fichaNombre').textContent  = a.NOMBRE  || '—'
+  document.getElementById('fichaCodigo').textContent  = a.CODIGO  || ''
+
+  // Tab datos
+  document.getElementById('fichaEditNombre').value    = a.NOMBRE    || ''
+  document.getElementById('fichaEditTel').value       = a.TELEFONO  || ''
+  document.getElementById('fichaEditEmail').value     = a.EMAIL     || ''
+  document.getElementById('fichaEditIg').value        = a.INSTAGRAM || ''
+  document.getElementById('fichaEditOrigen').value    = a.ORIGEN    || ''
+  document.getElementById('fichaEditCurso').value     = a.CURSO     || ''
+  document.getElementById('fichaEditCodigo').value    = a.CODIGO    || ''
+  document.getElementById('fichaEditDescuento').value = a.DESCUENTO || 0
+
+  // Mostrar/ocultar botón importar
+  var btnImportar = document.getElementById('btnImportarWeb')
+  // Solo mostrar si es alumno WEB que todavía no está en el contable (código empieza con WEB-)
+  if (btnImportar) btnImportar.style.display = (a.CODIGO || '').startsWith('WEB-') ? 'inline-flex' : 'none'
+
+  // Calcular descuento inicial
+  calcularDescuento()
+
+  // Resetear tabs
+  setFichaTab('datos', document.querySelector('.cont-ficha-tab'))
+
+  abrirModal('modalFichaAlumno')
+}
+
+function setFichaTab (tab, btn) {
+  // Ocultar todos los panels
+  document.querySelectorAll('.cont-ficha-tab-panel').forEach(function (p) {
+    p.style.display = 'none'
+  })
+  // Desactivar todos los tabs
+  document.querySelectorAll('.cont-ficha-tab').forEach(function (b) {
+    b.classList.remove('activo')
+  })
+
+  // Mostrar el panel pedido
+  var panel = document.getElementById('fichaTab' + tab.charAt(0).toUpperCase() + tab.slice(1))
+  if (panel) panel.style.display = 'block'
+  if (btn)   btn.classList.add('activo')
+
+  // Cargar datos del tab
+  if (tab === 'pagos'     && alumnoFichaActual) cargarPagosFicha(alumnoFichaActual.CODIGO)
+  if (tab === 'contratos' && alumnoFichaActual) cargarContratosFicha(alumnoFichaActual.CODIGO)
+}
+
+// ── Descuento ─────────────────────────────
+
+function calcularDescuento () {
+  var descPct  = parseFloat(document.getElementById('fichaEditDescuento').value) || 0
+  var preview  = document.getElementById('descuentoPreview')
+  var curso    = document.getElementById('fichaEditCurso').value
+
+  if (!preview) return
+
+  if (descPct <= 0 || !curso) {
+    preview.style.display = 'none'
+    return
+  }
+
+  // Buscar valor del curso
+  var cursoObj = todosCursos.find(function (c) { return c.NOMBRE === curso })
+  if (!cursoObj || !cursoObj.VALOR) { preview.style.display = 'none'; return }
+
+  var valorOriginal = parseFloat(cursoObj.VALOR) || 0
+  var valorFinal    = valorOriginal * (1 - descPct / 100)
+
+  document.getElementById('descValorOriginal').textContent = pesos(valorOriginal)
+  document.getElementById('descValorFinal').textContent    = pesos(Math.round(valorFinal))
+  preview.style.display = 'flex'
+}
+
+// ── Guardar edición ────────────────────────
+
+async function guardarEdicionAlumno () {
+  var codigo = document.getElementById('fichaEditCodigo').value.trim()
+  if (!codigo || codigo.startsWith('WEB-')) {
+    toast('Importá el alumno primero para poder editarlo', 'err')
+    return
+  }
+
+  showLoading('Guardando...')
+  try {
+    var data = await get('editAlumno', {
+      codigo:     codigo,
+      nombre:     document.getElementById('fichaEditNombre').value.trim(),
+      telefono:   document.getElementById('fichaEditTel').value.trim(),
+      email:      document.getElementById('fichaEditEmail').value.trim(),
+      instagram:  document.getElementById('fichaEditIg').value.trim(),
+      descuento:  document.getElementById('fichaEditDescuento').value || 0
+    })
+
+    if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
+
+    // Actualizar en memoria
+    var idx = todosAlumnos.findIndex(function (a) { return a.CODIGO === codigo })
+    if (idx > -1) {
+      todosAlumnos[idx].NOMBRE     = document.getElementById('fichaEditNombre').value.trim()
+      todosAlumnos[idx].TELEFONO   = document.getElementById('fichaEditTel').value.trim()
+      todosAlumnos[idx].EMAIL      = document.getElementById('fichaEditEmail').value.trim()
+      todosAlumnos[idx].INSTAGRAM  = document.getElementById('fichaEditIg').value.trim()
+      todosAlumnos[idx].DESCUENTO  = parseFloat(document.getElementById('fichaEditDescuento').value) || 0
+      alumnoFichaActual = todosAlumnos[idx]
+    }
+
+    toast('Cambios guardados', 'ok')
+    renderAlumnos(todosAlumnos)
+
+  } catch (e) {
+    toast('Error de conexión', 'err')
+  } finally {
+    hideLoading()
+  }
+}
+
+// ── Importar alumno web ────────────────────
+
+async function importarAlumnoWeb () {
+  if (!alumnoFichaActual) return
+
+  showLoading('Importando alumno...')
+  try {
+    var data = await get('importarAlumnoWeb', {
+      nombre:    alumnoFichaActual.NOMBRE    || '',
+      email:     alumnoFichaActual.EMAIL     || '',
+      telefono:  alumnoFichaActual.TELEFONO  || '',
+      instagram: alumnoFichaActual.INSTAGRAM || '',
+      curso:     alumnoFichaActual.CURSO     || ''
+    })
+
+    if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
+
+    toast('Alumno importado — ' + data.codigo, 'ok')
+    cerrarModal('modalFichaAlumno')
+    await cargarAlumnos()
+
+  } catch (e) {
+    toast('Error de conexión', 'err')
+  } finally {
+    hideLoading()
+  }
+}
+
+// ── Pagos en ficha ────────────────────────
+
+async function cargarPagosFicha (codigo) {
+  var cont = document.getElementById('fichaPagosList')
+  if (!cont) return
+  cont.innerHTML = '<div class="cont-vacio"><div class="cont-spinner" style="margin:0 auto"></div></div>'
+
+  try {
+    var data = await get('getPagos', { codigo: codigo })
+    if (!data.ok) { cont.innerHTML = '<div class="cont-vacio"><p>Error al cargar pagos</p></div>'; return }
+
+    var lista = data.data || []
+    if (lista.length === 0) {
+      cont.innerHTML = '<div class="cont-vacio"><i class="fa-solid fa-money-bill-wave"></i><p>Sin pagos registrados.</p></div>'
+      return
+    }
+
+    cont.innerHTML = ''
+    lista.forEach(function (p) {
+      var estadoClass = p.ESTADO === 'AL DIA' ? 'cont-badge-verde' :
+                        p.ESTADO === 'VENCIDO' ? 'cont-badge-rojo' : 'cont-badge-gris'
+      var card = document.createElement('div')
+      card.className = 'cont-card'
+      card.innerHTML =
+        '<div class="cont-card-icon"><i class="fa-solid fa-money-bill-wave"></i></div>' +
+        '<div class="cont-card-info">' +
+          '<div class="cont-card-titulo">' + (p.CURSO || '—') + ' — ' + pesos(p.MONTO) + '</div>' +
+          '<div class="cont-card-sub">' +
+            (p.FECHA_PAGO || '') +
+            (p.VENCIMIENTO && p.VENCIMIENTO !== '-' ? ' · Vence: ' + p.VENCIMIENTO : '') +
+            ' · ' + (p.METODO || '') +
+          '</div>' +
+        '</div>' +
+        '<div class="cont-card-acc">' +
+          '<span class="cont-badge ' + estadoClass + '">' + (p.ESTADO || '') + '</span>' +
+          (p.COMPROBANTE_URL
+            ? '<button class="cont-btn-ico" onclick="abrirVisorComprobante(\'' + p.COMPROBANTE_URL + '\')" title="Ver comprobante">' +
+              '<i class="fa-solid fa-file"></i></button>'
+            : '') +
+        '</div>'
+      cont.appendChild(card)
+    })
+  } catch (e) {
+    cont.innerHTML = '<div class="cont-vacio"><p>Error de conexión</p></div>'
+  }
+}
+
+function abrirPagoDesdeAlu () {
+  cerrarModal('modalFichaAlumno')
+  abrirModalPago()
+  // Pre-seleccionar el alumno
+  if (alumnoFichaActual) {
+    setTimeout(function () {
+      seleccionarAlumnoPago(alumnoFichaActual)
+    }, 100)
+  }
+}
+
+// ── Contratos en ficha ────────────────────
+
+async function cargarContratosFicha (codigo) {
+  var cont = document.getElementById('fichaContratosList')
+  if (!cont) return
+  cont.innerHTML = '<div class="cont-vacio"><div class="cont-spinner" style="margin:0 auto"></div></div>'
+
+  try {
+    var data = await get('getContratos', { codigo: codigo })
+    if (!data.ok) { cont.innerHTML = '<div class="cont-vacio"><p>Error al cargar contratos</p></div>'; return }
+
+    var lista = data.data || []
+    if (lista.length === 0) {
+      cont.innerHTML = '<div class="cont-vacio"><i class="fa-solid fa-file-signature"></i><p>Sin contratos generados.</p></div>'
+      return
+    }
+
+    cont.innerHTML = ''
+    lista.forEach(function (c) {
+      var card = document.createElement('div')
+      card.className = 'cont-card'
+      card.innerHTML =
+        '<div class="cont-card-icon"><i class="fa-solid fa-file-signature"></i></div>' +
+        '<div class="cont-card-info">' +
+          '<div class="cont-card-titulo">' + (c.CURSO || '—') + '</div>' +
+          '<div class="cont-card-sub">' +
+            'Inicio: ' + (c.FECHA_INICIO || '') +
+            ' · Arcilla: ' + (c.ARCILLA_KG || 0) + 'kg' +
+            ' · Barbotina: ' + (c.BARBOTINA_ML || 0) + 'ml' +
+          '</div>' +
+        '</div>' +
+        '<div class="cont-card-acc">' +
+          (c.PDF_CLIENTE_URL ? '<a href="' + c.PDF_CLIENTE_URL + '" target="_blank" class="cont-btn-ico" title="PDF Cliente"><i class="fa-solid fa-user"></i></a>' : '') +
+          (c.PDF_YCA_URL     ? '<a href="' + c.PDF_YCA_URL     + '" target="_blank" class="cont-btn-ico" title="PDF YCA"><i class="fa-solid fa-building"></i></a>'   : '') +
+        '</div>'
+      cont.appendChild(card)
+    })
+  } catch (e) {
+    cont.innerHTML = '<div class="cont-vacio"><p>Error de conexión</p></div>'
+  }
+}
+
+function abrirContratoDesdeAlu () {
+  cerrarModal('modalFichaAlumno')
+  abrirModalContrato()
+  if (alumnoFichaActual) {
+    setTimeout(function () {
+      seleccionarAlumnoContrato(alumnoFichaActual)
+    }, 100)
+  }
+}
+
+// ─────────────────────────────────────────────
+// VISOR DE COMPROBANTE
+// ─────────────────────────────────────────────
+
+function abrirVisorComprobante (url) {
+  var body = document.getElementById('visorBody')
+  var link = document.getElementById('visorLink')
+  if (!body || !url) return
+
+  link.href = url
+
+  // Detectar si es imagen o PDF por la URL
+  var esImagen = /\.(jpg|jpeg|png|gif|webp)/i.test(url) ||
+                 url.indexOf('image') > -1
+
+  if (esImagen) {
+    body.innerHTML = '<img src="' + url + '" alt="Comprobante">'
+  } else {
+    // Para Drive: convertir URL de visualización a embed
+    var embedUrl = url
+    if (url.indexOf('drive.google.com/file') > -1) {
+      var idMatch = url.match(/\/d\/([^/]+)/)
+      if (idMatch) embedUrl = 'https://drive.google.com/file/d/' + idMatch[1] + '/preview'
+    }
+    body.innerHTML = '<iframe src="' + embedUrl + '" allowfullscreen></iframe>'
+  }
+
+  abrirModal('modalVisorComprobante')
+}
+
+// ─────────────────────────────────────────────
+// SUBIDA DE COMPROBANTE (en modal pago)
+// ─────────────────────────────────────────────
+
+var _archivoComprobante = null
+
+function previsualizarComprobante (input) {
+  var archivo  = input.files[0]
+  var nombreEl = document.getElementById('mPagoArchivoNombre')
+  var preview  = document.getElementById('mPagoPreview')
+
+  if (!archivo) {
+    nombreEl.textContent  = 'Sin archivo'
+    preview.style.display = 'none'
+    _archivoComprobante   = null
+    return
+  }
+
+  _archivoComprobante   = archivo
+  nombreEl.textContent  = archivo.name
+
+  // Preview
+  if (archivo.type.startsWith('image/')) {
+    var reader = new FileReader()
+    reader.onload = function (e) {
+      preview.innerHTML     = '<img src="' + e.target.result + '" alt="Preview">'
+      preview.style.display = 'flex'
+    }
+    reader.readAsDataURL(archivo)
+  } else if (archivo.type === 'application/pdf') {
+    preview.innerHTML     = '<div class="cont-file-preview-pdf"><i class="fa-solid fa-file-pdf"></i><span>' + archivo.name + '</span></div>'
+    preview.style.display = 'flex'
+  }
+}
+
+async function _subirArchivoSiHay (codigoAlu, nombreAlu) {
+  if (!_archivoComprobante) return null
+
+  return new Promise(function (resolve) {
+    var reader = new FileReader()
+    reader.onload = async function (e) {
+      try {
+        var b64  = e.target.result
+        var data = await get('subirComprobante', {
+          archivo: b64,
+          nombre:  _archivoComprobante.name,
+          codigo:  codigoAlu,
+          alumno:  nombreAlu
+        })
+        resolve(data.ok ? data.url : null)
+      } catch (err) {
+        resolve(null)
+      }
+    }
+    reader.readAsDataURL(_archivoComprobante)
+  })
+}
+
+// ─────────────────────────────────────────────
+// SOBREESCRIBIR guardarPago PARA SUBIR ARCHIVO
+// ─────────────────────────────────────────────
+
+// Guardamos la función original y la reemplazamos
+var _guardarPagoOriginal = guardarPago
+
+guardarPago = async function () {
+  var codigo = document.getElementById('mPagoCodigo').value.trim()
+  var curso  = document.getElementById('mPagoCurso').value.trim()
+  var monto  = document.getElementById('mPagoMonto').value.trim()
+
+  if (!codigo) { toast('Seleccioná un alumno', 'err'); return }
+  if (!curso)  { toast('Seleccioná un curso', 'err'); return }
+  if (!monto)  { toast('Ingresá el monto', 'err'); return }
+
+  // Buscar nombre del alumno para la carpeta
+  var alumno     = todosAlumnos.find(function (a) { return a.CODIGO === codigo })
+  var nombreAlu  = alumno ? alumno.NOMBRE : 'Alumno'
+
+  showLoading('Subiendo comprobante...')
+  var urlComprobante = await _subirArchivoSiHay(codigo, nombreAlu)
+
+  showLoading('Registrando pago...')
+  try {
+    var data = await get('addPago', {
+      codigo_alumno:   codigo,
+      curso:           curso,
+      monto:           monto,
+      metodo:          document.getElementById('mPagoMetodo').value,
+      comprobante_url: urlComprobante || '',
+      notas:           document.getElementById('mPagoNotas').value.trim()
+    })
+
+    if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
+
+    // Limpiar archivo
+    _archivoComprobante = null
+    document.getElementById('mPagoArchivoInput').value  = ''
+    document.getElementById('mPagoArchivoNombre').textContent = 'Sin archivo'
+    document.getElementById('mPagoPreview').style.display = 'none'
+
+    toast('Pago registrado' + (data.vencimiento && data.vencimiento !== '-' ? ' · Vence: ' + data.vencimiento : ''), 'ok')
+    cerrarModal('modalPago')
+    await cargarPagos(codigoAlumnoFiltro)
+    cargarDashboard()
+
+  } catch (e) {
+    toast('Error de conexión', 'err')
+  } finally {
+    hideLoading()
+  }
+}
+
+// ─────────────────────────────────────────────
+// DESCUENTO AL ABRIR MODAL DE PAGO
+// Sugiere el monto con descuento si el alumno tiene uno asignado
+// ─────────────────────────────────────────────
+
+// Sobrescribir seleccionarAlumnoPago para aplicar descuento
+var _seleccionarAlumnoPagoOriginal = seleccionarAlumnoPago
+
+seleccionarAlumnoPago = function (a) {
+  _seleccionarAlumnoPagoOriginal(a)
+  // Si el alumno tiene descuento y hay un curso seleccionado, aplicarlo
+  _aplicarDescuentoEnPago(a)
+}
+
+document.addEventListener('change', function (e) {
+  if (e.target.id === 'mPagoCurso') {
+    var codigo = document.getElementById('mPagoCodigo').value
+    var alumno = todosAlumnos.find(function (a) { return a.CODIGO === codigo })
+    if (alumno) _aplicarDescuentoEnPago(alumno)
+  }
+})
+
+function _aplicarDescuentoEnPago (alumno) {
+  var descPct  = parseFloat(alumno.DESCUENTO) || 0
+  if (descPct <= 0) return
+
+  var cursoNombre = document.getElementById('mPagoCurso').value
+  var cursoObj    = todosCursos.find(function (c) { return c.NOMBRE === cursoNombre })
+  if (!cursoObj || !cursoObj.VALOR) return
+
+  var valorFinal = Math.round(parseFloat(cursoObj.VALOR) * (1 - descPct / 100))
+  document.getElementById('mPagoMonto').value = valorFinal
+  toast('Descuento del ' + descPct + '% aplicado → ' + pesos(valorFinal), 'ok')
 }
