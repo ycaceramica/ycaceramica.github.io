@@ -395,23 +395,32 @@
 
 <!-- Modal curso -->
 <div class="cont-modal-overlay" id="modalCurso" style="display:none">
-  <div class="cont-modal">
+  <div class="cont-modal cont-modal-curso">
     <div class="cont-modal-header">
       <h3 id="modalCursoTitulo">Nuevo curso</h3>
       <button onclick="cerrarModal('modalCurso')"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="cont-modal-body">
+
+      <!-- Nombre -->
       <div class="cont-campo">
         <label>Nombre del curso *</label>
-        <input type="text" id="mCurNombre" placeholder="Ej: Taller Inicial">
+        <div style="display:flex;gap:8px;align-items:flex-end;">
+          <input type="text" id="mCurNombre" placeholder="Ej: Taller Inicial" style="flex:1">
+          <button class="cont-btn-sec cont-btn-sm" onclick="abrirImportarDescripcion()" title="Importar descripción de la web">
+            <i class="fa-solid fa-cloud-arrow-down"></i> Importar de la web
+          </button>
+        </div>
       </div>
-      <div class="cont-campo">
-        <label>Profesora *</label>
-        <select id="mCurProfesora">
-          <option value="">Seleccioná una profesora...</option>
-        </select>
-      </div>
+
+      <!-- Profesora + Modalidad -->
       <div class="cont-campo-fila">
+        <div class="cont-campo">
+          <label>Profesora *</label>
+          <select id="mCurProfesora">
+            <option value="">Seleccioná una profesora...</option>
+          </select>
+        </div>
         <div class="cont-campo">
           <label>Modalidad</label>
           <select id="mCurModalidad">
@@ -420,21 +429,68 @@
             <option value="EXPERIENCIA">Experiencia</option>
           </select>
         </div>
+      </div>
+
+      <!-- Valor + Máx. alumnos -->
+      <div class="cont-campo-fila">
         <div class="cont-campo">
           <label>Valor ($)</label>
           <input type="number" id="mCurValor" placeholder="0">
         </div>
+        <div class="cont-campo">
+          <label>Máx. alumnos</label>
+          <input type="number" id="mCurMaxAlumnos" placeholder="ej: 8" min="1">
+        </div>
       </div>
+
+      <!-- Días + Horario -->
       <div class="cont-campo-fila">
         <div class="cont-campo">
-          <label>Arcilla máx. por clase (kg)</label>
-          <input type="number" id="mCurArcilla" placeholder="ej: 2" step="0.5">
+          <label>Día/s de clase</label>
+          <input type="text" id="mCurDias" placeholder="ej: Lunes y Miércoles">
         </div>
         <div class="cont-campo">
-          <label>Barbotina máx. por clase (ml)</label>
-          <input type="number" id="mCurBarbotina" placeholder="ej: 500" step="50">
+          <label>Horario</label>
+          <input type="text" id="mCurHorario" placeholder="ej: 18:00 a 20:00">
         </div>
       </div>
+
+      <!-- Fechas -->
+      <div class="cont-campo-fila">
+        <div class="cont-campo">
+          <label>Fecha de inicio</label>
+          <input type="date" id="mCurFechaInicio">
+        </div>
+        <div class="cont-campo">
+          <label>Fecha de fin <span style="font-weight:400;opacity:0.6">(opcional)</span></label>
+          <input type="date" id="mCurFechaFin">
+        </div>
+      </div>
+
+      <!-- Descripción -->
+      <div class="cont-campo">
+        <label>Descripción del curso</label>
+        <textarea id="mCurDescripcion" rows="3" placeholder="Descripción del curso, objetivos, nivel..."></textarea>
+      </div>
+
+      <!-- Editor de materiales -->
+      <div class="cont-campo">
+        <label>Materiales incluidos <span style="font-weight:400;opacity:0.6">— máximo por alumno por mes</span></label>
+        <div class="cont-materiales-editor" id="mCurMaterialesEditor">
+          <!-- Se renderizan dinámicamente -->
+        </div>
+        <div class="cont-materiales-add">
+          <div class="cont-materiales-sugeridos">
+            <span class="cont-mat-chip" onclick="agregarMaterial('Arcilla', '', 'kg')">+ Arcilla</span>
+            <span class="cont-mat-chip" onclick="agregarMaterial('Esmalte', '', 'ml')">+ Esmalte</span>
+            <span class="cont-mat-chip" onclick="agregarMaterial('Barbotina', '', 'ml')">+ Barbotina</span>
+            <span class="cont-mat-chip" onclick="agregarMaterial('Pigmentos', '', 'gr')">+ Pigmentos</span>
+            <span class="cont-mat-chip" onclick="agregarMaterial('Engobe', '', 'ml')">+ Engobe</span>
+            <span class="cont-mat-chip cont-mat-chip-custom" onclick="agregarMaterial('', '', '')">+ Otro</span>
+          </div>
+        </div>
+      </div>
+
       <input type="hidden" id="mCurId">
     </div>
     <div class="cont-modal-footer">
@@ -442,6 +498,25 @@
       <button class="cont-btn-pri" onclick="guardarCurso()">
         <i class="fa-solid fa-floppy-disk"></i> Guardar
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal importar descripción de la web -->
+<div class="cont-modal-overlay" id="modalImportarDesc" style="display:none">
+  <div class="cont-modal">
+    <div class="cont-modal-header">
+      <h3>Importar descripción de la web</h3>
+      <button onclick="cerrarModal('modalImportarDesc')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="cont-modal-body">
+      <p style="font-size:13px;color:var(--color-texto-sub);margin-bottom:8px;">
+        Seleccioná el curso de la web para importar su descripción.
+      </p>
+      <div id="listaCursosWeb" class="cont-lista"></div>
+    </div>
+    <div class="cont-modal-footer">
+      <button class="cont-btn-sec" onclick="cerrarModal('modalImportarDesc')">Cerrar</button>
     </div>
   </div>
 </div>
