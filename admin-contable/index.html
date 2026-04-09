@@ -185,6 +185,7 @@
           <i class="fa-solid fa-magnifying-glass"></i>
           <input type="text" placeholder="Buscar por nombre o código..." oninput="filtrarAlumnos(this.value)" id="buscAlumnos">
         </div>
+        <div class="cont-filtros" id="filtrosCursoAlumnos"></div>
         <div id="listaAlumnos" class="cont-lista"></div>
       </div>
 
@@ -270,6 +271,12 @@
       <div class="cont-campo">
         <label>Instagram</label>
         <input type="text" id="mAluIg" placeholder="@usuario">
+      </div>
+      <div class="cont-campo">
+        <label>Curso</label>
+        <select id="mAluCurso">
+          <option value="">Sin curso asignado</option>
+        </select>
       </div>
     </div>
     <div class="cont-modal-footer">
@@ -585,7 +592,10 @@
           </div>
           <div class="cont-campo">
             <label>Curso</label>
-            <input type="text" id="fichaEditCurso" placeholder="—" disabled>
+            <select id="fichaEditCursoSel" onchange="calcularDescuento()">
+              <option value="">Sin curso asignado</option>
+            </select>
+            <input type="hidden" id="fichaEditCurso">
           </div>
         </div>
         <div class="cont-campo-fila">
