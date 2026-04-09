@@ -1133,3 +1133,105 @@ body {
 .cont-btn-importar:hover {
   background: rgba(45,138,78,0.08);
 }
+
+/* ── MODAL CURSO ─────────────────────────── */
+
+.cont-modal-curso { max-width: 600px; }
+
+/* ── EDITOR DE MATERIALES ────────────────── */
+
+.cont-materiales-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+  min-height: 8px;
+}
+
+.cont-material-fila {
+  display: grid;
+  grid-template-columns: 1fr 80px 80px 32px;
+  gap: 6px;
+  align-items: center;
+}
+
+.cont-material-fila input,
+.cont-material-fila select {
+  padding: 7px 10px;
+  border: 1.5px solid var(--color-borde);
+  border-radius: 8px;
+  background: var(--color-bg);
+  color: var(--color-texto);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.cont-material-fila input:focus,
+.cont-material-fila select:focus { border-color: var(--color-primario); }
+
+.cont-material-del {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-texto-sub);
+  font-size: 14px;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cont-material-del:hover { color: var(--color-rojo); }
+
+.cont-materiales-add { margin-top: 4px; }
+
+.cont-materiales-sugeridos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cont-mat-chip {
+  display: inline-block;
+  padding: 5px 12px;
+  background: rgba(139,111,86,0.08);
+  border: 1px dashed var(--color-primario);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primario);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.cont-mat-chip:hover { background: rgba(139,111,86,0.16); }
+
+.cont-mat-chip-custom {
+  border-color: var(--color-texto-sub);
+  color: var(--color-texto-sub);
+  background: none;
+}
+
+.cont-mat-chip-custom:hover { background: var(--color-borde); }
+
+/* ── CARD CURSO MEJORADA ─────────────────── */
+
+.cont-curso-materiales {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.cont-curso-mat-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: rgba(139,111,86,0.08);
+  border-radius: 10px;
+  color: var(--color-primario);
+  font-weight: 600;
+}
