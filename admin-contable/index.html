@@ -322,8 +322,15 @@
         </div>
       </div>
       <div class="cont-campo">
-        <label>Comprobante (link de Drive o imagen)</label>
-        <input type="text" id="mPagoComprobante" placeholder="https://drive.google.com/...">
+        <label>Comprobante (PDF o imagen)</label>
+        <div class="cont-file-wrap">
+          <input type="file" id="mPagoArchivoInput" accept="image/*,.pdf" onchange="previsualizarComprobante(this)">
+          <label for="mPagoArchivoInput" class="cont-file-btn">
+            <i class="fa-solid fa-paperclip"></i> Seleccionar archivo
+          </label>
+          <span id="mPagoArchivoNombre" class="cont-file-nombre">Sin archivo</span>
+        </div>
+        <div id="mPagoPreview" class="cont-file-preview" style="display:none"></div>
       </div>
       <div class="cont-campo">
         <label>Notas</label>
@@ -463,6 +470,143 @@
         <i class="fa-solid fa-floppy-disk"></i> Guardar
       </button>
     </div>
+  </div>
+</div>
+
+<!-- Modal ficha alumno -->
+<div class="cont-modal-overlay" id="modalFichaAlumno" style="display:none">
+  <div class="cont-modal cont-modal-ficha">
+    <div class="cont-modal-header">
+      <div class="cont-ficha-header-info">
+        <div class="cont-ficha-avatar" id="fichaAvatar">👤</div>
+        <div>
+          <h3 id="fichaNombre">—</h3>
+          <span class="cont-codigo-badge" id="fichaCodigo"></span>
+        </div>
+      </div>
+      <button onclick="cerrarModal('modalFichaAlumno')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="cont-ficha-tabs">
+      <button class="cont-ficha-tab activo" onclick="setFichaTab('datos', this)">
+        <i class="fa-solid fa-user"></i> Datos
+      </button>
+      <button class="cont-ficha-tab" onclick="setFichaTab('pagos', this)">
+        <i class="fa-solid fa-money-bill-wave"></i> Pagos
+      </button>
+      <button class="cont-ficha-tab" onclick="setFichaTab('contratos', this)">
+        <i class="fa-solid fa-file-signature"></i> Contratos
+      </button>
+    </div>
+
+    <!-- Tab: Datos -->
+    <div id="fichaTabDatos" class="cont-ficha-tab-panel">
+      <div class="cont-modal-body">
+        <div class="cont-campo-fila">
+          <div class="cont-campo">
+            <label>Nombre completo</label>
+            <input type="text" id="fichaEditNombre" placeholder="Nombre y apellido">
+          </div>
+          <div class="cont-campo">
+            <label>Curso</label>
+            <input type="text" id="fichaEditCurso" placeholder="—" disabled>
+          </div>
+        </div>
+        <div class="cont-campo-fila">
+          <div class="cont-campo">
+            <label>Teléfono</label>
+            <input type="text" id="fichaEditTel" placeholder="11 1234-5678">
+          </div>
+          <div class="cont-campo">
+            <label>Email</label>
+            <input type="email" id="fichaEditEmail" placeholder="ejemplo@mail.com">
+          </div>
+        </div>
+        <div class="cont-campo-fila">
+          <div class="cont-campo">
+            <label>Instagram</label>
+            <input type="text" id="fichaEditIg" placeholder="@usuario">
+          </div>
+          <div class="cont-campo">
+            <label>Origen</label>
+            <input type="text" id="fichaEditOrigen" disabled>
+          </div>
+        </div>
+
+        <!-- Descuento -->
+        <div class="cont-descuento-bloque">
+          <div class="cont-campo cont-campo-desc">
+            <label>Descuento personalizado (%)</label>
+            <input type="number" id="fichaEditDescuento" placeholder="0" min="0" max="100"
+                   oninput="calcularDescuento()">
+          </div>
+          <div class="cont-descuento-preview" id="descuentoPreview" style="display:none">
+            <div class="desc-fila">
+              <span>Valor del curso</span>
+              <span id="descValorOriginal">—</span>
+            </div>
+            <div class="desc-fila desc-fila-result">
+              <span>Con descuento</span>
+              <span id="descValorFinal">—</span>
+            </div>
+          </div>
+        </div>
+
+        <input type="hidden" id="fichaEditCodigo">
+      </div>
+      <div class="cont-modal-footer">
+        <div>
+          <button class="cont-btn-sec cont-btn-importar" id="btnImportarWeb"
+                  onclick="importarAlumnoWeb()" style="display:none">
+            <i class="fa-solid fa-download"></i> Importar al sistema
+          </button>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="cont-btn-sec" onclick="cerrarModal('modalFichaAlumno')">Cerrar</button>
+          <button class="cont-btn-pri" onclick="guardarEdicionAlumno()">
+            <i class="fa-solid fa-floppy-disk"></i> Guardar cambios
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Pagos -->
+    <div id="fichaTabPagos" class="cont-ficha-tab-panel" style="display:none">
+      <div class="cont-ficha-tab-acc">
+        <button class="cont-btn-pri cont-btn-sm" onclick="abrirPagoDesdeAlu()">
+          <i class="fa-solid fa-plus"></i> Registrar pago
+        </button>
+      </div>
+      <div id="fichaPagosList" class="cont-lista cont-lista-ficha"></div>
+    </div>
+
+    <!-- Tab: Contratos -->
+    <div id="fichaTabContratos" class="cont-ficha-tab-panel" style="display:none">
+      <div class="cont-ficha-tab-acc">
+        <button class="cont-btn-pri cont-btn-sm" onclick="abrirContratoDesdeAlu()">
+          <i class="fa-solid fa-plus"></i> Generar contrato
+        </button>
+      </div>
+      <div id="fichaContratosList" class="cont-lista cont-lista-ficha"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Visor de comprobante -->
+<div class="cont-modal-overlay" id="modalVisorComprobante" style="display:none">
+  <div class="cont-modal cont-modal-visor">
+    <div class="cont-modal-header">
+      <h3>Comprobante</h3>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <a id="visorLink" href="#" target="_blank" class="cont-btn-sec" style="font-size:12px;">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir en Drive
+        </a>
+        <button onclick="cerrarModal('modalVisorComprobante')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </div>
+    <div class="cont-visor-body" id="visorBody"></div>
   </div>
 </div>
 
