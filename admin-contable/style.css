@@ -682,10 +682,11 @@ body {
   background: rgba(0,0,0,0.45);
   z-index: 200;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding: 16px;
   backdrop-filter: blur(2px);
+  overflow-y: auto;
 }
 
 .cont-modal {
@@ -693,9 +694,11 @@ body {
   border-radius: 18px;
   width: 100%;
   max-width: 520px;
-  max-height: 90vh;
+  max-height: 92vh;
   overflow-y: auto;
+  overflow-x: hidden;
   box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  margin: auto;
 }
 
 .cont-modal-header {
@@ -914,8 +917,12 @@ body {
   .cont-card { flex-wrap: wrap; }
   .cont-card-acc { flex-wrap: wrap; justify-content: flex-end; }
   .cont-material-fila { grid-template-columns: 1fr 64px 70px 32px; }
-  .cont-modal { max-height: 95vh; }
+  .cont-modal { max-height: 95vh; width: calc(100vw - 32px); }
   .cont-modal-ficha { max-width: 100%; }
+  .cont-modal-curso { max-width: 100%; }
+  .cont-modal-body { padding: 16px; }
+  .cont-modal-header { padding: 16px 16px 12px; }
+  .cont-modal-footer { padding: 12px 16px 16px; }
   .cont-ficha-tabs { overflow-x: auto; scrollbar-width: none; }
   .cont-ficha-tabs::-webkit-scrollbar { display: none; }
 }
@@ -923,7 +930,11 @@ body {
 @media (max-width: 480px) {
   .dash-cards { grid-template-columns: 1fr; }
   .cont-buscador-global { display: none; }
-  .cont-material-fila { grid-template-columns: 1fr 56px 64px 32px; font-size: 12px; }
+  .cont-material-fila { grid-template-columns: 1fr 52px 60px 28px; font-size: 12px; }
+  .cont-material-fila input,
+  .cont-material-fila select { padding: 6px 6px; font-size: 12px; }
+  .cont-materiales-sugeridos { gap: 4px; }
+  .cont-mat-chip { font-size: 11px; padding: 4px 8px; }
   .cont-page-header { flex-direction: column; align-items: flex-start; }
   .cont-topbar-logo span.cont-topbar-sub { display: none; }
 }
@@ -1148,7 +1159,7 @@ body {
 
 /* ── MODAL CURSO ─────────────────────────── */
 
-.cont-modal-curso { max-width: 600px; }
+.cont-modal-curso { max-width: 600px; width: 100%; }
 
 /* ── EDITOR DE MATERIALES ────────────────── */
 
@@ -1246,4 +1257,33 @@ body {
   border-radius: 10px;
   color: var(--color-primario);
   font-weight: 600;
+}
+
+/* ── PREVIEW CONTRATO PROFESORA ──────────── */
+
+.cont-contrato-preview {
+  background: var(--color-sup2);
+  border: 1px solid var(--color-borde);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cont-preview-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.cont-preview-fila span:first-child {
+  color: var(--color-texto-sub);
+  font-weight: 600;
+}
+
+.cont-preview-fila span:last-child {
+  color: var(--color-texto);
+  font-weight: 700;
 }
