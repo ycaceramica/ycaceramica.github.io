@@ -671,6 +671,7 @@ function renderCursos (lista) {
           (c.HORARIO ? ' · ' + c.HORARIO : '') +
           ' · ' + (c.MODALIDAD || '') +
           ' · ' + pesos(c.VALOR) +
+          (c.MIN_ALUMNOS ? ' · Mín: ' + c.MIN_ALUMNOS : '') +
           (c.MAX_ALUMNOS ? ' · Máx: ' + c.MAX_ALUMNOS + ' alumnos' : '') +
         '</div>' +
         matsHtml +
@@ -729,6 +730,7 @@ function abrirModalCurso () {
   document.getElementById('mCurNombre').value       = ''
   document.getElementById('mCurModalidad').value    = 'MENSUAL'
   document.getElementById('mCurValor').value        = ''
+  document.getElementById('mCurMinAlumnos').value   = ''
   document.getElementById('mCurMaxAlumnos').value   = ''
   document.getElementById('mCurDias').value         = ''
   document.getElementById('mCurHorario').value      = ''
@@ -747,6 +749,7 @@ function editarCurso (c) {
   document.getElementById('mCurNombre').value       = c.NOMBRE       || ''
   document.getElementById('mCurModalidad').value    = c.MODALIDAD     || 'MENSUAL'
   document.getElementById('mCurValor').value        = c.VALOR         || ''
+  document.getElementById('mCurMinAlumnos').value   = c.MIN_ALUMNOS   || ''
   document.getElementById('mCurMaxAlumnos').value   = c.MAX_ALUMNOS   || ''
   document.getElementById('mCurDias').value         = c.DIAS          || ''
   document.getElementById('mCurHorario').value      = c.HORARIO       || ''
@@ -783,6 +786,7 @@ async function guardarCurso () {
       profesora:    prof,
       modalidad:    document.getElementById('mCurModalidad').value,
       valor:        document.getElementById('mCurValor').value,
+      min_alumnos:  document.getElementById('mCurMinAlumnos').value,
       max_alumnos:  document.getElementById('mCurMaxAlumnos').value,
       dias:         document.getElementById('mCurDias').value.trim(),
       horario:      document.getElementById('mCurHorario').value.trim(),
@@ -1816,8 +1820,10 @@ function abrirModalContratoProfesora () {
       var opt = document.createElement('option')
       opt.value            = c.ID
       opt.textContent      = c.NOMBRE
-      opt.dataset.dias     = c.DIAS    || ''
-      opt.dataset.horario  = c.HORARIO || ''
+      opt.dataset.dias     = c.DIAS        || ''
+      opt.dataset.horario  = c.HORARIO     || ''
+      opt.dataset.min      = c.MIN_ALUMNOS || ''
+      opt.dataset.max      = c.MAX_ALUMNOS || ''
       selCurso.appendChild(opt)
     })
   }
@@ -1844,6 +1850,14 @@ function autocompletarContratoProfesora () {
   document.getElementById('prevDias').textContent      = dias    || '—'
   document.getElementById('prevHorario').textContent   = horario || '—'
   document.getElementById('prevPorcentaje').textContent = porc ? porc + '%' : '—'
+
+  // Cupo
+  var optCurso  = selCurso ? selCurso.options[selCurso.selectedIndex] : null
+  var minAlu    = optCurso ? optCurso.dataset.min : ''
+  var maxAlu    = optCurso ? optCurso.dataset.max : ''
+  var prevCupo  = document.getElementById('prevCupo')
+  if (prevCupo) prevCupo.textContent = (minAlu ? 'Mín: ' + minAlu : '') + (minAlu && maxAlu ? ' · ' : '') + (maxAlu ? 'Máx: ' + maxAlu : '') || '—'
+
   preview.style.display = 'flex'
 }
 
