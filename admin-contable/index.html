@@ -231,9 +231,14 @@
       <div id="seccion-profesoras" class="cont-seccion" style="display:none">
         <div class="cont-page-header">
           <h2><i class="fa-solid fa-person-chalkboard"></i> Profesoras</h2>
-          <button class="cont-btn-pri" onclick="abrirModalProfesora()">
-            <i class="fa-solid fa-plus"></i> Nueva profesora
-          </button>
+          <div style="display:flex;gap:8px;">
+            <button class="cont-btn-sec" onclick="abrirModalContratoProfesora()">
+              <i class="fa-solid fa-file-signature"></i> Generar contrato
+            </button>
+            <button class="cont-btn-pri" onclick="abrirModalProfesora()">
+              <i class="fa-solid fa-plus"></i> Nueva profesora
+            </button>
+          </div>
         </div>
         <div id="listaProfesoras" class="cont-lista"></div>
       </div>
@@ -539,6 +544,10 @@
         <input type="text" id="mProNombre" placeholder="Nombre completo">
       </div>
       <div class="cont-campo">
+        <label>DNI</label>
+        <input type="text" id="mProDni" placeholder="ej: 12.345.678">
+      </div>
+      <div class="cont-campo">
         <label>Porcentaje por alumno (%)</label>
         <input type="number" id="mProPorcentaje" placeholder="ej: 40" min="0" max="100">
       </div>
@@ -548,6 +557,60 @@
       <button class="cont-btn-sec" onclick="cerrarModal('modalProfesora')">Cancelar</button>
       <button class="cont-btn-pri" onclick="guardarProfesora()">
         <i class="fa-solid fa-floppy-disk"></i> Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal contrato profesora -->
+<div class="cont-modal-overlay" id="modalContratoProfesora" style="display:none">
+  <div class="cont-modal">
+    <div class="cont-modal-header">
+      <h3>Generar contrato de profesora</h3>
+      <button onclick="cerrarModal('modalContratoProfesora')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="cont-modal-body">
+
+      <div class="cont-campo">
+        <label>Profesora *</label>
+        <select id="mConProf">
+          <option value="">Seleccioná una profesora...</option>
+        </select>
+      </div>
+
+      <div class="cont-campo">
+        <label>Curso *</label>
+        <select id="mConProfCurso" onchange="autocompletarContratoProfesora()">
+          <option value="">Seleccioná un curso...</option>
+        </select>
+      </div>
+
+      <!-- Preview datos autocompletados -->
+      <div id="mConProfPreview" class="cont-contrato-preview" style="display:none">
+        <div class="cont-preview-fila">
+          <span>Días</span><span id="prevDias">—</span>
+        </div>
+        <div class="cont-preview-fila">
+          <span>Horario</span><span id="prevHorario">—</span>
+        </div>
+        <div class="cont-preview-fila">
+          <span>Porcentaje</span><span id="prevPorcentaje">—</span>
+        </div>
+      </div>
+
+      <div class="cont-campo">
+        <label>Modalidad de cobro</label>
+        <select id="mConProfModalidadCobro">
+          <option value="A fin de mes">A fin de mes</option>
+          <option value="Al cobrar cada alumno">Al cobrar cada alumno</option>
+        </select>
+      </div>
+
+    </div>
+    <div class="cont-modal-footer">
+      <button class="cont-btn-sec" onclick="cerrarModal('modalContratoProfesora')">Cancelar</button>
+      <button class="cont-btn-pri" id="btnGenerarContratoProf" onclick="generarContratoProfesora()">
+        <i class="fa-solid fa-file-pdf"></i> Generar PDFs
       </button>
     </div>
   </div>
