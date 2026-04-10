@@ -397,6 +397,11 @@ async function descargarPDF(){
 // GUARDAR EN MI TALLER / MI CUENTA
 // ─────────────────────────────────────────────
 
+function getSesion(){
+  try { return JSON.parse(sessionStorage.getItem('yca_sesion')) }
+  catch(e) { return null }
+}
+
 function _sesionActiva() {
   try {
     const ceramista = JSON.parse(localStorage.getItem('ceramista_sesion') || 'null')
@@ -411,7 +416,7 @@ function _avisoRegistro() {
     texto:    'Para guardar en el historial y descargar el PDF necesitás una cuenta. Es gratis para ceramistas.',
     confirmar: 'Crear cuenta',
     cancelar:  'Ahora no',
-    accion: function() { window.location.href = '/login/#ceramista' }
+    accion: function() { setTimeout(function(){ window.location.assign('/login/#ceramista') }, 50) }
   })
 }
 
