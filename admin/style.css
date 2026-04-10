@@ -1963,3 +1963,71 @@ body.dark #exportCurso option{
   transition: background 0.2s;
 }
 .btn-eliminar:hover { background: #8b3a3a; }
+
+/* ── Editor visual de pasos del proceso ─────────────── */
+.mpasos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mpasos-fila {
+  display: grid;
+  grid-template-columns: 1fr 2fr auto;
+  gap: 8px;
+  align-items: center;
+  background: var(--color-fondo, #f5f0eb);
+  border: 1px solid var(--color-borde, #e0d8d0);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+.mpasos-fila input {
+  background: var(--color-superficie, #fff);
+  border: 1px solid var(--color-borde, #e0d8d0);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 13px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--color-texto, #2a1f14);
+  transition: border-color 0.2s;
+}
+.mpasos-fila input:focus {
+  outline: none;
+  border-color: var(--color-primario, #8b6f56);
+}
+.mpasos-fila input::placeholder { opacity: 0.45; }
+.mpasos-btn-del {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: #f0e8e8;
+  color: #a85252;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.mpasos-btn-del:hover { background: #e0cece; }
+.mpasos-btn-agregar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1.5px dashed var(--color-primario, #8b6f56);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-primario, #8b6f56);
+  font-size: 13px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 2px;
+  transition: background 0.2s, color 0.2s;
+}
+.mpasos-btn-agregar:hover {
+  background: var(--color-primario, #8b6f56);
+  color: #fff;
+}
