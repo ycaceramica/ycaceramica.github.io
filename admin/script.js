@@ -2691,8 +2691,8 @@ function abrirModalCurso(id = null){
   const chips = curso?.chips ? curso.chips.split('|').join('\n') : ''
   document.getElementById('mCursoChips').value   = chips
 
-  const proceso = curso?.proceso ? curso.proceso.split('||').map(p => p.replace('|', '|')).join('\n') : ''
-  document.getElementById('mCursoProceso').value = proceso
+  const pasos = curso?.proceso ? curso.proceso.split('||').map(p => { const [t='',d=''] = p.split('|'); return {titulo:t,desc:d} }) : []
+  renderPasosList(pasos)
 
   // Foto
   const fotoActual = curso?.foto || ''
@@ -2761,9 +2761,15 @@ async function guardarCurso(){
   const chipsRaw   = document.getElementById('mCursoChips').value.trim()
   const chips      = chipsRaw ? chipsRaw.split('\n').filter(l => l.trim()).join('|') : ''
 
-  // Armar proceso — convertir líneas a doble-pipe-separated
-  const procesoRaw = document.getElementById('mCursoProceso').value.trim()
-  const proceso    = procesoRaw ? procesoRaw.split('\n').filter(l => l.trim()).join('||') : ''
+  // Armar proceso desde editor visual
+  const procesoFilas = document.querySelectorAll('.mpasos-fila')
+  const procesoPartes = []
+  procesoFilas.forEach(function(fila) {
+    const t = fila.querySelector('.mpasos-titulo').value.trim()
+    const d = fila.querySelector('.mpasos-desc').value.trim()
+    if(t || d) procesoPartes.push((t || '') + '|' + (d || ''))
+  })
+  const proceso = procesoPartes.join('||')
 
   const curso = cursosData.find(c => c.id === editandoCursoId)
   const fila  = {
@@ -4889,4 +4895,49 @@ async function eliminarPedidoHorneado() {
       }
     }
   )
+}
+
+// ─────────────────────────────────────────────
+// EDITOR VISUAL DE PASOS DEL PROCESO
+// ─────────────────────────────────────────────
+
+function renderPasosList(pasos) {
+  const lista = document.getElementById('mCursoPasosList')
+  if (!lista) return
+  lista.innerHTML = ''
+  if (!pasos || pasos.length === 0) {
+    agregarPaso()
+    return
+  }
+  pasos.forEach(function(p) { _crearFilaPaso(p.titulo || '', p.desc || '') })
+}
+
+function agregarPaso() {
+  _crearFilaPaso('', '')
+}
+
+function _crearFilaPaso(titulo, desc) {
+  const lista = document.getElementById('mCursoPasosList')
+  if (!lista) return
+  const fila = document.createElement('div')
+  fila.className = 'mpasos-fila'
+  fila.innerHTML =
+    '<input class="mpasos-titulo" type="text" placeholder="🌑 Título del paso" value="' + _escAttr(titulo) + '">' +
+    '<input class="mpasos-desc"   type="text" placeholder="Descripción breve del paso..." value="' + _escAttr(desc) + '">' +
+    '<button type="button" class="mpasos-btn-del" onclick="eliminarPaso(this)" title="Eliminar paso">' +
+      '<i class="fa-solid fa-xmark"></i>' +
+    '</button>'
+  lista.appendChild(fila)
+}
+
+function eliminarPaso(btn) {
+  const lista = document.getElementById('mCursoPasosList')
+  if (!lista) return
+  btn.closest('.mpasos-fila').remove()
+  // Si quedó vacío, agregar una fila en blanco
+  if (lista.querySelectorAll('.mpasos-fila').length === 0) agregarPaso()
+}
+
+function _escAttr(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')
 }
