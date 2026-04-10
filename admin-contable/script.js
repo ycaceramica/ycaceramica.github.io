@@ -907,7 +907,7 @@ function renderProfesoras (lista) {
       '<div class="cont-card-icon"><i class="fa-solid fa-person-chalkboard"></i></div>' +
       '<div class="cont-card-info">' +
         '<div class="cont-card-titulo">' + (p.NOMBRE || '—') + '</div>' +
-        '<div class="cont-card-sub">Porcentaje por alumno: <strong>' + (p.PORCENTAJE || 0) + '%</strong></div>' +
+        '<div class="cont-card-sub">' + (p.DNI ? 'DNI: ' + p.DNI + ' · ' : '') + 'Porcentaje por alumno: <strong>' + (p.PORCENTAJE || 0) + '%</strong></div>' +
       '</div>' +
       '<div class="cont-card-acc">' +
         '<span class="cont-badge ' + (activo ? 'cont-badge-verde' : 'cont-badge-gris') + '">' +
@@ -923,6 +923,7 @@ function renderProfesoras (lista) {
 
 function abrirModalProfesora () {
   document.getElementById('mProNombre').value      = ''
+  document.getElementById('mProDni').value         = ''
   document.getElementById('mProPorcentaje').value  = ''
   document.getElementById('mProId').value          = ''
   document.getElementById('modalProfesoraTitulo').textContent = 'Nueva profesora'
@@ -931,6 +932,7 @@ function abrirModalProfesora () {
 
 function editarProfesora (p) {
   document.getElementById('mProNombre').value      = p.NOMBRE      || ''
+  document.getElementById('mProDni').value         = p.DNI         || ''
   document.getElementById('mProPorcentaje').value  = p.PORCENTAJE  || ''
   document.getElementById('mProId').value          = p.ID          || ''
   document.getElementById('modalProfesoraTitulo').textContent = 'Editar profesora'
@@ -949,6 +951,7 @@ async function guardarProfesora () {
     var data = await get(action, {
       id:          id,
       nombre:      nombre,
+      dni:         document.getElementById('mProDni').value.trim(),
       porcentaje:  document.getElementById('mProPorcentaje').value
     })
 
@@ -1781,4 +1784,101 @@ function _aplicarDescuentoEnPago (alumno) {
   var valorFinal = Math.round(parseFloat(cursoObj.VALOR) * (1 - descPct / 100))
   document.getElementById('mPagoMonto').value = valorFinal
   toast('Descuento del ' + descPct + '% aplicado → ' + pesos(valorFinal), 'ok')
+}
+
+// ─────────────────────────────────────────────
+// CONTRATO DE PROFESORA
+// ─────────────────────────────────────────────
+
+function abrirModalContratoProfesora () {
+  // Poblar select profesoras
+  var selProf = document.getElementById('mConProf')
+  if (selProf) {
+    selProf.innerHTML = '<option value="">Seleccioná una profesora...</option>'
+    todasProfesoras.filter(function (p) {
+      return p.ACTIVO === true || p.ACTIVO === 'TRUE' || p.ACTIVO === 'true'
+    }).forEach(function (p) {
+      var opt = document.createElement('option')
+      opt.value       = p.ID
+      opt.textContent = p.NOMBRE + (p.DNI ? ' — DNI ' + p.DNI : '')
+      opt.dataset.porcentaje = p.PORCENTAJE || 0
+      selProf.appendChild(opt)
+    })
+  }
+
+  // Poblar select cursos
+  var selCurso = document.getElementById('mConProfCurso')
+  if (selCurso) {
+    selCurso.innerHTML = '<option value="">Seleccioná un curso...</option>'
+    todosCursos.filter(function (c) {
+      return c.ACTIVO === true || c.ACTIVO === 'TRUE' || c.ACTIVO === 'true'
+    }).forEach(function (c) {
+      var opt = document.createElement('option')
+      opt.value            = c.ID
+      opt.textContent      = c.NOMBRE
+      opt.dataset.dias     = c.DIAS    || ''
+      opt.dataset.horario  = c.HORARIO || ''
+      selCurso.appendChild(opt)
+    })
+  }
+
+  document.getElementById('mConProfPreview').style.display = 'none'
+  abrirModal('modalContratoProfesora')
+}
+
+function autocompletarContratoProfesora () {
+  var selCurso = document.getElementById('mConProfCurso')
+  var selProf  = document.getElementById('mConProf')
+  var preview  = document.getElementById('mConProfPreview')
+  if (!selCurso || !preview) return
+
+  var opt      = selCurso.options[selCurso.selectedIndex]
+  var dias     = opt ? opt.dataset.dias    : ''
+  var horario  = opt ? opt.dataset.horario : ''
+
+  var optProf  = selProf ? selProf.options[selProf.selectedIndex] : null
+  var porc     = optProf ? optProf.dataset.porcentaje : ''
+
+  if (!selCurso.value) { preview.style.display = 'none'; return }
+
+  document.getElementById('prevDias').textContent      = dias    || '—'
+  document.getElementById('prevHorario').textContent   = horario || '—'
+  document.getElementById('prevPorcentaje').textContent = porc ? porc + '%' : '—'
+  preview.style.display = 'flex'
+}
+
+async function generarContratoProfesora () {
+  var idProf  = document.getElementById('mConProf').value
+  var idCurso = document.getElementById('mConProfCurso').value
+
+  if (!idProf)  { toast('Seleccioná una profesora', 'err'); return }
+  if (!idCurso) { toast('Seleccioná un curso', 'err'); return }
+
+  var btn = document.getElementById('btnGenerarContratoProf')
+  btn.disabled  = true
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando PDFs...'
+  showLoading('Generando contrato... esto puede tardar unos segundos.')
+
+  try {
+    var data = await get('generarContratoProfesora', {
+      id_profesora:     idProf,
+      id_curso:         idCurso,
+      modalidad_cobro:  document.getElementById('mConProfModalidadCobro').value
+    })
+
+    if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
+
+    toast('Contrato generado', 'ok')
+    cerrarModal('modalContratoProfesora')
+
+    if (data.pdfProfesora) window.open(data.pdfProfesora, '_blank')
+    if (data.pdfYCA)       window.open(data.pdfYCA,       '_blank')
+
+  } catch (e) {
+    toast('Error de conexión', 'err')
+  } finally {
+    hideLoading()
+    btn.disabled  = false
+    btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Generar PDFs'
+  }
 }
