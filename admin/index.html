@@ -1186,11 +1186,11 @@
 
         <!-- Proceso / items -->
         <div class="mform-grupo">
-          <label>
-            Pasos del proceso
-            <small style="opacity:0.5;font-weight:400">(formato: Título|Descripción, uno por línea)</small>
-          </label>
-          <textarea id="mCursoProceso" rows="4" placeholder="🌑 Intención|Conectás con tu intención personal&#10;🌓 Crecimiento|Intervenís la pieza con engobes&#10;🌕 Expansión|La pieza queda para esmaltado"></textarea>
+          <label>Pasos del proceso</label>
+          <div id="mCursoPasosList" class="mpasos-lista"></div>
+          <button type="button" class="mpasos-btn-agregar" onclick="agregarPaso()">
+            <i class="fa-solid fa-plus"></i> Agregar paso
+          </button>
         </div>
 
         <!-- Estado y visibilidad -->
