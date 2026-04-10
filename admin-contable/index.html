@@ -441,14 +441,20 @@
         </div>
       </div>
 
-      <!-- Valor + Máx. alumnos -->
+      <!-- Valor -->
+      <div class="cont-campo">
+        <label>Valor ($)</label>
+        <input type="number" id="mCurValor" placeholder="0">
+      </div>
+
+      <!-- Cupo -->
       <div class="cont-campo-fila">
         <div class="cont-campo">
-          <label>Valor ($)</label>
-          <input type="number" id="mCurValor" placeholder="0">
+          <label>Cupo mínimo</label>
+          <input type="number" id="mCurMinAlumnos" placeholder="ej: 2" min="1">
         </div>
         <div class="cont-campo">
-          <label>Máx. alumnos</label>
+          <label>Cupo máximo</label>
           <input type="number" id="mCurMaxAlumnos" placeholder="ej: 8" min="1">
         </div>
       </div>
@@ -595,6 +601,9 @@
         </div>
         <div class="cont-preview-fila">
           <span>Porcentaje</span><span id="prevPorcentaje">—</span>
+        </div>
+        <div class="cont-preview-fila">
+          <span>Cupo</span><span id="prevCupo">—</span>
         </div>
       </div>
 
