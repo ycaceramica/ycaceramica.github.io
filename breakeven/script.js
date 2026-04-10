@@ -283,6 +283,8 @@ function guardarBreakeven(){
     fecha:            new Date().toLocaleDateString('es-AR')
   }
 
+  if(!_sesionActiva()){ _avisoRegistro(); return }
+
   historial.unshift(entrada)
   localStorage.setItem('breakeven_historial', JSON.stringify(historial))
   renderizarHistorial()
@@ -406,6 +408,7 @@ function cargarLogoBase64(){
 // ─────────────────────────────────────────────
 
 async function descargarPDF(){
+  if(!_sesionActiva()){ _avisoRegistro(); return }
   if(historial.length === 0) return
 
   const { jsPDF }  = window.jspdf
@@ -524,6 +527,24 @@ async function descargarPDF(){
 function getSesion(){
   try { return JSON.parse(sessionStorage.getItem('yca_sesion')) }
   catch(e) { return null }
+}
+
+function _sesionActiva() {
+  try {
+    const ceramista = JSON.parse(localStorage.getItem('ceramista_sesion') || 'null')
+    const alumno    = JSON.parse(sessionStorage.getItem('yca_sesion') || 'null')
+    return (ceramista && ceramista.token) || (alumno && alumno.token)
+  } catch(e) { return false }
+}
+
+function _avisoRegistro() {
+  mostrarModal({
+    titulo:   '🔒 Solo para usuarios registrados',
+    texto:    'Para guardar en el historial y descargar el PDF necesitás una cuenta. Es gratis para ceramistas.',
+    confirmar: 'Crear cuenta',
+    cancelar:  'Ahora no',
+    accion: function() { setTimeout(function(){ window.location.assign('/login/#ceramista') }, 50) }
+  })
 }
 
 function verificarSesionTaller(){
