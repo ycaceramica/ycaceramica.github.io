@@ -411,7 +411,7 @@ function _avisoRegistro() {
     texto:    'Para guardar en el historial y descargar el PDF necesitás una cuenta. Es gratis para ceramistas.',
     confirmar: 'Crear cuenta',
     cancelar:  'Ahora no',
-    onConfirmar: function() { window.location.href = '/login/#ceramista' }
+    accion: function() { window.location.href = '/login/#ceramista' }
   })
 }
 
