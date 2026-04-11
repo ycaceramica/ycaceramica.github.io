@@ -327,10 +327,10 @@ function renderAlumnos (lista) {
       '</div>' +
       '<div class="cont-card-acc">' +
         '<span class="cont-codigo-badge">' + (a.CODIGO || '') + '</span>' +
-        '<button class="cont-btn-ico" onclick="abrirFichaAlumno(' + JSON.stringify(a) + ')" title="Ver ficha">' +
+        '<button class="cont-btn-ico" onclick="abrirFichaAlumno(decodeURIComponent(\'' + aEncoded + '\'))" title="Ver ficha">' +
           '<i class="fa-solid fa-folder-open"></i>' +
         '</button>' +
-        '<button class="cont-btn-ico" onclick="generarContratoDesdeCard(' + JSON.stringify(a) + ')" title="Generar contrato">' +
+        '<button class="cont-btn-ico" onclick="generarContratoDesdeCard(decodeURIComponent(\'' + aEncoded + '\'))" title="Generar contrato">' +
           '<i class="fa-solid fa-file-signature"></i>' +
         '</button>' +
         '<button class="cont-btn-ico" onclick="editarAlumno(decodeURIComponent(\'' + aEncoded + '\'))" title="Editar">' +
@@ -1546,6 +1546,7 @@ setSeccion = function (nombre) {
 var alumnoFichaActual = null
 
 function abrirFichaAlumno (a) {
+  if (typeof a === 'string') { try { a = JSON.parse(a) } catch(e) { return } }
   alumnoFichaActual = a
 
   // Header
@@ -1806,6 +1807,7 @@ async function cargarContratosFicha (codigo) {
 var _contratoFichaCallback = false
 
 function generarContratoDesdeCard (a) {
+  if (typeof a === 'string') { try { a = JSON.parse(a) } catch(e) { return } }
   // Guardar alumno como actual y abrir modal con datos prellenados
   alumnoFichaActual = a
   _contratoFichaCallback = false
