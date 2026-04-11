@@ -98,6 +98,9 @@
           <button class="cont-nav-item" onclick="setSeccion('pagos')" id="nav-pagos">
             <i class="fa-solid fa-money-bill-wave"></i> Pagos
           </button>
+          <button class="cont-nav-item" onclick="setSeccion('gastos')" id="nav-gastos">
+            <i class="fa-solid fa-receipt"></i> Gastos
+          </button>
           <button class="cont-nav-item" onclick="setSeccion('contratos')" id="nav-contratos">
             <i class="fa-solid fa-file-signature"></i> Contratos
           </button>
@@ -161,6 +164,13 @@
               <span class="dash-card-valor" id="dashSaldo">—</span>
             </div>
           </div>
+          <div class="dash-card dash-card-gasto">
+            <div class="dash-card-icon"><i class="fa-solid fa-receipt"></i></div>
+            <div class="dash-card-info">
+              <span class="dash-card-label">Gastos directos</span>
+              <span class="dash-card-valor" id="dashGastos">—</span>
+            </div>
+          </div>
           <div class="dash-card dash-card-alerta">
             <div class="dash-card-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
             <div class="dash-card-info">
@@ -203,6 +213,23 @@
           <button class="cont-filtro" onclick="filtrarPagos('VENCIDO', this)">Vencidos</button>
         </div>
         <div id="listaPagos" class="cont-lista"></div>
+      </div>
+
+      <!-- ── GASTOS ── -->
+      <div id="seccion-gastos" class="cont-seccion" style="display:none">
+        <div class="cont-page-header">
+          <h2><i class="fa-solid fa-receipt"></i> Gastos</h2>
+          <button class="cont-btn-pri" onclick="abrirModalGasto()">
+            <i class="fa-solid fa-plus"></i> Registrar gasto
+          </button>
+        </div>
+        <div class="cont-filtros" id="filtrosGastos">
+          <button class="cont-filtro activo" onclick="filtrarGastos('todos', this)">Todos</button>
+          <button class="cont-filtro" onclick="filtrarGastos('Profesora', this)">Profesoras</button>
+          <button class="cont-filtro" onclick="filtrarGastos('Insumo', this)">Insumos</button>
+          <button class="cont-filtro" onclick="filtrarGastos('Otro', this)">Otros</button>
+        </div>
+        <div id="listaGastos" class="cont-lista"></div>
       </div>
 
       <!-- ── CONTRATOS ── -->
@@ -773,6 +800,54 @@
   <div class="cont-loading-inner">
     <div class="cont-spinner"></div>
     <p id="contLoadingMsg">Cargando...</p>
+  </div>
+</div>
+
+
+<!-- MODAL GASTO -->
+<div class="cont-modal-overlay" id="modalGasto" style="display:none">
+  <div class="cont-modal">
+    <div class="cont-modal-header">
+      <h3>Registrar gasto</h3>
+      <button onclick="cerrarModal('modalGasto')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="cont-modal-body">
+      <div class="cont-campo-fila">
+        <div class="cont-campo">
+          <label>Tipo *</label>
+          <select id="mGastoTipo">
+            <option value="Profesora">Profesora</option>
+            <option value="Insumo">Insumo</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+        <div class="cont-campo">
+          <label>Método</label>
+          <select id="mGastoMetodo">
+            <option value="EFECTIVO">Efectivo</option>
+            <option value="TRANSFERENCIA">Transferencia</option>
+          </select>
+        </div>
+      </div>
+      <div class="cont-campo">
+        <label>Descripción *</label>
+        <input type="text" id="mGastoDescripcion" placeholder="Ej: Pago mayo Gisela, Arcilla roja 25kg...">
+      </div>
+      <div class="cont-campo">
+        <label>Monto *</label>
+        <input type="number" id="mGastoMonto" placeholder="0">
+      </div>
+      <div class="cont-campo">
+        <label>Notas</label>
+        <textarea id="mGastoNotas" rows="2" placeholder="Observaciones opcionales..."></textarea>
+      </div>
+    </div>
+    <div class="cont-modal-footer">
+      <button class="cont-btn-sec" onclick="cerrarModal('modalGasto')">Cancelar</button>
+      <button class="cont-btn-pri" onclick="guardarGasto()">
+        <i class="fa-solid fa-floppy-disk"></i> Registrar
+      </button>
+    </div>
   </div>
 </div>
 
