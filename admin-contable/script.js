@@ -330,12 +330,7 @@ function renderAlumnos (lista) {
         '<button class="cont-btn-ico" onclick="abrirFichaAlumno(decodeURIComponent(\'' + aEncoded + '\'))" title="Ver ficha">' +
           '<i class="fa-solid fa-folder-open"></i>' +
         '</button>' +
-        '<button class="cont-btn-ico" onclick="generarContratoDesdeCard(decodeURIComponent(\'' + aEncoded + '\'))" title="Generar contrato">' +
-          '<i class="fa-solid fa-file-signature"></i>' +
-        '</button>' +
-        '<button class="cont-btn-ico" onclick="editarAlumno(decodeURIComponent(\'' + aEncoded + '\'))" title="Editar">' +
-          '<i class="fa-solid fa-pen"></i>' +
-        '</button>' +
+
         '<button class="cont-btn-ico danger" onclick="confirmarEliminarAlumno(\'' + (a.CODIGO || '') + '\')" title="Eliminar">' +
           '<i class="fa-solid fa-trash"></i>' +
         '</button>' +
@@ -1706,7 +1701,7 @@ function abrirFichaAlumno (a) {
   document.getElementById('fichaEditTel').value       = a.TELEFONO  || ''
   document.getElementById('fichaEditEmail').value     = a.EMAIL     || ''
   document.getElementById('fichaEditIg').value        = a.INSTAGRAM || ''
-  document.getElementById('fichaEditOrigen').value    = a.ORIGEN    || ''
+  document.getElementById('fichaEditFechaInicio').value = _fechaParaInput(a.CREADO_EN || '')
   document.getElementById('fichaEditCurso').value     = a.CURSO     || ''
   document.getElementById('fichaEditCodigo').value    = a.CODIGO    || ''
   document.getElementById('fichaEditDescuento').value = a.DESCUENTO || 0
@@ -1798,7 +1793,8 @@ async function guardarEdicionAlumno () {
       email:      document.getElementById('fichaEditEmail').value.trim(),
       instagram:  document.getElementById('fichaEditIg').value.trim(),
       curso:      cursoSel ? cursoSel.value : '',
-      descuento:  document.getElementById('fichaEditDescuento').value || 0
+      descuento:  document.getElementById('fichaEditDescuento').value || 0,
+      fecha_inicio: document.getElementById('fichaEditFechaInicio').value || ''
     })
 
     if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
@@ -1811,6 +1807,7 @@ async function guardarEdicionAlumno () {
       todosAlumnos[idx].EMAIL      = document.getElementById('fichaEditEmail').value.trim()
       todosAlumnos[idx].INSTAGRAM  = document.getElementById('fichaEditIg').value.trim()
       todosAlumnos[idx].DESCUENTO  = parseFloat(document.getElementById('fichaEditDescuento').value) || 0
+      if (cursoSel) todosAlumnos[idx].CURSO = cursoSel.value
       alumnoFichaActual = todosAlumnos[idx]
     }
 
