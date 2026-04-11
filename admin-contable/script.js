@@ -330,6 +330,9 @@ function renderAlumnos (lista) {
         '<button class="cont-btn-ico" onclick="abrirFichaAlumno(' + JSON.stringify(a) + ')" title="Ver ficha">' +
           '<i class="fa-solid fa-folder-open"></i>' +
         '</button>' +
+        '<button class="cont-btn-ico" onclick="generarContratoDesdeCard(' + JSON.stringify(a) + ')" title="Generar contrato">' +
+          '<i class="fa-solid fa-file-signature"></i>' +
+        '</button>' +
         '<button class="cont-btn-ico" onclick="editarAlumno(decodeURIComponent(\'' + aEncoded + '\'))" title="Editar">' +
           '<i class="fa-solid fa-pen"></i>' +
         '</button>' +
@@ -1801,6 +1804,16 @@ async function cargarContratosFicha (codigo) {
 }
 
 var _contratoFichaCallback = false
+
+function generarContratoDesdeCard (a) {
+  // Guardar alumno como actual y abrir modal con datos prellenados
+  alumnoFichaActual = a
+  _contratoFichaCallback = false
+  abrirModalContrato()
+  setTimeout(function () {
+    seleccionarAlumnoContrato(a)
+  }, 100)
+}
 
 function abrirContratoDesdeAlu () {
   _contratoFichaCallback = true
