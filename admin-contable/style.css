@@ -1296,3 +1296,6 @@ body {
   background: #fdecea !important;
   color: #a93226 !important;
 }
+
+/* Gastos dashboard card */
+.dash-card-gasto .dash-card-icon { background: rgba(155,89,182,0.12); color: #8e44ad; }
