@@ -513,6 +513,28 @@ function confirmarEliminarAlumno (codigo) {
   )
 }
 
+function confirmarEliminarCurso (btn) {
+  var id     = btn.getAttribute('data-id')
+  var nombre = btn.getAttribute('data-nombre')
+  _modalConfirm(
+    '¿Eliminar curso?',
+    'Vas a eliminar el curso <strong>' + nombre + '</strong>. Esta acción no se puede deshacer.',
+    async function () {
+      showLoading('Eliminando...')
+      try {
+        var data = await get('deleteCurso', { id: id })
+        if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
+        toast('Curso eliminado', 'ok')
+        await cargarCursos()
+      } catch (e) {
+        toast('Error de conexión', 'err')
+      } finally {
+        hideLoading()
+      }
+    }
+  )
+}
+
 // Modal de confirmación genérico (inline, sin HTML extra)
 function _modalConfirm (titulo, mensaje, onConfirm) {
   var existente = document.getElementById('_modalConfirmOverlay')
@@ -685,6 +707,10 @@ function renderCursos (lista) {
         '</button>' +
         '<button class="cont-btn-ico" onclick="toggleCurso(\'' + c.ID + '\')" title="Activar/Desactivar">' +
           '<i class="fa-solid fa-power-off"></i>' +
+        '</button>' +
+        '<button class="cont-btn-ico cont-btn-ico--danger" onclick="confirmarEliminarCurso(this)"' +
+        ' data-id="' + (c.ID||'') + '" data-nombre="' + (c.NOMBRE||'') + '" title="Eliminar">' +
+          '<i class="fa-solid fa-trash"></i>' +
         '</button>' +
       '</div>'
     cont.appendChild(card)
