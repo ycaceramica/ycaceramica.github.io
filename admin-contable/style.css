@@ -1299,3 +1299,126 @@ body {
 
 /* Gastos dashboard card */
 .dash-card-gasto .dash-card-icon { background: rgba(155,89,182,0.12); color: #8e44ad; }
+
+/* ─── Detalle gasto ─── */
+.cont-card--gasto .cont-card-acc--wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.cont-gasto-monto {
+  color: var(--color-rojo, #c0392b);
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.cont-btn-detalle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1.5px solid var(--color-primario, #6b4226);
+  border-radius: 20px;
+  color: var(--color-primario, #6b4226);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  white-space: nowrap;
+}
+.cont-btn-detalle:hover {
+  background: var(--color-primario, #6b4226);
+  color: #fff;
+}
+.cont-modal--detalle {
+  max-width: 420px;
+  width: 92%;
+}
+.dg-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+}
+.dg-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.dg-item--full { grid-column: 1 / -1; }
+.dg-item--monto { grid-column: 1 / -1; }
+.dg-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-texto-sub);
+}
+.dg-valor {
+  font-size: 14px;
+  color: var(--color-texto);
+  font-weight: 500;
+}
+.dg-monto {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-rojo, #c0392b);
+}
+.cont-btn-comprobante {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  background: var(--color-primario, #6b4226);
+  color: #fff;
+  border-radius: 10px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.18s;
+}
+.cont-btn-comprobante:hover { opacity: 0.85; }
+
+/* ─── Botón cerrar mes ─── */
+.cont-btn-cerrar-mes {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 16px;
+  background: transparent;
+  border: 1.5px solid var(--color-primario, #6b4226);
+  border-radius: 10px;
+  color: var(--color-primario, #6b4226);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  white-space: nowrap;
+}
+.cont-btn-cerrar-mes:hover {
+  background: var(--color-primario, #6b4226);
+  color: #fff;
+}
+
+/* ─── Responsive cards ─── */
+@media (max-width: 600px) {
+  .cont-card--gasto {
+    flex-wrap: wrap;
+  }
+  .cont-card--gasto .cont-card-acc--wrap {
+    width: 100%;
+    justify-content: flex-start;
+    padding-top: 8px;
+    border-top: 1px solid var(--color-borde);
+    margin-top: 4px;
+  }
+  .dg-grid {
+    grid-template-columns: 1fr;
+  }
+  .dg-item--full, .dg-item--monto { grid-column: 1; }
+}
