@@ -1375,7 +1375,7 @@ async function _subirArchivoGasto () {
   if (!_archivoGasto) return null
   try {
     var b64  = await comprimirImagen(_archivoGasto)
-    var data = await get('subirComprobante', { archivo: b64, nombre: _archivoGasto.name.replace(/.[^.]+$/, '.jpg'), codigo: 'GASTO', alumno: 'Gastos' })
+    var data = await post('subirComprobante', { archivo: b64, nombre: _archivoGasto.name.replace(/.[^.]+$/, '.jpg'), codigo: 'GASTO', alumno: 'Gastos' })
     return data.ok ? data.url : null
   } catch (err) { return null }
 }
@@ -2095,7 +2095,7 @@ async function _subirArchivoSiHay (codigoAlu, nombreAlu) {
   if (!_archivoComprobante) return null
   try {
     var b64  = await comprimirImagen(_archivoComprobante)
-    var data = await get('subirComprobante', {
+    var data = await post('subirComprobante', {
       archivo: b64,
       nombre:  _archivoComprobante.name.replace(/.[^.]+$/, '.jpg'),
       codigo:  codigoAlu,
