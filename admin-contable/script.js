@@ -1701,7 +1701,7 @@ function abrirFichaAlumno (a) {
   document.getElementById('fichaEditTel').value       = a.TELEFONO  || ''
   document.getElementById('fichaEditEmail').value     = a.EMAIL     || ''
   document.getElementById('fichaEditIg').value        = a.INSTAGRAM || ''
-  document.getElementById('fichaEditFechaInicio').value = _fechaParaInput(a.CREADO_EN || '')
+  document.getElementById('fichaEditFechaInicio').value = _fechaParaInput(a.FECHA_INICIO || '')
   document.getElementById('fichaEditCurso').value     = a.CURSO     || ''
   document.getElementById('fichaEditCodigo').value    = a.CODIGO    || ''
   document.getElementById('fichaEditDescuento').value = a.DESCUENTO || 0
