@@ -12,6 +12,32 @@ let modalCallback = null
 // ─────────────────────────────────────────────
 // MODAL GENÉRICO (reemplaza alert/confirm)
 // ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// AUTH
+// ─────────────────────────────────────────────
+function getSesion(){
+  try { return JSON.parse(sessionStorage.getItem('yca_sesion')) }
+  catch(e) { return null }
+}
+
+function _sesionActiva() {
+  try {
+    const ceramista = JSON.parse(localStorage.getItem('ceramista_sesion') || 'null')
+    const alumno    = JSON.parse(sessionStorage.getItem('yca_sesion') || 'null')
+    return (ceramista && ceramista.token) || (alumno && alumno.token)
+  } catch(e) { return false }
+}
+
+function _avisoRegistro() {
+  mostrarModal({
+    titulo:   '🔒 Solo para usuarios registrados',
+    texto:    'Para guardar en el historial y descargar el PDF necesitás una cuenta. Es gratis para ceramistas.',
+    confirmar: 'Crear cuenta',
+    cancelar:  'Ahora no',
+    accion: function() { setTimeout(function(){ window.location.assign('/login/#ceramista') }, 50) }
+  })
+}
+
 function mostrarModal({ titulo, texto, confirmar, accion, cancelar = true }){
   document.getElementById("contModalTitulo").innerText  = titulo
   document.getElementById("contModalTexto").innerText   = texto
@@ -253,6 +279,7 @@ function copiarResultado(modo){
 // HISTORIAL
 // ─────────────────────────────────────────────
 function guardarHistorial(){
+  if(!_sesionActiva()){ _avisoRegistro(); return }
   localStorage.setItem("contraccion_historial", JSON.stringify(historial))
   renderizarHistorial()
 }
@@ -308,6 +335,7 @@ function cargarLogoBase64(){
 }
 
 async function descargarPDF(){
+  if(!_sesionActiva()){ _avisoRegistro(); return }
   if(!historial.length) return
   const { jsPDF } = window.jspdf
   const doc = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4" })
