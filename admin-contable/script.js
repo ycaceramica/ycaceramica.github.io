@@ -1396,7 +1396,7 @@ async function guardarGasto () {
 
   try {
     var _fv = (document.getElementById('mGastoFecha').value || '').split('-')
-    var fechaGasto = _fv.length === 3 ? (_fv[2] + '/' + _fv[1] + '/' + _fv[0]) : ''
+    var fechaGasto = _fv.length === 3 ? (_fv[2] + '-' + _fv[1] + '-' + _fv[0]) : ''
     var params = {
       tipo:        tipo,
       descripcion: desc,
