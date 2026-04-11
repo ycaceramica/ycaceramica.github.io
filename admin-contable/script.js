@@ -1305,6 +1305,9 @@ function editarGasto (btn) {
   document.getElementById('mGastoMonto').value       = g.MONTO       || ''
   document.getElementById('mGastoMetodo').value      = g.METODO      || 'EFECTIVO'
   document.getElementById('mGastoNotas').value       = g.NOTAS       || ''
+  // Fecha: convertir dd/mm/yyyy → yyyy-mm-dd para el input
+  var _gf = (g.FECHA || '').split('/')
+  document.getElementById('mGastoFecha').value = _gf.length === 3 ? (_gf[2] + '-' + _gf[1].padStart(2,'0') + '-' + _gf[0].padStart(2,'0')) : ''
   document.getElementById('mGastoArchivoNombre').textContent = 'Sin archivo'
   document.getElementById('mGastoArchivoInput').value = ''
   document.getElementById('mGastoPreview').style.display = 'none'
