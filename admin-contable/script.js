@@ -15,6 +15,7 @@ var todosAlumnos    = []
 var todosCursos     = []
 var todasProfesoras = []
 var todosPagos      = []
+var todosGastos     = []
 
 // ─────────────────────────────────────────────
 // INIT
@@ -1148,6 +1149,140 @@ async function guardarPago () {
   }
 }
 
+
+// ─────────────────────────────────────────────
+// GASTOS
+// ─────────────────────────────────────────────
+
+var filtroGastoActual = 'todos'
+
+async function cargarGastos () {
+  try {
+    var data = await get('getGastos')
+    if (!data.ok) { toast('Error al cargar gastos', 'err'); return }
+    todosGastos = data.data || []
+    renderGastos(todosGastos, filtroGastoActual)
+  } catch (e) {
+    toast('Error de conexión', 'err')
+  }
+}
+
+function renderGastos (lista, filtro) {
+  var cont = document.getElementById('listaGastos')
+  if (!cont) return
+
+  var filtrados = filtro === 'todos' ? lista : lista.filter(function (g) {
+    return g.TIPO === filtro
+  })
+
+  if (filtrados.length === 0) {
+    cont.innerHTML = '<div class="cont-vacio"><i class="fa-solid fa-receipt"></i><p>No hay gastos registrados.</p></div>'
+    return
+  }
+
+  var iconos = { Profesora: 'fa-person-chalkboard', Insumo: 'fa-boxes-stacked', Otro: 'fa-receipt' }
+
+  cont.innerHTML = ''
+  filtrados.forEach(function (g) {
+    var card = document.createElement('div')
+    card.className = 'cont-card'
+    var icono = iconos[g.TIPO] || 'fa-receipt'
+    card.innerHTML =
+      '<div class="cont-card-icon"><i class="fa-solid ' + icono + '"></i></div>' +
+      '<div class="cont-card-info">' +
+        '<div class="cont-card-titulo">' + (g.DESCRIPCION || '—') + '</div>' +
+        '<div class="cont-card-sub">' +
+          (g.FECHA || '') +
+          ' · ' + (g.TIPO || '') +
+          ' · ' + (g.METODO || '') +
+          (g.NOTAS ? ' · ' + g.NOTAS : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="cont-card-acc">' +
+        '<strong style="color:var(--color-rojo,#c0392b);font-size:15px;">— ' + pesos(g.MONTO) + '</strong>' +
+        '<span class="cont-codigo-badge">' + (g.ID || '') + '</span>' +
+        '<button class="cont-btn-ico cont-btn-ico--danger" onclick="confirmarEliminarGasto(this)" ' +
+          'data-id="' + (g.ID || '') + '" data-desc="' + (g.DESCRIPCION || '').replace(/"/g,'&quot;') + '" title="Eliminar">' +
+          '<i class="fa-solid fa-trash"></i>' +
+        '</button>' +
+      '</div>'
+    cont.appendChild(card)
+  })
+}
+
+function filtrarGastos (tipo, btn) {
+  filtroGastoActual = tipo
+  document.querySelectorAll('#filtrosGastos .cont-filtro').forEach(function (b) {
+    b.classList.remove('activo')
+  })
+  if (btn) btn.classList.add('activo')
+  renderGastos(todosGastos, tipo)
+}
+
+function abrirModalGasto () {
+  document.getElementById('mGastoTipo').value        = 'Profesora'
+  document.getElementById('mGastoDescripcion').value = ''
+  document.getElementById('mGastoMonto').value       = ''
+  document.getElementById('mGastoMetodo').value      = 'EFECTIVO'
+  document.getElementById('mGastoNotas').value       = ''
+  abrirModal('modalGasto')
+}
+
+async function guardarGasto () {
+  var tipo  = document.getElementById('mGastoTipo').value
+  var desc  = document.getElementById('mGastoDescripcion').value.trim()
+  var monto = document.getElementById('mGastoMonto').value.trim()
+
+  if (!desc)  { toast('Ingresá una descripción', 'err'); return }
+  if (!monto) { toast('Ingresá el monto', 'err'); return }
+
+  showLoading('Registrando gasto...')
+  try {
+    var data = await get('addGasto', {
+      tipo:        tipo,
+      descripcion: desc,
+      monto:       monto,
+      metodo:      document.getElementById('mGastoMetodo').value,
+      notas:       document.getElementById('mGastoNotas').value.trim()
+    })
+
+    if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
+
+    toast('Gasto registrado', 'ok')
+    cerrarModal('modalGasto')
+    await cargarGastos()
+    cargarDashboard()
+
+  } catch (e) {
+    toast('Error de conexión', 'err')
+  } finally {
+    hideLoading()
+  }
+}
+
+function confirmarEliminarGasto (btn) {
+  var id   = btn.getAttribute('data-id')
+  var desc = btn.getAttribute('data-desc')
+  _modalConfirm(
+    '¿Eliminar gasto?',
+    'Vas a eliminar el gasto <strong>' + desc + '</strong>. Esta acción no se puede deshacer.',
+    async function () {
+      showLoading('Eliminando...')
+      try {
+        var data = await get('deleteGasto', { id: id })
+        if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
+        toast('Gasto eliminado', 'ok')
+        await cargarGastos()
+        cargarDashboard()
+      } catch (e) {
+        toast('Error de conexión', 'err')
+      } finally {
+        hideLoading()
+      }
+    }
+  )
+}
+
 // ─────────────────────────────────────────────
 // CONTRATOS
 // ─────────────────────────────────────────────
@@ -1355,6 +1490,7 @@ var _contratosCache = false
 var _setSeccionOriginal = setSeccion
 setSeccion = function (nombre) {
   _setSeccionOriginal(nombre)
+  if (nombre === 'gastos') { cargarGastos() }
   if (nombre === 'contratos' && !_contratosCache) {
     _contratosCache = true
     cargarContratos()
