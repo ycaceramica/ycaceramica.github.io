@@ -1258,6 +1258,8 @@ function abrirModalGasto () {
   document.getElementById('mGastoMonto').value       = ''
   document.getElementById('mGastoMetodo').value      = 'EFECTIVO'
   document.getElementById('mGastoNotas').value       = ''
+  var hoy = new Date(); var mm = String(hoy.getMonth()+1).padStart(2,'0'); var dd = String(hoy.getDate()).padStart(2,'0')
+  document.getElementById('mGastoFecha').value = hoy.getFullYear() + '-' + mm + '-' + dd
   document.getElementById('mGastoArchivoNombre').textContent = 'Sin archivo'
   document.getElementById('mGastoArchivoInput').value = ''
   document.getElementById('mGastoPreview').style.display = 'none'
@@ -1282,6 +1284,9 @@ function editarGasto (btn) {
   document.getElementById('mGastoMonto').value       = g.MONTO       || ''
   document.getElementById('mGastoMetodo').value      = g.METODO      || 'EFECTIVO'
   document.getElementById('mGastoNotas').value       = g.NOTAS       || ''
+  // Convertir fecha dd/mm/yyyy a yyyy-mm-dd para el input
+  var _fd = (g.FECHA || '').split('/')
+  document.getElementById('mGastoFecha').value = _fd.length === 3 ? (_fd[2] + '-' + _fd[1].padStart(2,'0') + '-' + _fd[0].padStart(2,'0')) : ''
   document.getElementById('mGastoArchivoNombre').textContent = 'Sin archivo'
   document.getElementById('mGastoArchivoInput').value = ''
   document.getElementById('mGastoPreview').style.display = 'none'
@@ -1376,10 +1381,13 @@ async function guardarGasto () {
   }
 
   try {
+    var _fi = (document.getElementById('mGastoFecha').value || '').split('-')
+    var fechaGasto = _fi.length === 3 ? (_fi[2] + '/' + _fi[1] + '/' + _fi[0]) : ''
     var params = {
       tipo:        tipo,
       descripcion: desc,
       monto:       monto,
+      fecha:       fechaGasto,
       metodo:      document.getElementById('mGastoMetodo').value,
       notas:       document.getElementById('mGastoNotas').value.trim()
     }
