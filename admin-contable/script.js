@@ -753,8 +753,8 @@ function editarCurso (c) {
   document.getElementById('mCurMaxAlumnos').value   = c.MAX_ALUMNOS   || ''
   document.getElementById('mCurDias').value         = c.DIAS          || ''
   document.getElementById('mCurHorario').value      = c.HORARIO       || ''
-  document.getElementById('mCurFechaInicio').value  = c.FECHA_INICIO  || ''
-  document.getElementById('mCurFechaFin').value     = c.FECHA_FIN     || ''
+  document.getElementById('mCurFechaInicio').value  = _fechaParaInput(c.FECHA_INICIO)
+  document.getElementById('mCurFechaFin').value     = _fechaParaInput(c.FECHA_FIN)
   document.getElementById('mCurDescripcion').value  = c.DESCRIPCION   || ''
   document.getElementById('mCurId').value           = c.ID            || ''
   document.getElementById('modalCursoTitulo').textContent = 'Editar curso'
@@ -1048,7 +1048,6 @@ function abrirModalPago () {
   document.getElementById('mPagoCodigo').value      = ''
   document.getElementById('mPagoMonto').value       = ''
   document.getElementById('mPagoNotas').value       = ''
-  document.getElementById('mPagoComprobante').value = ''
   document.getElementById('mPagoAlumnoSel').style.display = 'none'
   document.getElementById('mPagoResultados').classList.remove('visible')
   poblarSelectCursos()
@@ -1105,7 +1104,7 @@ async function guardarPago () {
       curso:           curso,
       monto:           monto,
       metodo:          document.getElementById('mPagoMetodo').value,
-      comprobante_url: document.getElementById('mPagoComprobante').value.trim(),
+      comprobante_url: '',
       notas:           document.getElementById('mPagoNotas').value.trim()
     })
 
@@ -1895,4 +1894,22 @@ async function generarContratoProfesora () {
     btn.disabled  = false
     btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Generar PDFs'
   }
+}
+
+// ─────────────────────────────────────────────
+// HELPER: normalizar fecha para input[type=date]
+// Sheets puede devolver dd/mm/yyyy o yyyy-mm-dd o Date object string
+// ─────────────────────────────────────────────
+function _fechaParaInput (val) {
+  if (!val) return ''
+  var s = String(val).trim()
+  // Ya está en formato yyyy-mm-dd
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s
+  // Formato dd/mm/yyyy
+  var m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)
+  if (m) return m[3] + '-' + m[2].padStart(2,'0') + '-' + m[1].padStart(2,'0')
+  // Formato dd/mm/yy (dos dígitos año)
+  var m2 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/)
+  if (m2) return '20' + m2[3] + '-' + m2[2].padStart(2,'0') + '-' + m2[1].padStart(2,'0')
+  return ''
 }
