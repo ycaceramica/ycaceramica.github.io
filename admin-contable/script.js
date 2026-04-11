@@ -223,6 +223,14 @@ function get (action, params) {
   return fetch(url).then(function (r) { return r.json() })
 }
 
+function post (action, params) {
+  var body = Object.assign({}, params, { action: action, token: sesionContable.token })
+  return fetch(API, {
+    method: 'POST',
+    body: JSON.stringify(body)
+  }).then(function (r) { return r.json() })
+}
+
 function pesos (n) {
   return '$' + Number(n || 0).toLocaleString('es-AR', { minimumFractionDigits: 0 })
 }
@@ -1222,7 +1230,7 @@ function renderGastos (lista, filtro) {
       '<div class="cont-card-info">' +
         '<div class="cont-card-titulo">' + (g.DESCRIPCION || '—') + '</div>' +
         '<div class="cont-card-sub">' +
-          (g.FECHA || '') +
+          _fechaDisplay(g.FECHA) +
           ' · ' + (g.TIPO || '') +
           ' · ' + (g.METODO || '') +
           (g.NOTAS ? ' · ' + g.NOTAS : '') +
@@ -1316,7 +1324,7 @@ async function _subirArchivoGasto () {
     var reader = new FileReader()
     reader.onload = async function (e) {
       try {
-        var data = await get('subirComprobante', { archivo: e.target.result, nombre: _archivoGasto.name, codigo: 'GASTO', alumno: 'Gastos' })
+        var data = await post('subirComprobante', { archivo: e.target.result, nombre: _archivoGasto.name, codigo: 'GASTO', alumno: 'Gastos' })
         resolve(data.ok ? data.url : null)
       } catch (err) { resolve(null) }
     }
@@ -2038,7 +2046,7 @@ async function _subirArchivoSiHay (codigoAlu, nombreAlu) {
     reader.onload = async function (e) {
       try {
         var b64  = e.target.result
-        var data = await get('subirComprobante', {
+        var data = await post('subirComprobante', {
           archivo: b64,
           nombre:  _archivoComprobante.name,
           codigo:  codigoAlu,
