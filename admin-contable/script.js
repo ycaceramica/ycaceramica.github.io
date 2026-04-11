@@ -1928,14 +1928,31 @@ async function generarContratoProfesora () {
 // ─────────────────────────────────────────────
 function _fechaParaInput (val) {
   if (!val) return ''
+  // Si es objeto Date
+  if (val instanceof Date) {
+    var y = val.getFullYear()
+    var m = String(val.getMonth()+1).padStart(2,'0')
+    var d = String(val.getDate()).padStart(2,'0')
+    return y + '-' + m + '-' + d
+  }
   var s = String(val).trim()
+  if (!s || s === 'Invalid Date') return ''
   // Ya está en formato yyyy-mm-dd
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s
   // Formato dd/mm/yyyy
-  var m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)
-  if (m) return m[3] + '-' + m[2].padStart(2,'0') + '-' + m[1].padStart(2,'0')
-  // Formato dd/mm/yy (dos dígitos año)
+  var m1 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)
+  if (m1) return m1[3] + '-' + m1[2].padStart(2,'0') + '-' + m1[1].padStart(2,'0')
+  // Formato dd/mm/yy
   var m2 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/)
   if (m2) return '20' + m2[3] + '-' + m2[2].padStart(2,'0') + '-' + m2[1].padStart(2,'0')
+  // Intentar parsear como Date string genérico (ej: "Fri Mar 28 2026...")
+  try {
+    var d2 = new Date(s)
+    if (!isNaN(d2.getTime())) {
+      return d2.getFullYear() + '-' +
+        String(d2.getMonth()+1).padStart(2,'0') + '-' +
+        String(d2.getDate()).padStart(2,'0')
+    }
+  } catch(e) {}
   return ''
 }
