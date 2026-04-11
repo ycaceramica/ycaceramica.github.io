@@ -1,3 +1,46 @@
+// ─────────────────────────────────────────────
+// AUTH
+// ─────────────────────────────────────────────
+function getSesion(){
+  try { return JSON.parse(sessionStorage.getItem('yca_sesion')) }
+  catch(e) { return null }
+}
+
+function _sesionActiva() {
+  try {
+    const ceramista = JSON.parse(localStorage.getItem('ceramista_sesion') || 'null')
+    const alumno    = JSON.parse(sessionStorage.getItem('yca_sesion') || 'null')
+    return (ceramista && ceramista.token) || (alumno && alumno.token)
+  } catch(e) { return false }
+}
+
+function _avisoRegistro() {
+  mostrarModal({
+    titulo:   '🔒 Solo para usuarios registrados',
+    texto:    'Para guardar en el historial y descargar el PDF necesitás una cuenta. Es gratis para ceramistas.',
+    confirmar: 'Crear cuenta',
+    cancelar:  'Ahora no',
+    accion: function() { setTimeout(function(){ window.location.assign('/login/#ceramista') }, 50) }
+  })
+}
+
+let modalCallback = null
+function mostrarModal({ titulo, texto, confirmar, accion, cancelar = true }){
+  document.getElementById('contModalTitulo').innerText = titulo
+  document.getElementById('contModalTexto').innerText  = texto
+  const btnConfirmar = document.getElementById('contModalConfirmar')
+  const btnCancelar  = document.getElementById('contModalCancelar')
+  btnConfirmar.innerText    = confirmar
+  btnCancelar.style.display = cancelar ? 'inline-flex' : 'none'
+  modalCallback = accion || null
+  btnConfirmar.onclick = () => { const cb = modalCallback; cerrarModal(); if(cb) cb() }
+  document.getElementById('contModal').style.display = 'flex'
+}
+function cerrarModal(){
+  document.getElementById('contModal').style.display = 'none'
+  modalCallback = null
+}
+
 // Dark mode y nav manejados por nav-ceramista.js
 
 // ─────────────────────────────────────────────
@@ -378,6 +421,7 @@ function cargarLogoBase64(){
 // ─────────────────────────────────────────────
 
 async function descargarPDF(){
+  if(!_sesionActiva()){ _avisoRegistro(); return }
   const { jsPDF } = window.jspdf
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" })
 
