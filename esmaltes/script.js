@@ -280,6 +280,8 @@ function guardarEsmalte(){
     fecha:       new Date().toLocaleDateString('es-AR')
   }
 
+  if(!_sesionActiva()){ _avisoRegistro(); return }
+
   historialEsmaltes.unshift(entrada)
   localStorage.setItem('esmaltes_historial', JSON.stringify(historialEsmaltes))
   renderizarHistorialEsmaltes()
@@ -519,6 +521,8 @@ function guardarDensidad(){
     fecha:     new Date().toLocaleDateString('es-AR')
   }
 
+  if(!_sesionActiva()){ _avisoRegistro(); return }
+
   historialDensidad.unshift(entrada)
   localStorage.setItem('densidad_historial', JSON.stringify(historialDensidad))
   renderizarHistorialDensidad()
@@ -644,6 +648,7 @@ async function crearEncabezadoPDF(doc, subtitulo){
 // ─────────────────────────────────────────────
 
 async function descargarPDFEsmaltes(){
+  if(!_sesionActiva()){ _avisoRegistro(); return }
   if(historialEsmaltes.length === 0) return
 
   const { jsPDF }  = window.jspdf
@@ -725,6 +730,7 @@ async function descargarPDFEsmaltes(){
 // ─────────────────────────────────────────────
 
 async function descargarPDFDensidad(){
+  if(!_sesionActiva()){ _avisoRegistro(); return }
   if(historialDensidad.length === 0) return
 
   const { jsPDF }  = window.jspdf
