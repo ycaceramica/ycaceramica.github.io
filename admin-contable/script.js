@@ -1317,6 +1317,57 @@ function confirmarEliminarGasto (btn) {
 // CONTRATOS
 // ─────────────────────────────────────────────
 
+function confirmarEliminarContrato (btn) {
+  var id       = btn.getAttribute('data-id')
+  var nombre   = btn.getAttribute('data-nombre')
+  var tienePDF = btn.getAttribute('data-tiene-pdfs') === 'true'
+
+  // Crear overlay con checkbox de Drive
+  var existente = document.getElementById('_modalConfirmOverlay')
+  if (existente) existente.remove()
+
+  var overlay = document.createElement('div')
+  overlay.id        = '_modalConfirmOverlay'
+  overlay.className = 'cont-modal-overlay'
+  overlay.innerHTML =
+    '<div class="cont-modal" style="max-width:420px">' +
+      '<div class="cont-modal-header"><h3>¿Eliminar contrato?</h3></div>' +
+      '<div class="cont-modal-body">' +
+        '<p style="font-size:14px;line-height:1.6;">Vas a eliminar el contrato de <strong>' + nombre + '</strong> (' + id + ').</p>' +
+        (tienePDF
+          ? '<label style="display:flex;align-items:center;gap:10px;margin-top:12px;font-size:13px;cursor:pointer;">' +
+              '<input type="checkbox" id="_checkBorrarDrive" style="width:16px;height:16px;cursor:pointer;accent-color:var(--color-rojo,#c0392b)"> ' +
+              'También eliminar PDFs de Drive' +
+            '</label>'
+          : '') +
+      '</div>' +
+      '<div class="cont-modal-footer">' +
+        '<button class="cont-btn-sec" id="_confirmCancelar">Cancelar</button>' +
+        '<button class="cont-btn-pri" id="_confirmOk" style="background:var(--color-rojo,#c0392b)">Eliminar</button>' +
+      '</div>' +
+    '</div>'
+
+  document.body.appendChild(overlay)
+  overlay.style.display = 'flex'
+
+  document.getElementById('_confirmCancelar').onclick = function () { overlay.remove() }
+  document.getElementById('_confirmOk').onclick = async function () {
+    var conDrive = tienePDF && document.getElementById('_checkBorrarDrive') && document.getElementById('_checkBorrarDrive').checked
+    overlay.remove()
+    showLoading('Eliminando contrato...')
+    try {
+      var data = await get('deleteContrato', { id: id, con_drive: conDrive ? 'true' : 'false' })
+      if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
+      toast('Contrato eliminado' + (conDrive ? ' y PDFs borrados de Drive' : ''), 'ok')
+      await cargarContratos()
+    } catch (e) {
+      toast('Error de conexión', 'err')
+    } finally {
+      hideLoading()
+    }
+  }
+}
+
 async function cargarContratos () {
   try {
     var data = await get('getContratos')
@@ -1358,6 +1409,13 @@ function renderContratos (lista) {
         '<span class="cont-codigo-badge">' + (c.ID || '') + '</span>' +
         (c.PDF_CLIENTE_URL ? '<a href="' + c.PDF_CLIENTE_URL + '" target="_blank" class="cont-btn-ico" title="' + (esProf ? 'PDF Profesora' : 'PDF Cliente') + '"><i class="fa-solid ' + (esProf ? 'fa-person-chalkboard' : 'fa-user') + '"></i></a>' : '') +
         (c.PDF_YCA_URL     ? '<a href="' + c.PDF_YCA_URL     + '" target="_blank" class="cont-btn-ico" title="PDF YCA"><i class="fa-solid fa-building"></i></a>' : '') +
+        '<button class="cont-btn-ico cont-btn-ico--danger" onclick="confirmarEliminarContrato(this)" ' +
+          'data-id="' + (c.ID || '') + '" ' +
+          'data-nombre="' + (c.NOMBRE_ALUMNO || '').replace(/"/g, '&quot;') + '" ' +
+          'data-tiene-pdfs="' + ((c.PDF_CLIENTE_URL || c.PDF_YCA_URL) ? 'true' : 'false') + '" ' +
+          'title="Eliminar">' +
+          '<i class="fa-solid fa-trash"></i>' +
+        '</button>' +
       '</div>'
     cont.appendChild(card)
   })
