@@ -258,6 +258,7 @@ async function cargarDashboard () {
     var d = data.data
     document.getElementById('dashIngresado').textContent = pesos(d.totalIngresado)
     document.getElementById('dashEgresos').textContent   = pesos(d.totalEgresos)
+    var _dg = document.getElementById('dashGastos'); if (_dg) _dg.textContent = pesos(d.totalGastos || 0)
     document.getElementById('dashSaldo').textContent     = pesos(d.saldoYCA)
     document.getElementById('dashVencidos').textContent  = d.vencidos || '0'
 
@@ -948,12 +949,34 @@ function renderProfesoras (lista) {
           '<i class="fa-solid fa-pen"></i>' +
         '</button>' +
         '<button class="cont-btn-ico cont-btn-ico--danger" onclick="confirmarEliminarProfesora(this)" ' +
-          'data-id="' + (p.ID||'') + '" data-nombre="' + (p.NOMBRE||'').replace(/"/g,'&quot;') + '" title="Eliminar">' +
+          'data-id="' + (p.ID || '') + '" data-nombre="' + (p.NOMBRE || '').replace(/"/g, '&quot;') + '" title="Eliminar">' +
           '<i class="fa-solid fa-trash"></i>' +
         '</button>' +
       '</div>'
     cont.appendChild(card)
   })
+}
+
+function confirmarEliminarProfesora (btn) {
+  var id     = btn.getAttribute('data-id')
+  var nombre = btn.getAttribute('data-nombre')
+  _modalConfirm(
+    '¿Eliminar profesora?',
+    'Vas a eliminar a <strong>' + nombre + '</strong>. Esta acción no se puede deshacer.',
+    async function () {
+      showLoading('Eliminando...')
+      try {
+        var data = await get('deleteProfesora', { id: id })
+        if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
+        toast('Profesora eliminada', 'ok')
+        await cargarProfesoras()
+      } catch (e) {
+        toast('Error de conexión', 'err')
+      } finally {
+        hideLoading()
+      }
+    }
+  )
 }
 
 function abrirModalProfesora () {
@@ -1264,28 +1287,6 @@ async function guardarGasto () {
   }
 }
 
-function confirmarEliminarProfesora (btn) {
-  var id     = btn.getAttribute('data-id')
-  var nombre = btn.getAttribute('data-nombre')
-  _modalConfirm(
-    '¿Eliminar profesora?',
-    'Vas a eliminar a <strong>' + nombre + '</strong>. Esta acción no se puede deshacer.',
-    async function () {
-      showLoading('Eliminando...')
-      try {
-        var data = await get('deleteProfesora', { id: id })
-        if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
-        toast('Profesora eliminada', 'ok')
-        await cargarProfesoras()
-      } catch (e) {
-        toast('Error de conexión', 'err')
-      } finally {
-        hideLoading()
-      }
-    }
-  )
-}
-
 function confirmarEliminarGasto (btn) {
   var id   = btn.getAttribute('data-id')
   var desc = btn.getAttribute('data-desc')
@@ -1441,7 +1442,6 @@ async function generarContrato () {
     if (data.pdfCliente) window.open(data.pdfCliente, '_blank')
     if (data.pdfYCA)     window.open(data.pdfYCA,     '_blank')
 
-    // Si se abrió desde la ficha, recargar contratos de la ficha
     if (_contratoFichaCallback && alumnoFichaActual) {
       _contratoFichaCallback = false
       cargarContratosFicha(alumnoFichaActual.CODIGO)
@@ -1800,19 +1800,17 @@ async function cargarContratosFicha (codigo) {
   }
 }
 
+var _contratoFichaCallback = false
+
 function abrirContratoDesdeAlu () {
-  // Abrir modal contrato sin cerrar la ficha
+  _contratoFichaCallback = true
   abrirModalContrato()
   if (alumnoFichaActual) {
     setTimeout(function () {
       seleccionarAlumnoContrato(alumnoFichaActual)
     }, 100)
   }
-  // Al cerrar el modal de contrato, recargar los contratos de la ficha
-  _contratoFichaCallback = true
 }
-
-var _contratoFichaCallback = false
 
 // ─────────────────────────────────────────────
 // VISOR DE COMPROBANTE
