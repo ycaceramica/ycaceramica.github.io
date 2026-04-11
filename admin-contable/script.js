@@ -947,6 +947,10 @@ function renderProfesoras (lista) {
         '<button class="cont-btn-ico" onclick="editarProfesora(' + JSON.stringify(p).replace(/"/g, '&quot;') + ')" title="Editar">' +
           '<i class="fa-solid fa-pen"></i>' +
         '</button>' +
+        '<button class="cont-btn-ico cont-btn-ico--danger" onclick="confirmarEliminarProfesora(this)" ' +
+          'data-id="' + (p.ID||'') + '" data-nombre="' + (p.NOMBRE||'').replace(/"/g,'&quot;') + '" title="Eliminar">' +
+          '<i class="fa-solid fa-trash"></i>' +
+        '</button>' +
       '</div>'
     cont.appendChild(card)
   })
@@ -1260,6 +1264,28 @@ async function guardarGasto () {
   }
 }
 
+function confirmarEliminarProfesora (btn) {
+  var id     = btn.getAttribute('data-id')
+  var nombre = btn.getAttribute('data-nombre')
+  _modalConfirm(
+    '¿Eliminar profesora?',
+    'Vas a eliminar a <strong>' + nombre + '</strong>. Esta acción no se puede deshacer.',
+    async function () {
+      showLoading('Eliminando...')
+      try {
+        var data = await get('deleteProfesora', { id: id })
+        if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
+        toast('Profesora eliminada', 'ok')
+        await cargarProfesoras()
+      } catch (e) {
+        toast('Error de conexión', 'err')
+      } finally {
+        hideLoading()
+      }
+    }
+  )
+}
+
 function confirmarEliminarGasto (btn) {
   var id   = btn.getAttribute('data-id')
   var desc = btn.getAttribute('data-desc')
@@ -1308,21 +1334,25 @@ function renderContratos (lista) {
 
   cont.innerHTML = ''
   lista.forEach(function (c) {
+    var esProf = (c.ID || '').startsWith('CONP-')
     var card = document.createElement('div')
     card.className = 'cont-card'
     card.innerHTML =
-      '<div class="cont-card-icon"><i class="fa-solid fa-file-signature"></i></div>' +
+      '<div class="cont-card-icon">' +
+        '<i class="fa-solid ' + (esProf ? 'fa-person-chalkboard' : 'fa-user-graduate') + '"></i>' +
+      '</div>' +
       '<div class="cont-card-info">' +
         '<div class="cont-card-titulo">' + (c.NOMBRE_ALUMNO || '—') + ' — ' + (c.CURSO || '') + '</div>' +
         '<div class="cont-card-sub">' +
-          'Inicio: ' + (c.FECHA_INICIO || '') +
-          ' · Arcilla: ' + (c.ARCILLA_KG || 0) + 'kg' +
-          ' · Barbotina: ' + (c.BARBOTINA_ML || 0) + 'ml' +
+          '<span class="cont-badge ' + (esProf ? 'cont-badge-gris' : 'cont-badge-verde') + '" style="font-size:10px;padding:2px 7px;">' +
+            (esProf ? 'Profesora' : 'Alumno') +
+          '</span>' +
+          ' · Inicio: ' + (c.FECHA_INICIO || '—') +
         '</div>' +
       '</div>' +
       '<div class="cont-card-acc">' +
-        '<span class="cont-codigo-badge">' + (c.CODIGO_ALUMNO || '') + '</span>' +
-        (c.PDF_CLIENTE_URL ? '<a href="' + c.PDF_CLIENTE_URL + '" target="_blank" class="cont-btn-ico" title="PDF Cliente"><i class="fa-solid fa-user"></i></a>' : '') +
+        '<span class="cont-codigo-badge">' + (c.ID || '') + '</span>' +
+        (c.PDF_CLIENTE_URL ? '<a href="' + c.PDF_CLIENTE_URL + '" target="_blank" class="cont-btn-ico" title="' + (esProf ? 'PDF Profesora' : 'PDF Cliente') + '"><i class="fa-solid ' + (esProf ? 'fa-person-chalkboard' : 'fa-user') + '"></i></a>' : '') +
         (c.PDF_YCA_URL     ? '<a href="' + c.PDF_YCA_URL     + '" target="_blank" class="cont-btn-ico" title="PDF YCA"><i class="fa-solid fa-building"></i></a>' : '') +
       '</div>'
     cont.appendChild(card)
@@ -1411,7 +1441,13 @@ async function generarContrato () {
     if (data.pdfCliente) window.open(data.pdfCliente, '_blank')
     if (data.pdfYCA)     window.open(data.pdfYCA,     '_blank')
 
-    await cargarContratos()
+    // Si se abrió desde la ficha, recargar contratos de la ficha
+    if (_contratoFichaCallback && alumnoFichaActual) {
+      _contratoFichaCallback = false
+      cargarContratosFicha(alumnoFichaActual.CODIGO)
+    } else {
+      await cargarContratos()
+    }
 
   } catch (e) {
     toast('Error de conexión', 'err')
@@ -1765,14 +1801,18 @@ async function cargarContratosFicha (codigo) {
 }
 
 function abrirContratoDesdeAlu () {
-  cerrarModal('modalFichaAlumno')
+  // Abrir modal contrato sin cerrar la ficha
   abrirModalContrato()
   if (alumnoFichaActual) {
     setTimeout(function () {
       seleccionarAlumnoContrato(alumnoFichaActual)
     }, 100)
   }
+  // Al cerrar el modal de contrato, recargar los contratos de la ficha
+  _contratoFichaCallback = true
 }
+
+var _contratoFichaCallback = false
 
 // ─────────────────────────────────────────────
 // VISOR DE COMPROBANTE
