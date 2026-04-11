@@ -1249,16 +1249,83 @@ function filtrarGastos (tipo, btn) {
   renderGastos(todosGastos, tipo)
 }
 
+var _archivoGasto = null
+
 function abrirModalGasto () {
+  document.getElementById('modalGastoTitulo').textContent = 'Registrar gasto'
+  document.getElementById('mGastoId').value          = ''
   document.getElementById('mGastoTipo').value        = 'Profesora'
   document.getElementById('mGastoDescripcion').value = ''
   document.getElementById('mGastoMonto').value       = ''
   document.getElementById('mGastoMetodo').value      = 'EFECTIVO'
   document.getElementById('mGastoNotas').value       = ''
+  document.getElementById('mGastoArchivoNombre').textContent = 'Sin archivo'
+  document.getElementById('mGastoArchivoInput').value = ''
+  document.getElementById('mGastoPreview').style.display = 'none'
+  document.getElementById('mGastoComprobanteActual').style.display = 'none'
+  document.getElementById('btnGuardarGasto').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Registrar'
+  _archivoGasto = null
   abrirModal('modalGasto')
 }
 
+function editarGasto (g) {
+  if (typeof g === 'string') { try { g = JSON.parse(g) } catch(e) { return } }
+  document.getElementById('modalGastoTitulo').textContent = 'Editar gasto'
+  document.getElementById('mGastoId').value          = g.ID          || ''
+  document.getElementById('mGastoTipo').value        = g.TIPO        || 'Otro'
+  document.getElementById('mGastoDescripcion').value = g.DESCRIPCION || ''
+  document.getElementById('mGastoMonto').value       = g.MONTO       || ''
+  document.getElementById('mGastoMetodo').value      = g.METODO      || 'EFECTIVO'
+  document.getElementById('mGastoNotas').value       = g.NOTAS       || ''
+  document.getElementById('mGastoArchivoNombre').textContent = 'Sin archivo'
+  document.getElementById('mGastoArchivoInput').value = ''
+  document.getElementById('mGastoPreview').style.display = 'none'
+  document.getElementById('btnGuardarGasto').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar cambios'
+  _archivoGasto = null
+  // Mostrar link al comprobante actual si existe
+  var linkEl = document.getElementById('mGastoComprobanteActual')
+  if (g.COMPROBANTE_URL) {
+    document.getElementById('mGastoComprobanteLink').href = g.COMPROBANTE_URL
+    linkEl.style.display = 'block'
+  } else {
+    linkEl.style.display = 'none'
+  }
+  abrirModal('modalGasto')
+}
+
+function previsualizarComprobanteGasto (input) {
+  var archivo  = input.files[0]
+  var nombreEl = document.getElementById('mGastoArchivoNombre')
+  var preview  = document.getElementById('mGastoPreview')
+  if (!archivo) { nombreEl.textContent = 'Sin archivo'; preview.style.display = 'none'; _archivoGasto = null; return }
+  _archivoGasto = archivo
+  nombreEl.textContent = archivo.name
+  if (archivo.type.startsWith('image/')) {
+    var reader = new FileReader()
+    reader.onload = function (e) { preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview">'; preview.style.display = 'flex' }
+    reader.readAsDataURL(archivo)
+  } else {
+    preview.innerHTML = '<div class="cont-file-preview-pdf"><i class="fa-solid fa-file-pdf"></i><span>' + archivo.name + '</span></div>'
+    preview.style.display = 'flex'
+  }
+}
+
+async function _subirArchivoGasto () {
+  if (!_archivoGasto) return null
+  return new Promise(function (resolve) {
+    var reader = new FileReader()
+    reader.onload = async function (e) {
+      try {
+        var data = await get('subirComprobante', { archivo: e.target.result, nombre: _archivoGasto.name, codigo: 'GASTO', alumno: 'Gastos' })
+        resolve(data.ok ? data.url : null)
+      } catch (err) { resolve(null) }
+    }
+    reader.readAsDataURL(_archivoGasto)
+  })
+}
+
 async function guardarGasto () {
+  var id    = document.getElementById('mGastoId').value.trim()
   var tipo  = document.getElementById('mGastoTipo').value
   var desc  = document.getElementById('mGastoDescripcion').value.trim()
   var monto = document.getElementById('mGastoMonto').value.trim()
@@ -1266,20 +1333,33 @@ async function guardarGasto () {
   if (!desc)  { toast('Ingresá una descripción', 'err'); return }
   if (!monto) { toast('Ingresá el monto', 'err'); return }
 
-  showLoading('Registrando gasto...')
+  showLoading(id ? 'Guardando cambios...' : 'Registrando gasto...')
+
+  // Subir comprobante si hay archivo nuevo
+  var urlComprobante = null
+  if (_archivoGasto) {
+    urlComprobante = await _subirArchivoGasto()
+  }
+
   try {
-    var data = await get('addGasto', {
+    var params = {
       tipo:        tipo,
       descripcion: desc,
       monto:       monto,
       metodo:      document.getElementById('mGastoMetodo').value,
       notas:       document.getElementById('mGastoNotas').value.trim()
-    })
+    }
+    if (urlComprobante) params.comprobante_url = urlComprobante
 
+    var action = id ? 'editGasto' : 'addGasto'
+    if (id) params.id = id
+
+    var data = await get(action, params)
     if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
 
-    toast('Gasto registrado', 'ok')
+    toast(id ? 'Gasto actualizado' : 'Gasto registrado', 'ok')
     cerrarModal('modalGasto')
+    _archivoGasto = null
     await cargarGastos()
     cargarDashboard()
 
