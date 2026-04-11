@@ -1348,7 +1348,7 @@ function renderContratos (lista) {
           '<span class="cont-badge ' + (esProf ? 'cont-badge-gris' : 'cont-badge-verde') + '" style="font-size:10px;padding:2px 7px;">' +
             (esProf ? 'Profesora' : 'Alumno') +
           '</span>' +
-          ' · Inicio: ' + (c.FECHA_INICIO || '—') +
+          ' · Inicio: ' + _fechaDisplay(c.FECHA_INICIO) +
         '</div>' +
       '</div>' +
       '<div class="cont-card-acc">' +
@@ -1784,7 +1784,7 @@ async function cargarContratosFicha (codigo) {
         '<div class="cont-card-info">' +
           '<div class="cont-card-titulo">' + (c.CURSO || '—') + '</div>' +
           '<div class="cont-card-sub">' +
-            'Inicio: ' + (c.FECHA_INICIO || '') +
+            'Inicio: ' + _fechaDisplay(c.FECHA_INICIO) +
             ' · Arcilla: ' + (c.ARCILLA_KG || 0) + 'kg' +
             ' · Barbotina: ' + (c.BARBOTINA_ML || 0) + 'ml' +
           '</div>' +
@@ -2100,6 +2100,28 @@ async function generarContratoProfesora () {
 // HELPER: normalizar fecha para input[type=date]
 // Sheets puede devolver dd/mm/yyyy o yyyy-mm-dd o Date object string
 // ─────────────────────────────────────────────
+function _fechaDisplay (val) {
+  if (!val) return '—'
+  if (val instanceof Date) {
+    return val.toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' })
+  }
+  var str = String(val).trim()
+  // Already dd/mm/yyyy
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str)) return str
+  // ISO format: 2026-10-04T03:00:00.000Z
+  if (str.includes('T') || /^\d{4}-\d{2}-\d{2}/.test(str)) {
+    try {
+      var d = new Date(str)
+      if (!isNaN(d.getTime())) {
+        return String(d.getUTCDate()).padStart(2,'0') + '/' +
+               String(d.getUTCMonth()+1).padStart(2,'0') + '/' +
+               d.getUTCFullYear()
+      }
+    } catch(e) {}
+  }
+  return str
+}
+
 function _fechaParaInput (val) {
   if (!val) return ''
   // Si es objeto Date
