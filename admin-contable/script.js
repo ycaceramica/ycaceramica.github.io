@@ -1315,18 +1315,47 @@ function previsualizarComprobanteGasto (input) {
   }
 }
 
+// ─────────────────────────────────────────────
+// COMPRESIÓN DE IMÁGENES (max 1200px, JPG 0.72)
+// ─────────────────────────────────────────────
+
+function comprimirImagen (archivo, maxPx, calidad) {
+  maxPx   = maxPx   || 1200
+  calidad = calidad || 0.72
+  return new Promise(function (resolve) {
+    if (!archivo.type.startsWith('image/')) {
+      var r = new FileReader()
+      r.onload = function (e) { resolve(e.target.result) }
+      r.readAsDataURL(archivo)
+      return
+    }
+    var r = new FileReader()
+    r.onload = function (e) {
+      var img = new Image()
+      img.onload = function () {
+        var w = img.width, h = img.height
+        if (w > maxPx || h > maxPx) {
+          if (w > h) { h = Math.round(h * maxPx / w); w = maxPx }
+          else       { w = Math.round(w * maxPx / h); h = maxPx }
+        }
+        var canvas = document.createElement('canvas')
+        canvas.width = w; canvas.height = h
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h)
+        resolve(canvas.toDataURL('image/jpeg', calidad))
+      }
+      img.src = e.target.result
+    }
+    r.readAsDataURL(archivo)
+  })
+}
+
 async function _subirArchivoGasto () {
   if (!_archivoGasto) return null
-  return new Promise(function (resolve) {
-    var reader = new FileReader()
-    reader.onload = async function (e) {
-      try {
-        var data = await get('subirComprobante', { archivo: e.target.result, nombre: _archivoGasto.name, codigo: 'GASTO', alumno: 'Gastos' })
-        resolve(data.ok ? data.url : null)
-      } catch (err) { resolve(null) }
-    }
-    reader.readAsDataURL(_archivoGasto)
-  })
+  try {
+    var b64  = await comprimirImagen(_archivoGasto)
+    var data = await post('subirComprobante', { archivo: b64, nombre: _archivoGasto.name.replace(/.[^.]+$/, '.jpg'), codigo: 'GASTO', alumno: 'Gastos' })
+    return data.ok ? data.url : null
+  } catch (err) { return null }
 }
 
 async function guardarGasto () {
@@ -2039,25 +2068,16 @@ function previsualizarComprobante (input) {
 
 async function _subirArchivoSiHay (codigoAlu, nombreAlu) {
   if (!_archivoComprobante) return null
-
-  return new Promise(function (resolve) {
-    var reader = new FileReader()
-    reader.onload = async function (e) {
-      try {
-        var b64  = e.target.result
-        var data = await get('subirComprobante', {
-          archivo: b64,
-          nombre:  _archivoComprobante.name,
-          codigo:  codigoAlu,
-          alumno:  nombreAlu
-        })
-        resolve(data.ok ? data.url : null)
-      } catch (err) {
-        resolve(null)
-      }
-    }
-    reader.readAsDataURL(_archivoComprobante)
-  })
+  try {
+    var b64  = await comprimirImagen(_archivoComprobante)
+    var data = await post('subirComprobante', {
+      archivo: b64,
+      nombre:  _archivoComprobante.name.replace(/.[^.]+$/, '.jpg'),
+      codigo:  codigoAlu,
+      alumno:  nombreAlu
+    })
+    return data.ok ? data.url : null
+  } catch (err) { return null }
 }
 
 // ─────────────────────────────────────────────
