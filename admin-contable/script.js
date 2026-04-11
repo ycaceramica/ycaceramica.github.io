@@ -253,6 +253,24 @@ document.addEventListener('click', function (e) {
 // DASHBOARD
 // ─────────────────────────────────────────────
 
+async function actualizarDatos () {
+  var btn = document.getElementById('btnActualizar')
+  if (btn) { btn.style.opacity = '0.4'; btn.style.pointerEvents = 'none' }
+  try {
+    await Promise.all([
+      cargarDashboard(),
+      cargarAlumnos(),
+      cargarCursos(),
+      cargarProfesoras()
+    ])
+    toast('Datos actualizados', 'ok')
+  } catch(e) {
+    toast('Error al actualizar', 'err')
+  } finally {
+    if (btn) { btn.style.opacity = ''; btn.style.pointerEvents = '' }
+  }
+}
+
 async function cargarDashboard () {
   var mes = document.getElementById('mesDashboard').value || ''
 
@@ -1354,7 +1372,7 @@ async function _subirArchivoGasto () {
   if (!_archivoGasto) return null
   try {
     var b64  = await comprimirImagen(_archivoGasto)
-    var data = await post('subirComprobante', { archivo: b64, nombre: _archivoGasto.name.replace(/.[^.]+$/, '.jpg'), codigo: 'GASTO', alumno: 'Gastos' })
+    var data = await get('subirComprobante', { archivo: b64, nombre: _archivoGasto.name.replace(/.[^.]+$/, '.jpg'), codigo: 'GASTO', alumno: 'Gastos' })
     return data.ok ? data.url : null
   } catch (err) { return null }
 }
@@ -2074,7 +2092,7 @@ async function _subirArchivoSiHay (codigoAlu, nombreAlu) {
   if (!_archivoComprobante) return null
   try {
     var b64  = await comprimirImagen(_archivoComprobante)
-    var data = await post('subirComprobante', {
+    var data = await get('subirComprobante', {
       archivo: b64,
       nombre:  _archivoComprobante.name.replace(/.[^.]+$/, '.jpg'),
       codigo:  codigoAlu,
