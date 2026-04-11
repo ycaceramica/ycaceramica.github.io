@@ -223,14 +223,6 @@ function get (action, params) {
   return fetch(url).then(function (r) { return r.json() })
 }
 
-function post (action, params) {
-  var body = Object.assign({}, params, { action: action, token: sesionContable.token })
-  return fetch(API, {
-    method: 'POST',
-    body: JSON.stringify(body)
-  }).then(function (r) { return r.json() })
-}
-
 function pesos (n) {
   return '$' + Number(n || 0).toLocaleString('es-AR', { minimumFractionDigits: 0 })
 }
@@ -1230,7 +1222,7 @@ function renderGastos (lista, filtro) {
       '<div class="cont-card-info">' +
         '<div class="cont-card-titulo">' + (g.DESCRIPCION || '—') + '</div>' +
         '<div class="cont-card-sub">' +
-          _fechaDisplay(g.FECHA) +
+          (g.FECHA || '') +
           ' · ' + (g.TIPO || '') +
           ' · ' + (g.METODO || '') +
           (g.NOTAS ? ' · ' + g.NOTAS : '') +
@@ -1239,6 +1231,10 @@ function renderGastos (lista, filtro) {
       '<div class="cont-card-acc">' +
         '<strong style="color:var(--color-rojo,#c0392b);font-size:15px;">— ' + pesos(g.MONTO) + '</strong>' +
         '<span class="cont-codigo-badge">' + (g.ID || '') + '</span>' +
+        '<button class="cont-btn-ico" onclick="editarGasto(this)" ' +
+          'data-gasto="' + encodeURIComponent(JSON.stringify(g)) + '" title="Editar">' +
+          '<i class="fa-solid fa-pen"></i>' +
+        '</button>' +
         '<button class="cont-btn-ico cont-btn-ico--danger" onclick="confirmarEliminarGasto(this)" ' +
           'data-id="' + (g.ID || '') + '" data-desc="' + (g.DESCRIPCION || '').replace(/"/g,'&quot;') + '" title="Eliminar">' +
           '<i class="fa-solid fa-trash"></i>' +
@@ -1276,8 +1272,14 @@ function abrirModalGasto () {
   abrirModal('modalGasto')
 }
 
-function editarGasto (g) {
-  if (typeof g === 'string') { try { g = JSON.parse(g) } catch(e) { return } }
+function editarGasto (btn) {
+  var g
+  if (btn && btn.getAttribute) {
+    try { g = JSON.parse(decodeURIComponent(btn.getAttribute('data-gasto') || '{}')) } catch(e) { return }
+  } else {
+    g = btn
+    if (typeof g === 'string') { try { g = JSON.parse(g) } catch(e) { return } }
+  }
   document.getElementById('modalGastoTitulo').textContent = 'Editar gasto'
   document.getElementById('mGastoId').value          = g.ID          || ''
   document.getElementById('mGastoTipo').value        = g.TIPO        || 'Otro'
@@ -1324,7 +1326,7 @@ async function _subirArchivoGasto () {
     var reader = new FileReader()
     reader.onload = async function (e) {
       try {
-        var data = await post('subirComprobante', { archivo: e.target.result, nombre: _archivoGasto.name, codigo: 'GASTO', alumno: 'Gastos' })
+        var data = await get('subirComprobante', { archivo: e.target.result, nombre: _archivoGasto.name, codigo: 'GASTO', alumno: 'Gastos' })
         resolve(data.ok ? data.url : null)
       } catch (err) { resolve(null) }
     }
@@ -2046,7 +2048,7 @@ async function _subirArchivoSiHay (codigoAlu, nombreAlu) {
     reader.onload = async function (e) {
       try {
         var b64  = e.target.result
-        var data = await post('subirComprobante', {
+        var data = await get('subirComprobante', {
           archivo: b64,
           nombre:  _archivoComprobante.name,
           codigo:  codigoAlu,
