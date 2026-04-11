@@ -253,6 +253,60 @@ document.addEventListener('click', function (e) {
 // DASHBOARD
 // ─────────────────────────────────────────────
 
+function confirmarCerrarMes () {
+  var mes = document.getElementById('mesDashboard').value
+  if (!mes) { toast('Seleccioná un mes primero', 'err'); return }
+  var partes = mes.split('-')
+  var label  = partes[1] + '/' + partes[0]
+
+  var overlay = document.createElement('div')
+  overlay.id        = '_modalCerrarMesOverlay'
+  overlay.className = 'cont-modal-overlay'
+  overlay.innerHTML =
+    '<div class="cont-modal" style="max-width:440px">' +
+      '<div class="cont-modal-header"><h3>Cerrar mes ' + label + '</h3></div>' +
+      '<div class="cont-modal-body">' +
+        '<p style="font-size:14px;line-height:1.7;">Esto va a:</p>' +
+        '<ul style="font-size:13px;line-height:2;padding-left:18px;">' +
+          '<li>Generar un PDF resumen del mes</li>' +
+          '<li>Guardarlo en Drive bajo <strong>Resumen/' + label + '</strong></li>' +
+          '<li>Eliminar los pagos y gastos del mes del Sheets</li>' +
+        '</ul>' +
+        '<p style="font-size:13px;color:var(--color-rojo,#c0392b);margin-top:8px;font-weight:600;">Esta acción no se puede deshacer.</p>' +
+      '</div>' +
+      '<div class="cont-modal-footer">' +
+        '<button class="cont-btn-sec" id="_cerrarMesCancelar">Cancelar</button>' +
+        '<button class="cont-btn-pri" id="_cerrarMesOk" style="background:var(--color-primario)">' +
+          '<i class="fa-solid fa-box-archive"></i> Confirmar y cerrar mes' +
+        '</button>' +
+      '</div>' +
+    '</div>'
+  document.body.appendChild(overlay)
+  overlay.style.display = 'flex'
+  document.getElementById('_cerrarMesCancelar').onclick = function () { overlay.remove() }
+  document.getElementById('_cerrarMesOk').onclick = async function () {
+    overlay.remove()
+    await cerrarMes(mes)
+  }
+}
+
+async function cerrarMes (mes) {
+  showLoading('Generando resumen y cerrando mes...')
+  try {
+    var data = await get('cerrarMes', { mes: mes, token: sesionContable.token })
+    if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
+    toast('Mes cerrado. PDF guardado en Drive.', 'ok')
+    if (data.pdf_url) {
+      setTimeout(function () { window.open(data.pdf_url, '_blank') }, 800)
+    }
+    await actualizarDatos()
+  } catch (e) {
+    toast('Error de conexión', 'err')
+  } finally {
+    hideLoading()
+  }
+}
+
 async function actualizarDatos () {
   var btn = document.getElementById('btnActualizar')
   if (btn) { btn.style.opacity = '0.4'; btn.style.pointerEvents = 'none' }
@@ -284,6 +338,9 @@ async function cargarDashboard () {
     var _dg = document.getElementById('dashGastos'); if (_dg) _dg.textContent = pesos(d.totalGastos || 0)
     document.getElementById('dashSaldo').textContent     = pesos(d.saldoYCA)
     document.getElementById('dashVencidos').textContent  = d.vencidos || '0'
+
+    // Guardar datos para desglose clicable
+    window._dashData = d
 
     // Detalle por profesora
     var cont = document.getElementById('dashDetalleProfesoras')
@@ -1233,22 +1290,26 @@ function renderGastos (lista, filtro) {
   cont.innerHTML = ''
   filtrados.forEach(function (g) {
     var card = document.createElement('div')
-    card.className = 'cont-card'
+    card.className = 'cont-card cont-card--gasto'
     var icono = iconos[g.TIPO] || 'fa-receipt'
     card.innerHTML =
       '<div class="cont-card-icon"><i class="fa-solid ' + icono + '"></i></div>' +
       '<div class="cont-card-info">' +
         '<div class="cont-card-titulo">' + (g.DESCRIPCION || '—') + '</div>' +
         '<div class="cont-card-sub">' +
-          (g.FECHA || '') +
+          _fechaDisplay(g.FECHA) +
           ' · ' + (g.TIPO || '') +
           ' · ' + (g.METODO || '') +
           (g.NOTAS ? ' · ' + g.NOTAS : '') +
         '</div>' +
       '</div>' +
-      '<div class="cont-card-acc">' +
-        '<strong style="color:var(--color-rojo,#c0392b);font-size:15px;">— ' + pesos(g.MONTO) + '</strong>' +
+      '<div class="cont-card-acc cont-card-acc--wrap">' +
+        '<strong class="cont-gasto-monto">— ' + pesos(g.MONTO) + '</strong>' +
         '<span class="cont-codigo-badge">' + (g.ID || '') + '</span>' +
+        '<button class="cont-btn-detalle" onclick="verDetalleGasto(this)" ' +
+          'data-gasto="' + encodeURIComponent(JSON.stringify(g)) + '">' +
+          '<i class="fa-solid fa-eye"></i> Ver detalle' +
+        '</button>' +
         '<button class="cont-btn-ico" onclick="editarGasto(this)" ' +
           'data-gasto="' + encodeURIComponent(JSON.stringify(g)) + '" title="Editar">' +
           '<i class="fa-solid fa-pen"></i>' +
@@ -1260,6 +1321,29 @@ function renderGastos (lista, filtro) {
       '</div>'
     cont.appendChild(card)
   })
+}
+
+function verDetalleGasto (btn) {
+  var g
+  try { g = JSON.parse(decodeURIComponent(btn.getAttribute('data-gasto') || '{}')) } catch(e) { return }
+
+  var overlay = document.getElementById('modalDetalleGasto')
+  document.getElementById('dgTitulo').textContent   = g.DESCRIPCION || '—'
+  document.getElementById('dgFecha').textContent    = _fechaDisplay(g.FECHA)
+  document.getElementById('dgTipo').textContent     = g.TIPO    || '—'
+  document.getElementById('dgMetodo').textContent   = g.METODO  || '—'
+  document.getElementById('dgMonto').textContent    = pesos(g.MONTO)
+  document.getElementById('dgCodigo').textContent   = g.ID      || '—'
+  document.getElementById('dgNotas').textContent    = g.NOTAS   || '—'
+
+  var btnComprob = document.getElementById('dgBtnComprobante')
+  if (g.COMPROBANTE_URL) {
+    btnComprob.href = g.COMPROBANTE_URL
+    btnComprob.style.display = 'inline-flex'
+  } else {
+    btnComprob.style.display = 'none'
+  }
+  abrirModal('modalDetalleGasto')
 }
 
 function filtrarGastos (tipo, btn) {
