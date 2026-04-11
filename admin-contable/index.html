@@ -139,7 +139,8 @@
         <div class="cont-page-header">
           <h2><i class="fa-solid fa-chart-pie"></i> Dashboard</h2>
           <div class="cont-page-header-acc">
-            <input type="month" id="mesDashboard" onchange="cargarDashboard()">
+            <button class="cont-btn-cerrar-mes" onclick="confirmarCerrarMes()" title="Cerrar mes"><i class="fa-solid fa-box-archive"></i> Cerrar mes</button>
+        <input type="month" id="mesDashboard" onchange="cargarDashboard()">
           </div>
         </div>
 
@@ -787,6 +788,51 @@
       </div>
     </div>
     <div class="cont-visor-body" id="visorBody"></div>
+  </div>
+</div>
+
+
+<!-- Modal detalle gasto -->
+<div class="cont-modal-overlay" id="modalDetalleGasto" style="display:none">
+  <div class="cont-modal cont-modal--detalle">
+    <div class="cont-modal-header">
+      <h3 id="dgTitulo">Detalle del gasto</h3>
+      <button onclick="cerrarModal('modalDetalleGasto')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="cont-modal-body">
+      <div class="dg-grid">
+        <div class="dg-item">
+          <span class="dg-label">Fecha</span>
+          <span class="dg-valor" id="dgFecha">—</span>
+        </div>
+        <div class="dg-item">
+          <span class="dg-label">Código</span>
+          <span class="dg-valor" id="dgCodigo">—</span>
+        </div>
+        <div class="dg-item">
+          <span class="dg-label">Tipo</span>
+          <span class="dg-valor" id="dgTipo">—</span>
+        </div>
+        <div class="dg-item">
+          <span class="dg-label">Método</span>
+          <span class="dg-valor" id="dgMetodo">—</span>
+        </div>
+        <div class="dg-item dg-item--full">
+          <span class="dg-label">Notas</span>
+          <span class="dg-valor" id="dgNotas">—</span>
+        </div>
+        <div class="dg-item dg-item--monto">
+          <span class="dg-label">Monto</span>
+          <span class="dg-valor dg-monto" id="dgMonto">—</span>
+        </div>
+      </div>
+    </div>
+    <div class="cont-modal-footer">
+      <a id="dgBtnComprobante" href="#" target="_blank" class="cont-btn-comprobante" style="display:none">
+        <i class="fa-solid fa-file-image"></i> Ver comprobante
+      </a>
+      <button class="cont-btn-sec" onclick="cerrarModal('modalDetalleGasto')">Cerrar</button>
+    </div>
   </div>
 </div>
 
