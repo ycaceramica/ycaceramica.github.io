@@ -1287,3 +1287,12 @@ body {
   color: var(--color-texto);
   font-weight: 700;
 }
+
+/* Botón icono rojo (eliminar) */
+.cont-btn-ico--danger {
+  color: #c0392b !important;
+}
+.cont-btn-ico--danger:hover {
+  background: #fdecea !important;
+  color: #a93226 !important;
+}
