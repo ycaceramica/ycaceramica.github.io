@@ -213,6 +213,11 @@ function hideLoading () {
 // HELPERS
 // ─────────────────────────────────────────────
 
+function post (action, params) {
+  var body = Object.assign({}, params, { action: action, token: sesionContable.token })
+  return fetch(API, { method: 'POST', body: JSON.stringify(body) }).then(function (r) { return r.json() })
+}
+
 function get (action, params) {
   var url = API + '?action=' + action + '&token=' + encodeURIComponent(sesionContable.token)
   if (params) {
@@ -1258,8 +1263,6 @@ function abrirModalGasto () {
   document.getElementById('mGastoMonto').value       = ''
   document.getElementById('mGastoMetodo').value      = 'EFECTIVO'
   document.getElementById('mGastoNotas').value       = ''
-  var hoy = new Date(); var mm = String(hoy.getMonth()+1).padStart(2,'0'); var dd = String(hoy.getDate()).padStart(2,'0')
-  document.getElementById('mGastoFecha').value = hoy.getFullYear() + '-' + mm + '-' + dd
   document.getElementById('mGastoArchivoNombre').textContent = 'Sin archivo'
   document.getElementById('mGastoArchivoInput').value = ''
   document.getElementById('mGastoPreview').style.display = 'none'
@@ -1284,9 +1287,6 @@ function editarGasto (btn) {
   document.getElementById('mGastoMonto').value       = g.MONTO       || ''
   document.getElementById('mGastoMetodo').value      = g.METODO      || 'EFECTIVO'
   document.getElementById('mGastoNotas').value       = g.NOTAS       || ''
-  // Convertir fecha dd/mm/yyyy a yyyy-mm-dd para el input
-  var _fd = (g.FECHA || '').split('/')
-  document.getElementById('mGastoFecha').value = _fd.length === 3 ? (_fd[2] + '-' + _fd[1].padStart(2,'0') + '-' + _fd[0].padStart(2,'0')) : ''
   document.getElementById('mGastoArchivoNombre').textContent = 'Sin archivo'
   document.getElementById('mGastoArchivoInput').value = ''
   document.getElementById('mGastoPreview').style.display = 'none'
@@ -1323,16 +1323,12 @@ function previsualizarComprobanteGasto (input) {
 // ─────────────────────────────────────────────
 // COMPRESIÓN DE IMÁGENES (max 1200px, JPG 0.72)
 // ─────────────────────────────────────────────
-
 function comprimirImagen (archivo, maxPx, calidad) {
   maxPx   = maxPx   || 1200
   calidad = calidad || 0.72
   return new Promise(function (resolve) {
     if (!archivo.type.startsWith('image/')) {
-      var r = new FileReader()
-      r.onload = function (e) { resolve(e.target.result) }
-      r.readAsDataURL(archivo)
-      return
+      var r = new FileReader(); r.onload = function(e){ resolve(e.target.result) }; r.readAsDataURL(archivo); return
     }
     var r = new FileReader()
     r.onload = function (e) {
@@ -1381,8 +1377,8 @@ async function guardarGasto () {
   }
 
   try {
-    var _fi = (document.getElementById('mGastoFecha').value || '').split('-')
-    var fechaGasto = _fi.length === 3 ? (_fi[2] + '/' + _fi[1] + '/' + _fi[0]) : ''
+    var _fv = (document.getElementById('mGastoFecha').value || '').split('-')
+    var fechaGasto = _fv.length === 3 ? (_fv[2] + '/' + _fv[1] + '/' + _fv[0]) : ''
     var params = {
       tipo:        tipo,
       descripcion: desc,
@@ -1824,13 +1820,13 @@ async function guardarEdicionAlumno () {
   try {
     var cursoSel = document.getElementById('fichaEditCursoSel')
     var data = await get('editAlumno', {
-      codigo:     codigo,
-      nombre:     document.getElementById('fichaEditNombre').value.trim(),
-      telefono:   document.getElementById('fichaEditTel').value.trim(),
-      email:      document.getElementById('fichaEditEmail').value.trim(),
-      instagram:  document.getElementById('fichaEditIg').value.trim(),
-      curso:      cursoSel ? cursoSel.value : '',
-      descuento:  document.getElementById('fichaEditDescuento').value || 0,
+      codigo:       codigo,
+      nombre:       document.getElementById('fichaEditNombre').value.trim(),
+      telefono:     document.getElementById('fichaEditTel').value.trim(),
+      email:        document.getElementById('fichaEditEmail').value.trim(),
+      instagram:    document.getElementById('fichaEditIg').value.trim(),
+      curso:        cursoSel ? cursoSel.value : '',
+      descuento:    document.getElementById('fichaEditDescuento').value || 0,
       fecha_inicio: document.getElementById('fichaEditFechaInicio').value || ''
     })
 
