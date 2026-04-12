@@ -1541,3 +1541,80 @@ body {
   .cont-pago-fila1 { flex-wrap: wrap; }
   .cont-card--pago .cont-btn-detalle { width: 100%; justify-content: center; }
 }
+
+/* ─── Modal pago form ─── */
+.cont-modal--pago-form { max-width: 520px; width: 95%; }
+
+/* Descuento preview */
+.cont-descuento-wrap { margin-bottom: 4px; }
+.cont-descuento-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-primario-light, #f3ebe3);
+  border: 1.5px solid var(--color-primario, #6b4226);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 12.5px;
+  color: var(--color-primario, #6b4226);
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+/* Input con sufijo (%) */
+.cont-input-suffix {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--color-borde);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+.cont-input-suffix input {
+  border: none !important;
+  border-radius: 0 !important;
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+}
+.cont-input-suffix span {
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-texto-sub);
+  background: var(--color-fondo-alt, #f0ebe4);
+  border-left: 1px solid var(--color-borde);
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Edit pago alumno header */
+.cont-edit-pago-alumno {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--color-primario-light, #f3ebe3);
+  border-radius: 10px;
+  margin-bottom: 14px;
+}
+.cont-edit-pago-alumno i {
+  color: var(--color-primario, #6b4226);
+  font-size: 16px;
+}
+.cont-edit-pago-alumno strong {
+  display: block;
+  font-size: 13.5px;
+  color: var(--color-texto);
+}
+.cont-edit-pago-alumno span {
+  font-size: 12px;
+  color: var(--color-texto-sub);
+}
+
+@media (max-width: 520px) {
+  .cont-modal--pago-form .cont-campo-fila {
+    flex-direction: column;
+  }
+}
