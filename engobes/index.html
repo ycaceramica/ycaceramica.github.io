@@ -135,10 +135,13 @@
             <!-- FUNDENTE -->
             <div class="componente">
               <div class="componente-header">
-                <span class="componente-nombre">⚪ Fundente</span>
+                <label class="componente-check">
+                  <input type="checkbox" id="checkFlux" onchange="toggleFlux(); calcular()" checked>
+                  <span class="componente-nombre">⚪ Fundente</span>
+                </label>
                 <span class="componente-ref">Ref: 10%</span>
               </div>
-              <div class="componente-control">
+              <div class="componente-control" id="controlFlux">
                 <input type="range" id="sliderFlux" min="0" max="100" value="10" oninput="sincronizarInput('Flux'); calcular()">
                 <input type="number" id="inputFlux" min="0" max="100" value="10" oninput="sincronizarSlider('Flux'); calcular()">
                 <span class="componente-pct">%</span>
