@@ -133,6 +133,22 @@ function toggleFeldespato(){
 }
 
 // ─────────────────────────────────────────────
+// TOGGLE FUNDENTE
+// ─────────────────────────────────────────────
+
+function toggleFlux(){
+  const checked = document.getElementById("checkFlux").checked
+  document.getElementById("controlFlux").classList.toggle("oculto", !checked)
+  if(!checked) setValor("Flux", 0)
+  else {
+    const conFeldes = document.getElementById("checkFeldespato").checked
+    const refKey    = conFeldes ? "conFeldespato" : "sinFeldespato"
+    setValor("Flux", REFS[tipoActual][refKey].Flux)
+  }
+  calcular()
+}
+
+// ─────────────────────────────────────────────
 // INGREDIENTES PERSONALIZADOS DINÁMICOS
 // ─────────────────────────────────────────────
 
@@ -263,12 +279,13 @@ function obtenerComponentes(){
   const conColor  = document.getElementById("checkColorante").checked
 
   const pctTinkar     = parseFloat(document.getElementById("inputTinkar").value)     || 0
-  const pctFlux       = parseFloat(document.getElementById("inputFlux").value)       || 0
+  const conFlux   = document.getElementById("checkFlux") ? document.getElementById("checkFlux").checked : true
+  const pctFlux       = conFlux ? (parseFloat(document.getElementById("inputFlux").value) || 0) : 0
   const pctColorante  = conColor  ? (parseFloat(document.getElementById("inputColorante").value)  || 0) : 0
   const pctFeldespato = conFeldes ? (parseFloat(document.getElementById("inputFeldespato").value) || 0) : 0
 
   const componentes = [{ nombre: "Arcilla Base", emoji: "🟤", pct: pctTinkar }]
-  componentes.push({ nombre: "Fundente", emoji: "⚪", pct: pctFlux })
+  if(conFlux) componentes.push({ nombre: "Fundente", emoji: "⚪", pct: pctFlux })
 
   if(conColor){
     componentes.push({
@@ -287,7 +304,7 @@ function obtenerComponentes(){
     sumaCustom += ing.pct
   })
 
-  return { total, componentes, suma: pctTinkar + pctFlux + pctColorante + pctFeldespato + sumaCustom }
+  return { total, componentes, suma: pctTinkar + (conFlux ? pctFlux : 0) + pctColorante + pctFeldespato + sumaCustom }
 }
 
 function calcular(){
