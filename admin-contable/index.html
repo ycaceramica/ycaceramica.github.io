@@ -321,7 +321,7 @@
 
 <!-- Modal pago -->
 <div class="cont-modal-overlay" id="modalPago" style="display:none">
-  <div class="cont-modal">
+  <div class="cont-modal cont-modal--pago-form">
     <div class="cont-modal-header">
       <h3>Registrar pago</h3>
       <button onclick="cerrarModal('modalPago')"><i class="fa-solid fa-xmark"></i></button>
@@ -342,13 +342,34 @@
       </div>
       <div class="cont-campo">
         <label>Curso *</label>
-        <select id="mPagoCurso">
+        <select id="mPagoCurso" onchange="recalcularMontoPago()">
           <option value="">Seleccioná un curso...</option>
         </select>
       </div>
+
+      <!-- Descuento puntual -->
+      <div class="cont-descuento-wrap">
+        <div class="cont-campo-fila">
+          <div class="cont-campo">
+            <label>Descuento puntual</label>
+            <div class="cont-input-suffix">
+              <input type="number" id="mPagoDescPct" placeholder="0" min="0" max="100" oninput="recalcularMontoPago()">
+              <span>%</span>
+            </div>
+          </div>
+          <div class="cont-campo">
+            <label>Motivo del descuento</label>
+            <input type="text" id="mPagoDescMotivo" placeholder="Ej: Mes inaugural, Beca...">
+          </div>
+        </div>
+        <div class="cont-descuento-preview" id="mPagoDescPreview" style="display:none">
+          <span id="mPagoDescTexto"></span>
+        </div>
+      </div>
+
       <div class="cont-campo-fila">
         <div class="cont-campo">
-          <label>Monto *</label>
+          <label>Monto final *</label>
           <input type="number" id="mPagoMonto" placeholder="0">
         </div>
         <div class="cont-campo">
@@ -359,6 +380,19 @@
           </select>
         </div>
       </div>
+
+      <!-- Fechas -->
+      <div class="cont-campo-fila">
+        <div class="cont-campo">
+          <label>Fecha de pago</label>
+          <input type="date" id="mPagoFecha">
+        </div>
+        <div class="cont-campo">
+          <label>Vencimiento</label>
+          <input type="date" id="mPagoVencimiento">
+        </div>
+      </div>
+
       <div class="cont-campo">
         <label>Comprobante (PDF o imagen)</label>
         <div class="cont-file-wrap">
