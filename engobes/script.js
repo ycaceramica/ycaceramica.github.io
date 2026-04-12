@@ -133,13 +133,72 @@ function toggleFeldespato(){
 }
 
 // ─────────────────────────────────────────────
-// TOGGLE CUSTOM
+// INGREDIENTES PERSONALIZADOS DINÁMICOS
 // ─────────────────────────────────────────────
 
-function toggleCustom(){
-  const checked = document.getElementById("checkCustom").checked
-  document.getElementById("controlCustom").classList.toggle("oculto", !checked)
+let ingredientesCustom = []
+
+function agregarIngrediente() {
+  const id = Date.now()
+  ingredientesCustom.push({ id, nombre: '', pct: 10 })
+  renderIngredientes()
   calcular()
+}
+
+function eliminarIngrediente(id) {
+  ingredientesCustom = ingredientesCustom.filter(i => i.id !== id)
+  renderIngredientes()
+  calcular()
+}
+
+function renderIngredientes() {
+  const lista = document.getElementById('listaIngredientesCustom')
+  if (!lista) return
+  lista.innerHTML = ''
+  ingredientesCustom.forEach(ing => {
+    const div = document.createElement('div')
+    div.className = 'componente componente-custom-dinamico'
+    div.innerHTML = `
+      <div class="componente-header">
+        <span class="componente-nombre">
+          ✏️ <input type="text" class="nombre-custom-input" placeholder="Nombre del ingrediente"
+            value="${ing.nombre}" oninput="actualizarNombreIng(${ing.id}, this.value)">
+        </span>
+        <button class="btn-eliminar-ingrediente" onclick="eliminarIngrediente(${ing.id})" title="Eliminar">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="componente-control">
+        <input type="range" id="sliderIng${ing.id}" min="0" max="100" value="${ing.pct}"
+          oninput="actualizarPctIng(${ing.id}, this.value); sincronizarInputIng(${ing.id})">
+        <input type="number" id="inputIng${ing.id}" min="0" max="100" value="${ing.pct}"
+          oninput="actualizarPctIng(${ing.id}, this.value); sincronizarSliderIng(${ing.id})">
+        <span class="componente-pct">%</span>
+      </div>`
+    lista.appendChild(div)
+  })
+}
+
+function actualizarNombreIng(id, valor) {
+  const ing = ingredientesCustom.find(i => i.id === id)
+  if (ing) ing.nombre = valor
+}
+
+function actualizarPctIng(id, valor) {
+  const ing = ingredientesCustom.find(i => i.id === id)
+  if (ing) { ing.pct = parseFloat(valor) || 0; calcular() }
+}
+
+function sincronizarInputIng(id) {
+  const s = document.getElementById('sliderIng' + id)
+  const i = document.getElementById('inputIng' + id)
+  if (s && i) i.value = s.value
+}
+
+function sincronizarSliderIng(id) {
+  const s = document.getElementById('sliderIng' + id)
+  const i = document.getElementById('inputIng' + id)
+  if (s && i) s.value = i.value
 }
 
 // ─────────────────────────────────────────────
@@ -221,12 +280,14 @@ function obtenerComponentes(){
 
   if(conFeldes) componentes.push({ nombre: "Feldespato", emoji: "🪨", pct: pctFeldespato })
 
-  const conCustom    = document.getElementById("checkCustom").checked
-  const pctCustom    = conCustom ? (parseFloat(document.getElementById("inputCustom").value) || 0) : 0
-  const nombreCustom = document.getElementById("nombreCustom").value.trim() || "Ingrediente"
-  if(conCustom) componentes.push({ nombre: nombreCustom, emoji: "✏️", pct: pctCustom })
+  // Ingredientes personalizados dinámicos
+  let sumaCustom = 0
+  ingredientesCustom.forEach(ing => {
+    componentes.push({ nombre: ing.nombre || 'Ingrediente', emoji: '✏️', pct: ing.pct })
+    sumaCustom += ing.pct
+  })
 
-  return { total, componentes, suma: pctTinkar + pctFlux + pctColorante + pctFeldespato + pctCustom }
+  return { total, componentes, suma: pctTinkar + pctFlux + pctColorante + pctFeldespato + sumaCustom }
 }
 
 function calcular(){
@@ -601,6 +662,13 @@ async function generarPDFItems(items, filename){
   doc.save(filename || 'YCA_Ceramica_Engobes.pdf')
 }
 
+// Feldespato activo por defecto al cargar
+;(function() {
+  const refs = REFS[tipoActual]['conFeldespato']
+  document.getElementById('refTinkar').innerText    = 'Ref: ' + refs.Tinkar + '%'
+  document.getElementById('refColorante').innerText = 'Ref: ' + refs.Colorante + '%'
+  aplicarRefs(refs, true)
+})()
 calcular()
 renderizarHistorial()
 
