@@ -1231,28 +1231,75 @@ function renderPagos (lista, filtro) {
   filtrados.forEach(function (p) {
     var estadoClass = p.ESTADO === 'AL DIA' ? 'cont-badge-verde' :
                       p.ESTADO === 'VENCIDO' ? 'cont-badge-rojo' : 'cont-badge-gris'
+    var pEncoded = encodeURIComponent(JSON.stringify(p))
 
     var card = document.createElement('div')
-    card.className = 'cont-card'
+    card.className = 'cont-card cont-card--pago'
     card.innerHTML =
       '<div class="cont-card-icon"><i class="fa-solid fa-money-bill-wave"></i></div>' +
       '<div class="cont-card-info">' +
         '<div class="cont-card-titulo">' + (p.NOMBRE_ALUMNO || '—') + ' — ' + (p.CURSO || '') + '</div>' +
         '<div class="cont-card-sub">' +
-          (p.FECHA_PAGO || '') +
-          (p.VENCIMIENTO && p.VENCIMIENTO !== '-' ? ' · Vence: ' + p.VENCIMIENTO : '') +
-          ' · ' + (p.METODO || '') +
-          (p.NOTAS ? ' · ' + p.NOTAS : '') +
+          '<span class="cont-codigo-badge cont-codigo-badge--inline">' + (p.CODIGO_ALUMNO || '') + '</span>' +
+          ' · ' + _fechaDisplay(p.FECHA_PAGO) +
+          (p.VENCIMIENTO && p.VENCIMIENTO !== '-' ? ' · vence ' + _fechaDisplay(p.VENCIMIENTO) : '') +
         '</div>' +
       '</div>' +
-      '<div class="cont-card-acc">' +
-        '<strong style="color:var(--color-primario);font-size:15px;">' + pesos(p.MONTO) + '</strong>' +
-        '<span class="cont-badge ' + estadoClass + '">' + (p.ESTADO || '') + '</span>' +
-        (p.COMPROBANTE_URL ? '<a href="' + p.COMPROBANTE_URL + '" target="_blank" class="cont-btn-ico" title="Ver comprobante"><i class="fa-solid fa-file"></i></a>' : '') +
-        '<span class="cont-codigo-badge">' + (p.CODIGO_ALUMNO || '') + '</span>' +
+      '<div class="cont-pago-acc">' +
+        '<div class="cont-pago-fila1">' +
+          '<strong class="cont-pago-monto">' + pesos(p.MONTO) + '</strong>' +
+          '<span class="cont-badge ' + estadoClass + '">' + (p.ESTADO || '') + '</span>' +
+        '</div>' +
+        '<button class="cont-btn-detalle" onclick="verDetallePago(this)" data-pago="' + pEncoded + '">' +
+          '<i class="fa-solid fa-eye"></i> Ver detalle' +
+        '</button>' +
       '</div>'
     cont.appendChild(card)
   })
+}
+
+function verDetallePago (btn) {
+  var p
+  try { p = JSON.parse(decodeURIComponent(btn.getAttribute('data-pago') || '{}')) } catch(e) { return }
+
+  var existente = document.getElementById('_modalPagoDetOverlay')
+  if (existente) existente.remove()
+
+  var metodoIcon = p.METODO === 'EFECTIVO' ? 'fa-money-bill' : 'fa-building-columns'
+  var estadoClass = p.ESTADO === 'AL DIA' ? 'cont-badge-verde' : p.ESTADO === 'VENCIDO' ? 'cont-badge-rojo' : 'cont-badge-gris'
+
+  var overlay = document.createElement('div')
+  overlay.id        = '_modalPagoDetOverlay'
+  overlay.className = 'cont-modal-overlay'
+  overlay.innerHTML =
+    '<div class="cont-modal cont-modal--detalle" style="max-width:440px;width:95%">' +
+      '<div class="cont-modal-header">' +
+        '<h3>Detalle del pago</h3>' +
+        '<button id="_pagoDetClose"><i class="fa-solid fa-xmark"></i></button>' +
+      '</div>' +
+      '<div class="cont-modal-body">' +
+        '<div class="dg-grid">' +
+          '<div class="dg-item"><span class="dg-label">Alumno</span><span class="dg-valor">' + (p.NOMBRE_ALUMNO||'—') + '</span></div>' +
+          '<div class="dg-item"><span class="dg-label">Código</span><span class="dg-valor">' + (p.CODIGO_ALUMNO||'—') + '</span></div>' +
+          '<div class="dg-item dg-item--full"><span class="dg-label">Curso</span><span class="dg-valor">' + (p.CURSO||'—') + '</span></div>' +
+          '<div class="dg-item"><span class="dg-label">Fecha de pago</span><span class="dg-valor">' + _fechaDisplay(p.FECHA_PAGO) + '</span></div>' +
+          '<div class="dg-item"><span class="dg-label">Vencimiento</span><span class="dg-valor">' + (p.VENCIMIENTO && p.VENCIMIENTO !== '-' ? _fechaDisplay(p.VENCIMIENTO) : '—') + '</span></div>' +
+          '<div class="dg-item"><span class="dg-label">Método</span><span class="dg-valor"><i class="fa-solid ' + metodoIcon + '"></i> ' + (p.METODO||'—') + '</span></div>' +
+          '<div class="dg-item"><span class="dg-label">Estado</span><span class="dg-valor"><span class="cont-badge ' + estadoClass + '">' + (p.ESTADO||'—') + '</span></span></div>' +
+          (p.NOTAS ? '<div class="dg-item dg-item--full"><span class="dg-label">Notas</span><span class="dg-valor">' + p.NOTAS + '</span></div>' : '') +
+          '<div class="dg-item dg-item--monto"><span class="dg-label">Monto</span><span class="dg-valor dg-monto" style="color:var(--color-primario)">' + pesos(p.MONTO) + '</span></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="cont-modal-footer">' +
+        (p.COMPROBANTE_URL ? '<a href="' + p.COMPROBANTE_URL + '" target="_blank" class="cont-btn-comprobante"><i class="fa-solid fa-file-image"></i> Ver comprobante</a>' : '') +
+        '<button class="cont-btn-sec" id="_pagoDetCerrar">Cerrar</button>' +
+      '</div>' +
+    '</div>'
+
+  document.body.appendChild(overlay)
+  overlay.style.display = 'flex'
+  document.getElementById('_pagoDetClose').onclick  = function () { overlay.remove() }
+  document.getElementById('_pagoDetCerrar').onclick = function () { overlay.remove() }
 }
 
 function filtrarPagos (estado, btn) {
