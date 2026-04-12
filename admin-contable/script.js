@@ -1347,7 +1347,7 @@ function confirmarEnviarRecibo (p) {
     overlay.remove()
     showLoading('Generando y enviando recibo...')
     try {
-      var data = await get('enviarRecibo', { pago_id: p.ID, token: sesionContable.token })
+      var data = await get('enviarRecibo', { pago_id: p.ID })
       if (!data.ok) { toast('Error: ' + (data.error||''), 'err'); return }
       toast('Recibo enviado a ' + data.email, 'ok')
     } catch(e) { toast('Error de conexión', 'err') }
