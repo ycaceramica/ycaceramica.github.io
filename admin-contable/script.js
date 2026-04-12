@@ -253,6 +253,61 @@ document.addEventListener('click', function (e) {
 // DASHBOARD
 // ─────────────────────────────────────────────
 
+function abrirDesgloseDash (tipo) {
+  var d = window._dashData
+  if (!d) return
+
+  var titulo, items
+  if (tipo === 'pagos') {
+    titulo = 'Total ingresado — Detalle de pagos'
+    var pagos = d.pagos || []
+    if (!pagos.length) { toast('Sin pagos este mes', 'err'); return }
+    items = pagos.map(function(p) {
+      return '<div class="ddash-item">' +
+        '<div class="ddash-info"><strong>' + (p.NOMBRE_ALUMNO||'—') + '</strong><span>' + (p.CURSO||'') + ' · ' + (p.FECHA_PAGO||'') + ' · ' + (p.METODO||'') + '</span></div>' +
+        '<span class="ddash-monto">+ ' + pesos(p.MONTO) + '</span>' +
+      '</div>'
+    }).join('')
+  } else if (tipo === 'profesoras') {
+    titulo = 'A profesoras — Gastos'
+    var profs = (d.gastosDetalle || []).filter(function(g){ return (g.TIPO+'').toLowerCase() === 'profesora' })
+    if (!profs.length) { toast('Sin gastos a profesoras este mes', 'err'); return }
+    items = profs.map(function(g) {
+      return '<div class="ddash-item">' +
+        '<div class="ddash-info"><strong>' + (g.DESCRIPCION||'—') + '</strong><span>' + _fechaDisplay(g.FECHA) + ' · ' + (g.METODO||'') + '</span></div>' +
+        '<span class="ddash-monto ddash-monto--neg">— ' + pesos(g.MONTO) + '</span>' +
+      '</div>'
+    }).join('')
+  } else {
+    titulo = 'Gastos directos — Detalle'
+    var gastosAll = d.gastosDetalle || []
+    if (!gastosAll.length) { toast('Sin gastos este mes', 'err'); return }
+    items = gastosAll.map(function(g) {
+      return '<div class="ddash-item">' +
+        '<div class="ddash-info"><strong>' + (g.DESCRIPCION||'—') + '</strong><span>' + _fechaDisplay(g.FECHA) + ' · ' + (g.TIPO||'') + ' · ' + (g.METODO||'') + '</span></div>' +
+        '<span class="ddash-monto ddash-monto--neg">— ' + pesos(g.MONTO) + '</span>' +
+      '</div>'
+    }).join('')
+  }
+
+  var existente = document.getElementById('_modalDashOverlay')
+  if (existente) existente.remove()
+  var overlay = document.createElement('div')
+  overlay.id        = '_modalDashOverlay'
+  overlay.className = 'cont-modal-overlay'
+  overlay.innerHTML =
+    '<div class="cont-modal cont-modal--dash" style="max-width:500px;width:95%">' +
+      '<div class="cont-modal-header">' +
+        '<h3>' + titulo + '</h3>' +
+        '<button id="_dashModalClose"><i class="fa-solid fa-xmark"></i></button>' +
+      '</div>' +
+      '<div class="cont-modal-body ddash-lista">' + items + '</div>' +
+    '</div>'
+  document.body.appendChild(overlay)
+  overlay.style.display = 'flex'
+  document.getElementById('_dashModalClose').onclick = function () { overlay.remove() }
+}
+
 function confirmarCerrarMes () {
   var mes = document.getElementById('mesDashboard').value
   if (!mes) { toast('Seleccioná un mes primero', 'err'); return }
@@ -342,6 +397,17 @@ async function cargarDashboard () {
     // Guardar datos para desglose clicable
     window._dashData = d
 
+    // Hacer tarjetas clicables
+    var _dc = document.getElementById('dashIngresado')
+    if (_dc && _dc.closest) {
+      var cardIng  = _dc.closest('.dash-card')
+      var cardProf = document.getElementById('dashEgresos')  && document.getElementById('dashEgresos').closest('.dash-card')
+      var cardGast = document.getElementById('dashGastos')   && document.getElementById('dashGastos').closest('.dash-card')
+      if (cardIng)  { cardIng.style.cursor  = 'pointer'; cardIng.onclick  = function(){ abrirDesgloseDash('pagos') } }
+      if (cardProf) { cardProf.style.cursor = 'pointer'; cardProf.onclick = function(){ abrirDesgloseDash('profesoras') } }
+      if (cardGast) { cardGast.style.cursor = 'pointer'; cardGast.onclick = function(){ abrirDesgloseDash('gastos') } }
+    }
+
     // Detalle por profesora
     var cont = document.getElementById('dashDetalleProfesoras')
     var egresos = d.egresos || {}
@@ -400,9 +466,7 @@ function renderAlumnos (lista) {
       '<div class="cont-card-info">' +
         '<div class="cont-card-titulo">' + (a.NOMBRE || '—') + '</div>' +
         '<div class="cont-card-sub">' +
-          (a.EMAIL || '') +
-          (a.INSTAGRAM ? ' · ' + a.INSTAGRAM : '') +
-          (a.TELEFONO ? ' · ' + a.TELEFONO : '') +
+          (a.CURSO || 'Sin curso asignado') +
         '</div>' +
       '</div>' +
       '<div class="cont-card-acc">' +
@@ -1303,20 +1367,22 @@ function renderGastos (lista, filtro) {
           (g.NOTAS ? ' · ' + g.NOTAS : '') +
         '</div>' +
       '</div>' +
-      '<div class="cont-card-acc cont-card-acc--wrap">' +
-        '<strong class="cont-gasto-monto">— ' + pesos(g.MONTO) + '</strong>' +
-        '<span class="cont-codigo-badge">' + (g.ID || '') + '</span>' +
+      '<div class="cont-gasto-acc">' +
+        '<div class="cont-gasto-fila1">' +
+          '<strong class="cont-gasto-monto">— ' + pesos(g.MONTO) + '</strong>' +
+          '<span class="cont-codigo-badge">' + (g.ID || '') + '</span>' +
+          '<button class="cont-btn-ico" onclick="editarGasto(this)" ' +
+            'data-gasto="' + encodeURIComponent(JSON.stringify(g)) + '" title="Editar">' +
+            '<i class="fa-solid fa-pen"></i>' +
+          '</button>' +
+          '<button class="cont-btn-ico cont-btn-ico--danger" onclick="confirmarEliminarGasto(this)" ' +
+            'data-id="' + (g.ID || '') + '" data-desc="' + (g.DESCRIPCION || '').replace(/"/g,'&quot;') + '" title="Eliminar">' +
+            '<i class="fa-solid fa-trash"></i>' +
+          '</button>' +
+        '</div>' +
         '<button class="cont-btn-detalle" onclick="verDetalleGasto(this)" ' +
           'data-gasto="' + encodeURIComponent(JSON.stringify(g)) + '">' +
           '<i class="fa-solid fa-eye"></i> Ver detalle' +
-        '</button>' +
-        '<button class="cont-btn-ico" onclick="editarGasto(this)" ' +
-          'data-gasto="' + encodeURIComponent(JSON.stringify(g)) + '" title="Editar">' +
-          '<i class="fa-solid fa-pen"></i>' +
-        '</button>' +
-        '<button class="cont-btn-ico cont-btn-ico--danger" onclick="confirmarEliminarGasto(this)" ' +
-          'data-id="' + (g.ID || '') + '" data-desc="' + (g.DESCRIPCION || '').replace(/"/g,'&quot;') + '" title="Eliminar">' +
-          '<i class="fa-solid fa-trash"></i>' +
         '</button>' +
       '</div>'
     cont.appendChild(card)
