@@ -1290,16 +1290,142 @@ function verDetallePago (btn) {
           '<div class="dg-item dg-item--monto"><span class="dg-label">Monto</span><span class="dg-valor dg-monto" style="color:var(--color-primario)">' + pesos(p.MONTO) + '</span></div>' +
         '</div>' +
       '</div>' +
-      '<div class="cont-modal-footer">' +
+      '<div class="cont-modal-footer" style="flex-wrap:wrap;gap:8px;">' +
         (p.COMPROBANTE_URL ? '<a href="' + p.COMPROBANTE_URL + '" target="_blank" class="cont-btn-comprobante"><i class="fa-solid fa-file-image"></i> Ver comprobante</a>' : '') +
+        '<button class="cont-btn-ico" id="_pagoDetEditar" title="Editar"><i class="fa-solid fa-pen"></i></button>' +
+        '<button class="cont-btn-ico cont-btn-ico--danger" id="_pagoDetEliminar" title="Eliminar"><i class="fa-solid fa-trash"></i></button>' +
         '<button class="cont-btn-sec" id="_pagoDetCerrar">Cerrar</button>' +
       '</div>' +
     '</div>'
 
   document.body.appendChild(overlay)
   overlay.style.display = 'flex'
-  document.getElementById('_pagoDetClose').onclick  = function () { overlay.remove() }
-  document.getElementById('_pagoDetCerrar').onclick = function () { overlay.remove() }
+  document.getElementById('_pagoDetClose').onclick   = function () { overlay.remove() }
+  document.getElementById('_pagoDetCerrar').onclick  = function () { overlay.remove() }
+  document.getElementById('_pagoDetEditar').onclick  = function () { overlay.remove(); abrirEditarPago(p) }
+  document.getElementById('_pagoDetEliminar').onclick = function () { overlay.remove(); confirmarEliminarPago(p) }
+}
+
+async function abrirEditarPago (p) {
+  var existente = document.getElementById('_modalEditPagoOverlay')
+  if (existente) existente.remove()
+
+  var overlay = document.createElement('div')
+  overlay.id        = '_modalEditPagoOverlay'
+  overlay.className = 'cont-modal-overlay'
+  overlay.innerHTML =
+    '<div class="cont-modal" style="max-width:420px;width:95%">' +
+      '<div class="cont-modal-header"><h3>Editar pago</h3><button id="_editPagoClose"><i class="fa-solid fa-xmark"></i></button></div>' +
+      '<div class="cont-modal-body">' +
+        '<div class="cont-edit-pago-alumno">' +
+          '<i class="fa-solid fa-user"></i>' +
+          '<div><strong>' + (p.NOMBRE_ALUMNO||'—') + '</strong><span>' + (p.CURSO||'') + '</span></div>' +
+        '</div>' +
+        '<div class="cont-campo-fila">' +
+          '<div class="cont-campo"><label>Fecha de pago</label><input type="date" id="_editPagoFecha" value="' + _fechaParaInput(p.FECHA_PAGO) + '"></div>' +
+          '<div class="cont-campo"><label>Vencimiento</label><input type="date" id="_editPagoVenc" value="' + (p.VENCIMIENTO && p.VENCIMIENTO!=='-' ? _fechaParaInput(p.VENCIMIENTO) : '') + '"></div>' +
+        '</div>' +
+        '<div class="cont-campo-fila">' +
+          '<div class="cont-campo"><label>Descuento puntual</label>' +
+            '<div class="cont-input-suffix"><input type="number" id="_editPagoDescPct" placeholder="0" min="0" max="100" value="' + (_extraerDescPct(p.NOTAS)) + '"><span>%</span></div>' +
+          '</div>' +
+          '<div class="cont-campo"><label>Motivo descuento</label><input type="text" id="_editPagoDescMotivo" placeholder="Mes inaugural, Beca..." value="' + (_extraerDescMotivo(p.NOTAS)) + '"></div>' +
+        '</div>' +
+        '<div class="cont-campo-fila">' +
+          '<div class="cont-campo"><label>Monto *</label><input type="number" id="_editPagoMonto" value="' + (p.MONTO||'') + '"></div>' +
+          '<div class="cont-campo"><label>Método</label>' +
+            '<select id="_editPagoMetodo">' +
+              '<option value="EFECTIVO"' + (p.METODO==='EFECTIVO'?' selected':'') + '>Efectivo</option>' +
+              '<option value="TRANSFERENCIA"' + (p.METODO==='TRANSFERENCIA'?' selected':'') + '>Transferencia</option>' +
+            '</select>' +
+          '</div>' +
+        '</div>' +
+        '<div class="cont-campo"><label>Estado</label>' +
+          '<select id="_editPagoEstado">' +
+            '<option value="AL DIA"' + (p.ESTADO==='AL DIA'?' selected':'') + '>Al día</option>' +
+            '<option value="VENCIDO"' + (p.ESTADO==='VENCIDO'?' selected':'') + '>Vencido</option>' +
+          '</select>' +
+        '</div>' +
+        '<div class="cont-campo"><label>Notas</label><textarea id="_editPagoNotas" rows="2">' + (_notasSinDescuento(p.NOTAS)) + '</textarea></div>' +
+      '</div>' +
+      '<div class="cont-modal-footer">' +
+        '<button class="cont-btn-sec" id="_editPagoCancelar">Cancelar</button>' +
+        '<button class="cont-btn-pri" id="_editPagoGuardar"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>' +
+      '</div>' +
+    '</div>'
+
+  document.body.appendChild(overlay)
+  overlay.style.display = 'flex'
+  document.getElementById('_editPagoClose').onclick    = function () { overlay.remove() }
+  document.getElementById('_editPagoCancelar').onclick = function () { overlay.remove() }
+  document.getElementById('_editPagoGuardar').onclick  = async function () {
+    var monto = document.getElementById('_editPagoMonto').value.trim()
+    if (!monto) { toast('Ingresá el monto', 'err'); return }
+    showLoading('Guardando...')
+    try {
+      var _efp = (document.getElementById('_editPagoFecha').value||'').split('-')
+      var _efv = (document.getElementById('_editPagoVenc').value||'').split('-')
+      var efFecha = _efp.length===3 ? (_efp[2]+'-'+_efp[1]+'-'+_efp[0]) : ''
+      var efVenc  = _efv.length===3 ? (_efv[2]+'-'+_efv[1]+'-'+_efv[0]) : ''
+      var edDescPct    = parseFloat(document.getElementById('_editPagoDescPct').value) || 0
+      var edDescMotivo = document.getElementById('_editPagoDescMotivo').value.trim()
+      var edNotasBase  = document.getElementById('_editPagoNotas').value.trim()
+      var edNotasFinal = (edDescPct > 0 && edDescMotivo ? 'Descuento: ' + edDescMotivo + ' (' + edDescPct + '%) · ' : '') + edNotasBase
+
+      var data = await get('editPago', {
+        id:          p.ID,
+        monto:       monto,
+        metodo:      document.getElementById('_editPagoMetodo').value,
+        estado:      document.getElementById('_editPagoEstado').value,
+        fecha_pago:  efFecha,
+        vencimiento: efVenc,
+        notas:       edNotasFinal.trim()
+      })
+      if (!data.ok) { toast('Error: ' + (data.error||''), 'err'); return }
+      toast('Pago actualizado', 'ok')
+      overlay.remove()
+      await cargarPagos(codigoAlumnoFiltro)
+      cargarDashboard()
+    } catch(e) { toast('Error de conexión', 'err') }
+    finally { hideLoading() }
+  }
+}
+
+function confirmarEliminarPago (p) {
+  var existente = document.getElementById('_modalDelPagoOverlay')
+  if (existente) existente.remove()
+
+  var overlay = document.createElement('div')
+  overlay.id        = '_modalDelPagoOverlay'
+  overlay.className = 'cont-modal-overlay'
+  overlay.innerHTML =
+    '<div class="cont-modal" style="max-width:400px;width:95%">' +
+      '<div class="cont-modal-header"><h3>¿Eliminar pago?</h3></div>' +
+      '<div class="cont-modal-body">' +
+        '<p style="font-size:14px;line-height:1.6;">Vas a eliminar el pago de <strong>' + (p.NOMBRE_ALUMNO||'') + '</strong> por <strong>' + pesos(p.MONTO) + '</strong> del ' + _fechaDisplay(p.FECHA_PAGO) + '.</p>' +
+        '<p style="font-size:13px;color:var(--color-rojo,#c0392b);margin-top:8px;font-weight:600;">Esta acción no se puede deshacer.</p>' +
+      '</div>' +
+      '<div class="cont-modal-footer">' +
+        '<button class="cont-btn-sec" id="_delPagoCancelar">Cancelar</button>' +
+        '<button class="cont-btn-pri" id="_delPagoOk" style="background:var(--color-rojo,#c0392b)">Eliminar</button>' +
+      '</div>' +
+    '</div>'
+
+  document.body.appendChild(overlay)
+  overlay.style.display = 'flex'
+  document.getElementById('_delPagoCancelar').onclick = function () { overlay.remove() }
+  document.getElementById('_delPagoOk').onclick = async function () {
+    overlay.remove()
+    showLoading('Eliminando...')
+    try {
+      var data = await get('deletePago', { id: p.ID })
+      if (!data.ok) { toast('Error: ' + (data.error||''), 'err'); return }
+      toast('Pago eliminado', 'ok')
+      await cargarPagos(codigoAlumnoFiltro)
+      cargarDashboard()
+    } catch(e) { toast('Error de conexión', 'err') }
+    finally { hideLoading() }
+  }
 }
 
 function filtrarPagos (estado, btn) {
@@ -1311,7 +1437,54 @@ function filtrarPagos (estado, btn) {
   renderPagos(todosPagos, estado)
 }
 
+
+function _extraerDescPct (notas) {
+  if (!notas) return ''
+  var m = (notas + '').match(/\((\d+)%\)/)
+  return m ? m[1] : ''
+}
+function _extraerDescMotivo (notas) {
+  if (!notas) return ''
+  var m = (notas + '').match(/Descuento:\s*([^(]+)\s*\(/)
+  return m ? m[1].trim() : ''
+}
+function _notasSinDescuento (notas) {
+  if (!notas) return ''
+  return (notas + '').replace(/Descuento:[^·]+·\s*/, '').trim()
+}
+
+function recalcularMontoPago () {
+  var cursoNombre = (document.getElementById('mPagoCurso') || {}).value || ''
+  var cursoObj    = todosCursos.find(function(c) { return c.NOMBRE === cursoNombre })
+  var valorBase   = cursoObj ? (parseFloat(cursoObj.VALOR) || 0) : 0
+  var pct         = parseFloat(document.getElementById('mPagoDescPct').value) || 0
+  var preview     = document.getElementById('mPagoDescPreview')
+  var texto       = document.getElementById('mPagoDescTexto')
+
+  if (valorBase > 0 && pct > 0) {
+    var descuento = Math.round(valorBase * pct / 100)
+    var final_    = valorBase - descuento
+    document.getElementById('mPagoMonto').value = final_
+    if (texto)   texto.textContent = 'Base: ' + pesos(valorBase) + ' — Descuento ' + pct + '%: −' + pesos(descuento) + ' → Total: ' + pesos(final_)
+    if (preview) preview.style.display = 'flex'
+  } else if (valorBase > 0 && pct === 0) {
+    document.getElementById('mPagoMonto').value = valorBase
+    if (preview) preview.style.display = 'none'
+  } else {
+    if (preview) preview.style.display = 'none'
+  }
+}
+
 function abrirModalPago () {
+  var hoy = new Date()
+  var mm  = String(hoy.getMonth()+1).padStart(2,'0')
+  var dd  = String(hoy.getDate()).padStart(2,'0')
+  var hoyStr = hoy.getFullYear() + '-' + mm + '-' + dd
+  document.getElementById('mPagoFecha').value      = hoyStr
+  document.getElementById('mPagoVencimiento').value = ''
+  document.getElementById('mPagoDescPct').value    = ''
+  document.getElementById('mPagoDescMotivo').value = ''
+  if (document.getElementById('mPagoDescPreview')) document.getElementById('mPagoDescPreview').style.display = 'none'
   document.getElementById('mPagoBuscador').value    = ''
   document.getElementById('mPagoCodigo').value      = ''
   document.getElementById('mPagoMonto').value       = ''
@@ -1367,13 +1540,24 @@ async function guardarPago () {
 
   showLoading('Registrando pago...')
   try {
+    var _fp = (document.getElementById('mPagoFecha').value || '').split('-')
+    var _fv = (document.getElementById('mPagoVencimiento').value || '').split('-')
+    var fechaPagoStr = _fp.length===3 ? (_fp[2]+'-'+_fp[1]+'-'+_fp[0]) : ''
+    var vencStr      = _fv.length===3 ? (_fv[2]+'-'+_fv[1]+'-'+_fv[0]) : ''
+    var descPct   = parseFloat(document.getElementById('mPagoDescPct').value) || 0
+    var descMotivo = document.getElementById('mPagoDescMotivo').value.trim()
+    var notasBase  = document.getElementById('mPagoNotas').value.trim()
+    var notasFinal = (descPct > 0 && descMotivo ? 'Descuento: ' + descMotivo + ' (' + descPct + '%) · ' : '') + notasBase
+
     var data = await get('addPago', {
       codigo_alumno:   codigo,
       curso:           curso,
       monto:           monto,
       metodo:          document.getElementById('mPagoMetodo').value,
+      fecha_pago:      fechaPagoStr,
+      vencimiento:     vencStr,
       comprobante_url: '',
-      notas:           document.getElementById('mPagoNotas').value.trim()
+      notas:           notasFinal.trim()
     })
 
     if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
