@@ -1307,6 +1307,11 @@ function verDetallePago (btn) {
 }
 
 async function abrirEditarPago (p) {
+  // Normalizar fechas que pueden venir como ISO o Date
+  p = Object.assign({}, p)
+  if (p.FECHA_PAGO)  p.FECHA_PAGO  = _fechaDisplay(p.FECHA_PAGO)
+  if (p.VENCIMIENTO) p.VENCIMIENTO = _fechaDisplay(p.VENCIMIENTO)
+
   var existente = document.getElementById('_modalEditPagoOverlay')
   if (existente) existente.remove()
 
@@ -1384,8 +1389,8 @@ async function abrirEditarPago (p) {
       var comprob_url = p.COMPROBANTE_URL || ''
       if (_editPagoFile) {
         var b64  = await comprimirImagen(_editPagoFile)
-        var upd  = await get('subirComprobante', { archivo: b64, nombre: _editPagoFile.name.replace(/\.[^.]+$/, '.jpg'), codigo: p.CODIGO_ALUMNO || 'PAG', alumno: p.NOMBRE_ALUMNO || 'Alumno' })
-        if (upd.ok) comprob_url = upd.url
+        var upd  = await post('subirComprobante', { archivo: b64, nombre: _editPagoFile.name.replace(/.[^.]+$/, '.jpg'), codigo: p.CODIGO_ALUMNO || 'PAG', alumno: p.NOMBRE_ALUMNO || 'Alumno' })
+        if (upd && upd.ok) comprob_url = upd.url
       }
       var _efp = (document.getElementById('_editPagoFecha').value||'').split('-')
       var _efv = (document.getElementById('_editPagoVenc').value||'').split('-')
