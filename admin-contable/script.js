@@ -1347,6 +1347,15 @@ async function abrirEditarPago (p) {
           '</select>' +
         '</div>' +
         '<div class="cont-campo"><label>Notas</label><textarea id="_editPagoNotas" rows="2">' + (_notasSinDescuento(p.NOTAS)) + '</textarea></div>' +
+        '<div class="cont-campo">' +
+          '<label>Comprobante (PDF o imagen)</label>' +
+          '<div class="cont-file-wrap">' +
+            '<input type="file" id="_editPagoArchivo" accept="image/*,.pdf">' +
+            '<label for="_editPagoArchivo" class="cont-file-btn"><i class="fa-solid fa-paperclip"></i> Seleccionar archivo</label>' +
+            '<span id="_editPagoArchivoNombre" class="cont-file-nombre">Sin archivo</span>' +
+          '</div>' +
+          (p.COMPROBANTE_URL ? '<div style="margin-top:6px"><a href="' + p.COMPROBANTE_URL + '" target="_blank" class="cont-btn-sec" style="font-size:12px;padding:4px 10px"><i class="fa-solid fa-file"></i> Ver actual</a></div>' : '') +
+        '</div>' +
       '</div>' +
       '<div class="cont-modal-footer">' +
         '<button class="cont-btn-sec" id="_editPagoCancelar">Cancelar</button>' +
@@ -1358,11 +1367,26 @@ async function abrirEditarPago (p) {
   overlay.style.display = 'flex'
   document.getElementById('_editPagoClose').onclick    = function () { overlay.remove() }
   document.getElementById('_editPagoCancelar').onclick = function () { overlay.remove() }
+
+  // Comprobante preview
+  var _editPagoFile = null
+  document.getElementById('_editPagoArchivo').onchange = function () {
+    _editPagoFile = this.files[0] || null
+    document.getElementById('_editPagoArchivoNombre').textContent = _editPagoFile ? _editPagoFile.name : 'Sin archivo'
+  }
+
   document.getElementById('_editPagoGuardar').onclick  = async function () {
     var monto = document.getElementById('_editPagoMonto').value.trim()
     if (!monto) { toast('Ingresá el monto', 'err'); return }
     showLoading('Guardando...')
     try {
+      // Subir comprobante si hay archivo nuevo
+      var comprob_url = p.COMPROBANTE_URL || ''
+      if (_editPagoFile) {
+        var b64  = await comprimirImagen(_editPagoFile)
+        var upd  = await get('subirComprobante', { archivo: b64, nombre: _editPagoFile.name.replace(/\.[^.]+$/, '.jpg'), codigo: p.CODIGO_ALUMNO || 'PAG', alumno: p.NOMBRE_ALUMNO || 'Alumno' })
+        if (upd.ok) comprob_url = upd.url
+      }
       var _efp = (document.getElementById('_editPagoFecha').value||'').split('-')
       var _efv = (document.getElementById('_editPagoVenc').value||'').split('-')
       var efFecha = _efp.length===3 ? (_efp[2]+'-'+_efp[1]+'-'+_efp[0]) : ''
@@ -1373,13 +1397,14 @@ async function abrirEditarPago (p) {
       var edNotasFinal = (edDescPct > 0 && edDescMotivo ? 'Descuento: ' + edDescMotivo + ' (' + edDescPct + '%) · ' : '') + edNotasBase
 
       var data = await get('editPago', {
-        id:          p.ID,
-        monto:       monto,
-        metodo:      document.getElementById('_editPagoMetodo').value,
-        estado:      document.getElementById('_editPagoEstado').value,
-        fecha_pago:  efFecha,
-        vencimiento: efVenc,
-        notas:       edNotasFinal.trim()
+        id:              p.ID,
+        monto:           monto,
+        metodo:          document.getElementById('_editPagoMetodo').value,
+        estado:          document.getElementById('_editPagoEstado').value,
+        fecha_pago:      efFecha,
+        vencimiento:     efVenc,
+        notas:           edNotasFinal.trim(),
+        comprobante_url: comprob_url
       })
       if (!data.ok) { toast('Error: ' + (data.error||''), 'err'); return }
       toast('Pago actualizado', 'ok')
