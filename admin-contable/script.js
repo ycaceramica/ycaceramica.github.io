@@ -1292,6 +1292,7 @@ function verDetallePago (btn) {
       '</div>' +
       '<div class="cont-modal-footer" style="flex-wrap:wrap;gap:8px;">' +
         (p.COMPROBANTE_URL ? '<a href="' + p.COMPROBANTE_URL + '" target="_blank" class="cont-btn-comprobante"><i class="fa-solid fa-file-image"></i> Ver comprobante</a>' : '') +
+        '<button class="cont-btn-recibo" id="_pagoDetRecibo"><i class="fa-solid fa-envelope"></i> Enviar recibo</button>' +
         '<button class="cont-btn-ico" id="_pagoDetEditar" title="Editar"><i class="fa-solid fa-pen"></i></button>' +
         '<button class="cont-btn-ico cont-btn-ico--danger" id="_pagoDetEliminar" title="Eliminar"><i class="fa-solid fa-trash"></i></button>' +
         '<button class="cont-btn-sec" id="_pagoDetCerrar">Cerrar</button>' +
@@ -1304,6 +1305,54 @@ function verDetallePago (btn) {
   document.getElementById('_pagoDetCerrar').onclick  = function () { overlay.remove() }
   document.getElementById('_pagoDetEditar').onclick  = function () { overlay.remove(); abrirEditarPago(p) }
   document.getElementById('_pagoDetEliminar').onclick = function () { overlay.remove(); confirmarEliminarPago(p) }
+  document.getElementById('_pagoDetRecibo').onclick   = function () { confirmarEnviarRecibo(p) }
+}
+
+function confirmarEnviarRecibo (p) {
+  var existente = document.getElementById('_modalReciboOverlay')
+  if (existente) existente.remove()
+
+  var overlay = document.createElement('div')
+  overlay.id        = '_modalReciboOverlay'
+  overlay.className = 'cont-modal-overlay'
+  overlay.innerHTML =
+    '<div class="cont-modal" style="max-width:400px;width:95%">' +
+      '<div class="cont-modal-header">' +
+        '<h3>Enviar recibo</h3>' +
+        '<button id="_reciboClose"><i class="fa-solid fa-xmark"></i></button>' +
+      '</div>' +
+      '<div class="cont-modal-body">' +
+        '<div class="cont-recibo-preview">' +
+          '<div class="cont-recibo-icon"><i class="fa-solid fa-envelope-open-text"></i></div>' +
+          '<div>' +
+            '<strong>' + (p.NOMBRE_ALUMNO||'—') + '</strong>' +
+            '<span>' + pesos(p.MONTO) + ' · ' + _fechaDisplay(p.FECHA_PAGO) + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<p class="cont-recibo-info">Se va a enviar un recibo PDF al email registrado del alumno.</p>' +
+      '</div>' +
+      '<div class="cont-modal-footer">' +
+        '<button class="cont-btn-sec" id="_reciboCancelar">Cancelar</button>' +
+        '<button class="cont-btn-pri" id="_reciboEnviar">' +
+          '<i class="fa-solid fa-paper-plane"></i> Enviar recibo' +
+        '</button>' +
+      '</div>' +
+    '</div>'
+
+  document.body.appendChild(overlay)
+  overlay.style.display = 'flex'
+  document.getElementById('_reciboClose').onclick    = function () { overlay.remove() }
+  document.getElementById('_reciboCancelar').onclick = function () { overlay.remove() }
+  document.getElementById('_reciboEnviar').onclick   = async function () {
+    overlay.remove()
+    showLoading('Generando y enviando recibo...')
+    try {
+      var data = await get('enviarRecibo', { pago_id: p.ID, token: sesionContable.token })
+      if (!data.ok) { toast('Error: ' + (data.error||''), 'err'); return }
+      toast('Recibo enviado a ' + data.email, 'ok')
+    } catch(e) { toast('Error de conexión', 'err') }
+    finally { hideLoading() }
+  }
 }
 
 async function abrirEditarPago (p) {
