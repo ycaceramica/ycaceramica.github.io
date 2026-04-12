@@ -278,7 +278,7 @@ function abrirDesgloseDash (tipo) {
         '<span class="ddash-monto ddash-monto--neg">— ' + pesos(g.MONTO) + '</span>' +
       '</div>'
     }).join('')
-  } else {
+  } else if (tipo === 'gastos') {
     titulo = 'Gastos directos — Detalle'
     var gastosAll = d.gastosDetalle || []
     if (!gastosAll.length) { toast('Sin gastos este mes', 'err'); return }
@@ -286,6 +286,29 @@ function abrirDesgloseDash (tipo) {
       return '<div class="ddash-item">' +
         '<div class="ddash-info"><strong>' + (g.DESCRIPCION||'—') + '</strong><span>' + _fechaDisplay(g.FECHA) + ' · ' + (g.TIPO||'') + ' · ' + (g.METODO||'') + '</span></div>' +
         '<span class="ddash-monto ddash-monto--neg">— ' + pesos(g.MONTO) + '</span>' +
+      '</div>'
+    }).join('')
+  } else {
+    titulo = 'Saldo YCA — Todos los movimientos'
+    var todos = []
+    ;(d.pagos || []).forEach(function(p) {
+      todos.push({ tipo: 'ingreso', desc: (p.NOMBRE_ALUMNO||'—') + ' — ' + (p.CURSO||''), fecha: p.FECHA_PAGO||'', metodo: p.METODO||'', monto: parseFloat(p.MONTO)||0 })
+    })
+    ;(d.gastosDetalle || []).forEach(function(g) {
+      todos.push({ tipo: 'gasto', desc: g.DESCRIPCION||'—', fecha: _fechaDisplay(g.FECHA), metodo: (g.TIPO||'') + ' · ' + (g.METODO||''), monto: parseFloat(g.MONTO)||0 })
+    })
+    todos.sort(function(a,b){ return a.fecha > b.fecha ? 1 : -1 })
+    if (!todos.length) { toast('Sin movimientos este mes', 'err'); return }
+    items = todos.map(function(m) {
+      var esIngreso = m.tipo === 'ingreso'
+      return '<div class="ddash-item">' +
+        '<div class="ddash-info">' +
+          '<strong>' + m.desc + '</strong>' +
+          '<span>' + m.fecha + ' · ' + m.metodo + '</span>' +
+        '</div>' +
+        '<span class="ddash-monto ' + (esIngreso ? '' : 'ddash-monto--neg') + '">' +
+          (esIngreso ? '+ ' : '— ') + pesos(m.monto) +
+        '</span>' +
       '</div>'
     }).join('')
   }
@@ -403,9 +426,11 @@ async function cargarDashboard () {
       var cardIng  = _dc.closest('.dash-card')
       var cardProf = document.getElementById('dashEgresos')  && document.getElementById('dashEgresos').closest('.dash-card')
       var cardGast = document.getElementById('dashGastos')   && document.getElementById('dashGastos').closest('.dash-card')
-      if (cardIng)  { cardIng.style.cursor  = 'pointer'; cardIng.onclick  = function(){ abrirDesgloseDash('pagos') } }
-      if (cardProf) { cardProf.style.cursor = 'pointer'; cardProf.onclick = function(){ abrirDesgloseDash('profesoras') } }
-      if (cardGast) { cardGast.style.cursor = 'pointer'; cardGast.onclick = function(){ abrirDesgloseDash('gastos') } }
+      var cardSaldo = document.getElementById('dashSaldo') && document.getElementById('dashSaldo').closest('.dash-card')
+      if (cardIng)   { cardIng.style.cursor   = 'pointer'; cardIng.onclick   = function(){ abrirDesgloseDash('pagos') } }
+      if (cardProf)  { cardProf.style.cursor  = 'pointer'; cardProf.onclick  = function(){ abrirDesgloseDash('profesoras') } }
+      if (cardGast)  { cardGast.style.cursor  = 'pointer'; cardGast.onclick  = function(){ abrirDesgloseDash('gastos') } }
+      if (cardSaldo) { cardSaldo.style.cursor = 'pointer'; cardSaldo.onclick = function(){ abrirDesgloseDash('saldo') } }
     }
 
     // Detalle por profesora
