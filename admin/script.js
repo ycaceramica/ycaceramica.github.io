@@ -328,6 +328,47 @@ const CATEGORIAS = {
   pastas:  []   // Sin categorías fijas — se ordena por nombre
 }
 
+
+// ─────────────────────────────────────────────
+// QR ENGOBES
+// ─────────────────────────────────────────────
+
+async function generarOAbrirQREngobe(engobeId, qrPdfUrl) {
+  // Si ya tiene PDF, abrirlo directamente
+  if (qrPdfUrl) {
+    window.open(qrPdfUrl, '_blank')
+    return
+  }
+
+  const sesion = getSesion()
+  if (!sesion) return
+
+  toast('Generando etiquetas QR...', 'ok')
+  try {
+    const res  = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({
+        action:    'generarEtiquetasQR',
+        engobe_id: engobeId,
+        token:     sesion.token
+      })
+    })
+    const data = await res.json()
+    if (!data.ok) { toast('❌ ' + (data.error || 'Error'), 'err'); return }
+
+    toast('✅ Etiquetas generadas', 'ok')
+    // Actualizar cache local
+    if (cache['engobes']) {
+      const eng = cache['engobes'].find(e => String(e.id) === String(engobeId))
+      if (eng) eng.qr_pdf_url = data.pdf_url
+    }
+    renderGrid('engobes', cache['engobes'])
+    setTimeout(() => window.open(data.pdf_url, '_blank'), 500)
+  } catch(e) {
+    toast('❌ Error de conexión', 'err')
+  }
+}
+
 function renderGrid(hoja, items){
   const grid = document.getElementById('grid-' + hoja)
   if(!grid) return
@@ -385,6 +426,12 @@ function renderGrid(hoja, items){
           <button class="btn-borrar" onclick="abrirModalBorrarItem('${hoja}','${item.id}','${item.foto || ''}')">
             <i class="fa-solid fa-trash"></i>
           </button>
+          ${hoja === 'engobes' ? `
+          <button class="btn-qr-engobe ${item.qr_pdf_url ? 'tiene-qr' : ''}"
+            onclick="generarOAbrirQREngobe('${item.id}','${item.qr_pdf_url || ''}')"
+            title="${item.qr_pdf_url ? 'Ver etiquetas QR' : 'Generar etiquetas QR'}">
+            <i class="fa-solid fa-qrcode"></i>
+          </button>` : ''}
         </div>
       </div>
     `
