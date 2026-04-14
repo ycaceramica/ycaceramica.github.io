@@ -255,6 +255,100 @@ document.addEventListener("DOMContentLoaded", () => {
 // CARGAR PIEZAS + CONFIG
 // ─────────────────────────────────────────────
 
+
+// ─────────────────────────────────────────────
+// LÍNEAS DE PIEZAS
+// ─────────────────────────────────────────────
+
+let _todasPiezas  = []   // copia completa para restaurar filtro
+let _lineaActiva  = null
+
+function svgPincelada(color){
+  return `<svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" class="linea-brush-svg">
+    <path d="M8,32 C20,10 35,6 55,14 C75,22 90,8 112,10" stroke="${color}" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.85"/>
+    <path d="M6,34 C18,28 32,30 50,26 C68,22 88,28 114,22" stroke="${color}" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.4"/>
+  </svg>`
+}
+
+function renderLineasFrontend(lineas){
+  const sec  = document.getElementById('seccionLineas')
+  const grid = document.getElementById('lineasGrid')
+  if(!sec || !grid) return
+
+  const visibles = lineas.filter(l => l.visible === true || l.visible === 'true' || l.visible === 'TRUE')
+  if(visibles.length === 0){ sec.style.display = 'none'; return }
+
+  sec.style.display = 'block'
+  grid.innerHTML = visibles.map(l => {
+    const color   = l.color || '#8B4513'
+    const precio  = (l.mostrarPrecio === 'true' || l.mostrarPrecio === true) && l.precio
+    const foto    = l.foto || ''
+    return `<div class="linea-card" onclick="filtrarPorLinea('${l.id}')" data-linea-id="${l.id}">
+      <div class="linea-card-foto" style="${foto ? `background-image:url('${foto}')` : `background:${color}18`}">
+        ${!foto ? `<div class="linea-card-emoji">🏺</div>` : ''}
+        <div class="linea-card-brush">${svgPincelada(color)}</div>
+      </div>
+      <div class="linea-card-info">
+        <div class="linea-card-nombre" style="color:${color}">${l.nombre}</div>
+        ${l.descripcion ? `<div class="linea-card-desc">${l.descripcion}</div>` : ''}
+        ${precio ? `<div class="linea-card-precio" style="color:${color}">Set desde $${Number(l.precio).toLocaleString('es-AR')}</div>` : ''}
+      </div>
+    </div>`
+  }).join('')
+}
+
+function filtrarPorLinea(lineaId){
+  const linea = (window._lineasData || []).find(l => l.id === lineaId)
+  if(!linea) return
+  _lineaActiva = linea
+
+  // Resaltar tarjeta activa
+  document.querySelectorAll('.linea-card').forEach(c => {
+    c.classList.toggle('activa', c.dataset.lineaId === lineaId)
+  })
+
+  // Mostrar banner
+  const banner = document.getElementById('lineaActivaBanner')
+  const nombre = document.getElementById('lineaBannerNombre')
+  const desc   = document.getElementById('lineaBannerDesc')
+  if(banner){ banner.style.display = 'block' }
+  if(nombre){ nombre.innerText = linea.nombre }
+  if(desc)  { desc.innerText = linea.descripcion || '' }
+
+  // Filtrar grid — solo piezas de esta línea
+  const grid = document.getElementById('piezasGrid')
+  _piezasTodos = _todasPiezas.filter(p => p.linea === lineaId)
+  _piezasPagina = 0
+  grid.innerHTML = ''
+  document.getElementById('btnMasPiezas').style.display = 'none'
+
+  // Resetear filtros de categoría
+  document.querySelectorAll('.filtro').forEach(b => b.classList.remove('activo'))
+  document.querySelector(".filtro[data-categoria='todas']")?.classList.add('activo')
+
+  if(_piezasTodos.length === 0){
+    grid.innerHTML = `<div class="sin-resultados"><p>Esta línea no tiene piezas publicadas todavía.</p></div>`
+  } else {
+    mostrarMasPiezas()
+  }
+}
+
+function volverTodasPiezas(){
+  _lineaActiva = null
+  _piezasTodos = [..._todasPiezas]
+  _piezasPagina = 0
+
+  const grid = document.getElementById('piezasGrid')
+  grid.innerHTML = ''
+  document.getElementById('btnMasPiezas').style.display = 'none'
+  document.getElementById('lineaActivaBanner').style.display = 'none'
+  document.querySelectorAll('.linea-card').forEach(c => c.classList.remove('activa'))
+  document.querySelectorAll('.filtro').forEach(b => b.classList.remove('activo'))
+  document.querySelector(".filtro[data-categoria='todas']")?.classList.add('activo')
+
+  mostrarMasPiezas()
+}
+
 async function cargarPiezas(){
   const estado = document.getElementById("estado")
   const grid   = document.getElementById("piezasGrid")
@@ -268,6 +362,7 @@ async function cargarPiezas(){
       if(piezas && piezas.length > 0){
         estado.classList.add("oculto")
         armarFiltros(piezas)
+        _todasPiezas  = piezas
         _piezasTodos  = piezas
         _piezasPagina = 0
         // Inyectar modal si no existe
@@ -288,13 +383,16 @@ async function cargarPiezas(){
   }
 
   try {
-    // Cargar config y piezas en paralelo
-    const [resConf, resPiezas] = await Promise.all([
+    // Cargar config, piezas y líneas en paralelo
+    const [resConf, resPiezas, resLineas] = await Promise.all([
       fetch(`${API}?action=getConfigIndex`),
-      fetch(`${API}?action=getPiezas`)
+      fetch(`${API}?action=getPiezas`),
+      fetch(`${API}?action=getLineasPiezas`)
     ])
-    const dataConf  = await resConf.json()
-    const dataPiezas= await resPiezas.json()
+    const dataConf   = await resConf.json()
+    const dataPiezas = await resPiezas.json()
+    const dataLineas = await resLineas.json()
+    window._lineasData = dataLineas.data || []
 
     configPublica = dataConf.data || {}
     const piezas  = (dataPiezas.data || []).filter(p => p.nombre)
@@ -325,12 +423,11 @@ async function cargarPiezas(){
       document.body.appendChild(m)
     }
 
-    // Intentar cargar desde caché primero
-    const cached = sessionStorage.getItem('yca_piezas')
-    const listado = cached ? JSON.parse(cached) : piezas
-    armarFiltros(listado)
-    _piezasTodos = listado
+    armarFiltros(piezas)
+    _todasPiezas  = piezas
+    _piezasTodos  = piezas
     _piezasPagina = 0
+    renderLineasFrontend(window._lineasData || [])
     mostrarMasPiezas()
 
   } catch(err) {
