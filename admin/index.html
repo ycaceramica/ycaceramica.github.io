@@ -253,6 +253,21 @@
         </div>
         <div class="items-grid" id="grid-piezas"></div>
         <div class="loading" id="loading-piezas"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+
+        <!-- LÍNEAS DE PIEZAS -->
+        <div style="margin-top:32px">
+          <div class="seccion-header" style="margin-bottom:12px">
+            <div>
+              <h3 style="margin:0;font-size:16px;font-weight:700">🎨 Líneas de piezas</h3>
+              <p style="margin:4px 0 0;font-size:13px;opacity:0.6">Agrupá piezas en colecciones temáticas con precio de set</p>
+            </div>
+            <button class="btn-nuevo" onclick="abrirModalLinea()">
+              <i class="fa-solid fa-plus"></i> Nueva línea
+            </button>
+          </div>
+          <div id="lista-lineas-piezas"></div>
+          <div class="loading" id="loading-lineas" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando líneas...</div>
+        </div>
       </div>
 
       <!-- INSUMOS -->
@@ -1360,5 +1375,25 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="script.js"></script>
+
+  <!-- MODAL LÍNEA DE PIEZAS -->
+  <div class="modal-overlay" id="modalLineaOverlay" style="display:none" onclick="cerrarModalLinea(event)">
+    <div class="modal-card" style="max-width:540px">
+      <div class="modal-header">
+        <h3 id="modalLineaTitulo">Nueva línea</h3>
+        <button class="modal-cerrar" onclick="document.getElementById('modalLineaOverlay').style.display='none'">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modalLineaBody"></div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="document.getElementById('modalLineaOverlay').style.display='none'">Cancelar</button>
+        <button class="btn-guardar-modal" id="btnGuardarLinea" onclick="guardarLinea()">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
