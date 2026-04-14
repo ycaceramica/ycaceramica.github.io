@@ -427,7 +427,7 @@ function renderGrid(hoja, items){
             <i class="fa-solid fa-trash"></i>
           </button>
           ${hoja === 'engobes' ? `
-          <button class="btn-qr-engobe ${item.qr_pdf_url ? 'tiene-qr' : ''}"
+          <button class="btn-editar btn-qr-engobe ${item.qr_pdf_url ? 'tiene-qr' : ''}"
             onclick="generarOAbrirQREngobe('${item.id}','${item.qr_pdf_url || ''}')"
             title="${item.qr_pdf_url ? 'Ver etiquetas QR' : 'Generar etiquetas QR'}">
             <i class="fa-solid fa-qrcode"></i>
