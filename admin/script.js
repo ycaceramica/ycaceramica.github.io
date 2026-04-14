@@ -407,18 +407,26 @@ async function regenerarQREngobe() {
 function _refrescarSeccionQR(pdfUrl) {
   const sec = document.querySelector('.mform-qr-seccion')
   if (!sec) return
-  sec.querySelector('label').nextElementSibling.outerHTML =
-    `<div class="mform-qr-existente">
-       <span class="mform-qr-badge"><i class="fa-solid fa-check"></i> Etiquetas generadas</span>
-       <div class="mform-qr-acciones">
-         <a href="${pdfUrl}" target="_blank" class="btn-qr-ver">
-           <i class="fa-solid fa-file-pdf"></i> Ver etiquetas
-         </a>
-         <button class="btn-qr-regenerar" onclick="regenerarQREngobe()" type="button">
-           <i class="fa-solid fa-rotate"></i> Regenerar
-         </button>
-       </div>
+
+  // Reemplazar todo el contenido excepto el label
+  const label = sec.querySelector('label')
+  // Eliminar todo lo que no sea el label
+  Array.from(sec.children).forEach(el => { if (el !== label) el.remove() })
+
+  const div = document.createElement('div')
+  div.className = 'mform-qr-existente'
+  div.innerHTML =
+    `<span class="mform-qr-badge"><i class="fa-solid fa-check"></i> Etiquetas generadas</span>
+     <div class="mform-qr-acciones">
+       <a href="${pdfUrl}" target="_blank" class="btn-qr-ver">
+         <i class="fa-solid fa-file-pdf"></i> Ver etiquetas
+       </a>
+       <button class="btn-qr-regenerar" type="button">
+         <i class="fa-solid fa-rotate"></i> Regenerar
+       </button>
      </div>`
+  sec.appendChild(div)
+  div.querySelector('.btn-qr-regenerar').onclick = regenerarQREngobe
 }
 
 // ─────────────────────────────────────────────
