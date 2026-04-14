@@ -329,8 +329,100 @@ const CATEGORIAS = {
 }
 
 
+
 // ─────────────────────────────────────────────
-// QR ENGOBES
+// QR ENGOBES — desde modal editar
+// ─────────────────────────────────────────────
+
+async function generarQRDesdeModal() {
+  if (!modalItem || !modalItem.id) { toast('Guardá el engobe primero', 'err'); return }
+  const sesion = getSesion()
+  if (!sesion) return
+
+  const btnGen = document.querySelector('.btn-qr-generar')
+  if (btnGen) { btnGen.disabled = true; btnGen.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...' }
+
+  try {
+    const res  = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'generarEtiquetasQR', engobe_id: modalItem.id, token: sesion.token })
+    })
+    const data = await res.json()
+    if (!data.ok) { toast('❌ ' + (data.error || 'Error'), 'err'); return }
+
+    toast('✅ Etiquetas generadas', 'ok')
+    // Actualizar item en cache y reabrir modal con datos frescos
+    modalItem.qr_pdf_url = data.pdf_url
+    if (cache['engobes']) {
+      const eng = cache['engobes'].find(e => String(e.id) === String(modalItem.id))
+      if (eng) eng.qr_pdf_url = data.pdf_url
+    }
+    // Refrescar sección QR del modal sin cerrarlo
+    _refrescarSeccionQR(data.pdf_url)
+    setTimeout(() => window.open(data.pdf_url, '_blank'), 400)
+  } catch(e) {
+    toast('❌ Error de conexión', 'err')
+  } finally {
+    if (btnGen) { btnGen.disabled = false; btnGen.innerHTML = '<i class="fa-solid fa-qrcode"></i> Generar etiquetas QR' }
+  }
+}
+
+async function regenerarQREngobe() {
+  if (!modalItem || !modalItem.id) return
+  const sesion = getSesion()
+  if (!sesion) return
+
+  const btnReg = document.querySelector('.btn-qr-regenerar')
+  if (btnReg) { btnReg.disabled = true; btnReg.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Regenerando...' }
+
+  try {
+    // Primero borrar el PDF anterior de Drive si existe
+    const res = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({
+        action:      'generarEtiquetasQR',
+        engobe_id:   modalItem.id,
+        regenerar:   true,
+        token:       sesion.token
+      })
+    })
+    const data = await res.json()
+    if (!data.ok) { toast('❌ ' + (data.error || 'Error'), 'err'); return }
+
+    toast('✅ Etiquetas regeneradas', 'ok')
+    modalItem.qr_pdf_url = data.pdf_url
+    if (cache['engobes']) {
+      const eng = cache['engobes'].find(e => String(e.id) === String(modalItem.id))
+      if (eng) eng.qr_pdf_url = data.pdf_url
+    }
+    _refrescarSeccionQR(data.pdf_url)
+    setTimeout(() => window.open(data.pdf_url, '_blank'), 400)
+  } catch(e) {
+    toast('❌ Error de conexión', 'err')
+  } finally {
+    if (btnReg) { btnReg.disabled = false }
+  }
+}
+
+function _refrescarSeccionQR(pdfUrl) {
+  const sec = document.querySelector('.mform-qr-seccion')
+  if (!sec) return
+  sec.querySelector('label').nextElementSibling.outerHTML =
+    `<div class="mform-qr-existente">
+       <span class="mform-qr-badge"><i class="fa-solid fa-check"></i> Etiquetas generadas</span>
+       <div class="mform-qr-acciones">
+         <a href="${pdfUrl}" target="_blank" class="btn-qr-ver">
+           <i class="fa-solid fa-file-pdf"></i> Ver etiquetas
+         </a>
+         <button class="btn-qr-regenerar" onclick="regenerarQREngobe()" type="button">
+           <i class="fa-solid fa-rotate"></i> Regenerar
+         </button>
+       </div>
+     </div>`
+}
+
+// ─────────────────────────────────────────────
+// QR ENGOBES (legacy)
 // ─────────────────────────────────────────────
 
 async function generarOAbrirQREngobe(engobeId, qrPdfUrl) {
@@ -426,12 +518,7 @@ function renderGrid(hoja, items){
           <button class="btn-borrar" onclick="abrirModalBorrarItem('${hoja}','${item.id}','${item.foto || ''}')">
             <i class="fa-solid fa-trash"></i>
           </button>
-          ${hoja === 'engobes' ? `
-          <button class="btn-editar btn-qr-engobe ${item.qr_pdf_url ? 'tiene-qr' : ''}"
-            onclick="generarOAbrirQREngobe('${item.id}','${item.qr_pdf_url || ''}')"
-            title="${item.qr_pdf_url ? 'Ver etiquetas QR' : 'Generar etiquetas QR'}">
-            <i class="fa-solid fa-qrcode"></i>
-          </button>` : ''}
+
         </div>
       </div>
     `
@@ -729,6 +816,26 @@ function abrirModal(hoja, item = null){
         <input type="checkbox" id="mPublicado" ${(item?.publicado === true || item?.publicado === 'TRUE' || item?.publicado === 'true') ? 'checked' : ''}>
         <span>✅ Visible en la web</span>
       </label>
+      <div class="mform-grupo mform-qr-seccion">
+        <label><i class="fa-solid fa-qrcode"></i> Etiquetas QR</label>
+        ${item?.qr_pdf_url
+          ? `<div class="mform-qr-existente">
+               <span class="mform-qr-badge"><i class="fa-solid fa-check"></i> Etiquetas generadas</span>
+               <div class="mform-qr-acciones">
+                 <a href="${item.qr_pdf_url}" target="_blank" class="btn-qr-ver">
+                   <i class="fa-solid fa-file-pdf"></i> Ver etiquetas
+                 </a>
+                 <button class="btn-qr-regenerar" onclick="regenerarQREngobe()" type="button">
+                   <i class="fa-solid fa-rotate"></i> Regenerar
+                 </button>
+               </div>
+             </div>`
+          : `<button class="btn-qr-generar" onclick="generarQRDesdeModal()" type="button">
+               <i class="fa-solid fa-qrcode"></i> Generar etiquetas QR
+             </button>
+             <p class="mform-qr-hint">Crea una hoja A4 con 12 etiquetas para imprimir</p>`
+        }
+      </div>
     `
   } else if(esPastas){
     // Parsear componentes existentes
