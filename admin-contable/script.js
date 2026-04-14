@@ -2048,9 +2048,9 @@ function renderContratos (lista) {
 function abrirModalContrato () {
   document.getElementById('mConBuscador').value   = ''
   document.getElementById('mConCodigo').value     = ''
-  document.getElementById('mConArcilla').value    = ''
-  document.getElementById('mConBarbotina').value  = ''
+  // arcilla y barbotina se toman del curso en el GAS
   document.getElementById('mConAlumnoSel').style.display = 'none'
+  var _prev = document.getElementById('mConCursoPreview'); if (_prev) _prev.style.display = 'none'
   document.getElementById('mConResultados').classList.remove('visible')
   poblarSelectCursos()
   abrirModal('modalContrato')
@@ -2092,10 +2092,40 @@ function seleccionarAlumnoContrato (a) {
 
 function autocompletarContrato () {
   var nombreCurso = document.getElementById('mConCurso').value
+  var preview     = document.getElementById('mConCursoPreview')
   var curso = todosCursos.find(function (c) { return c.NOMBRE === nombreCurso })
-  if (!curso) return
-  if (curso.ARCILLA_KG)   document.getElementById('mConArcilla').value   = curso.ARCILLA_KG
-  if (curso.BARBOTINA_ML) document.getElementById('mConBarbotina').value = curso.BARBOTINA_ML
+
+  if (!curso || !preview) { if (preview) preview.style.display = 'none'; return }
+
+  // Parsear materiales
+  var mats = []
+  try { mats = JSON.parse(curso.MATERIALES || '[]') } catch(e) {}
+  var matsHtml = mats.length
+    ? mats.filter(function(m){ return m.nombre }).map(function(m){
+        var linea = m.nombre
+        if (m.cantidad && m.unidad !== 'libre') linea += ': ' + m.cantidad + ' ' + m.unidad + ' por mes'
+        else if (m.unidad === 'libre') linea += ': a disposición'
+        return '<span class="cont-preview-chip">' + linea + '</span>'
+      }).join('')
+    : '<span style="font-size:12px;color:var(--color-texto-sub)">Sin materiales cargados</span>'
+
+  preview.innerHTML =
+    '<div class="cont-preview-header">' +
+      '<i class="fa-solid fa-circle-check"></i>' +
+      '<strong>' + (curso.NOMBRE || '') + '</strong>' +
+    '</div>' +
+    '<div class="cont-preview-datos">' +
+      (curso.DIAS    ? '<div class="cont-preview-item"><i class="fa-solid fa-calendar-days"></i> ' + curso.DIAS + '</div>' : '') +
+      (curso.HORARIO ? '<div class="cont-preview-item"><i class="fa-solid fa-clock"></i> ' + curso.HORARIO + '</div>' : '') +
+      (curso.VALOR   ? '<div class="cont-preview-item"><i class="fa-solid fa-tag"></i> $' + parseFloat(curso.VALOR).toLocaleString('es-AR') + ' / mes</div>' : '') +
+      (curso.PROFESORA ? '<div class="cont-preview-item"><i class="fa-solid fa-person-chalkboard"></i> ' + curso.PROFESORA + '</div>' : '') +
+    '</div>' +
+    '<div class="cont-preview-mats">' +
+      '<span class="cont-preview-mats-label">Materiales incluidos:</span>' +
+      matsHtml +
+    '</div>'
+
+  preview.style.display = 'block'
 }
 
 async function generarContrato () {
@@ -2114,8 +2144,7 @@ async function generarContrato () {
     var data = await get('generarContrato', {
       codigo_alumno: codigo,
       curso:         curso,
-      arcilla_kg:    document.getElementById('mConArcilla').value,
-      barbotina_ml:  document.getElementById('mConBarbotina').value
+      // arcilla_kg y barbotina_ml se toman del curso en el GAS
     })
 
     if (!data.ok) { toast('Error: ' + (data.error || ''), 'err'); return }
