@@ -197,9 +197,14 @@
             <h2>🏺 Piezas</h2>
             <p>Catálogo público — solo se muestran las marcadas como publicadas</p>
           </div>
-          <button class="btn-nuevo" onclick="abrirModal('piezas')">
-            <i class="fa-solid fa-plus"></i> Nueva pieza
-          </button>
+          <div style="display:flex;gap:8px">
+            <button class="btn-nuevo" onclick="abrirModal('piezas')">
+              <i class="fa-solid fa-plus"></i> Nueva pieza
+            </button>
+            <button class="btn-nuevo" onclick="abrirModalLinea()" style="background:var(--color-secundario)">
+              <i class="fa-solid fa-swatchbook"></i> Nueva línea
+            </button>
+          </div>
         </div>
         <!-- TOGGLES VISIBILIDAD PIEZAS -->
         <div class="elaboracion-config-box" style="margin-bottom:12px">
@@ -256,14 +261,9 @@
 
         <!-- LÍNEAS DE PIEZAS -->
         <div style="margin-top:32px">
-          <div class="seccion-header" style="margin-bottom:12px">
-            <div>
-              <h3 style="margin:0;font-size:16px;font-weight:700">🎨 Líneas de piezas</h3>
-              <p style="margin:4px 0 0;font-size:13px;opacity:0.6">Agrupá piezas en colecciones temáticas con precio de set</p>
-            </div>
-            <button class="btn-nuevo" onclick="abrirModalLinea()">
-              <i class="fa-solid fa-plus"></i> Nueva línea
-            </button>
+          <div style="margin-bottom:12px">
+            <h3 style="margin:0;font-size:16px;font-weight:700">🎨 Líneas de piezas</h3>
+            <p style="margin:4px 0 0;font-size:13px;opacity:0.6">Agrupá piezas en colecciones temáticas con precio de set</p>
           </div>
           <div id="lista-lineas-piezas"></div>
           <div class="loading" id="loading-lineas" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i> Cargando líneas...</div>
