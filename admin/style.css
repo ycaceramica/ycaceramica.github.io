@@ -2033,26 +2033,11 @@ body.dark #exportCurso option{
 }
 
 /* ─── Botón QR engobes ─── */
-.btn-qr-engobe {
-  background: transparent;
-  border: 1.5px solid var(--color-primario, #8b6f56);
-  border-radius: 8px;
-  color: var(--color-primario, #8b6f56);
-  padding: 5px 8px;
-  cursor: pointer;
-  font-size: 13px;
-  transition: background 0.18s, color 0.18s;
-  display: inline-flex;
-  align-items: center;
-}
-.btn-qr-engobe:hover {
-  background: var(--color-primario, #8b6f56);
-  color: #fff;
-}
 .btn-qr-engobe.tiene-qr {
-  background: var(--color-primario, #8b6f56);
-  color: #fff;
+  background: var(--color-primario, #8b6f56) !important;
+  color: #fff !important;
+  opacity: 1;
 }
 .btn-qr-engobe.tiene-qr:hover {
-  opacity: 0.8;
+  opacity: 0.8 !important;
 }
