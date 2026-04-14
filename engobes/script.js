@@ -789,8 +789,8 @@ window.addEventListener('DOMContentLoaded', () => { cargarEngobes(); renderHisto
 async function cargarEngobes(){
   const estado = document.getElementById('estadoCatalogo')
   const grid   = document.getElementById('engobesGrid')
-  estado.style.display = 'none'
-  mostrarSkeleton('engobesGrid', 6)
+  estado.style.display = 'flex'
+  grid.innerHTML = ''
   try {
     const [resEngobes, resConfig] = await Promise.all([
       fetch(`${API}?action=getEngobes`),
