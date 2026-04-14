@@ -512,11 +512,17 @@
         <!-- SECCIÓN CERAMISTAS -->
         <div id="seccionCeramistas" style="display:none">
           <div class="usuarios-tabs">
+            <button class="utab" onclick="setCeramistaTab('pendientes')" id="ctab-cer-pendientes">
+              Pendientes <span id="cnt-cer-pendientes">0</span><span class="badge-pendientes" id="badgePendientesCer" style="display:none">0</span>
+            </button>
             <button class="utab activo" onclick="setCeramistaTab('activos')" id="ctab-activos">
               Activos <span id="cnt-cer-activos">0</span>
             </button>
             <button class="utab" onclick="setCeramistaTab('pausados')" id="ctab-pausados">
               Pausados <span id="cnt-cer-pausados">0</span>
+            </button>
+            <button class="utab" onclick="setCeramistaTab('rechazados')" id="ctab-cer-rechazados">
+              Rechazados <span id="cnt-cer-rechazados">0</span>
             </button>
           </div>
           <div class="usuarios-lista" id="lista-ceramistas"></div>
