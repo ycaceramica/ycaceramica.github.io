@@ -2286,8 +2286,15 @@ function setRolTab(rol){
 
 function setCeramistaTab(tab){
   tabCeramistaActual = tab
-  document.querySelectorAll('[id^="ctab-"]').forEach(b => b.classList.remove('activo'))
-  document.getElementById('ctab-' + tab)?.classList.add('activo')
+  const tabIds = {
+    pendientes: 'ctab-cer-pendientes',
+    activos:    'ctab-activos',
+    pausados:   'ctab-pausados',
+    rechazados: 'ctab-cer-rechazados'
+  }
+  document.querySelectorAll('#seccionCeramistas .utab').forEach(b => b.classList.remove('activo'))
+  const elTab = document.getElementById(tabIds[tab])
+  if(elTab) elTab.classList.add('activo')
   renderCeramistas()
 }
 
@@ -2295,13 +2302,27 @@ function renderCeramistas(){
   const lista   = document.getElementById('lista-ceramistas')
   if(!lista) return
 
-  const activos  = ceramistasData.filter(c => c.estado === 'activo')
-  const pausados = ceramistasData.filter(c => c.estado === 'pausado')
+  const pendientesCer = ceramistasData.filter(c => c.estado === 'pendiente')
+  const activos       = ceramistasData.filter(c => c.estado === 'activo')
+  const pausados      = ceramistasData.filter(c => c.estado === 'pausado')
+  const rechazadosCer = ceramistasData.filter(c => c.estado === 'rechazado')
 
-  document.getElementById('cnt-cer-activos').innerText  = activos.length  || 0
-  document.getElementById('cnt-cer-pausados').innerText = pausados.length || 0
+  document.getElementById('cnt-cer-pendientes').innerText = pendientesCer.length || 0
+  document.getElementById('cnt-cer-activos').innerText    = activos.length  || 0
+  document.getElementById('cnt-cer-pausados').innerText   = pausados.length || 0
+  document.getElementById('cnt-cer-rechazados').innerText = rechazadosCer.length || 0
 
-  const filtrados = tabCeramistaActual === 'activos' ? activos : pausados
+  const badgeCer = document.getElementById('badgePendientesCer')
+  if(badgeCer){
+    badgeCer.style.display = pendientesCer.length > 0 ? 'inline' : 'none'
+    badgeCer.innerText = pendientesCer.length
+  }
+
+  let filtrados
+  if(tabCeramistaActual === 'pendientes')  filtrados = pendientesCer
+  else if(tabCeramistaActual === 'pausados')   filtrados = pausados
+  else if(tabCeramistaActual === 'rechazados') filtrados = rechazadosCer
+  else filtrados = activos
 
   lista.innerHTML = ''
   if(filtrados.length === 0){
@@ -2326,10 +2347,20 @@ function renderCeramistas(){
          </button>`
       : ''
 
-    let botones = `<span class="estado-badge ${c.estado}">${c.estado === 'activo' ? 'Activo' : 'Pausado'}</span>${planBadgeC}`
-    if(c.estado === 'activo'){
+    const estadoLabelCer = { pendiente: 'Pendiente', activo: 'Activo', pausado: 'Pausado', rechazado: 'Rechazado' }
+    let botones = `<span class="estado-badge ${c.estado}">${estadoLabelCer[c.estado] || c.estado}</span>${planBadgeC}`
+    if(c.estado === 'pendiente'){
+      botones += `
+        <button class="btn-aprobar" onclick="gestionarCeramista('${c.id}','aprobar')"><i class="fa-solid fa-check"></i> Aprobar</button>
+        <button class="btn-rechazar" onclick="gestionarCeramista('${c.id}','rechazar')"><i class="fa-solid fa-xmark"></i> Rechazar</button>
+        <button class="btn-eliminar-usr" onclick="eliminarCeramista('${c.id}')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>`
+    } else if(c.estado === 'activo'){
       botones += `
         <button class="btn-pausar" onclick="gestionarCeramista('${c.id}','pausar')"><i class="fa-solid fa-pause"></i> Pausar</button>
+        <button class="btn-eliminar-usr" onclick="eliminarCeramista('${c.id}')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>`
+    } else if(c.estado === 'rechazado'){
+      botones += `
+        <button class="btn-reactivar" onclick="gestionarCeramista('${c.id}','aprobar')"><i class="fa-solid fa-rotate-left"></i> Aprobar</button>
         <button class="btn-eliminar-usr" onclick="eliminarCeramista('${c.id}')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>`
     } else {
       botones += `
@@ -2397,16 +2428,26 @@ async function guardarCursoCeramista(id){
 async function gestionarCeramista(id, accion){
   try {
     const sesion  = getSesion()
-    const actions = { pausar: 'pausarCeramista', activar: 'activarCeramista' }
-    const res     = await fetch(API, {
+    const actions = {
+      pausar:   'pausarCeramista',
+      activar:  'activarCeramista',
+      aprobar:  'aprobarCeramista',
+      rechazar: 'rechazarCeramista'
+    }
+    const res  = await fetch(API, {
       method: 'POST',
       body: JSON.stringify({ action: actions[accion], id, token: sesion.token })
     })
     const data = await res.json()
     if(data.ok){
       await cargarUsuarios()
-      const msgs = { pausar: '⏸ Ceramista pausado', activar: '✅ Ceramista reactivado' }
-      toast(msgs[accion], 'ok')
+      const msgs = {
+        pausar:   '⏸ Ceramista pausado',
+        activar:  '✅ Ceramista reactivado',
+        aprobar:  '✅ Ceramista aprobado — se le envió un email',
+        rechazar: '❌ Ceramista rechazado'
+      }
+      toast(msgs[accion] || '✅ Listo', 'ok')
     } else toast('❌ Error', 'err')
   } catch(e){ toast('❌ Error de conexión', 'err') }
 }
