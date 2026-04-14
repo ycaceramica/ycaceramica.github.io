@@ -811,6 +811,18 @@ async function cargarEngobes(){
     const wrapper = document.getElementById('engobeBuscadorWrapper')
     if(wrapper) wrapper.style.display = 'flex'
     renderEngobes(engobesData)
+
+    // Deep link: ?engobe=ENG-001
+    var params = new URLSearchParams(window.location.search)
+    var codigoDeepLink = params.get('engobe')
+    if (codigoDeepLink) {
+      var engobeTarget = engobesData.find(function(e) {
+        return (e.codigo || '').toLowerCase() === codigoDeepLink.toLowerCase()
+      })
+      if (engobeTarget) {
+        setTimeout(function() { abrirEngobeModal(engobeTarget) }, 300)
+      }
+    }
   } catch(e){
     estado.innerHTML = '<p style="opacity:0.5">Error al cargar. Revisá tu conexión.</p>'
   }
