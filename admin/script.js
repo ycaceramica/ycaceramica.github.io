@@ -151,7 +151,7 @@ async function cargarSeccion(nombre){
   if(nombre === 'pastas')       { await cargarPastas();       return }
   if(nombre === 'engobes')      { await cargarEngobes();      return }
   if(nombre === 'horneado')     { await cargarHorneado();     return }
-  if(nombre === 'piezas')       { cargarConfigPiezas() }
+  if(nombre === 'piezas')       { cargarConfigPiezas(); cargarLineasAdmin() }
   if(nombre === 'insumos')      { cargarConfigInsumos() }
 
   const grid    = document.getElementById('grid-' + nombre)
@@ -963,6 +963,14 @@ function abrirModal(hoja, item = null){
           <input type="checkbox" id="mPublicado" ${(item?.publicado === true || item?.publicado === 'TRUE' || item?.publicado === 'true') ? 'checked' : ''}>
           <span>✅ Publicar en la web pública</span>
         </label>
+        ${esPiezas ? `
+        <div class="mform-grupo">
+          <label>🎨 Línea <small style="opacity:0.5;font-weight:400">(opcional)</small></label>
+          <select id="mLinea">
+            <option value="">Sin línea</option>
+            ${(window._lineasAdmin||[]).map(l => `<option value="${l.id}" ${item?.linea===l.id?'selected':''}>${l.nombre}</option>`).join('')}
+          </select>
+        </div>` : ''}
       `
       html += bloqFotosExtra
     }
@@ -1051,6 +1059,284 @@ function quitarFotoExtra(n){
 
 // TOGGLES CONFIG PIEZAS
 // ─────────────────────────────────────────────
+
+
+// ============================================================
+//  LÍNEAS DE PIEZAS — ADMIN
+// ============================================================
+
+let lineasAdminData    = []
+let lineaModalItem     = null
+let lineaFotoBase64    = null
+let lineaFotosExtra    = { foto2: null, foto3: null, foto4: null }
+
+async function cargarLineasAdmin(){
+  const cont = document.getElementById('lista-lineas-piezas')
+  const load = document.getElementById('loading-lineas')
+  if(!cont) return
+  if(load) load.style.display = 'block'
+  try {
+    const res  = await fetch(API + '?action=getLineasPiezas')
+    const data = await res.json()
+    lineasAdminData = data.data || []
+    window._lineasAdmin = lineasAdminData
+    renderLineasAdmin()
+  } catch(e){ toast('❌ Error al cargar líneas', 'err') }
+  finally { if(load) load.style.display = 'none' }
+}
+
+function renderLineasAdmin(){
+  const cont = document.getElementById('lista-lineas-piezas')
+  if(!cont) return
+  if(lineasAdminData.length === 0){
+    cont.innerHTML = '<p style="opacity:0.5;font-size:13px;padding:12px 0">No hay líneas creadas aún.</p>'
+    return
+  }
+  cont.innerHTML = lineasAdminData.map(l => {
+    const visible = l.visible === true || l.visible === 'true' || l.visible === 'TRUE'
+    const precio  = l.mostrarPrecio === 'true' || l.mostrarPrecio === true
+    return `<div class="elaboracion-config-box" style="margin-bottom:10px;gap:12px;align-items:flex-start">
+      <div style="display:flex;gap:12px;align-items:center;flex:1">
+        ${l.foto ? `<img src="${l.foto}" style="width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0">` : `<div style="width:52px;height:52px;border-radius:8px;background:${l.color||'#8B4513'}22;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🎨</div>`}
+        <div>
+          <div style="font-weight:700;font-size:14px">${l.nombre}</div>
+          <div style="font-size:12px;opacity:0.6;margin-top:2px">${l.descripcion||''}</div>
+          <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap">
+            <span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${l.color||'#8B4513'}33;color:${l.color||'#8B4513'};font-weight:600">${l.color||'#8B4513'}</span>
+            ${precio && l.precio ? `<span style="font-size:11px;padding:2px 8px;border-radius:20px;background:#e8f5e922;color:#2e7d32;font-weight:600">$${l.precio}</span>` : ''}
+            <span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${visible?'#e8f5e9':'#fbe9e7'};color:${visible?'#2e7d32':'#c62828'};font-weight:600">${visible?'Visible':'Oculta'}</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <button class="btn-editar" onclick="abrirModalLinea(${JSON.stringify(l).replace(/"/g,'&quot;')})" title="Editar"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn-borrar" onclick="eliminarLineaAdmin('${l.id}')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`
+  }).join('')
+}
+
+function abrirModalLinea(item = null){
+  lineaModalItem  = item
+  lineaFotoBase64 = null
+  lineaFotosExtra = { foto2: null, foto3: null, foto4: null }
+
+  document.getElementById('modalLineaTitulo').innerText = item ? 'Editar línea' : 'Nueva línea'
+
+  const fotoActual = item?.foto || ''
+  const slots = [2,3,4].map(n => {
+    const fUrl = item?.['foto'+n] || ''
+    const img  = fUrl
+      ? `<img src="${fUrl}" class="mform-foto-extra-img"><button class="mform-foto-extra-quitar" onclick="event.stopPropagation();quitarLineaFotoExtra(${n})" type="button">×</button>`
+      : `<div class="mform-foto-extra-placeholder"><i class="fa-solid fa-plus"></i><span>Foto ${n-1}</span></div>`
+    return `<div class="mform-foto-extra-slot" id="lineaFotoSlot${n}" onclick="elegirLineaFotoExtra(${n})">${img}</div>`
+  }).join('')
+
+  document.getElementById('modalLineaBody').innerHTML = `
+    <div class="mform-grupo">
+      <label>Nombre *</label>
+      <input id="lNombre" value="${item?.nombre||''}" placeholder="Ej: Línea Origen">
+    </div>
+    <div class="mform-grupo">
+      <label>Descripción</label>
+      <textarea id="lDescripcion" rows="2" placeholder="Breve descripción de la línea...">${item?.descripcion||''}</textarea>
+    </div>
+    <div class="mform-fila">
+      <div class="mform-grupo">
+        <label>🎨 Color de la línea</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="color" id="lColor" value="${item?.color||'#8B4513'}" style="width:48px;height:38px;border:none;border-radius:8px;cursor:pointer;padding:2px">
+          <input id="lColorHex" value="${item?.color||'#8B4513'}" placeholder="#8B4513" style="flex:1" oninput="syncColorPicker()">
+        </div>
+      </div>
+      <div class="mform-grupo">
+        <label>Orden <small style="opacity:0.5;font-weight:400">(número)</small></label>
+        <input id="lOrden" type="number" value="${item?.orden||''}" placeholder="1, 2, 3...">
+      </div>
+    </div>
+    <div class="mform-grupo">
+      <label>📷 Foto portada</label>
+      <div class="mform-foto-area" id="lineaFotoArea" onclick="elegirLineaFoto()">
+        ${fotoActual
+          ? `<img class="mform-foto-preview" src="${fotoActual}" alt="Portada"><button class="mform-foto-cambiar" onclick="elegirLineaFoto()" type="button"><i class="fa-solid fa-camera"></i> Cambiar</button>`
+          : `<div class="mform-foto-placeholder"><i class="fa-solid fa-camera"></i><strong>Tocá para agregar foto</strong><small>Recomendado: 1:1 · mín. 1080×1080px</small></div>`}
+      </div>
+    </div>
+    <div class="mform-grupo mform-fotos-extra">
+      <label>📷 Fotos adicionales <small style="opacity:0.5;font-weight:400">(hasta 3 fotos extra)</small></label>
+      <div class="mform-fotos-extra-grid">${slots}</div>
+      <input type="file" id="lineaFotoExtraInput" accept="image/*" style="display:none" onchange="onLineaFotoExtraChange(this)">
+    </div>
+    <div class="mform-fila">
+      <div class="mform-grupo">
+        <label>💰 Precio del set</label>
+        <input id="lPrecio" type="number" value="${item?.precio||''}" placeholder="$0">
+      </div>
+      <div class="mform-grupo" style="display:flex;align-items:flex-end;padding-bottom:6px">
+        <label class="publicado-toggle" style="margin:0">
+          <input type="checkbox" id="lMostrarPrecio" ${item?.mostrarPrecio==='true'||item?.mostrarPrecio===true?'checked':''}>
+          <span>Mostrar precio en vitrina</span>
+        </label>
+      </div>
+    </div>
+    <div class="mform-fila">
+      <div class="mform-grupo">
+        <label>📦 Stock del set</label>
+        <input id="lStock" type="number" value="${item?.stock||''}" placeholder="0">
+      </div>
+      <div class="mform-grupo" style="display:flex;align-items:flex-end;padding-bottom:6px">
+        <label class="publicado-toggle" style="margin:0">
+          <input type="checkbox" id="lMostrarStock" ${item?.mostrarStock==='true'||item?.mostrarStock===true?'checked':''}>
+          <span>Mostrar stock en vitrina</span>
+        </label>
+      </div>
+    </div>
+    <label class="publicado-toggle">
+      <input type="checkbox" id="lVisible" ${item?.visible==='true'||item?.visible===true?'checked':''}>
+      <span>✅ Línea visible en la web</span>
+    </label>
+    <input type="file" id="lineaFotoInput" accept="image/*" style="display:none" onchange="onLineaFotoChange(this)">
+  `
+
+  // Sincronizar color picker con hex
+  const colorInput = document.getElementById('lColor')
+  const hexInput   = document.getElementById('lColorHex')
+  if(colorInput) colorInput.addEventListener('input', () => { if(hexInput) hexInput.value = colorInput.value })
+
+  document.getElementById('modalLineaOverlay').style.display = 'flex'
+}
+
+function syncColorPicker(){
+  const hex = document.getElementById('lColorHex')?.value
+  const col = document.getElementById('lColor')
+  if(col && hex && /^#[0-9A-Fa-f]{6}$/.test(hex)) col.value = hex
+}
+
+function cerrarModalLinea(e){
+  if(e && e.target !== document.getElementById('modalLineaOverlay')) return
+  document.getElementById('modalLineaOverlay').style.display = 'none'
+}
+
+function elegirLineaFoto(){
+  document.getElementById('lineaFotoInput')?.click()
+}
+
+async function onLineaFotoChange(input){
+  const file = input.files[0]
+  if(!file) return
+  const reader = new FileReader()
+  reader.onload = async ev => {
+    lineaFotoBase64 = await convertirAJpg(ev.target.result)
+    const area = document.getElementById('lineaFotoArea')
+    if(area) area.innerHTML = `<img class="mform-foto-preview" src="${lineaFotoBase64}" alt="Preview"><button class="mform-foto-cambiar" onclick="elegirLineaFoto()" type="button"><i class="fa-solid fa-camera"></i> Cambiar</button>`
+  }
+  reader.readAsDataURL(file)
+}
+
+let _lineaFotoExtraN = null
+function elegirLineaFotoExtra(n){
+  _lineaFotoExtraN = n
+  document.getElementById('lineaFotoExtraInput')?.click()
+}
+
+async function onLineaFotoExtraChange(input){
+  const file = input.files[0]
+  if(!file || !_lineaFotoExtraN) return
+  const n = _lineaFotoExtraN
+  const reader = new FileReader()
+  reader.onload = async ev => {
+    const b64 = await convertirAJpg(ev.target.result)
+    lineaFotosExtra['foto'+n] = b64
+    const slot = document.getElementById('lineaFotoSlot'+n)
+    if(slot) slot.innerHTML = `<img src="${b64}" class="mform-foto-extra-img"><button class="mform-foto-extra-quitar" onclick="event.stopPropagation();quitarLineaFotoExtra(${n})" type="button">×</button>`
+  }
+  reader.readAsDataURL(file)
+  input.value = ''
+}
+
+function quitarLineaFotoExtra(n){
+  lineaFotosExtra['foto'+n]    = null
+  lineaFotosExtra['_borrar'+n] = true
+  const slot = document.getElementById('lineaFotoSlot'+n)
+  if(slot) slot.innerHTML = `<div class="mform-foto-extra-placeholder"><i class="fa-solid fa-plus"></i><span>Foto ${n-1}</span></div>`
+}
+
+async function guardarLinea(){
+  const nombre = document.getElementById('lNombre')?.value.trim()
+  if(!nombre){ toast('El nombre es obligatorio', 'err'); return }
+
+  const btn = document.getElementById('btnGuardarLinea')
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'
+  btn.disabled = true
+
+  const sesion = getSesion()
+  const color  = document.getElementById('lColorHex')?.value || document.getElementById('lColor')?.value || '#8B4513'
+  const fila = {
+    id:           lineaModalItem?.id || '',
+    nombre,
+    descripcion:  document.getElementById('lDescripcion')?.value.trim() || '',
+    color:        /^#[0-9A-Fa-f]{6}$/.test(color) ? color : '#8B4513',
+    foto:         lineaModalItem?.foto || '',
+    foto2:        lineaFotosExtra._borrar2 ? '' : (lineaModalItem?.foto2 || ''),
+    foto3:        lineaFotosExtra._borrar3 ? '' : (lineaModalItem?.foto3 || ''),
+    foto4:        lineaFotosExtra._borrar4 ? '' : (lineaModalItem?.foto4 || ''),
+    precio:       document.getElementById('lPrecio')?.value || '',
+    mostrarPrecio:document.getElementById('lMostrarPrecio')?.checked ? 'true' : 'false',
+    stock:        document.getElementById('lStock')?.value || '',
+    mostrarStock: document.getElementById('lMostrarStock')?.checked ? 'true' : 'false',
+    visible:      document.getElementById('lVisible')?.checked ? 'true' : 'false',
+    orden:        document.getElementById('lOrden')?.value || ''
+  }
+
+  try {
+    const res  = await fetch(API, { method:'POST', body: JSON.stringify({ action:'guardarLinea', fila, token: sesion.token }) })
+    const data = await res.json()
+    if(!data.ok){ toast('❌ ' + (data.error||'Error al guardar'), 'err'); return }
+
+    const idGuardado = data.id || fila.id
+
+    // Subir fotos en background
+    if(lineaFotoBase64){
+      const nombre64 = (idGuardado||'lin') + '_portada_' + Date.now()
+      fetch(API, { method:'POST', body: JSON.stringify({ action:'subirFoto', hoja:'lineas_piezas', id:idGuardado, b64:lineaFotoBase64, nombre:nombre64, categoria:nombre, token:sesion.token }) })
+        .then(r=>r.json()).then(d=>{ if(d.ok){ cargarLineasAdmin(); toast('✅ Foto portada subida','ok') } }).catch(()=>{})
+    }
+    ;[2,3,4].forEach(n => {
+      const b64e = lineaFotosExtra['foto'+n]
+      if(b64e){
+        const nomE = (idGuardado||'lin')+'_foto'+n+'_'+Date.now()
+        fetch(API, { method:'POST', body: JSON.stringify({ action:'subirFoto', hoja:'lineas_piezas', id:idGuardado, b64:b64e, nombre:nomE, campo:'foto'+n, categoria:nombre, token:sesion.token }) }).catch(()=>{})
+      }
+    })
+
+    document.getElementById('modalLineaOverlay').style.display = 'none'
+    await cargarLineasAdmin()
+    toast('✅ Línea guardada — las fotos se suben en segundo plano', 'ok')
+
+  } catch(e){ toast('❌ Error de conexión', 'err') }
+  finally {
+    btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar'
+    btn.disabled = false
+  }
+}
+
+async function eliminarLineaAdmin(id){
+  abrirModalConfirmarAccion(
+    '¿Eliminar esta línea?',
+    'Se borrarán las fotos de la línea de Drive. Las piezas asignadas quedan sin línea. Esta acción no se puede deshacer.',
+    async () => {
+      try {
+        const sesion = getSesion()
+        const res  = await fetch(API, { method:'POST', body: JSON.stringify({ action:'eliminarLinea', id, token:sesion.token }) })
+        const data = await res.json()
+        if(data.ok){
+          await cargarLineasAdmin()
+          toast('✅ Línea eliminada', 'ok')
+        } else toast('❌ ' + (data.error||'Error'), 'err')
+      } catch(e){ toast('❌ Error de conexión', 'err') }
+    }
+  )
+}
 
 async function cargarConfigPiezas(){
   try {
@@ -1297,7 +1583,8 @@ function construirFila(){
     cantidad:  document.getElementById('mCantidad')?.value || '',
     medidas:   document.getElementById('mMedidas')?.value.trim() || '',
     esmalte:   document.getElementById('mEsmalte')?.value.trim() || '',
-    publicado: document.getElementById('mPublicado')?.checked ? 'true' : 'false'
+    publicado: document.getElementById('mPublicado')?.checked ? 'true' : 'false',
+    linea:     document.getElementById('mLinea')?.value || ''
   }
 
   if(hoja === 'insumos') return { ...base,
