@@ -1679,3 +1679,66 @@ body {
   line-height: 1.6;
   margin: 0;
 }
+
+/* ─── Preview curso en modal contrato ─── */
+.cont-curso-preview {
+  background: var(--color-primario-light, #f3ebe3);
+  border: 1.5px solid var(--color-primario, #6b4226);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: fadeInPreview 0.2s ease;
+}
+@keyframes fadeInPreview {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.cont-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-primario, #6b4226);
+  font-weight: 700;
+  font-size: 13.5px;
+}
+.cont-preview-header i { font-size: 14px; }
+.cont-preview-datos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+.cont-preview-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  color: var(--color-texto-sub);
+}
+.cont-preview-item i {
+  color: var(--color-primario, #6b4226);
+  font-size: 11px;
+}
+.cont-preview-mats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.cont-preview-mats-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-texto-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  width: 100%;
+}
+.cont-preview-chip {
+  background: var(--color-bg, #fff);
+  border: 1px solid var(--color-borde);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 12px;
+  color: var(--color-texto);
+}
