@@ -32,6 +32,26 @@
       <p>Cada pieza es única, hecha a mano con arcilla y esmaltes naturales.</p>
     </div>
 
+    <!-- LÍNEAS DE PIEZAS -->
+    <div id="seccionLineas" style="display:none">
+      <div class="lineas-titulo">
+        <h2>Nuestras líneas</h2>
+        <p>Colecciones temáticas de piezas artesanales</p>
+      </div>
+      <div class="lineas-grid" id="lineasGrid"></div>
+      <div id="lineaActivaBanner" style="display:none">
+        <div class="linea-banner-contenido">
+          <div class="linea-banner-texto">
+            <span class="linea-banner-nombre" id="lineaBannerNombre"></span>
+            <span class="linea-banner-desc" id="lineaBannerDesc"></span>
+          </div>
+          <button class="linea-banner-volver" onclick="volverTodasPiezas()">
+            <i class="fa-solid fa-xmark"></i> Ver todas
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- BUSCADOR -->
     <div class="buscador-wrapper">
       <i class="fa-solid fa-magnifying-glass"></i>
