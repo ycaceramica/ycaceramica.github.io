@@ -618,25 +618,34 @@ body.dark .linea-card-foto {
   padding: 10px 12px 12px;
 }
 .linea-card-nombre {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 800;
-  margin-bottom: 3px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  line-height: 1.3;
+  margin-bottom: 2px;
+  font-family: 'Asap', 'Plus Jakarta Sans', sans-serif;
+  line-height: 1.2;
 }
-.linea-card-desc {
+.linea-card-codigo {
   font-size: 11px;
-  opacity: 0.6;
-  line-height: 1.4;
-  margin-bottom: 3px;
+  opacity: 0.5;
   font-family: 'Plus Jakarta Sans', sans-serif;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
 }
-.linea-card-precio {
+.linea-card-btn {
+  display: block;
+  width: 100%;
+  padding: 6px 0;
+  border-radius: 20px;
+  border: 1.5px solid;
+  background: transparent;
   font-size: 12px;
   font-weight: 700;
-  margin-top: 5px;
   font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  text-align: center;
 }
+.linea-card-btn:hover { opacity: 0.7; }
 
 /* Banner línea activa */
 #lineaActivaBanner {
@@ -686,6 +695,16 @@ body.dark .linea-card-foto {
 }
 
 
+
+/* Modal de línea */
+.linea-modal-nombre {
+  font-family: 'Asap', 'Plus Jakarta Sans', sans-serif !important;
+}
+.linea-modal-desc {
+  white-space: pre-line;
+  line-height: 1.7;
+  font-size: 15px;
+}
 .pm-btn-ver-piezas {
   display: flex;
   align-items: center;
