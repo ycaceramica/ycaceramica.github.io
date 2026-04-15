@@ -114,6 +114,9 @@
         <button class="sidebar-item" onclick="setSeccion('diario')" id="nav-diario">
           <i class="fa-solid fa-pen-nib"></i> Diario Creativo
         </button>
+        <button class="sidebar-item" onclick="setSeccion('vitrina')" id="nav-vitrina">
+          <i class="fa-solid fa-palette"></i> Vitrina
+        </button>
       </div>
 
       <div class="sidebar-seccion">
@@ -981,6 +984,23 @@
         </div>
       </div>
 
+      <!-- VITRINA -->
+      <div class="seccion" id="seccion-vitrina" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>🎨 Vitrina de Ceramistas</h2>
+            <p>Perfiles públicos de artistas y sus obras</p>
+          </div>
+          <button class="btn-nuevo" onclick="abrirModalArtista()">
+            <i class="fa-solid fa-plus"></i> Nuevo artista
+          </button>
+        </div>
+        <div id="lista-artistas"></div>
+        <div class="loading" id="loading-vitrina" style="display:none">
+          <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+        </div>
+      </div>
+
       <!-- HORNEADO -->
       <div class="seccion" id="seccion-horneado" style="display:none">
         <div class="seccion-header">
@@ -1466,6 +1486,93 @@
             <i class="fa-solid fa-trash"></i> Quitar de la web y borrar fotos del Drive
           </button>
           <button class="btn-cancelar" style="width:100%;text-align:center" onclick="document.getElementById('modalEliminarEntrada').style.display='none'">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- MODAL ARTISTA VITRINA -->
+  <div class="modal-overlay" id="modalArtistaOverlay" style="display:none" onclick="cerrarModalArtista(event)">
+    <div class="modal-card" style="max-width:560px">
+      <div class="modal-header">
+        <h3 id="modalArtistaTitulo">Nuevo artista</h3>
+        <button class="modal-cerrar" onclick="document.getElementById('modalArtistaOverlay').style.display='none'">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modalArtistaBody"></div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="document.getElementById('modalArtistaOverlay').style.display='none'">Cancelar</button>
+        <button class="btn-guardar-modal" id="btnGuardarArtista" onclick="guardarArtista()">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL OBRA VITRINA -->
+  <div class="modal-overlay" id="modalObraOverlay" style="display:none" onclick="cerrarModalObra(event)">
+    <div class="modal-card" style="max-width:520px">
+      <div class="modal-header">
+        <h3 id="modalObraTitulo">Nueva obra</h3>
+        <button class="modal-cerrar" onclick="document.getElementById('modalObraOverlay').style.display='none'">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modalObraBody"></div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="document.getElementById('modalObraOverlay').style.display='none'">Cancelar</button>
+        <button class="btn-guardar-modal" id="btnGuardarObra" onclick="guardarObraVitrina()">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ELIMINAR ARTISTA -->
+  <div class="modal-overlay" id="modalEliminarArtista" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal-card" style="max-width:420px">
+      <div class="modal-header">
+        <h3>¿Eliminar este artista?</h3>
+        <button class="modal-cerrar" onclick="document.getElementById('modalEliminarArtista').style.display='none'">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:14px;opacity:0.8">Se eliminarán también todas sus obras. ¿Qué querés hacer con las fotos?</p>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+          <button class="btn-guardar-modal" onclick="confirmarEliminarArtista(false)" style="background:var(--color-primario)">
+            <i class="fa-solid fa-eye-slash"></i> Solo quitar de la web
+          </button>
+          <button class="btn-guardar-modal" onclick="confirmarEliminarArtista(true)" style="background:#a85252">
+            <i class="fa-solid fa-trash"></i> Quitar de la web y borrar fotos del Drive
+          </button>
+          <button class="btn-cancelar" style="width:100%;text-align:center" onclick="document.getElementById('modalEliminarArtista').style.display='none'">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ELIMINAR OBRA -->
+  <div class="modal-overlay" id="modalEliminarObra" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal-card" style="max-width:420px">
+      <div class="modal-header">
+        <h3>¿Eliminar esta obra?</h3>
+        <button class="modal-cerrar" onclick="document.getElementById('modalEliminarObra').style.display='none'">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:14px;opacity:0.8">¿Qué querés hacer con las fotos de esta obra?</p>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+          <button class="btn-guardar-modal" onclick="confirmarEliminarObra(false)" style="background:var(--color-primario)">
+            <i class="fa-solid fa-eye-slash"></i> Solo quitar de la web
+          </button>
+          <button class="btn-guardar-modal" onclick="confirmarEliminarObra(true)" style="background:#a85252">
+            <i class="fa-solid fa-trash"></i> Quitar de la web y borrar fotos del Drive
+          </button>
+          <button class="btn-cancelar" style="width:100%;text-align:center" onclick="document.getElementById('modalEliminarObra').style.display='none'">Cancelar</button>
         </div>
       </div>
     </div>
