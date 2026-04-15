@@ -110,6 +110,13 @@
       </div>
 
       <div class="sidebar-seccion">
+        <span class="sidebar-label">Contenido</span>
+        <button class="sidebar-item" onclick="setSeccion('diario')" id="nav-diario">
+          <i class="fa-solid fa-pen-nib"></i> Diario Creativo
+        </button>
+      </div>
+
+      <div class="sidebar-seccion">
         <span class="sidebar-label">Servicios</span>
         <button class="sidebar-item" onclick="setSeccion('horneado')" id="nav-horneado">
           <i class="fa-solid fa-fire"></i> Horneado
@@ -949,6 +956,31 @@
         </div>
       </div>
 
+      <!-- DIARIO CREATIVO -->
+      <div class="seccion" id="seccion-diario" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>✍️ Diario Creativo</h2>
+            <p>Entradas publicadas y borradores del diario de Gisele</p>
+          </div>
+          <button class="btn-nuevo" onclick="abrirModalEntrada()">
+            <i class="fa-solid fa-plus"></i> Nueva entrada
+          </button>
+        </div>
+        <div class="usuarios-tabs" style="margin-bottom:16px">
+          <button class="utab activo" onclick="setDiarioTab('publicadas')" id="dtab-publicadas">
+            Publicadas <span id="cnt-publicadas">0</span>
+          </button>
+          <button class="utab" onclick="setDiarioTab('borradores')" id="dtab-borradores">
+            Borradores <span id="cnt-borradores">0</span>
+          </button>
+        </div>
+        <div id="lista-entradas"></div>
+        <div class="loading" id="loading-diario" style="display:none">
+          <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+        </div>
+      </div>
+
       <!-- HORNEADO -->
       <div class="seccion" id="seccion-horneado" style="display:none">
         <div class="seccion-header">
@@ -1391,6 +1423,50 @@
         <button class="btn-guardar-modal" id="btnGuardarLinea" onclick="guardarLinea()">
           <i class="fa-solid fa-floppy-disk"></i> Guardar
         </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- MODAL ENTRADA DIARIO -->
+  <div class="modal-overlay" id="modalEntradaOverlay" style="display:none" onclick="cerrarModalEntrada(event)">
+    <div class="modal-card" style="max-width:600px">
+      <div class="modal-header">
+        <h3 id="modalEntradaTitulo">Nueva entrada</h3>
+        <button class="modal-cerrar" onclick="document.getElementById('modalEntradaOverlay').style.display='none'">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modalEntradaBody"></div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="document.getElementById('modalEntradaOverlay').style.display='none'">Cancelar</button>
+        <button class="btn-guardar-modal" id="btnGuardarEntrada" onclick="guardarEntrada()">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ELIMINAR ENTRADA DIARIO -->
+  <div class="modal-overlay" id="modalEliminarEntrada" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal-card" style="max-width:420px">
+      <div class="modal-header">
+        <h3>¿Eliminar entrada?</h3>
+        <button class="modal-cerrar" onclick="document.getElementById('modalEliminarEntrada').style.display='none'">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:14px;opacity:0.8">¿Qué querés hacer con los archivos de esta entrada?</p>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+          <button class="btn-guardar-modal" onclick="confirmarEliminarEntrada(false)" style="background:var(--color-primario)">
+            <i class="fa-solid fa-eye-slash"></i> Solo quitar de la web
+          </button>
+          <button class="btn-guardar-modal" onclick="confirmarEliminarEntrada(true)" style="background:#a85252">
+            <i class="fa-solid fa-trash"></i> Quitar de la web y borrar fotos del Drive
+          </button>
+          <button class="btn-cancelar" style="width:100%;text-align:center" onclick="document.getElementById('modalEliminarEntrada').style.display='none'">Cancelar</button>
+        </div>
       </div>
     </div>
   </div>
