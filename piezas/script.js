@@ -257,6 +257,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 // ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+
+function inyectarModalPieza(){
+  if(document.getElementById('modalPieza')) return
+  const m = document.createElement('div')
+  m.id        = 'modalPieza'
+  m.className = 'pm-overlay'
+  m.onclick   = cerrarModalPieza
+  m.innerHTML = `
+    <div class="pm-box">
+      <div class="pm-header">
+        <span class="pm-header-titulo" id="pmHeaderTitulo"></span>
+        <button class="pm-cerrar" onclick="cerrarModalPiezaBtn()">&times;</button>
+      </div>
+      <div id="pmContenido"></div>
+    </div>`
+  document.body.appendChild(m)
+}
+
+// ─────────────────────────────────────────────
 // LÍNEAS DE PIEZAS
 // ─────────────────────────────────────────────
 
@@ -310,29 +331,114 @@ function renderLineasFrontend(lineas){
 function filtrarPorLinea(lineaId){
   const linea = (window._lineasData || []).find(l => l.id === lineaId)
   if(!linea) return
-  _lineaActiva = linea
 
   // Resaltar tarjeta activa
   document.querySelectorAll('.linea-card').forEach(c => {
     c.classList.toggle('activa', c.dataset.lineaId === lineaId)
   })
 
+  // Abrir modal de línea
+  abrirModalLinea(linea)
+}
+
+function abrirModalLinea(linea){
+  const fotos = [linea.foto, linea.foto2, linea.foto3, linea.foto4].filter(Boolean)
+  const mostrarPrecio = linea.mostrarPrecio === 'true' || linea.mostrarPrecio === true
+  const mostrarStock  = linea.mostrarStock  === 'true' || linea.mostrarStock  === true
+  const color = linea.color || 'var(--color-primario)'
+
+  // Galería
+  let galeriaHTML = ''
+  if(fotos.length > 1){
+    const dots = fotos.map((_,i) => `<span class="pm-dot lm-dot ${i===0?'activo':''}" onclick="irFotoLinea(${i})"></span>`).join('')
+    const imgs = fotos.map((f,i) => `<img class="pm-foto lm-foto" src="${f}" alt="${linea.nombre}" style="${i>0?'display:none':''}" loading="lazy">`).join('')
+    galeriaHTML = `<div class="pm-carrusel">
+      ${imgs}
+      <button class="pm-nav pm-prev" onclick="navFotoLinea(-1)">&#8249;</button>
+      <button class="pm-nav pm-next" onclick="navFotoLinea(1)">&#8250;</button>
+      <div class="pm-dots">${dots}</div>
+    </div>`
+  } else if(fotos.length === 1){
+    galeriaHTML = `<div class="pm-carrusel"><img class="pm-foto" src="${fotos[0]}" alt="${linea.nombre}" loading="lazy"></div>`
+  } else {
+    galeriaHTML = `<div class="pm-carrusel"><div class="pm-sin-foto">🏺</div></div>`
+  }
+
+  const datosHTML = `
+    <div class="pm-datos">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <div class="pm-categoria" style="background:${color}22;color:${color}">Colección</div>
+        <div class="pm-codigo" style="color:${color}">${linea.id || ''}</div>
+      </div>
+      <h2 class="pm-nombre">${linea.nombre}</h2>
+      ${linea.descripcion ? `<p class="pm-descripcion">${linea.descripcion}</p>` : ''}
+      ${mostrarPrecio && linea.precio ? `<div class="pm-precio" style="color:${color}">Set completo: $${Number(linea.precio).toLocaleString('es-AR')}</div>` : ''}
+      ${mostrarStock && linea.stock !== undefined && linea.stock !== ''
+        ? `<div class="pm-stock">${Number(linea.stock) > 0 ? Number(linea.stock)+' sets disponibles' : 'Sin stock'}</div>`
+        : ''}
+      <button class="pm-btn-ver-piezas" onclick="verPiezasDeLinea('${linea.id}')" style="background:${color}22;color:${color};border:1.5px solid ${color}55">
+        <i class="fa-solid fa-layer-group"></i> Ver piezas de esta línea
+      </button>
+      <button class="pm-btn-wa" onclick="consultarWALinea('${linea.id}')">
+        <i class="fa-brands fa-whatsapp"></i> Consultar por WhatsApp
+      </button>
+      <button class="pm-btn-cerrar-bottom" onclick="cerrarModalLineaFrontend()">Cerrar</button>
+    </div>`
+
+  // Usar el mismo modal de piezas
+  inyectarModalPieza()
+  document.getElementById('pmContenido').innerHTML = galeriaHTML + datosHTML
+  const hTit = document.getElementById('pmHeaderTitulo')
+  if(hTit) hTit.innerText = linea.nombre
+  document.getElementById('modalPieza').style.display = 'flex'
+  document.body.style.overflow = 'hidden'
+  _lineaActiva = linea
+}
+
+let _lmFotoIdx = 0
+function irFotoLinea(n){
+  const fotos = document.querySelectorAll('#pmContenido .lm-foto')
+  const dots  = document.querySelectorAll('#pmContenido .lm-dot')
+  if(!fotos.length) return
+  fotos[_lmFotoIdx].style.display = 'none'
+  dots[_lmFotoIdx]?.classList.remove('activo')
+  _lmFotoIdx = (n + fotos.length) % fotos.length
+  fotos[_lmFotoIdx].style.display = 'block'
+  dots[_lmFotoIdx]?.classList.add('activo')
+}
+function navFotoLinea(dir){ irFotoLinea(_lmFotoIdx + dir) }
+
+function cerrarModalLineaFrontend(){
+  document.getElementById('modalPieza').style.display = 'none'
+  document.body.style.overflow = ''
+  _lmFotoIdx = 0
+}
+
+function consultarWALinea(lineaId){
+  const linea = (window._lineasData || []).find(l => l.id === lineaId)
+  if(!linea) return
+  const texto = `Hola! Me interesa la línea ${linea.nombre} de YCA Cerámica.`
+  window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(texto)}`, '_blank')
+}
+
+function verPiezasDeLinea(lineaId){
+  cerrarModalLineaFrontend()
+  _lineaActiva = (window._lineasData || []).find(l => l.id === lineaId)
+
   // Mostrar banner
   const banner = document.getElementById('lineaActivaBanner')
   const nombre = document.getElementById('lineaBannerNombre')
   const desc   = document.getElementById('lineaBannerDesc')
-  if(banner){ banner.style.display = 'block' }
-  if(nombre){ nombre.innerText = linea.nombre }
-  if(desc)  { desc.innerText = linea.descripcion || '' }
+  if(banner) banner.style.display = 'block'
+  if(nombre && _lineaActiva) nombre.innerText = _lineaActiva.nombre
+  if(desc   && _lineaActiva) desc.innerText   = _lineaActiva.descripcion || ''
 
-  // Filtrar grid — solo piezas de esta línea
+  // Filtrar grid
   const grid = document.getElementById('piezasGrid')
-  _piezasTodos = _todasPiezas.filter(p => p.linea === lineaId)
+  _piezasTodos  = _todasPiezas.filter(p => p.linea === lineaId)
   _piezasPagina = 0
   grid.innerHTML = ''
   document.getElementById('btnMasPiezas').style.display = 'none'
-
-  // Resetear filtros de categoría
   document.querySelectorAll('.filtro').forEach(b => b.classList.remove('activo'))
   document.querySelector(".filtro[data-categoria='todas']")?.classList.add('activo')
 
@@ -341,6 +447,9 @@ function filtrarPorLinea(lineaId){
   } else {
     mostrarMasPiezas()
   }
+
+  // Scroll suave al grid
+  document.getElementById('piezasGrid')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 function volverTodasPiezas(){
@@ -375,15 +484,14 @@ async function cargarPiezas(){
         _todasPiezas  = piezas
         _piezasTodos  = piezas
         _piezasPagina = 0
-        // Inyectar modal si no existe
-        if(!document.getElementById('modalPieza')){
-          const m = document.createElement('div')
-          m.id = 'modalPieza'; m.className = 'pm-overlay'; m.onclick = cerrarModalPieza
-          m.innerHTML = `<div class="pm-box"><div class="pm-header"><span class="pm-header-titulo" id="pmHeaderTitulo"></span><button class="pm-cerrar" onclick="cerrarModalPiezaBtn()">&times;</button></div><div id="pmContenido"></div></div>`
-          document.body.appendChild(m)
-        }
+        inyectarModalPieza()
         mostrarMasPiezas()
-        // Refrescar en segundo plano
+        // Cargar líneas siempre (no se cachean)
+        fetch(`${API}?action=getLineasPiezas`).then(r=>r.json()).then(d=>{
+          window._lineasData = d.data || []
+          renderLineasFrontend(window._lineasData)
+        }).catch(()=>{})
+        // Refrescar piezas en segundo plano
         fetch(`${API}?action=getPiezas`).then(r=>r.json()).then(d=>{
           if(d.data){ sessionStorage.setItem('yca_piezas',JSON.stringify(d.data)); sessionStorage.setItem('yca_piezas_ts',Date.now()) }
         }).catch(()=>{})
@@ -416,22 +524,7 @@ async function cargarPiezas(){
       return
     }
 
-    // Inyectar modal en el DOM si no existe
-    if(!document.getElementById('modalPieza')){
-      const m = document.createElement('div')
-      m.id        = 'modalPieza'
-      m.className = 'pm-overlay'
-      m.onclick   = cerrarModalPieza
-      m.innerHTML = `
-        <div class="pm-box">
-          <div class="pm-header">
-            <span class="pm-header-titulo" id="pmHeaderTitulo"></span>
-            <button class="pm-cerrar" onclick="cerrarModalPiezaBtn()">&times;</button>
-          </div>
-          <div id="pmContenido"></div>
-        </div>`
-      document.body.appendChild(m)
-    }
+    inyectarModalPieza()
 
     armarFiltros(piezas)
     _todasPiezas  = piezas
