@@ -150,6 +150,7 @@ async function cargarSeccion(nombre){
   if(nombre === 'notas')        { await cargarNotas();        return }
   if(nombre === 'pastas')       { await cargarPastas();       return }
   if(nombre === 'engobes')      { await cargarEngobes();      return }
+  if(nombre === 'diario')       { await cargarDiario();       return }
   if(nombre === 'horneado')     { await cargarHorneado();     return }
   if(nombre === 'piezas')       { cargarConfigPiezas(); cargarLineasAdmin() }
   if(nombre === 'insumos')      { cargarConfigInsumos() }
@@ -5159,6 +5160,265 @@ const COLORES_HORNEADO = {
 let pedidosHorneado   = []
 let horneadoTabActual = 'pendiente'
 let pedidoSeleccionado = null
+
+
+// ============================================================
+//  DIARIO CREATIVO
+// ============================================================
+
+let _entradasData   = []
+let _diarioTab      = 'publicadas'
+let _entradaModal   = null
+let _entradaFoto    = null
+let _entradaFotosEx = { foto2: null, foto3: null, foto4: null }
+let _entradaMiniatura = null
+
+async function cargarDiario(){
+  const load = document.getElementById('loading-diario')
+  if(load) load.style.display = 'block'
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(API + '?action=getEntradasAdmin&token=' + sesion.token)
+    const data   = await res.json()
+    _entradasData = data.data || []
+    renderDiario()
+  } catch(e){ toast('❌ Error al cargar entradas', 'err') }
+  finally { if(load) load.style.display = 'none' }
+}
+
+function setDiarioTab(tab){
+  _diarioTab = tab
+  document.querySelectorAll('#seccion-diario .utab').forEach(b => b.classList.remove('activo'))
+  document.getElementById('dtab-' + tab)?.classList.add('activo')
+  renderDiario()
+}
+
+function renderDiario(){
+  const lista       = document.getElementById('lista-entradas')
+  if(!lista) return
+  const publicadas  = _entradasData.filter(e => e.estado === 'publicada')
+  const borradores  = _entradasData.filter(e => e.estado !== 'publicada')
+  document.getElementById('cnt-publicadas').innerText = publicadas.length || 0
+  document.getElementById('cnt-borradores').innerText = borradores.length || 0
+  const filtradas = _diarioTab === 'publicadas' ? publicadas : borradores
+  if(filtradas.length === 0){
+    lista.innerHTML = '<div class="vacio"><i class="fa-solid fa-pen-nib"></i><p>No hay entradas en esta categoría</p></div>'
+    return
+  }
+  lista.innerHTML = filtradas.map(e => {
+    const miniatura = e.miniatura || e.foto || ''
+    return `<div class="elaboracion-config-box" style="margin-bottom:10px;gap:12px;align-items:flex-start">
+      <div style="display:flex;gap:12px;align-items:center;flex:1">
+        ${miniatura
+          ? `<img src="${miniatura}" style="width:56px;height:56px;object-fit:cover;border-radius:10px;flex-shrink:0">`
+          : `<div style="width:56px;height:56px;border-radius:10px;background:var(--color-fondo);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">✍️</div>`}
+        <div>
+          <div style="font-weight:700;font-size:14px">${e.titulo}</div>
+          <div style="font-size:12px;opacity:0.5;margin-top:2px">${e.codigo || ''} · ${e.creadoEn || ''}</div>
+          <span class="estado-badge ${e.estado === 'publicada' ? 'activo' : 'pausado'}" style="margin-top:4px;display:inline-block">
+            ${e.estado === 'publicada' ? 'Publicada' : 'Borrador'}
+          </span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <button class="btn-editar" onclick='abrirModalEntrada(${JSON.stringify(e).replace(/'/g,"\'")})'  title="Editar"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn-borrar" onclick="eliminarEntradaAdmin('${e.id}')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`
+  }).join('')
+}
+
+function abrirModalEntrada(item = null){
+  _entradaModal     = item
+  _entradaFoto      = null
+  _entradaMiniatura = null
+  _entradaFotosEx   = { foto2: null, foto3: null, foto4: null }
+
+  document.getElementById('modalEntradaTitulo').innerText = item ? 'Editar entrada' : 'Nueva entrada'
+
+  const miniaturaActual = item?.miniatura || ''
+  const fotoActual      = item?.foto || ''
+
+  const slotsExtra = [2,3,4].map(n => {
+    const fUrl = item?.['foto'+n] || ''
+    const img  = fUrl
+      ? `<img src="${fUrl}" class="mform-foto-extra-img"><button class="mform-foto-extra-quitar" onclick="event.stopPropagation();quitarEntradaFotoExtra(${n})" type="button">×</button>`
+      : `<div class="mform-foto-extra-placeholder"><i class="fa-solid fa-plus"></i><span>Foto ${n-1}</span></div>`
+    return `<div class="mform-foto-extra-slot" id="entradaFotoSlot${n}" onclick="elegirEntradaFotoExtra(${n})">${img}</div>`
+  }).join('')
+
+  document.getElementById('modalEntradaBody').innerHTML = `
+    <div class="mform-grupo">
+      <label>Título *</label>
+      <input id="eTitulo" value="${item?.titulo||''}" placeholder="Título de la entrada">
+    </div>
+    <div class="mform-grupo">
+      <label>🖼 Miniatura <small style="opacity:0.5;font-weight:400">(se muestra en la grilla)</small></label>
+      <div class="mform-foto-area" id="entradaMiniaturaArea" onclick="elegirEntradaMiniatura()">
+        ${miniaturaActual
+          ? `<img class="mform-foto-preview" src="${miniaturaActual}" alt="Miniatura"><button class="mform-foto-cambiar" onclick="elegirEntradaMiniatura()" type="button"><i class="fa-solid fa-camera"></i> Cambiar</button>`
+          : `<div class="mform-foto-placeholder"><i class="fa-solid fa-camera"></i><strong>Tocá para agregar miniatura</strong><small>Recomendado: 16:9</small></div>`}
+      </div>
+    </div>
+    <div class="mform-grupo">
+      <label>📷 Foto principal del contenido</label>
+      <div class="mform-foto-area" id="entradaFotoArea" onclick="elegirEntradaFoto()">
+        ${fotoActual
+          ? `<img class="mform-foto-preview" src="${fotoActual}" alt="Foto"><button class="mform-foto-cambiar" onclick="elegirEntradaFoto()" type="button"><i class="fa-solid fa-camera"></i> Cambiar</button>`
+          : `<div class="mform-foto-placeholder"><i class="fa-solid fa-camera"></i><strong>Tocá para agregar foto</strong></div>`}
+      </div>
+    </div>
+    <div class="mform-grupo mform-fotos-extra">
+      <label>📷 Fotos adicionales <small style="opacity:0.5;font-weight:400">(hasta 3 fotos extra)</small></label>
+      <div class="mform-fotos-extra-grid">${slotsExtra}</div>
+      <input type="file" id="entradaFotoExtraInput" accept="image/*" style="display:none" onchange="onEntradaFotoExtraChange(this)">
+    </div>
+    <div class="mform-grupo">
+      <label>Texto *</label>
+      <textarea id="eTexto" rows="8" placeholder="Escribí la entrada aquí...">${item?.texto||''}</textarea>
+    </div>
+    <div class="mform-grupo">
+      <label>🎬 Video de YouTube <small style="opacity:0.5;font-weight:400">(opcional — pegá el link)</small></label>
+      <input id="eVideo" value="${item?.video||''}" placeholder="https://www.youtube.com/watch?v=...">
+    </div>
+    <label class="publicado-toggle">
+      <input type="checkbox" id="ePublicada" ${item?.estado==='publicada'?'checked':''}>
+      <span>✅ Publicar en la web</span>
+    </label>
+    <input type="file" id="entradaMiniaturaInput" accept="image/*" style="display:none" onchange="onEntradaMiniaturaChange(this)">
+    <input type="file" id="entradaFotoInput" accept="image/*" style="display:none" onchange="onEntradaFotoChange(this)">
+  `
+  document.getElementById('modalEntradaOverlay').style.display = 'flex'
+}
+
+function cerrarModalEntrada(e){
+  if(e && e.target !== document.getElementById('modalEntradaOverlay')) return
+  document.getElementById('modalEntradaOverlay').style.display = 'none'
+}
+
+function elegirEntradaMiniatura(){ document.getElementById('entradaMiniaturaInput')?.click() }
+function elegirEntradaFoto(){ document.getElementById('entradaFotoInput')?.click() }
+
+async function onEntradaMiniaturaChange(input){
+  const file = input.files[0]; if(!file) return
+  const reader = new FileReader()
+  reader.onload = async ev => {
+    _entradaMiniatura = await convertirAJpg(ev.target.result)
+    const area = document.getElementById('entradaMiniaturaArea')
+    if(area) area.innerHTML = `<img class="mform-foto-preview" src="${_entradaMiniatura}"><button class="mform-foto-cambiar" onclick="elegirEntradaMiniatura()" type="button"><i class="fa-solid fa-camera"></i> Cambiar</button>`
+  }
+  reader.readAsDataURL(file)
+}
+
+async function onEntradaFotoChange(input){
+  const file = input.files[0]; if(!file) return
+  const reader = new FileReader()
+  reader.onload = async ev => {
+    _entradaFoto = await convertirAJpg(ev.target.result)
+    const area = document.getElementById('entradaFotoArea')
+    if(area) area.innerHTML = `<img class="mform-foto-preview" src="${_entradaFoto}"><button class="mform-foto-cambiar" onclick="elegirEntradaFoto()" type="button"><i class="fa-solid fa-camera"></i> Cambiar</button>`
+  }
+  reader.readAsDataURL(file)
+}
+
+let _entradaFotoExN = null
+function elegirEntradaFotoExtra(n){ _entradaFotoExN = n; document.getElementById('entradaFotoExtraInput')?.click() }
+
+async function onEntradaFotoExtraChange(input){
+  const file = input.files[0]; if(!file||!_entradaFotoExN) return
+  const n = _entradaFotoExN
+  const reader = new FileReader()
+  reader.onload = async ev => {
+    const b64 = await convertirAJpg(ev.target.result)
+    _entradaFotosEx['foto'+n] = b64
+    const slot = document.getElementById('entradaFotoSlot'+n)
+    if(slot) slot.innerHTML = `<img src="${b64}" class="mform-foto-extra-img"><button class="mform-foto-extra-quitar" onclick="event.stopPropagation();quitarEntradaFotoExtra(${n})" type="button">×</button>`
+  }
+  reader.readAsDataURL(file)
+  input.value = ''
+}
+
+function quitarEntradaFotoExtra(n){
+  _entradaFotosEx['foto'+n] = null
+  _entradaFotosEx['_borrar'+n] = true
+  const slot = document.getElementById('entradaFotoSlot'+n)
+  if(slot) slot.innerHTML = `<div class="mform-foto-extra-placeholder"><i class="fa-solid fa-plus"></i><span>Foto ${n-1}</span></div>`
+}
+
+async function guardarEntrada(){
+  const titulo = document.getElementById('eTitulo')?.value.trim()
+  if(!titulo){ toast('El título es obligatorio', 'err'); return }
+
+  const btn = document.getElementById('btnGuardarEntrada')
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'
+  btn.disabled = true
+
+  const sesion = getSesion()
+  const fila = {
+    id:        _entradaModal?.id || '',
+    codigo:    _entradaModal?.codigo || '',
+    titulo,
+    texto:     document.getElementById('eTexto')?.value || '',
+    miniatura: _entradaModal?.miniatura || '',
+    foto:      _entradaModal?.foto || '',
+    foto2:     _entradaFotosEx._borrar2 ? '' : (_entradaModal?.foto2 || ''),
+    foto3:     _entradaFotosEx._borrar3 ? '' : (_entradaModal?.foto3 || ''),
+    foto4:     _entradaFotosEx._borrar4 ? '' : (_entradaModal?.foto4 || ''),
+    video:     document.getElementById('eVideo')?.value.trim() || '',
+    estado:    document.getElementById('ePublicada')?.checked ? 'publicada' : 'borrador',
+    creadoEn:  _entradaModal?.creadoEn || ''
+  }
+
+  try {
+    const res  = await fetch(API, { method:'POST', body: JSON.stringify({ action:'guardarEntrada', fila, token:sesion.token }) })
+    const data = await res.json()
+    if(!data.ok){ toast('❌ ' + (data.error||'Error al guardar'), 'err'); return }
+
+    const idG = data.id || fila.id
+    const fechaCarpeta = fila.creadoEn || new Date().toLocaleDateString('es-AR').replace(/\//g, '-')
+
+    if(_entradaMiniatura){
+      fetch(API, { method:'POST', body: JSON.stringify({ action:'subirFoto', hoja:'bitacora', id:idG, b64:_entradaMiniatura, nombre:idG+'_miniatura_'+Date.now(), campo:'miniatura', categoria:fechaCarpeta, token:sesion.token }) })
+        .then(r=>r.json()).then(d=>{ if(d.ok){ cargarDiario(); toast('✅ Miniatura subida','ok') } }).catch(()=>{})
+    }
+    if(_entradaFoto){
+      fetch(API, { method:'POST', body: JSON.stringify({ action:'subirFoto', hoja:'bitacora', id:idG, b64:_entradaFoto, nombre:idG+'_foto_'+Date.now(), categoria:fechaCarpeta, token:sesion.token }) }).catch(()=>{})
+    }
+    ;[2,3,4].forEach(n => {
+      const b64e = _entradaFotosEx['foto'+n]
+      if(b64e) fetch(API, { method:'POST', body: JSON.stringify({ action:'subirFoto', hoja:'bitacora', id:idG, b64:b64e, nombre:idG+'_foto'+n+'_'+Date.now(), campo:'foto'+n, categoria:fechaCarpeta, token:sesion.token }) }).catch(()=>{})
+    })
+
+    document.getElementById('modalEntradaOverlay').style.display = 'none'
+    await cargarDiario()
+    toast('✅ Entrada guardada', 'ok')
+  } catch(e){ toast('❌ Error de conexión', 'err') }
+  finally {
+    btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar'
+    btn.disabled = false
+  }
+}
+
+let _eliminarEntradaId = null
+
+function eliminarEntradaAdmin(id){
+  _eliminarEntradaId = id
+  document.getElementById('modalEliminarEntrada').style.display = 'flex'
+}
+
+async function confirmarEliminarEntrada(borrarDrive){
+  document.getElementById('modalEliminarEntrada').style.display = 'none'
+  const id = _eliminarEntradaId
+  if(!id) return
+  try {
+    const sesion = getSesion()
+    const res  = await fetch(API, { method:'POST', body: JSON.stringify({ action:'eliminarEntrada', id, borrarDrive, token:sesion.token }) })
+    const data = await res.json()
+    if(data.ok){ await cargarDiario(); toast('✅ Entrada eliminada', 'ok') }
+    else toast('❌ ' + (data.error||'Error'), 'err')
+  } catch(e){ toast('❌ Error de conexión', 'err') }
+  _eliminarEntradaId = null
+}
 
 async function cargarHorneado() {
   const loading = document.getElementById('loading-horneado')
