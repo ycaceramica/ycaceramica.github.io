@@ -315,14 +315,15 @@ function renderLineasFrontend(lineas){
     const color   = l.color || '#8B4513'
     const precio  = (l.mostrarPrecio === 'true' || l.mostrarPrecio === true) && l.precio
     const foto    = l.foto || ''
-    return `<div class="linea-card" data-linea-id="${l.id}">
+    return `<div class="linea-card" data-linea-id="${l.id}" style="--linea-color:${color}">
       <div class="linea-card-foto" style="${foto ? `background-image:url('${foto}')` : ''}">
         ${!foto ? `<div class="linea-card-emoji">🏺</div>` : ''}
       </div>
       <div class="linea-card-info">
-        <div class="linea-card-nombre" style="color:${color}">${l.nombre}</div>
+        <div class="linea-card-categoria">Colección</div>
+        <div class="linea-card-nombre">${l.nombre}</div>
         ${l.codigo ? `<div class="linea-card-codigo">${l.codigo}</div>` : ''}
-        <button class="linea-card-btn" style="border-color:${color};color:${color}" onclick="filtrarPorLinea('${l.id}')">Ver línea</button>
+        <button class="linea-card-btn" onclick="filtrarPorLinea('${l.id}')">Ver línea</button>
       </div>
     </div>`
   }).join('')
@@ -367,13 +368,12 @@ function abrirModalLinea(linea){
   const datosHTML = `
     <div class="pm-datos">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-        <div class="pm-categoria" style="background:${color}22;color:${color}">Colección</div>
-        <div class="pm-codigo" style="color:${color}">${linea.id || ''}</div>
+        <div class="pm-categoria">Colección</div>
       </div>
       <h2 class="pm-nombre linea-modal-nombre">${linea.nombre}</h2>
-      ${linea.codigo ? `<div class="pm-codigo" style="color:${color};margin-bottom:10px">${linea.codigo}</div>` : ''}
+      ${linea.codigo ? `<div class="pm-codigo" style="margin-bottom:10px">${linea.codigo}</div>` : ''}
       ${linea.descripcion ? `<p class="pm-descripcion linea-modal-desc">${linea.descripcion}</p>` : ''}
-      ${mostrarPrecio && linea.precio ? `<div class="pm-precio" style="color:${color}">Set completo: $${Number(linea.precio).toLocaleString('es-AR')}</div>` : ''}
+      ${mostrarPrecio && linea.precio ? `<div class="pm-precio">Set completo: $${Number(linea.precio).toLocaleString('es-AR')}</div>` : ''}
       ${mostrarStock && linea.stock !== undefined && linea.stock !== ''
         ? `<div class="pm-stock">${Number(linea.stock) > 0 ? Number(linea.stock)+' sets disponibles' : 'Sin stock'}</div>`
         : ''}
