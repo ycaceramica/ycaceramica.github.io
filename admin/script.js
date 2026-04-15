@@ -5687,12 +5687,17 @@ function abrirModalObra(artistaId, nombreArtista, item = null){
       <span>🛒 Disponible para venta (muestra botón WhatsApp)</span>
     </label>
   `
+  // Cerrar lista de obras para no apilar modales
+  document.getElementById('modalObrasListaOverlay').style.display = 'none'
   document.getElementById('modalObraOverlay').style.display = 'flex'
 }
 
 function cerrarModalObra(e){
   if(e && e.target !== document.getElementById('modalObraOverlay')) return
   document.getElementById('modalObraOverlay').style.display = 'none'
+  // Volver a mostrar lista de obras
+  const artista = _artistasData.find(a => a.id === _obraArtistaId)
+  if(artista) abrirObrasArtista(_obraArtistaId, artista.nombre, artista.codigo)
 }
 
 let _obraFotoCampo = null
