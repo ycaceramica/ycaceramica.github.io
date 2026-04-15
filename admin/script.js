@@ -5591,8 +5591,15 @@ async function confirmarEliminarArtista(borrarDrive){
 // ── Obras del artista ──
 async function abrirObrasArtista(artistaId, nombreArtista, codigoArtista){
   _obraArtistaId = artistaId
-  // Cargar obras actuales
-  const sesion = getSesion()
+  // Mostrar modal de obras con spinner
+  const overlay = document.getElementById('modalObrasListaOverlay')
+  const titulo  = document.getElementById('modalObrasListaTitulo')
+  const body    = document.getElementById('modalObrasListaBody')
+  if(!overlay) return
+  if(titulo) titulo.innerText = `🎨 Obras de ${nombreArtista}`
+  if(body)   body.innerHTML  = '<div style="text-align:center;padding:32px"><i class="fa-solid fa-spinner fa-spin"></i></div>'
+  overlay.style.display = 'flex'
+
   let obras = []
   try {
     const res  = await fetch(API + '?action=getVitrinaCeramista&id=' + artistaId)
@@ -5600,15 +5607,7 @@ async function abrirObrasArtista(artistaId, nombreArtista, codigoArtista){
     obras = data.obras || []
   } catch(e){}
 
-  const total = obras.length
-  const puedAgregar = total < 10
-
-  abrirModalConfirmarAccion(
-    `🎨 Obras de ${nombreArtista}`,
-    renderObrasHtml(obras, artistaId, nombreArtista, puedAgregar),
-    null,
-    true // sin botón confirmar
-  )
+  if(body) body.innerHTML = renderObrasHtml(obras, artistaId, nombreArtista, obras.length < 10)
 }
 
 function renderObrasHtml(obras, artistaId, nombreArtista, puedAgregar){
@@ -5689,7 +5688,6 @@ function abrirModalObra(artistaId, nombreArtista, item = null){
     </label>
   `
   document.getElementById('modalObraOverlay').style.display = 'flex'
-  document.getElementById('modalConfirmarAccion')?.style && (document.getElementById('modalConfirmarAccion').style.display = 'none')
 }
 
 function cerrarModalObra(e){
@@ -5758,6 +5756,9 @@ async function guardarObraVitrina(){
     })
     document.getElementById('modalObraOverlay').style.display = 'none'
     toast('✅ Obra guardada — las fotos se suben en segundo plano','ok')
+    // Refrescar lista de obras si está abierta
+    const artista = _artistasData.find(a => a.id === _obraArtistaId)
+    if(artista) await abrirObrasArtista(_obraArtistaId, artista.nombre, artista.codigo)
   } catch(e){ toast('❌ Error de conexión','err') }
   finally { btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar'; btn.disabled = false }
 }
@@ -5771,8 +5772,11 @@ async function confirmarEliminarObra(borrarDrive){
     const sesion = getSesion()
     const res  = await fetch(API, { method:'POST', body: JSON.stringify({ action:'eliminarObraVitrina', id:_elimObraId, borrarDrive, token:sesion.token }) })
     const data = await res.json()
-    if(data.ok){ toast('✅ Obra eliminada','ok') }
-    else toast('❌ '+(data.error||'Error'),'err')
+    if(data.ok){
+      toast('✅ Obra eliminada','ok')
+      const artista = _artistasData.find(a => a.id === _obraArtistaId)
+      if(artista) await abrirObrasArtista(_obraArtistaId, artista.nombre, artista.codigo)
+    } else toast('❌ '+(data.error||'Error'),'err')
   } catch(e){ toast('❌ Error de conexión','err') }
   _elimObraId = null
 }
