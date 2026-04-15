@@ -315,14 +315,14 @@ function renderLineasFrontend(lineas){
     const color   = l.color || '#8B4513'
     const precio  = (l.mostrarPrecio === 'true' || l.mostrarPrecio === true) && l.precio
     const foto    = l.foto || ''
-    return `<div class="linea-card" onclick="filtrarPorLinea('${l.id}')" data-linea-id="${l.id}">
+    return `<div class="linea-card" data-linea-id="${l.id}">
       <div class="linea-card-foto" style="${foto ? `background-image:url('${foto}')` : ''}">
         ${!foto ? `<div class="linea-card-emoji">🏺</div>` : ''}
       </div>
       <div class="linea-card-info">
         <div class="linea-card-nombre" style="color:${color}">${l.nombre}</div>
-        ${l.descripcion ? `<div class="linea-card-desc">${l.descripcion}</div>` : ''}
-        ${precio ? `<div class="linea-card-precio" style="color:${color}">Set desde $${Number(l.precio).toLocaleString('es-AR')}</div>` : ''}
+        ${l.codigo ? `<div class="linea-card-codigo">${l.codigo}</div>` : ''}
+        <button class="linea-card-btn" style="border-color:${color};color:${color}" onclick="filtrarPorLinea('${l.id}')">Ver línea</button>
       </div>
     </div>`
   }).join('')
@@ -370,15 +370,13 @@ function abrirModalLinea(linea){
         <div class="pm-categoria" style="background:${color}22;color:${color}">Colección</div>
         <div class="pm-codigo" style="color:${color}">${linea.id || ''}</div>
       </div>
-      <h2 class="pm-nombre">${linea.nombre}</h2>
-      ${linea.descripcion ? `<p class="pm-descripcion">${linea.descripcion}</p>` : ''}
+      <h2 class="pm-nombre linea-modal-nombre">${linea.nombre}</h2>
+      ${linea.codigo ? `<div class="pm-codigo" style="color:${color};margin-bottom:10px">${linea.codigo}</div>` : ''}
+      ${linea.descripcion ? `<p class="pm-descripcion linea-modal-desc">${linea.descripcion}</p>` : ''}
       ${mostrarPrecio && linea.precio ? `<div class="pm-precio" style="color:${color}">Set completo: $${Number(linea.precio).toLocaleString('es-AR')}</div>` : ''}
       ${mostrarStock && linea.stock !== undefined && linea.stock !== ''
         ? `<div class="pm-stock">${Number(linea.stock) > 0 ? Number(linea.stock)+' sets disponibles' : 'Sin stock'}</div>`
         : ''}
-      <button class="pm-btn-ver-piezas" onclick="verPiezasDeLinea('${linea.id}')" style="background:${color}22;color:${color};border:1.5px solid ${color}55">
-        <i class="fa-solid fa-layer-group"></i> Ver piezas de esta línea
-      </button>
       <button class="pm-btn-wa" onclick="consultarWALinea('${linea.id}')">
         <i class="fa-brands fa-whatsapp"></i> Consultar por WhatsApp
       </button>
