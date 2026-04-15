@@ -264,9 +264,20 @@ let _todasPiezas  = []   // copia completa para restaurar filtro
 let _lineaActiva  = null
 
 function svgPincelada(color){
-  return `<svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" class="linea-brush-svg">
-    <path d="M8,32 C20,10 35,6 55,14 C75,22 90,8 112,10" stroke="${color}" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.85"/>
-    <path d="M6,34 C18,28 32,30 50,26 C68,22 88,28 114,22" stroke="${color}" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.4"/>
+  return `<svg viewBox="0 0 140 48" xmlns="http://www.w3.org/2000/svg" class="linea-brush-svg">
+    <!-- mancha base ancha -->
+    <path d="M6,36 C18,16 36,10 62,18 C88,26 108,12 134,16" stroke="${color}" stroke-width="14" stroke-linecap="round" fill="none" opacity="0.7"/>
+    <!-- trazo principal -->
+    <path d="M4,34 C22,14 42,8 66,16 C90,24 110,10 136,14" stroke="${color}" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.9"/>
+    <!-- trazo fino superior con desvío -->
+    <path d="M10,28 C28,18 50,14 72,20 C94,26 112,16 136,18" stroke="${color}" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.5"/>
+    <!-- salpicaduras / flecos -->
+    <path d="M18,40 C22,36 20,32 24,34" stroke="${color}" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.4"/>
+    <path d="M52,38 C56,30 58,26 62,28" stroke="${color}" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.35"/>
+    <path d="M90,30 C96,22 98,20 102,24" stroke="${color}" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.35"/>
+    <path d="M118,22 C124,18 126,16 128,20" stroke="${color}" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.3"/>
+    <!-- trazo fino suelto abajo -->
+    <path d="M8,42 C30,38 55,40 80,36 C100,32 118,36 134,32" stroke="${color}" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.25"/>
   </svg>`
 }
 
