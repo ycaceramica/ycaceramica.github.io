@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Perfil de ceramista — YCA Cerámica">
+  <title id="pageTitle">Ceramista — YCA Cerámica</title>
+  <link rel="icon" type="image/png" href="../../imagenes/logo.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+
+  <!-- PERFIL -->
+  <div id="perfilWrapper" style="display:none">
+
+    <div class="ceramista-volver">
+      <a href="../" class="ceramista-volver-link">
+        <i class="fa-solid fa-arrow-left"></i> Vitrina
+      </a>
+    </div>
+
+    <div class="ceramista-perfil">
+      <div class="ceramista-foto-wrap">
+        <img id="ceramistaFoto" src="" alt="" style="display:none">
+        <div id="ceramistaFotoPlaceholder" class="ceramista-foto-placeholder">🎨</div>
+      </div>
+      <div class="ceramista-perfil-info">
+        <span class="ceramista-tag">🎨 Ceramista</span>
+        <h1 id="ceramistaNombre" class="ceramista-nombre"></h1>
+        <p id="ceramistaBio" class="ceramista-bio"></p>
+        <div id="ceramistaRedes" class="ceramista-redes"></div>
+      </div>
+    </div>
+
+    <!-- OBRAS -->
+    <div class="ceramista-obras-wrapper">
+      <h2 class="ceramista-obras-titulo">Obras</h2>
+      <div class="ceramista-obras-grid" id="obrasGrid"></div>
+    </div>
+
+  </div>
+
+  <!-- ESTADO -->
+  <div class="ceramista-estado" id="ceramistaEstado">
+    <div class="spinner"></div>
+    <p id="ceramistaEstadoMsg">Cargando perfil...</p>
+  </div>
+
+  <!-- MODAL OBRA -->
+  <div class="obra-overlay" id="obraOverlay" onclick="cerrarObraModal(event)" style="display:none">
+    <div class="obra-modal">
+      <button class="obra-modal-cerrar" onclick="cerrarObraModalBtn()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div id="obraModalContenido"></div>
+    </div>
+  </div>
+
+  <a class="whatsapp" href="https://wa.me/5491160387535" target="_blank">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <div id="footer-placeholder"></div>
+
+  <script src="script.js"></script>
+  <script src="../../nav-ceramista.js"></script>
+  <script src="../../footer.js"></script>
+</body>
+</html>

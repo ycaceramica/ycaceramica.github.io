@@ -1,0 +1,160 @@
+@import url('../../style.css');
+
+/* ── VOLVER ── */
+.ceramista-volver { max-width: 900px; margin: 0 auto; padding: 100px 20px 0; }
+.ceramista-volver-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--color-primario); font-size: 14px; font-weight: 600;
+  text-decoration: none; opacity: 0.8; transition: opacity 0.15s;
+}
+.ceramista-volver-link:hover { opacity: 1; }
+
+/* ── PERFIL ── */
+.ceramista-perfil {
+  max-width: 900px; margin: 32px auto 0; padding: 0 20px;
+  display: flex; gap: 40px; align-items: flex-start;
+}
+.ceramista-foto-wrap { flex-shrink: 0; }
+.ceramista-foto-wrap img {
+  width: 160px; height: 160px; border-radius: 50%;
+  object-fit: cover; object-position: center top;
+  border: 3px solid var(--color-primario);
+  box-shadow: 0 4px 16px var(--color-sombra);
+}
+.ceramista-foto-placeholder {
+  width: 160px; height: 160px; border-radius: 50%;
+  background: var(--color-fondo); border: 3px solid rgba(139,111,86,0.2);
+  display: flex; align-items: center; justify-content: center; font-size: 56px;
+}
+.ceramista-perfil-info { flex: 1; padding-top: 8px; }
+.ceramista-tag {
+  display: inline-block; background: rgba(139,111,86,0.12);
+  border-radius: 30px; padding: 5px 14px; font-size: 12px; font-weight: 600;
+  color: var(--color-primario); margin-bottom: 12px; letter-spacing: 0.5px;
+}
+.ceramista-nombre {
+  font-size: 32px; font-weight: 700; margin: 0 0 14px;
+  font-family: 'Asap', 'Plus Jakarta Sans', sans-serif;
+}
+.ceramista-bio { font-size: 15px; line-height: 1.75; opacity: 0.85; margin-bottom: 16px; }
+.ceramista-bio p { margin: 0 0 10px; }
+
+.ceramista-redes { display: flex; gap: 12px; flex-wrap: wrap; }
+.ceramista-red {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 16px; border-radius: 30px;
+  background: rgba(139,111,86,0.1); border: 1.5px solid rgba(139,111,86,0.2);
+  color: var(--color-primario); font-size: 13px; font-weight: 700;
+  text-decoration: none; transition: background 0.15s;
+}
+.ceramista-red:hover { background: rgba(139,111,86,0.2); }
+
+/* ── OBRAS ── */
+.ceramista-obras-wrapper {
+  max-width: 900px; margin: 48px auto 80px; padding: 0 20px;
+}
+.ceramista-obras-titulo {
+  font-size: 22px; font-weight: 700; margin-bottom: 24px;
+  font-family: 'Asap', 'Plus Jakarta Sans', sans-serif;
+  border-bottom: 2px solid rgba(139,111,86,0.15); padding-bottom: 12px;
+}
+.ceramista-obras-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+.obras-vacias { opacity: 0.5; font-size: 14px; }
+
+/* ── CARD OBRA ── */
+.obra-card {
+  background: var(--color-superficie); border-radius: 14px; overflow: hidden;
+  box-shadow: 0 3px 12px var(--color-sombra); cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.obra-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px var(--color-sombra); }
+.obra-card-foto {
+  width: 100%; aspect-ratio: 1/1; background-size: cover;
+  background-position: center; background-color: var(--color-fondo);
+  display: flex; align-items: center; justify-content: center;
+}
+.obra-card-emoji { font-size: 40px; opacity: 0.25; }
+.obra-card-info { padding: 14px; }
+.obra-card-titulo { font-size: 15px; font-weight: 700; margin: 0 0 6px; }
+.obra-card-precio { font-size: 14px; font-weight: 700; color: var(--color-primario); margin-bottom: 4px; }
+.obra-card-venta {
+  display: inline-block; font-size: 11px; font-weight: 700;
+  background: rgba(82,168,82,0.12); color: #52a852;
+  border: 1px solid rgba(82,168,82,0.3); border-radius: 20px; padding: 2px 8px;
+}
+
+/* ── MODAL OBRA ── */
+.obra-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 20px;
+}
+.obra-modal {
+  background: var(--color-superficie); border-radius: 20px;
+  max-width: 560px; width: 100%; max-height: 90vh;
+  overflow-y: auto; position: relative;
+}
+.obra-modal-cerrar {
+  position: absolute; top: 14px; right: 14px; z-index: 10;
+  background: var(--color-fondo); border: none; border-radius: 50%;
+  width: 32px; height: 32px; cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--color-texto);
+}
+.om-galeria {
+  position: relative; width: 100%; aspect-ratio: 1/1;
+  background: var(--color-fondo); border-radius: 20px 20px 0 0; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.om-sin-foto { font-size: 64px; opacity: 0.2; }
+.om-foto { width: 100%; height: 100%; object-fit: cover; display: block; }
+.om-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: rgba(0,0,0,0.4); color: white; border: none;
+  border-radius: 50%; width: 36px; height: 36px; font-size: 20px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.om-prev { left: 10px; }
+.om-next { right: 10px; }
+.om-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; }
+.om-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; }
+.om-dot.activo { background: white; }
+
+.om-datos { padding: 20px 24px 24px; }
+.om-titulo { font-size: 22px; font-weight: 700; margin: 0 0 10px; font-family: 'Asap','Plus Jakarta Sans',sans-serif; }
+.om-descripcion { font-size: 14px; opacity: 0.75; line-height: 1.6; margin-bottom: 14px; }
+.om-precio { font-size: 20px; font-weight: 800; color: var(--color-primario); margin-bottom: 16px; }
+.om-btn-wa {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 14px; background: #25d366; color: white;
+  border: none; border-radius: 30px; font-size: 15px; font-weight: 700;
+  cursor: pointer; margin-bottom: 10px; font-family: inherit;
+  transition: opacity 0.15s;
+}
+.om-btn-wa:hover { opacity: 0.88; }
+.om-btn-cerrar {
+  display: block; width: 100%; padding: 12px; text-align: center;
+  background: transparent; border: 1.5px solid rgba(139,111,86,0.25);
+  border-radius: 30px; color: var(--color-texto); font-size: 14px;
+  font-weight: 600; cursor: pointer; font-family: inherit;
+}
+
+/* ── ESTADO ── */
+.ceramista-estado { text-align: center; padding: 120px 20px; opacity: 0.6; }
+.spinner {
+  width: 36px; height: 36px; border: 3px solid rgba(139,111,86,0.2);
+  border-top-color: var(--color-primario); border-radius: 50%;
+  animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 640px) {
+  .ceramista-perfil { flex-direction: column; align-items: center; text-align: center; gap: 20px; }
+  .ceramista-redes { justify-content: center; }
+  .ceramista-nombre { font-size: 24px; }
+  .ceramista-obras-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+}
