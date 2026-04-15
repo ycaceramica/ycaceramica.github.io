@@ -64,6 +64,7 @@
         { label: 'Herramientas',     href: prefix + 'herramientas/index.html',      key: 'herramientas' },
         { label: 'Cursos y Talleres',href: prefix + 'cursos/index.html',            key: 'cursos' },
         { label: 'Diario',           href: prefix + 'diario/index.html',            key: 'diario' },
+        { label: 'Vitrina',          href: prefix + 'vitrina/index.html',           key: 'vitrina' },
         { label: 'Galería',          href: prefix + 'index.html#galeria',           key: 'galeria' },
         { label: 'Contacto',         href: prefix + 'index.html#contacto',          key: 'contacto' }
       ]
