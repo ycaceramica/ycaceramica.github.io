@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Diario Creativo — YCA Cerámica">
+  <title id="pageTitle">Diario Creativo — YCA Cerámica</title>
+  <link rel="icon" type="image/png" href="../../imagenes/logo.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+
+  <div class="entrada-wrapper" id="entradaWrapper" style="display:none">
+
+    <div class="entrada-volver">
+      <a href="../" class="entrada-volver-link">
+        <i class="fa-solid fa-arrow-left"></i> Diario Creativo
+      </a>
+    </div>
+
+    <!-- CABECERA -->
+    <div class="entrada-header">
+      <div class="entrada-meta">
+        <span class="entrada-fecha" id="entradaFecha"></span>
+        <span class="entrada-codigo" id="entradaCodigo"></span>
+      </div>
+      <h1 class="entrada-titulo" id="entradaTitulo"></h1>
+    </div>
+
+    <!-- FOTO PRINCIPAL -->
+    <div class="entrada-foto-principal" id="entradaFotoPrincipal" style="display:none">
+      <img id="entradaFotoImg" src="" alt="">
+    </div>
+
+    <!-- TEXTO -->
+    <div class="entrada-texto" id="entradaTexto"></div>
+
+    <!-- GALERÍA DE FOTOS EXTRA -->
+    <div class="entrada-galeria" id="entradaGaleria" style="display:none"></div>
+
+    <!-- VIDEO -->
+    <div class="entrada-video" id="entradaVideo" style="display:none">
+      <iframe id="entradaVideoFrame" src="" frameborder="0" allowfullscreen
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+      </iframe>
+    </div>
+
+    <div class="entrada-footer">
+      <a href="../" class="entrada-btn-volver">
+        <i class="fa-solid fa-arrow-left"></i> Ver todas las entradas
+      </a>
+    </div>
+
+  </div>
+
+  <!-- ESTADO CARGA / ERROR -->
+  <div class="entrada-estado" id="entradaEstado">
+    <div class="spinner"></div>
+    <p id="entradaEstadoMsg">Cargando entrada...</p>
+  </div>
+
+  <a class="whatsapp" href="https://wa.me/5491160387535" target="_blank">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <div id="footer-placeholder"></div>
+
+  <script src="script.js"></script>
+  <script src="../../nav-ceramista.js"></script>
+  <script src="../../footer.js"></script>
+</body>
+</html>
