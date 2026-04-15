@@ -295,9 +295,8 @@ function renderLineasFrontend(lineas){
     const precio  = (l.mostrarPrecio === 'true' || l.mostrarPrecio === true) && l.precio
     const foto    = l.foto || ''
     return `<div class="linea-card" onclick="filtrarPorLinea('${l.id}')" data-linea-id="${l.id}">
-      <div class="linea-card-foto" style="${foto ? `background-image:url('${foto}')` : `background:${color}18`}">
+      <div class="linea-card-foto" style="${foto ? `background-image:url('${foto}')` : ''}">
         ${!foto ? `<div class="linea-card-emoji">🏺</div>` : ''}
-        <div class="linea-card-brush">${svgPincelada(color)}</div>
       </div>
       <div class="linea-card-info">
         <div class="linea-card-nombre" style="color:${color}">${l.nombre}</div>
