@@ -1133,9 +1133,18 @@ function abrirModalLinea(item = null){
   }).join('')
 
   document.getElementById('modalLineaBody').innerHTML = `
-    <div class="mform-grupo">
-      <label>Nombre *</label>
-      <input id="lNombre" value="${item?.nombre||''}" placeholder="Ej: Línea Origen">
+    <div class="mform-fila">
+      <div class="mform-grupo">
+        <label>Nombre *</label>
+        <input id="lNombre" value="${item?.nombre||''}" placeholder="Ej: Línea Origen">
+      </div>
+      <div class="mform-grupo">
+        <label>Código</label>
+        <div class="mform-codigo-wrapper">
+          <input id="lCodigo" value="${item?.codigo||''}" placeholder="Auto">
+          <button class="btn-generar-codigo" onclick="generarCodigoLinea()" type="button">↺ Auto</button>
+        </div>
+      </div>
     </div>
     <div class="mform-grupo">
       <label>Descripción</label>
@@ -1198,6 +1207,7 @@ function abrirModalLinea(item = null){
   if(colorInput) colorInput.addEventListener('input', () => { if(hexInput) hexInput.value = colorInput.value })
 
   document.getElementById('modalLineaOverlay').style.display = 'flex'
+  if(!item) setTimeout(() => generarCodigoLinea(), 100)
 }
 
 function syncColorPicker(){
@@ -1255,6 +1265,17 @@ function quitarLineaFotoExtra(n){
   if(slot) slot.innerHTML = `<div class="mform-foto-extra-placeholder"><i class="fa-solid fa-plus"></i><span>Foto ${n-1}</span></div>`
 }
 
+async function generarCodigoLinea(){
+  try {
+    const res  = await fetch(API + '?action=getSiguienteCodigoLinea')
+    const data = await res.json()
+    if(data.ok && data.codigo){
+      const input = document.getElementById('lCodigo')
+      if(input) input.value = data.codigo
+    }
+  } catch(e){ toast('❌ Error al generar código', 'err') }
+}
+
 async function guardarLinea(){
   const nombre = document.getElementById('lNombre')?.value.trim()
   if(!nombre){ toast('El nombre es obligatorio', 'err'); return }
@@ -1267,6 +1288,7 @@ async function guardarLinea(){
   const color  = document.getElementById('lColorHex')?.value || document.getElementById('lColor')?.value || '#8B4513'
   const fila = {
     id:           lineaModalItem?.id || '',
+    codigo:       document.getElementById('lCodigo')?.value.trim() || '',
     nombre,
     descripcion:  document.getElementById('lDescripcion')?.value.trim() || '',
     color:        /^#[0-9A-Fa-f]{6}$/.test(color) ? color : '#8B4513',
