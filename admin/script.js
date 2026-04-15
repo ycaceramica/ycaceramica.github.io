@@ -1102,7 +1102,7 @@ function renderLineasAdmin(){
           <div style="font-weight:700;font-size:14px">${l.nombre}</div>
           <div style="font-size:12px;opacity:0.6;margin-top:2px">${l.descripcion||''}</div>
           <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap">
-            <span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${l.color||'#8B4513'}33;color:${l.color||'#8B4513'};font-weight:600">${l.color||'#8B4513'}</span>
+            <span style="font-size:11px;padding:2px 8px;border-radius:20px;background:var(--color-fondo);color:var(--color-texto);font-weight:600;border:2px solid ${l.color||'#8B4513'}">${l.color||'#8B4513'}</span>
             ${precio && l.precio ? `<span style="font-size:11px;padding:2px 8px;border-radius:20px;background:#e8f5e922;color:#2e7d32;font-weight:600">$${l.precio}</span>` : ''}
             <span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${visible?'#e8f5e9':'#fbe9e7'};color:${visible?'#2e7d32':'#c62828'};font-weight:600">${visible?'Visible':'Oculta'}</span>
           </div>
@@ -1154,7 +1154,7 @@ function abrirModalLinea(item = null){
       <div class="mform-grupo">
         <label>🎨 Color de la línea</label>
         <div style="display:flex;gap:8px;align-items:center">
-          <input type="color" id="lColor" value="${item?.color||'#8B4513'}" style="width:48px;height:38px;border:none;border-radius:8px;cursor:pointer;padding:2px">
+          <input type="color" id="lColor" value="${item?.color||'#8B4513'}" style="width:44px;height:38px;border:1.5px solid rgba(139,111,86,0.25);border-radius:8px;cursor:pointer;padding:2px;background:var(--color-fondo)">
           <input id="lColorHex" value="${item?.color||'#8B4513'}" placeholder="#8B4513" style="flex:1" oninput="syncColorPicker()">
         </div>
       </div>
@@ -1310,12 +1310,14 @@ async function guardarLinea(){
     if(!data.ok){ toast('❌ ' + (data.error||'Error al guardar'), 'err'); return }
 
     const idGuardado = data.id || fila.id
+    // Actualizar fila.id por si era nueva
+    if(data.id && !fila.id) fila.id = data.id
 
     // Subir fotos en background
     if(lineaFotoBase64){
       const nombre64 = (idGuardado||'lin') + '_portada_' + Date.now()
       fetch(API, { method:'POST', body: JSON.stringify({ action:'subirFoto', hoja:'lineas_piezas', id:idGuardado, b64:lineaFotoBase64, nombre:nombre64, categoria:nombre, token:sesion.token }) })
-        .then(r=>r.json()).then(d=>{ if(d.ok){ cargarLineasAdmin(); toast('✅ Foto portada subida','ok') } }).catch(()=>{})
+        .then(r=>r.json()).then(d=>{ if(d.ok){ delete window._lineasAdminCached; cargarLineasAdmin(); toast('✅ Foto portada subida','ok') } }).catch(()=>{})
     }
     ;[2,3,4].forEach(n => {
       const b64e = lineaFotosExtra['foto'+n]
