@@ -1171,23 +1171,17 @@ function abrirModalLinea(item = null){
       <div class="mform-grupo">
         <label>💰 Precio del set</label>
         <input id="lPrecio" type="number" value="${item?.precio||''}" placeholder="$0">
-      </div>
-      <div class="mform-grupo" style="display:flex;align-items:flex-end;padding-bottom:6px">
-        <label class="publicado-toggle" style="margin:0">
+        <label class="publicado-toggle" style="margin-top:4px">
           <input type="checkbox" id="lMostrarPrecio" ${item?.mostrarPrecio==='true'||item?.mostrarPrecio===true?'checked':''}>
-          <span>Mostrar precio en vitrina</span>
+          <span style="font-size:12px;font-weight:600;opacity:0.75">Mostrar precio en la web</span>
         </label>
       </div>
-    </div>
-    <div class="mform-fila">
       <div class="mform-grupo">
         <label>📦 Stock del set</label>
         <input id="lStock" type="number" value="${item?.stock||''}" placeholder="0">
-      </div>
-      <div class="mform-grupo" style="display:flex;align-items:flex-end;padding-bottom:6px">
-        <label class="publicado-toggle" style="margin:0">
+        <label class="publicado-toggle" style="margin-top:4px">
           <input type="checkbox" id="lMostrarStock" ${item?.mostrarStock==='true'||item?.mostrarStock===true?'checked':''}>
-          <span>Mostrar stock en vitrina</span>
+          <span style="font-size:12px;font-weight:600;opacity:0.75">Mostrar stock en la web</span>
         </label>
       </div>
     </div>
