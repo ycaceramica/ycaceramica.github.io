@@ -151,6 +151,7 @@ async function cargarSeccion(nombre){
   if(nombre === 'pastas')       { await cargarPastas();       return }
   if(nombre === 'engobes')      { await cargarEngobes();      return }
   if(nombre === 'diario')       { await cargarDiario();       return }
+  if(nombre === 'vitrina')      { await cargarVitrina();      return }
   if(nombre === 'horneado')     { await cargarHorneado();     return }
   if(nombre === 'piezas')       { cargarConfigPiezas(); cargarLineasAdmin() }
   if(nombre === 'insumos')      { cargarConfigInsumos() }
@@ -5418,6 +5419,362 @@ async function confirmarEliminarEntrada(borrarDrive){
     else toast('❌ ' + (data.error||'Error'), 'err')
   } catch(e){ toast('❌ Error de conexión', 'err') }
   _eliminarEntradaId = null
+}
+
+
+// ============================================================
+//  VITRINA DE CERAMISTAS — ADMIN
+// ============================================================
+
+let _artistasData   = []
+let _artistaModal   = null
+let _artistaFoto    = null
+let _obraModal      = null
+let _obraArtistaId  = null
+let _obraFotos      = { foto: null, foto2: null, foto3: null }
+let _elimArtistaId  = null
+let _elimObraId     = null
+
+async function cargarVitrina(){
+  const load = document.getElementById('loading-vitrina')
+  if(load) load.style.display = 'block'
+  try {
+    const sesion = getSesion()
+    const res    = await fetch(API + '?action=getViitrinaAdmin&token=' + sesion.token)
+    const data   = await res.json()
+    _artistasData = data.data || []
+    renderVitrina()
+  } catch(e){ toast('❌ Error al cargar vitrina', 'err') }
+  finally { if(load) load.style.display = 'none' }
+}
+
+function renderVitrina(){
+  const lista = document.getElementById('lista-artistas')
+  if(!lista) return
+  if(_artistasData.length === 0){
+    lista.innerHTML = '<div class="vacio"><i class="fa-solid fa-palette"></i><p>No hay artistas creados todavía</p></div>'
+    return
+  }
+  lista.innerHTML = _artistasData.map(a => {
+    const visible = a.visible === true || a.visible === 'true' || a.visible === 'TRUE'
+    return `<div class="elaboracion-config-box" style="margin-bottom:10px;gap:12px;align-items:flex-start">
+      <div style="display:flex;gap:12px;align-items:center;flex:1">
+        ${a.foto
+          ? `<img src="${a.foto}" style="width:52px;height:52px;object-fit:cover;border-radius:50%;flex-shrink:0;border:2px solid var(--color-primario)">`
+          : `<div style="width:52px;height:52px;border-radius:50%;background:var(--color-fondo);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🎨</div>`}
+        <div>
+          <div style="font-weight:700;font-size:14px">${a.nombre}</div>
+          <div style="font-size:12px;opacity:0.5;margin-top:2px">${a.codigo||''}</div>
+          <span class="estado-badge ${visible?'activo':'pausado'}" style="margin-top:4px;display:inline-block">
+            ${visible?'Visible':'Oculto'}
+          </span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">
+        <button class="btn-editar" onclick="abrirModalArtista(${JSON.stringify(a).replace(/"/g,'&quot;')})" title="Editar perfil"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn-editar" onclick="abrirObrasArtista('${a.id}','${a.nombre.replace(/'/g,"\'")}','${a.codigo||''}')" title="Obras" style="background:rgba(139,111,86,0.12)"><i class="fa-solid fa-images"></i></button>
+        <button class="btn-borrar" onclick="eliminarArtistaAdmin('${a.id}')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`
+  }).join('')
+}
+
+// ── Modal artista ──
+function abrirModalArtista(item = null){
+  _artistaModal = item
+  _artistaFoto  = null
+  document.getElementById('modalArtistaTitulo').innerText = item ? 'Editar artista' : 'Nuevo artista'
+  const fotoActual = item?.foto || ''
+  document.getElementById('modalArtistaBody').innerHTML = `
+    <div class="mform-grupo">
+      <label>Nombre *</label>
+      <input id="aNombre" value="${item?.nombre||''}" placeholder="Nombre del artista">
+    </div>
+    <div class="mform-grupo">
+      <label>🖼 Foto del artista</label>
+      <div class="mform-foto-area" id="artistaFotoArea" onclick="elegirArtistaFoto()">
+        ${fotoActual
+          ? `<img class="mform-foto-preview" src="${fotoActual}"><button class="mform-foto-cambiar" onclick="elegirArtistaFoto()" type="button"><i class="fa-solid fa-camera"></i> Cambiar</button>`
+          : `<div class="mform-foto-placeholder"><i class="fa-solid fa-camera"></i><strong>Foto del artista</strong><small>Recomendado: cuadrada 1:1</small></div>`}
+      </div>
+    </div>
+    <div class="mform-grupo">
+      <label>Biografía / Presentación</label>
+      <textarea id="aBio" rows="5" placeholder="Quién es, su estilo, su historia...">${item?.bio||''}</textarea>
+    </div>
+    <div class="mform-fila">
+      <div class="mform-grupo">
+        <label>Instagram <small style="opacity:0.5">(sin @)</small></label>
+        <input id="aInstagram" value="${item?.instagram||''}" placeholder="usuario">
+      </div>
+      <div class="mform-grupo">
+        <label>Web / Link</label>
+        <input id="aWeb" value="${item?.web||''}" placeholder="https://...">
+      </div>
+    </div>
+    <label class="publicado-toggle">
+      <input type="checkbox" id="aVisible" ${item?.visible==='true'||item?.visible===true?'checked':''}>
+      <span>✅ Visible en la vitrina</span>
+    </label>
+    <input type="file" id="artistaFotoInput" accept="image/*" style="display:none" onchange="onArtistaFotoChange(this)">
+  `
+  document.getElementById('modalArtistaOverlay').style.display = 'flex'
+}
+
+function cerrarModalArtista(e){
+  if(e && e.target !== document.getElementById('modalArtistaOverlay')) return
+  document.getElementById('modalArtistaOverlay').style.display = 'none'
+}
+
+function elegirArtistaFoto(){ document.getElementById('artistaFotoInput')?.click() }
+
+async function onArtistaFotoChange(input){
+  const file = input.files[0]; if(!file) return
+  const reader = new FileReader()
+  reader.onload = async ev => {
+    _artistaFoto = await convertirAJpg(ev.target.result)
+    const area = document.getElementById('artistaFotoArea')
+    if(area) area.innerHTML = `<img class="mform-foto-preview" src="${_artistaFoto}"><button class="mform-foto-cambiar" onclick="elegirArtistaFoto()" type="button"><i class="fa-solid fa-camera"></i> Cambiar</button>`
+  }
+  reader.readAsDataURL(file)
+}
+
+async function guardarArtista(){
+  const nombre = document.getElementById('aNombre')?.value.trim()
+  if(!nombre){ toast('El nombre es obligatorio', 'err'); return }
+  const btn = document.getElementById('btnGuardarArtista')
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'
+  btn.disabled = true
+  const sesion = getSesion()
+  const fila = {
+    id:        _artistaModal?.id || '',
+    codigo:    _artistaModal?.codigo || '',
+    nombre,
+    bio:       document.getElementById('aBio')?.value || '',
+    foto:      _artistaModal?.foto || '',
+    instagram: document.getElementById('aInstagram')?.value.trim() || '',
+    web:       document.getElementById('aWeb')?.value.trim() || '',
+    visible:   document.getElementById('aVisible')?.checked ? 'true' : 'false',
+    creadoEn:  _artistaModal?.creadoEn || ''
+  }
+  try {
+    const res  = await fetch(API, { method:'POST', body: JSON.stringify({ action:'guardarArtista', fila, token:sesion.token }) })
+    const data = await res.json()
+    if(!data.ok){ toast('❌ '+(data.error||'Error'), 'err'); return }
+    const idG = data.id || fila.id
+    if(_artistaFoto){
+      fetch(API, { method:'POST', body: JSON.stringify({ action:'subirFoto', hoja:'vitrina_ceramistas', id:idG, b64:_artistaFoto, nombre:idG+'_foto_'+Date.now(), categoria:nombre, token:sesion.token }) })
+        .then(r=>r.json()).then(d=>{ if(d.ok){ cargarVitrina(); toast('✅ Foto subida','ok') } }).catch(()=>{})
+    }
+    document.getElementById('modalArtistaOverlay').style.display = 'none'
+    await cargarVitrina()
+    toast('✅ Artista guardado', 'ok')
+  } catch(e){ toast('❌ Error de conexión', 'err') }
+  finally { btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar'; btn.disabled = false }
+}
+
+function eliminarArtistaAdmin(id){ _elimArtistaId = id; document.getElementById('modalEliminarArtista').style.display = 'flex' }
+
+async function confirmarEliminarArtista(borrarDrive){
+  document.getElementById('modalEliminarArtista').style.display = 'none'
+  if(!_elimArtistaId) return
+  try {
+    const sesion = getSesion()
+    const res  = await fetch(API, { method:'POST', body: JSON.stringify({ action:'eliminarArtista', id:_elimArtistaId, borrarDrive, token:sesion.token }) })
+    const data = await res.json()
+    if(data.ok){ await cargarVitrina(); toast('✅ Artista eliminado','ok') }
+    else toast('❌ '+(data.error||'Error'),'err')
+  } catch(e){ toast('❌ Error de conexión','err') }
+  _elimArtistaId = null
+}
+
+// ── Obras del artista ──
+async function abrirObrasArtista(artistaId, nombreArtista, codigoArtista){
+  _obraArtistaId = artistaId
+  // Cargar obras actuales
+  const sesion = getSesion()
+  let obras = []
+  try {
+    const res  = await fetch(API + '?action=getVitrinaCeramista&id=' + artistaId)
+    const data = await res.json()
+    obras = data.obras || []
+  } catch(e){}
+
+  const total = obras.length
+  const puedAgregar = total < 10
+
+  abrirModalConfirmarAccion(
+    `🎨 Obras de ${nombreArtista}`,
+    renderObrasHtml(obras, artistaId, nombreArtista, puedAgregar),
+    null,
+    true // sin botón confirmar
+  )
+}
+
+function renderObrasHtml(obras, artistaId, nombreArtista, puedAgregar){
+  let html = obras.length === 0
+    ? '<p style="opacity:0.6;font-size:13px">Todavía no hay obras cargadas.</p>'
+    : obras.map(o => `
+      <div class="elaboracion-config-box" style="margin-bottom:8px;gap:10px">
+        <div style="display:flex;gap:10px;align-items:center;flex:1">
+          ${o.foto ? `<img src="${o.foto}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0">` : `<div style="width:44px;height:44px;border-radius:8px;background:var(--color-fondo);display:flex;align-items:center;justify-content:center;font-size:16px">🏺</div>`}
+          <div>
+            <div style="font-weight:700;font-size:13px">${o.titulo}</div>
+            ${o.mostrarPrecio==='true'&&o.precio ? `<div style="font-size:12px;color:var(--color-primario)">$${Number(o.precio).toLocaleString('es-AR')}</div>` : ''}
+            ${o.enVenta==='true' ? '<div style="font-size:11px;opacity:0.6">En venta</div>' : ''}
+          </div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn-editar" onclick="abrirModalObra('${artistaId}','${nombreArtista}',${JSON.stringify(o).replace(/"/g,'&quot;')})" title="Editar"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn-borrar" onclick="eliminarObraAdmin('${o.id}')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>`).join('')
+
+  if(puedAgregar){
+    html += `<button class="btn-nuevo" style="width:100%;margin-top:10px;justify-content:center" onclick="abrirModalObra('${artistaId}','${nombreArtista}',null)">
+      <i class="fa-solid fa-plus"></i> Agregar obra (${obras.length}/10)
+    </button>`
+  } else {
+    html += `<p style="font-size:12px;opacity:0.5;margin-top:8px;text-align:center">Máximo 10 obras por artista</p>`
+  }
+  return html
+}
+
+function abrirModalObra(artistaId, nombreArtista, item = null){
+  _obraModal     = item
+  _obraArtistaId = artistaId
+  _obraFotos     = { foto: null, foto2: null, foto3: null }
+  document.getElementById('modalObraTitulo').innerText = item ? `Editar obra — ${nombreArtista}` : `Nueva obra — ${nombreArtista}`
+
+  const slots = ['foto','foto2','foto3'].map((campo, idx) => {
+    const fUrl = item?.[campo] || ''
+    const label = idx === 0 ? 'Foto principal' : `Foto ${idx+1}`
+    const img = fUrl
+      ? `<img src="${fUrl}" class="mform-foto-extra-img"><button class="mform-foto-extra-quitar" onclick="event.stopPropagation();quitarObraFoto('${campo}')" type="button">×</button>`
+      : `<div class="mform-foto-extra-placeholder"><i class="fa-solid fa-plus"></i><span>${label}</span></div>`
+    return `<div class="mform-foto-extra-slot" id="obraFotoSlot_${campo}" onclick="elegirObraFoto('${campo}')">${img}</div>`
+  }).join('')
+
+  document.getElementById('modalObraBody').innerHTML = `
+    <div class="mform-grupo">
+      <label>Título *</label>
+      <input id="oTitulo" value="${item?.titulo||''}" placeholder="Nombre de la obra">
+    </div>
+    <div class="mform-grupo">
+      <label>Descripción</label>
+      <textarea id="oDescripcion" rows="3" placeholder="Técnica, materiales, año...">${item?.descripcion||''}</textarea>
+    </div>
+    <div class="mform-grupo mform-fotos-extra">
+      <label>📷 Fotos <small style="opacity:0.5;font-weight:400">(hasta 3)</small></label>
+      <div class="mform-fotos-extra-grid">${slots}</div>
+      <input type="file" id="obraFotoInput" accept="image/*" style="display:none" onchange="onObraFotoChange(this)">
+    </div>
+    <div class="mform-fila">
+      <div class="mform-grupo">
+        <label>💰 Precio</label>
+        <input id="oPrecio" type="number" value="${item?.precio||''}" placeholder="$0">
+        <label class="publicado-toggle" style="margin-top:4px">
+          <input type="checkbox" id="oMostrarPrecio" ${item?.mostrarPrecio==='true'?'checked':''}>
+          <span style="font-size:12px;font-weight:600;opacity:0.75">Mostrar precio en la web</span>
+        </label>
+      </div>
+      <div class="mform-grupo">
+        <label>Orden <small style="opacity:0.5">(número)</small></label>
+        <input id="oOrden" type="number" value="${item?.orden||''}" placeholder="1, 2...">
+      </div>
+    </div>
+    <label class="publicado-toggle">
+      <input type="checkbox" id="oEnVenta" ${item?.enVenta==='true'?'checked':''}>
+      <span>🛒 Disponible para venta (muestra botón WhatsApp)</span>
+    </label>
+  `
+  document.getElementById('modalObraOverlay').style.display = 'flex'
+  document.getElementById('modalConfirmarAccion')?.style && (document.getElementById('modalConfirmarAccion').style.display = 'none')
+}
+
+function cerrarModalObra(e){
+  if(e && e.target !== document.getElementById('modalObraOverlay')) return
+  document.getElementById('modalObraOverlay').style.display = 'none'
+}
+
+let _obraFotoCampo = null
+function elegirObraFoto(campo){ _obraFotoCampo = campo; document.getElementById('obraFotoInput')?.click() }
+
+async function onObraFotoChange(input){
+  const file = input.files[0]; if(!file||!_obraFotoCampo) return
+  const campo = _obraFotoCampo
+  const reader = new FileReader()
+  reader.onload = async ev => {
+    const b64 = await convertirAJpg(ev.target.result)
+    _obraFotos[campo] = b64
+    const slot = document.getElementById('obraFotoSlot_'+campo)
+    if(slot) slot.innerHTML = `<img src="${b64}" class="mform-foto-extra-img"><button class="mform-foto-extra-quitar" onclick="event.stopPropagation();quitarObraFoto('${campo}')" type="button">×</button>`
+  }
+  reader.readAsDataURL(file)
+  input.value = ''
+}
+
+function quitarObraFoto(campo){
+  _obraFotos[campo] = null
+  _obraFotos['_borrar_'+campo] = true
+  const slot = document.getElementById('obraFotoSlot_'+campo)
+  const labels = { foto:'Foto principal', foto2:'Foto 2', foto3:'Foto 3' }
+  if(slot) slot.innerHTML = `<div class="mform-foto-extra-placeholder"><i class="fa-solid fa-plus"></i><span>${labels[campo]||campo}</span></div>`
+}
+
+async function guardarObraVitrina(){
+  const titulo = document.getElementById('oTitulo')?.value.trim()
+  if(!titulo){ toast('El título es obligatorio','err'); return }
+  const btn = document.getElementById('btnGuardarObra')
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'
+  btn.disabled = true
+  const sesion = getSesion()
+  const artista = _artistasData.find(a => a.id === _obraArtistaId)
+  const nombreArtista = artista?.nombre || ''
+  const fila = {
+    id:           _obraModal?.id || '',
+    codigo:       _obraModal?.codigo || '',
+    ceramistaId:  _obraArtistaId,
+    titulo,
+    descripcion:  document.getElementById('oDescripcion')?.value || '',
+    foto:         _obraFotos._borrar_foto  ? '' : (_obraModal?.foto  || ''),
+    foto2:        _obraFotos._borrar_foto2 ? '' : (_obraModal?.foto2 || ''),
+    foto3:        _obraFotos._borrar_foto3 ? '' : (_obraModal?.foto3 || ''),
+    precio:       document.getElementById('oPrecio')?.value || '',
+    mostrarPrecio:document.getElementById('oMostrarPrecio')?.checked ? 'true' : 'false',
+    enVenta:      document.getElementById('oEnVenta')?.checked ? 'true' : 'false',
+    orden:        document.getElementById('oOrden')?.value || '',
+    creadoEn:     _obraModal?.creadoEn || ''
+  }
+  try {
+    const res  = await fetch(API, { method:'POST', body: JSON.stringify({ action:'guardarObraVitrina', fila, token:sesion.token }) })
+    const data = await res.json()
+    if(!data.ok){ toast('❌ '+(data.error||'Error'),'err'); return }
+    const idG = data.id || fila.id
+    ;['foto','foto2','foto3'].forEach(campo => {
+      if(_obraFotos[campo]){
+        fetch(API, { method:'POST', body: JSON.stringify({ action:'subirFoto', hoja:'vitrina_obras', id:idG, b64:_obraFotos[campo], nombre:idG+'_'+campo+'_'+Date.now(), campo, categoria:nombreArtista, token:sesion.token }) }).catch(()=>{})
+      }
+    })
+    document.getElementById('modalObraOverlay').style.display = 'none'
+    toast('✅ Obra guardada — las fotos se suben en segundo plano','ok')
+  } catch(e){ toast('❌ Error de conexión','err') }
+  finally { btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar'; btn.disabled = false }
+}
+
+function eliminarObraAdmin(id){ _elimObraId = id; document.getElementById('modalEliminarObra').style.display = 'flex' }
+
+async function confirmarEliminarObra(borrarDrive){
+  document.getElementById('modalEliminarObra').style.display = 'none'
+  if(!_elimObraId) return
+  try {
+    const sesion = getSesion()
+    const res  = await fetch(API, { method:'POST', body: JSON.stringify({ action:'eliminarObraVitrina', id:_elimObraId, borrarDrive, token:sesion.token }) })
+    const data = await res.json()
+    if(data.ok){ toast('✅ Obra eliminada','ok') }
+    else toast('❌ '+(data.error||'Error'),'err')
+  } catch(e){ toast('❌ Error de conexión','err') }
+  _elimObraId = null
 }
 
 async function cargarHorneado() {
