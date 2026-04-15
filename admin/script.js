@@ -5687,17 +5687,14 @@ function abrirModalObra(artistaId, nombreArtista, item = null){
       <span>🛒 Disponible para venta (muestra botón WhatsApp)</span>
     </label>
   `
-  // Cerrar lista de obras para no apilar modales
-  document.getElementById('modalObrasListaOverlay').style.display = 'none'
+  document.getElementById('modalObrasListaOverlay').style.visibility = 'hidden'
   document.getElementById('modalObraOverlay').style.display = 'flex'
 }
 
 function cerrarModalObra(e){
   if(e && e.target !== document.getElementById('modalObraOverlay')) return
   document.getElementById('modalObraOverlay').style.display = 'none'
-  // Volver a mostrar lista de obras
-  const artista = _artistasData.find(a => a.id === _obraArtistaId)
-  if(artista) abrirObrasArtista(_obraArtistaId, artista.nombre, artista.codigo)
+  document.getElementById('modalObrasListaOverlay').style.visibility = 'visible'
 }
 
 let _obraFotoCampo = null
@@ -5761,9 +5758,12 @@ async function guardarObraVitrina(){
     })
     document.getElementById('modalObraOverlay').style.display = 'none'
     toast('✅ Obra guardada — las fotos se suben en segundo plano','ok')
-    // Refrescar lista de obras si está abierta
     const artista = _artistasData.find(a => a.id === _obraArtistaId)
-    if(artista) await abrirObrasArtista(_obraArtistaId, artista.nombre, artista.codigo)
+    if(artista){
+      await abrirObrasArtista(_obraArtistaId, artista.nombre, artista.codigo)
+    } else {
+      document.getElementById('modalObrasListaOverlay').style.visibility = 'visible'
+    }
   } catch(e){ toast('❌ Error de conexión','err') }
   finally { btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar'; btn.disabled = false }
 }
@@ -5781,6 +5781,7 @@ async function confirmarEliminarObra(borrarDrive){
       toast('✅ Obra eliminada','ok')
       const artista = _artistasData.find(a => a.id === _obraArtistaId)
       if(artista) await abrirObrasArtista(_obraArtistaId, artista.nombre, artista.codigo)
+      else document.getElementById('modalObrasListaOverlay').style.visibility = 'visible'
     } else toast('❌ '+(data.error||'Error'),'err')
   } catch(e){ toast('❌ Error de conexión','err') }
   _elimObraId = null
