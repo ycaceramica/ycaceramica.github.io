@@ -967,7 +967,7 @@ function abrirModal(hoja, item = null){
         </label>
         ${esPiezas ? `
         <div class="mform-grupo">
-          <label>🎨 Línea <small style="opacity:0.5;font-weight:400">(opcional)</small></label>
+          <label>🖼️ Línea <small style="opacity:0.5;font-weight:400">(opcional)</small></label>
           <select id="mLinea">
             <option value="">Sin línea</option>
             ${(window._lineasAdmin||[]).map(l => `<option value="${l.id}" ${item?.linea===l.id?'selected':''}>${l.nombre}</option>`).join('')}
@@ -1099,7 +1099,7 @@ function renderLineasAdmin(){
     const precio  = l.mostrarPrecio === 'true' || l.mostrarPrecio === true
     return `<div class="elaboracion-config-box" style="margin-bottom:10px;gap:12px;align-items:flex-start">
       <div style="display:flex;gap:12px;align-items:center;flex:1">
-        ${l.foto ? `<img src="${l.foto}" style="width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0">` : `<div style="width:52px;height:52px;border-radius:8px;background:${l.color||'#8B4513'}22;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🎨</div>`}
+        ${l.foto ? `<img src="${l.foto}" style="width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0">` : `<div style="width:52px;height:52px;border-radius:8px;background:${l.color||'#8B4513'}22;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🖼️</div>`}
         <div>
           <div style="font-weight:700;font-size:14px">${l.nombre}</div>
           <div style="font-size:12px;opacity:0.6;margin-top:2px">${l.descripcion||''}</div>
@@ -1154,7 +1154,7 @@ function abrirModalLinea(item = null){
     </div>
     <div class="mform-fila">
       <div class="mform-grupo">
-        <label>🎨 Color de la línea</label>
+        <label>🖼️ Color de la línea</label>
         <div style="display:flex;gap:8px;align-items:center">
           <input type="color" id="lColor" value="${item?.color||'#8B4513'}" style="width:44px;height:38px;border:1.5px solid rgba(139,111,86,0.25);border-radius:8px;cursor:pointer;padding:2px;background:var(--color-fondo)">
           <input id="lColorHex" value="${item?.color||'#8B4513'}" placeholder="#8B4513" style="flex:1" oninput="syncColorPicker()">
@@ -5461,7 +5461,7 @@ function renderVitrina(){
       <div style="display:flex;gap:12px;align-items:center;flex:1">
         ${a.foto
           ? `<img src="${a.foto}" style="width:52px;height:52px;object-fit:cover;border-radius:50%;flex-shrink:0;border:2px solid var(--color-primario)">`
-          : `<div style="width:52px;height:52px;border-radius:50%;background:var(--color-fondo);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🎨</div>`}
+          : `<div style="width:52px;height:52px;border-radius:50%;background:var(--color-fondo);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🖼️</div>`}
         <div>
           <div style="font-weight:700;font-size:14px">${a.nombre}</div>
           <div style="font-size:12px;opacity:0.5;margin-top:2px">${a.codigo||''}</div>
@@ -5596,7 +5596,7 @@ async function abrirObrasArtista(artistaId, nombreArtista, codigoArtista){
   const titulo  = document.getElementById('modalObrasListaTitulo')
   const body    = document.getElementById('modalObrasListaBody')
   if(!overlay) return
-  if(titulo) titulo.innerText = `🎨 Obras de ${nombreArtista}`
+  if(titulo) titulo.innerText = `🖼️ Obras de ${nombreArtista}`
   if(body)   body.innerHTML  = '<div style="text-align:center;padding:32px"><i class="fa-solid fa-spinner fa-spin"></i></div>'
   overlay.style.display = 'flex'
 
