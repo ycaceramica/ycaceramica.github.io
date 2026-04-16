@@ -5215,7 +5215,7 @@ function renderDiario(){
           : `<div style="width:56px;height:56px;border-radius:10px;background:var(--color-fondo);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">✍️</div>`}
         <div>
           <div style="font-weight:700;font-size:14px">${e.titulo}</div>
-          <div style="font-size:12px;opacity:0.5;margin-top:2px">${e.codigo || ''} · ${e.creadoEn || ''}</div>
+          <div style="font-size:12px;opacity:0.5;margin-top:2px">${e.codigo || ''} · ${(e.creadoEn||'').split('T')[0].split('-').reverse().join('/') || e.creadoEn || ''}</div>
           <span class="estado-badge ${e.estado === 'publicada' ? 'activo' : 'pausado'}" style="margin-top:4px;display:inline-block">
             ${e.estado === 'publicada' ? 'Publicada' : 'Borrador'}
           </span>
