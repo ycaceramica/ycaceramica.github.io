@@ -47,6 +47,37 @@
       opacity: 0.75;
     }
 
+    /* Firma "Desarrollado por ElevaLab". El logo es opcional: si el archivo no está, se oculta solo. */
+    #yca-footer .footer-credit {
+      font-size: 12px;
+      color: var(--color-texto, #333);
+      opacity: 0.6;
+      margin: 4px 0 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #yca-footer .footer-credit a {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: inherit;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    #yca-footer .footer-credit a:hover {
+      opacity: 0.75;
+    }
+
+    #yca-footer .footer-credit img {
+      height: 18px;
+      width: auto;
+      border-radius: 4px;
+      display: block;
+    }
+
     body.dark #yca-footer {
       border-top-color: rgba(177, 138, 109, 0.2);
     }
@@ -64,6 +95,11 @@
         <p class="footer-copy">© 2026 YCA Cerámica — Yo Creo Arte</p>
         <p class="footer-legal">
           <a href="/legal/">Aviso legal y privacidad</a>
+        </p>
+        <p class="footer-credit">Desarrollado por
+          <a href="https://elevalab.com.ar" target="_blank" rel="noopener">
+            <img src="/imagenes/elevalab.png" alt="" onerror="this.remove()">ElevaLab
+          </a>
         </p>
       </div>
     </footer>
