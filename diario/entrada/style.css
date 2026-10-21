@@ -223,6 +223,26 @@
 
 .lightbox-cerrar:hover { background: var(--color-primario-hover); }
 
+/* Contenedor de la foto ampliada + marca de respaldo (solo se ve si falla la marca grabada) */
+.lightbox-wrap {
+  position: relative;
+  display: flex;
+  max-width: 90vw;
+  max-height: 80vh;
+}
+
+.lightbox-marca {
+  display: none;
+  position: absolute;
+  right: 3%;
+  bottom: 3%;
+  width: 15%;
+  aspect-ratio: 1 / 1;
+  background: url('../../imagenes/logo.png') center / contain no-repeat;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
 /* ── RESPONSIVE ── */
 
 @media (max-width: 600px) {
