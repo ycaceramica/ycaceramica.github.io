@@ -106,4 +106,36 @@ async function cargarEntrada() {
   }
 }
 
+// ─────────────────────────────────────────────
+// LIGHTBOX — fotos en tamaño real
+// ─────────────────────────────────────────────
+
+function abrirLightbox(src){
+  document.getElementById('lightbox-img').src = src
+  document.getElementById('lightbox').style.display = 'flex'
+  document.body.style.overflow = 'hidden'
+}
+
+function cerrarLightbox(){
+  document.getElementById('lightbox').style.display = 'none'
+  document.getElementById('lightbox-img').src = ''
+  document.body.style.overflow = ''
+}
+
+// Clic en la foto principal o en cualquier foto de la galería
+document.addEventListener('click', (e) => {
+  const img = e.target.closest('.entrada-foto-principal img, .galeria-item img')
+  if (img && img.src) abrirLightbox(img.src)
+})
+
+// Clic en el fondo oscuro cierra
+document.getElementById('lightbox')?.addEventListener('click', (e) => {
+  if (e.target === document.getElementById('lightbox')) cerrarLightbox()
+})
+
+// Tecla Escape cierra
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') cerrarLightbox()
+})
+
 cargarEntrada()
