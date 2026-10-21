@@ -107,18 +107,100 @@ async function cargarEntrada() {
 }
 
 // ─────────────────────────────────────────────
-// LIGHTBOX — fotos en tamaño real
+// LIGHTBOX — fotos en tamaño real con marca de agua
 // ─────────────────────────────────────────────
+// La foto original en Drive no se modifica: la marca se dibuja
+// en una copia, así lo que el usuario guarda desde el visor sale con logo.
 
-function abrirLightbox(src){
-  document.getElementById('lightbox-img').src = src
-  document.getElementById('lightbox').style.display = 'flex'
+const LOGO_MARCA   = '../../imagenes/logo.png'
+const MARCA_ANCHO  = 0.15   // ancho del logo = 15% del ancho de la foto
+const MARCA_ALPHA  = 0.55   // transparencia del logo (0 a 1)
+const MARCA_MARGEN = 0.03   // margen al borde = 3% del ancho de la foto
+const MAX_LADO     = 2000   // la copia con marca no pasa de 2000px de lado
+
+let _lightboxToken = 0
+let _lightboxBlobUrl = null
+
+// Envuelve la imagen del visor para poder superponer la marca de respaldo
+;(function prepararVisor(){
+  const img = document.getElementById('lightbox-img')
+  if (!img || img.parentElement.classList.contains('lightbox-wrap')) return
+  const wrap = document.createElement('div')
+  wrap.className = 'lightbox-wrap'
+  img.parentNode.insertBefore(wrap, img)
+  wrap.appendChild(img)
+  const marca = document.createElement('div')
+  marca.className = 'lightbox-marca'
+  marca.id = 'lightbox-marca'
+  wrap.appendChild(marca)
+})()
+
+function cargarImagen(src, cors){
+  return new Promise((resolve, reject) => {
+    const im = new Image()
+    if (cors) im.crossOrigin = 'anonymous'
+    im.onload  = () => resolve(im)
+    im.onerror = () => reject(new Error('No se pudo cargar ' + src))
+    im.src = src
+  })
+}
+
+async function crearImagenConMarca(src){
+  const [foto, logo] = await Promise.all([cargarImagen(src, true), cargarImagen(LOGO_MARCA, false)])
+  let w = foto.naturalWidth, h = foto.naturalHeight
+  const escala = Math.min(1, MAX_LADO / Math.max(w, h))
+  w = Math.round(w * escala); h = Math.round(h * escala)
+
+  const canvas = document.createElement('canvas')
+  canvas.width = w; canvas.height = h
+  const ctx = canvas.getContext('2d')
+  ctx.drawImage(foto, 0, 0, w, h)
+
+  const lw = Math.max(48, Math.round(w * MARCA_ANCHO))
+  const lh = Math.round(lw * logo.naturalHeight / logo.naturalWidth)
+  const mg = Math.round(w * MARCA_MARGEN)
+  ctx.globalAlpha = MARCA_ALPHA
+  ctx.drawImage(logo, w - lw - mg, h - lh - mg, lw, lh)
+  ctx.globalAlpha = 1
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(b => b ? resolve(b) : reject(new Error('toBlob falló')), 'image/jpeg', 0.9)
+  })
+}
+
+async function abrirLightbox(src){
+  const token = ++_lightboxToken
+  const box   = document.getElementById('lightbox')
+  const img   = document.getElementById('lightbox-img')
+  const marca = document.getElementById('lightbox-marca')
+
+  img.src = ''
+  if (marca) marca.style.display = 'none'
+  box.style.display = 'flex'
   document.body.style.overflow = 'hidden'
+
+  try {
+    // Camino principal: copia con la marca grabada en la imagen
+    const blob = await crearImagenConMarca(src)
+    if (token !== _lightboxToken) return          // se cerró o se abrió otra mientras cargaba
+    if (_lightboxBlobUrl) URL.revokeObjectURL(_lightboxBlobUrl)
+    _lightboxBlobUrl = URL.createObjectURL(blob)
+    img.src = _lightboxBlobUrl
+  } catch (err) {
+    // Respaldo: se muestra la original con el logo superpuesto (solo visual)
+    if (token !== _lightboxToken) return
+    img.src = src
+    if (marca) marca.style.display = 'block'
+  }
 }
 
 function cerrarLightbox(){
+  _lightboxToken++
   document.getElementById('lightbox').style.display = 'none'
   document.getElementById('lightbox-img').src = ''
+  const marca = document.getElementById('lightbox-marca')
+  if (marca) marca.style.display = 'none'
+  if (_lightboxBlobUrl) { URL.revokeObjectURL(_lightboxBlobUrl); _lightboxBlobUrl = null }
   document.body.style.overflow = ''
 }
 
