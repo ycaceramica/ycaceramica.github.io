@@ -171,7 +171,7 @@ async function cargarSeccion(nombre){
 
   try {
     const sesion = getSesion()
-    const res    = await fetch(`${API}?action=getAll&hoja=${nombre}&token=${encodeURIComponent(sesion.token)}`)
+    const res    = await fetch(`${API}?action=getAll&hoja=${nombre}&token=${encodeURIComponent(sesion.token)}&t=${Date.now()}`)
     const data   = await res.json()
     cache[nombre] = data.data || []
     renderGrid(nombre, cache[nombre])
