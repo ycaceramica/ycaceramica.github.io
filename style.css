@@ -120,6 +120,8 @@ body{
 
 .hero{
   position:relative;
+    max-width:none;
+  margin:0;
   display:flex;
   justify-content:center;
   align-items:center;
