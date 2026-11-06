@@ -17,6 +17,7 @@
   <link rel="canonical" href="https://ycaceramica.com.ar/insumos/">
 
   <link rel="icon" type="image/png" href="../imagenes/logo.png">
+  <link rel="stylesheet" href="../laboratorio/lab.css">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -31,6 +32,15 @@
       <h1>Insumos 🪣</h1>
       <p>Materiales y herramientas para ceramistas. Consultanos por precios y disponibilidad.</p>
     </div>
+
+    <!-- SECCIONES DE INSUMOS (la pestaña del Laboratorio aparece sola cuando hay fichas publicadas) -->
+    <div class="ins-tabs" id="insTabs" role="tablist" style="display:none">
+      <button type="button" class="ins-tab activo" id="insTabCatalogo" role="tab" aria-selected="true">🪣 Catálogo</button>
+      <button type="button" class="ins-tab" id="insTabLab" role="tab" aria-selected="false">🧪 Laboratorio de Materiales</button>
+    </div>
+
+    <!-- CATÁLOGO -->
+    <div id="insumosCatalogo">
 
     <!-- BUSCADOR -->
     <div class="buscador-wrapper">
@@ -52,6 +62,14 @@
     <!-- GRID DE INSUMOS -->
     <div class="piezas-grid" id="insumosGrid"></div>
 
+    </div><!-- /insumosCatalogo -->
+
+    <!-- LABORATORIO DE MATERIALES -->
+    <div id="insumosLaboratorio" style="display:none">
+      <p class="ins-lab-intro">Fichas técnicas y pruebas de los materiales de YCA Cerámica. Si escaneaste el QR de un envase, tu material está en esta lista.</p>
+      <div id="insumosLabListado"></div>
+    </div>
+
   </div>
 
   <a class="whatsapp" href="https://wa.me/5491160387535" target="_blank">
@@ -61,6 +79,8 @@
   <div id="footer-placeholder"></div>
 
   <script src="script.js"></script>
+  <script src="../laboratorio/lab.js"></script>
+  <script src="laboratorio-tab.js"></script>
   <script src="../nav-ceramista.js"></script>
   <script src="../footer.js"></script>
 
