@@ -6,6 +6,7 @@
   <title>Panel Admin — YCA Cerámica</title>
   <link rel="icon" type="image/png" href="../imagenes/logo.png">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="laboratorio.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -50,6 +51,9 @@
         </button>
         <button class="sidebar-item" onclick="setSeccion('insumos')" id="nav-insumos">
           <i class="fa-solid fa-flask"></i> Insumos
+        </button>
+        <button class="sidebar-item" onclick="setSeccion('laboratorio')" id="nav-laboratorio">
+          <i class="fa-solid fa-flask-vial"></i> Laboratorio de Materiales
         </button>
         <button class="sidebar-item" onclick="setSeccion('pastas')" id="nav-pastas">
           <i class="fa-solid fa-mortar-pestle"></i> Pastas
@@ -984,6 +988,35 @@
         </div>
       </div>
 
+      <!-- LABORATORIO DE MATERIALES -->
+      <div class="seccion" id="seccion-laboratorio" style="display:none">
+        <div class="seccion-header">
+          <div>
+            <h2>🧪 Laboratorio de Materiales</h2>
+            <p>Fichas técnicas y pruebas de los materiales que vende YCA — cada una con su enlace y QR</p>
+          </div>
+          <button class="btn-nuevo" onclick="labAbrirModal()">
+            <i class="fa-solid fa-plus"></i> Nueva ficha
+          </button>
+        </div>
+        <div class="admin-buscador-wrapper" style="margin-bottom:14px">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input class="admin-buscador" id="labBuscar" placeholder="Buscar por nombre, código o categoría..." oninput="labFiltrar()">
+        </div>
+        <div class="usuarios-tabs" style="margin-bottom:16px">
+          <button class="utab activo" onclick="labSetTab('publicados')" id="labtab-publicados">
+            Publicadas <span id="cnt-lab-publicados">0</span>
+          </button>
+          <button class="utab" onclick="labSetTab('borradores')" id="labtab-borradores">
+            Borradores <span id="cnt-lab-borradores">0</span>
+          </button>
+        </div>
+        <div id="lista-laboratorio"></div>
+        <div class="loading" id="loading-laboratorio" style="display:none">
+          <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+        </div>
+      </div>
+
       <!-- VITRINA -->
       <div class="seccion" id="seccion-vitrina" style="display:none">
         <div class="seccion-header">
@@ -1427,6 +1460,8 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="script.js"></script>
+  <script src="../lab-markdown.js"></script>
+  <script src="laboratorio.js"></script>
 
   <!-- MODAL LÍNEA DE PIEZAS -->
   <div class="modal-overlay" id="modalLineaOverlay" style="display:none" onclick="cerrarModalLinea(event)">
@@ -1591,6 +1626,58 @@
       <div class="modal-body" id="modalObrasListaBody"></div>
       <div class="modal-footer">
         <button class="btn-cancelar" onclick="document.getElementById('modalObrasListaOverlay').style.display='none'">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- MODAL FICHA LABORATORIO -->
+  <div class="modal-overlay" id="modalLabOverlay" style="display:none">
+    <div class="modal-card" style="max-width:680px">
+      <div class="modal-header">
+        <h3 id="modalLabTitulo">Nueva ficha de material</h3>
+        <button class="modal-cerrar" onclick="labCerrarModal()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modalLabBody"></div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="labCerrarModal()">Cancelar</button>
+        <button class="btn-guardar-modal" id="btnLabGuardar" onclick="labGuardar()">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ELIMINAR FICHA LABORATORIO -->
+  <div class="modal-overlay" id="modalLabEliminar" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal-card" style="max-width:440px">
+      <div class="modal-header">
+        <h3>Eliminar ficha</h3>
+        <button class="modal-cerrar" onclick="labCerrar('modalLabEliminar')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modalLabEliminarBody"></div>
+    </div>
+  </div>
+
+  <!-- MODAL CONFIRMAR LABORATORIO -->
+  <div class="modal-overlay" id="modalLabConfirm" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal-card" style="max-width:420px">
+      <div class="modal-header">
+        <h3 id="labConfirmTitulo">¿Confirmar?</h3>
+        <button class="modal-cerrar" onclick="labCerrar('modalLabConfirm')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="lab-del-txt" id="labConfirmMensaje"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="labCerrar('modalLabConfirm')">Cancelar</button>
+        <button class="btn-guardar-modal" id="labConfirmBoton" onclick="labConfirmarOk()">Confirmar</button>
       </div>
     </div>
   </div>
