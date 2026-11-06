@@ -250,6 +250,7 @@ function labAbrirModal(id) {
     '<div class="lab-tabs">' +
       '<button type="button" class="lab-tab activo" data-pane="general" onclick="labTab(\'general\')">General</button>' +
       '<button type="button" class="lab-tab" data-pane="tecnica" onclick="labTab(\'tecnica\')">Técnica</button>' +
+      '<button type="button" class="lab-tab" data-pane="muestras" onclick="labTab(\'muestras\')">Muestras</button>' +
       '<button type="button" class="lab-tab" data-pane="uso" onclick="labTab(\'uso\')">Formas de uso</button>' +
       '<button type="button" class="lab-tab" data-pane="publicacion" onclick="labTab(\'publicacion\')">Publicación</button>' +
     '</div>' +
@@ -292,6 +293,9 @@ function labAbrirModal(id) {
         '<textarea id="labPrecauciones" rows="4" maxlength="3000" placeholder="Elementos de protección, ventilación, almacenamiento…">' + labEsc(item ? item.precauciones : '') + '</textarea></div>' +
     '</div>' +
 
+    // ── Muestras
+    '<div class="lab-pane" data-pane="muestras"><div id="labMuestrasPane"></div></div>' +
+
     // ── Formas de uso
     '<div class="lab-pane" data-pane="uso">' +
       '<div class="mform-grupo"><label>Formas de uso</label>' +
@@ -303,6 +307,7 @@ function labAbrirModal(id) {
           '<button type="button" title="Lista numerada" onclick="labMd(\'ol\')"><i class="fa-solid fa-list-ol"></i></button>' +
           '<button type="button" title="Aviso / cita" onclick="labMd(\'q\')"><i class="fa-solid fa-triangle-exclamation"></i></button>' +
           '<button type="button" title="Enlace" onclick="labMd(\'link\')"><i class="fa-solid fa-link"></i></button>' +
+          '<button type="button" title="Insertar foto de esta ficha" onclick="labMdImagen()"><i class="fa-solid fa-image"></i></button>' +
           '<span class="lab-md-sep"></span>' +
           '<button type="button" class="lab-md-modo activo" id="labModoEscribir" onclick="labMdVista(\'escribir\')">Escribir</button>' +
           '<button type="button" class="lab-md-modo" id="labModoVer" onclick="labMdVista(\'ver\')">Vista previa</button>' +
@@ -332,6 +337,7 @@ function labAbrirModal(id) {
   labRenderFoto()
   labActualizarSlug()
   labContarUso()
+  labRenderMuestras()
 }
 
 function labCerrarModal() { labCerrar('modalLabOverlay'); _labForm = null }
@@ -526,7 +532,8 @@ function labRecolectar() {
   return fila
 }
 
-async function labGuardar() {
+async function labGuardar(opts) {
+  opts = opts || {}
   if (!_labForm) return
   var fila = labRecolectar()
   if (!fila.nombre) { labTab('general'); toast('El nombre es obligatorio', 'err'); document.getElementById('labNombre').focus(); return }
@@ -555,6 +562,7 @@ async function labGuardar() {
 
     labCerrarModal()
     await cargarLaboratorio()
+    if (opts.abrirMuestras) { labAbrirModal(r.id); labTab('muestras') }
     if (avisoFoto) toast('⚠️ Ficha guardada, pero la foto falló: ' + avisoFoto, 'err')
     else toast('✅ Ficha guardada', 'ok')
   } catch (e) {
@@ -614,4 +622,310 @@ async function labConfirmarEliminar(borrarDrive) {
     await cargarLaboratorio()
     toast('✅ Ficha eliminada', 'ok')
   } catch (e) { toast('❌ Error de conexión', 'err') }
+}
+
+
+// ============================================================
+//  MUESTRAS (etapa 3): pruebas con hasta 4 fotos cada una
+// ============================================================
+
+var LAB_CAMPOS_FOTO = ['foto', 'foto2', 'foto3', 'foto4']
+var _labMuestraForm = null
+var _labSlotActivo = 0
+var _labMuestraEliminando = null
+
+function labMuestrasDe(materialId) {
+  return _lab.muestras.filter(function (m) { return String(m.material_id) === String(materialId) })
+    .sort(function (a, b) { return (Number(a.orden) || 0) - (Number(b.orden) || 0) })
+}
+
+function labFotosDe(m) {
+  return LAB_CAMPOS_FOTO.map(function (c) { return m[c] || '' }).filter(Boolean)
+}
+
+function labRenderMuestras() {
+  var cont = document.getElementById('labMuestrasPane')
+  if (!cont || !_labForm) return
+  var item = _labForm.item
+  if (!item) {
+    cont.innerHTML =
+      '<div class="lab-muestras-vacio"><i class="fa-solid fa-camera-retro"></i>' +
+      '<p>Primero hay que guardar la ficha para poder agregarle muestras.</p>' +
+      '<button type="button" class="lab-btn-add" onclick="labGuardar({abrirMuestras:true})"><i class="fa-solid fa-floppy-disk"></i> Guardar ficha y agregar muestras</button></div>'
+    return
+  }
+  var lista = labMuestrasDe(item.id)
+  var html =
+    '<div class="lab-hint">Cada muestra es una prueba con sus fotos y su explicación. El orden de abajo es el que verá el público.</div>' +
+    '<button type="button" class="lab-btn-add" onclick="labAbrirMuestra()"><i class="fa-solid fa-plus"></i> Agregar muestra</button>'
+  if (!lista.length) {
+    html += '<div class="lab-muestras-vacio"><i class="fa-solid fa-flask-vial"></i><p>Todavía no hay muestras en esta ficha.</p></div>'
+  } else {
+    html += '<div class="lab-muestras">' + lista.map(function (m, i) {
+      var fotos = labFotosDe(m)
+      var id = labEsc(m.id)
+      return '<div class="lab-muestra">' +
+        '<div class="lab-muestra-foto">' + (fotos[0] ? '<img src="' + labEsc(fotos[0]) + '" alt="" loading="lazy">' : '<span>📷</span>') +
+          (fotos.length > 1 ? '<em>' + fotos.length + '</em>' : '') + '</div>' +
+        '<div class="lab-muestra-info"><div class="lab-muestra-titulo">' + (i + 1) + '. ' + labEsc(m.titulo) + '</div>' +
+          '<div class="lab-card-meta">' + fotos.length + (fotos.length === 1 ? ' foto' : ' fotos') + '</div></div>' +
+        '<div class="lab-card-acc">' +
+          '<button type="button" class="lab-btn" title="Subir" ' + (i === 0 ? 'disabled' : '') + ' onclick="labMoverMuestra(\'' + id + '\',-1)"><i class="fa-solid fa-arrow-up"></i></button>' +
+          '<button type="button" class="lab-btn" title="Bajar" ' + (i === lista.length - 1 ? 'disabled' : '') + ' onclick="labMoverMuestra(\'' + id + '\',1)"><i class="fa-solid fa-arrow-down"></i></button>' +
+          '<button type="button" class="lab-btn" title="Editar" onclick="labAbrirMuestra(\'' + id + '\')"><i class="fa-solid fa-pen"></i></button>' +
+          '<button type="button" class="lab-btn lab-btn-borrar" title="Eliminar" onclick="labPedirEliminarMuestra(\'' + id + '\')"><i class="fa-solid fa-trash"></i></button>' +
+        '</div></div>'
+    }).join('') + '</div>'
+  }
+  cont.innerHTML = html
+}
+
+async function labMoverMuestra(id, dir) {
+  if (!_labForm || !_labForm.item) return
+  var matId = _labForm.item.id
+  var lista = labMuestrasDe(matId)
+  var i = lista.findIndex(function (m) { return String(m.id) === String(id) })
+  var j = i + dir
+  if (i < 0 || j < 0 || j >= lista.length) return
+  var tmp = lista[i]; lista[i] = lista[j]; lista[j] = tmp
+  lista.forEach(function (m, k) { m.orden = k + 1 })   // optimista
+  labRenderMuestras()
+  try {
+    var r = await labPost('reordenarMuestrasLab', { material_id: matId, ids: lista.map(function (m) { return m.id }) })
+    if (!r.ok) throw new Error(r.error || 'Error')
+  } catch (e) {
+    toast('❌ No se pudo guardar el orden', 'err')
+    await cargarLaboratorio(); labRenderMuestras()
+  }
+}
+
+// ── Modal de muestra ─────────────────────────────────────────
+
+function labAbrirMuestra(id) {
+  if (!_labForm || !_labForm.item) return
+  var m = id ? _lab.muestras.filter(function (x) { return String(x.id) === String(id) })[0] : null
+  _labMuestraForm = {
+    item: m || null,
+    material_id: _labForm.item.id,
+    slots: LAB_CAMPOS_FOTO.map(function (c) {
+      var url = m ? (m[c] || '') : ''
+      return { origen: url ? c : null, url: url, nueva: null }
+    })
+  }
+  document.getElementById('modalLabMuestraTitulo').textContent = m ? 'Editar muestra' : 'Nueva muestra'
+  document.getElementById('modalLabMuestraBody').innerHTML =
+    '<div class="mform-grupo"><label>Título de la muestra *</label>' +
+      '<input id="labMTitulo" maxlength="150" value="' + labEsc(m ? m.titulo : '') + '" placeholder="Ej: Sobre gres, cocción 1240 °C"></div>' +
+    '<div class="mform-grupo"><label>Descripción</label>' +
+      '<textarea id="labMDescripcion" rows="3" maxlength="3000" placeholder="Qué se ve en esta prueba">' + labEsc(m ? m.descripcion : '') + '</textarea></div>' +
+    '<div class="mform-grupo"><label>Condiciones de la prueba</label>' +
+      '<textarea id="labMCondiciones" rows="3" maxlength="3000" placeholder="Superficie, temperatura, atmósfera…">' + labEsc(m ? m.condiciones : '') + '</textarea></div>' +
+    '<div class="mform-grupo"><label>Forma de uso o aplicación</label>' +
+      '<textarea id="labMAplicacion" rows="3" maxlength="3000" placeholder="Cómo se aplicó el material">' + labEsc(m ? m.aplicacion : '') + '</textarea></div>' +
+    '<div class="mform-grupo"><label>Observaciones sobre el resultado</label>' +
+      '<textarea id="labMObservaciones" rows="3" maxlength="3000" placeholder="Qué resultado se obtuvo">' + labEsc(m ? m.observaciones : '') + '</textarea></div>' +
+    '<div class="mform-grupo"><label>Fotografías <small>(hasta 4 · la primera es la principal)</small></label>' +
+      '<div class="lab-slots" id="labSlots"></div>' +
+      '<input type="file" id="labSlotInput" accept="image/*" style="display:none" onchange="labSlotOnFoto(this)">' +
+      '<div class="lab-hint" id="labSlotInfo">Se redimensionan y comprimen automáticamente. Se suben al guardar.</div></div>'
+  labAbrirOverlay('modalLabMuestra')
+  document.getElementById('modalLabMuestraBody').scrollTop = 0
+  labRenderSlots()
+}
+
+function labCerrarMuestra() { labCerrar('modalLabMuestra'); _labMuestraForm = null }
+
+function labRenderSlots() {
+  var cont = document.getElementById('labSlots')
+  if (!cont || !_labMuestraForm) return
+  var slots = _labMuestraForm.slots
+  cont.innerHTML = slots.map(function (s, i) {
+    var src = s.nueva || s.url
+    var lleno = !!src
+    return '<div class="lab-slot' + (lleno ? ' lleno' : '') + '">' +
+      '<div class="lab-slot-box" onclick="labSlotElegir(' + i + ')">' +
+        (lleno ? '<img src="' + labEsc(src) + '" alt="Foto ' + (i + 1) + '">' : '<div class="lab-foto-vacia"><i class="fa-solid fa-plus"></i><span>Foto ' + (i + 1) + '</span></div>') +
+        '<b>' + (i + 1) + '</b>' +
+      '</div>' +
+      (lleno
+        ? '<div class="lab-slot-acc">' +
+            '<button type="button" class="lab-btn" title="Mover antes" ' + (i === 0 ? 'disabled' : '') + ' onclick="labSlotMover(' + i + ',-1)"><i class="fa-solid fa-arrow-left"></i></button>' +
+            '<button type="button" class="lab-btn" title="Mover después" ' + (i === slots.length - 1 ? 'disabled' : '') + ' onclick="labSlotMover(' + i + ',1)"><i class="fa-solid fa-arrow-right"></i></button>' +
+            '<button type="button" class="lab-btn lab-btn-borrar" title="Quitar" onclick="labSlotQuitar(' + i + ')"><i class="fa-solid fa-xmark"></i></button>' +
+          '</div>'
+        : '') +
+    '</div>'
+  }).join('')
+}
+
+function labSlotElegir(i) {
+  _labSlotActivo = i
+  document.getElementById('labSlotInput').click()
+}
+
+async function labSlotOnFoto(input) {
+  var file = input.files && input.files[0]
+  input.value = ''
+  if (!file || !_labMuestraForm) return
+  if (!/^image\//.test(file.type)) { toast('Elegí un archivo de imagen', 'err'); return }
+  var info = document.getElementById('labSlotInfo')
+  info.textContent = 'Procesando imagen…'
+  try {
+    var r = await labPrepararImagen(file, 1600, 0.82)
+    var slot = _labMuestraForm.slots[_labSlotActivo]
+    slot.nueva = r.dataUrl          // reemplaza (o crea) la foto de esa posición
+    info.textContent = 'Foto ' + (_labSlotActivo + 1) + ': ' + r.w + '×' + r.h + ' px · ' + r.kb + ' KB (se sube al guardar).'
+    labRenderSlots()
+  } catch (e) {
+    info.textContent = 'No se pudo procesar esa imagen. Probá con otra.'
+    toast('❌ No se pudo leer la imagen', 'err')
+  }
+}
+
+function labSlotMover(i, dir) {
+  var s = _labMuestraForm.slots, j = i + dir
+  if (j < 0 || j >= s.length) return
+  var t = s[i]; s[i] = s[j]; s[j] = t
+  labRenderSlots()
+}
+
+function labSlotQuitar(i) {
+  _labMuestraForm.slots[i] = { origen: null, url: '', nueva: null }
+  labRenderSlots()
+}
+
+async function labGuardarMuestra() {
+  if (!_labMuestraForm) return
+  var f = _labMuestraForm
+  var titulo = document.getElementById('labMTitulo').value.trim()
+  if (!titulo) { toast('El título es obligatorio', 'err'); document.getElementById('labMTitulo').focus(); return }
+
+  var fila = {
+    material_id: f.material_id,
+    titulo: titulo,
+    descripcion: document.getElementById('labMDescripcion').value,
+    condiciones: document.getElementById('labMCondiciones').value,
+    aplicacion: document.getElementById('labMAplicacion').value,
+    observaciones: document.getElementById('labMObservaciones').value
+  }
+  // Orden final de fotos: cada posición toma el campo de origen de su foto;
+  // las posiciones vacías o nuevas reciben los campos sobrantes (se limpian/reemplazan después).
+  var ord = null
+  if (f.item) {
+    fila.id = f.item.id
+    var usados = f.slots.map(function (s) { return s.origen }).filter(Boolean)
+    var sobrantes = LAB_CAMPOS_FOTO.filter(function (c) { return usados.indexOf(c) < 0 })
+    ord = f.slots.map(function (s) { return s.origen || sobrantes.shift() })
+    fila.fotos_orden = ord
+  }
+
+  var btn = document.getElementById('btnLabGuardarMuestra')
+  var htmlBtn = btn.innerHTML
+  btn.disabled = true
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'
+  var fallos = 0
+
+  try {
+    var r = await labPost('guardarMuestraLab', { fila: fila })
+    if (!r.ok) { toast('❌ ' + (r.error || 'Error al guardar'), 'err'); return }
+
+    var total = f.slots.filter(function (s) { return s.nueva }).length, hechas = 0
+    for (var i = 0; i < f.slots.length; i++) {
+      var campo = LAB_CAMPOS_FOTO[i], slot = f.slots[i]
+      if (slot.nueva) {
+        hechas++
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo foto ' + hechas + ' de ' + total + '...'
+        var rf = await labPost('subirFotoLab', {
+          hoja: 'laboratorio_muestras', id: r.id, campo: campo, b64: slot.nueva,
+          nombre: 'muestra_' + r.id + '_' + (i + 1) + '_' + Date.now()
+        })
+        if (!rf.ok) fallos++
+      } else if (!slot.origen && f.item && f.item[ord[i]]) {
+        // posición vacía que, tras reordenar, heredó una foto descartada: se borra
+        var rq = await labPost('quitarFotoLab', { hoja: 'laboratorio_muestras', id: r.id, campo: campo })
+        if (!rq.ok) fallos++
+      }
+    }
+
+    labCerrarMuestra()
+    var matId = _labForm && _labForm.item && _labForm.item.id
+    await cargarLaboratorio()
+    if (_labForm && matId) _labForm.item = labBuscar(matId)
+    labRenderMuestras()
+    toast(fallos ? '⚠️ Muestra guardada, pero ' + fallos + (fallos === 1 ? ' foto falló' : ' fotos fallaron') : '✅ Muestra guardada', fallos ? 'err' : 'ok')
+  } catch (e) {
+    toast('❌ Error de conexión', 'err')
+  } finally {
+    btn.disabled = false
+    btn.innerHTML = htmlBtn
+  }
+}
+
+// ── Eliminar muestra ─────────────────────────────────────────
+
+function labPedirEliminarMuestra(id) {
+  var m = _lab.muestras.filter(function (x) { return String(x.id) === String(id) })[0]
+  if (!m) return
+  _labMuestraEliminando = m
+  document.getElementById('labMEliminarTxt').innerHTML = 'Vas a eliminar la muestra «<b>' + labEsc(m.titulo) + '</b>». ¿Qué hacemos con sus fotos?'
+  labAbrirOverlay('modalLabMuestraEliminar')
+}
+
+async function labConfirmarEliminarMuestra(borrarDrive) {
+  var m = _labMuestraEliminando
+  if (!m) return
+  labCerrar('modalLabMuestraEliminar')
+  try {
+    var r = await labPost('eliminarMuestraLab', { id: m.id, borrarDrive: !!borrarDrive })
+    if (!r.ok) { toast('❌ ' + (r.error || 'No se pudo eliminar'), 'err'); return }
+    _labMuestraEliminando = null
+    var matId = _labForm && _labForm.item && _labForm.item.id
+    await cargarLaboratorio()
+    if (_labForm && matId) _labForm.item = labBuscar(matId)
+    labRenderMuestras()
+    toast('✅ Muestra eliminada', 'ok')
+  } catch (e) { toast('❌ Error de conexión', 'err') }
+}
+
+// ── Insertar fotos de la ficha dentro de «Formas de uso» ─────
+
+function labFotosDisponibles() {
+  var out = []
+  var item = _labForm && _labForm.item
+  if (!item) return out
+  if (item.foto) out.push({ url: item.foto, nombre: 'Foto principal' })
+  labMuestrasDe(item.id).forEach(function (m) {
+    labFotosDe(m).forEach(function (u, i) { out.push({ url: u, nombre: m.titulo + (i ? ' (foto ' + (i + 1) + ')' : '') }) })
+  })
+  return out
+}
+
+function labMdImagen() {
+  if (!_labForm || !_labForm.item) { toast('Guardá la ficha y subí fotos primero', 'err'); return }
+  var fotos = labFotosDisponibles()
+  if (!fotos.length) { toast('Esta ficha todavía no tiene fotos subidas', 'err'); return }
+  document.getElementById('modalLabImgBody').innerHTML =
+    '<div class="lab-hint">Tocá una foto para insertarla en el texto. El pie de foto se puede editar.</div>' +
+    '<div class="lab-picker">' + fotos.map(function (f, i) {
+      return '<button type="button" class="lab-picker-item" onclick="labMdInsertarImg(' + i + ')">' +
+        '<img src="' + labEsc(f.url) + '" alt="" loading="lazy"><span>' + labEsc(f.nombre) + '</span></button>'
+    }).join('') + '</div>'
+  _labFotosPicker = fotos
+  labAbrirOverlay('modalLabImg')
+}
+var _labFotosPicker = []
+
+function labMdInsertarImg(i) {
+  var f = _labFotosPicker[i]
+  if (!f) return
+  var ta = document.getElementById('labUso')
+  if (ta.style.display === 'none') labMdVista('escribir')
+  var url = f.url.replace(/=w\d+$/, '') + '=w1000'
+  var texto = '\n\n![' + f.nombre.replace(/[\[\]\n]/g, ' ') + '](' + url + ')\n\n'
+  var pos = ta.selectionEnd == null ? ta.value.length : ta.selectionEnd
+  ta.value = ta.value.substring(0, pos) + texto + ta.value.substring(pos)
+  ta.focus(); ta.setSelectionRange(pos + texto.length, pos + texto.length)
+  labContarUso()
+  labCerrar('modalLabImg')
+  labTab('uso')
 }
