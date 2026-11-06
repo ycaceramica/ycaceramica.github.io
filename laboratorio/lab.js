@@ -148,7 +148,7 @@
     r.content = 'noindex'
     app.innerHTML = estadoHTML('🧪', 'Este material no está disponible',
       'La ficha que buscás no existe o todavía no fue publicada.',
-      '<a class="lab-btn solido" href="/laboratorio/">Ver todos los materiales</a>')
+      '<a class="lab-btn solido" href="/insumos/#laboratorio">Ver todos los materiales</a>')
   }
 
   function renderError(app, reintentar) {
@@ -214,7 +214,7 @@
     // Hero
     grupos.hero = d.foto ? [{ src: imgUrl(d.foto, 1600), alt: d.nombre }] : []
     var hero =
-      '<a class="lab-volver" href="/laboratorio/"><i class="fa-solid fa-arrow-left"></i> Laboratorio de Materiales</a>' +
+      '<a class="lab-volver" href="/insumos/#laboratorio"><i class="fa-solid fa-arrow-left"></i> Insumos · Laboratorio de Materiales</a>' +
       '<div class="lab-hero">' +
         (d.foto
           ? '<button type="button" class="lab-hero-foto" data-g="hero" data-i="0" aria-label="Ampliar foto de ' + esc(d.nombre) + '">' + imgHTML(d.foto, d.nombre, '(min-width:760px) 420px, 94vw', [500, 900, 1400]).replace('loading="lazy"', 'loading="eager" fetchpriority="high"') + '</button>'
@@ -254,7 +254,7 @@
       '<div class="lab-cierre-acc">' +
         '<a class="lab-btn solido" href="https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Consultar por WhatsApp</a>' +
         '<button type="button" class="lab-btn" id="labCopiar"><i class="fa-solid fa-link"></i> Copiar enlace</button>' +
-        '<a class="lab-btn" href="/laboratorio/">Ver todos los materiales</a>' +
+        '<a class="lab-btn" href="/insumos/#laboratorio">Ver todos los materiales</a>' +
       '</div></div>'
 
     app.innerHTML = hero + subnav + secs.join('') + cierre
@@ -329,8 +329,11 @@
       g.innerHTML = lista.length ? lista.map(tarjeta).join('') : '<p class="lab-estado-txt" style="grid-column:1/-1;text-align:center">No hay materiales que coincidan.</p>'
     }
 
+    function listo(items) { if (opts.onListo) { try { opts.onListo(items) } catch (e) {} } }
+
     function armar(items) {
       estado.items = items
+      listo(items)
       if (!items.length) {
         cont.innerHTML = '<div class="lab-estado"><div class="lab-estado-ico">🧪</div><p>Todavía no hay fichas publicadas. Volvé pronto.</p></div>'
         return
@@ -362,14 +365,16 @@
       cacheSet('lista', res.data)
       if (JSON.stringify(res.data) !== mostrado) armar(res.data)
     }).catch(function () {
+      if (opts.onError) { try { opts.onError() } catch (e) {} }
       if (!cache) cont.innerHTML = estadoHTML('📡', 'No pudimos cargar los materiales', 'Revisá tu conexión e intentá de nuevo.', '')
     })
   }
 
+  // El listado vive dentro de Insumos (subsección «Laboratorio de Materiales»).
   function cargarListado(app) {
-    app.innerHTML = '<div class="lab-listado-head"><h1>Laboratorio de Materiales 🧪</h1>' +
-      '<p>Fichas técnicas y pruebas de los materiales que ofrece YCA Cerámica. Si escaneaste el QR de un envase, tu material está en esta lista.</p></div><div id="labListado"></div>'
-    renderListado(document.getElementById('labListado'), { hrefBase: '/laboratorio/' })
+    app.innerHTML = estadoHTML('🧪', 'Laboratorio de Materiales', 'Te llevamos al listado de materiales…',
+      '<a class="lab-btn solido" href="/insumos/#laboratorio">Ir al listado</a>')
+    location.replace('/insumos/#laboratorio')
   }
 
   // ── Arranque ───────────────────────────────────────────────
