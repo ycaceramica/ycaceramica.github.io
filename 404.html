@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Página no encontrada — YCA Cerámica</title>
   <meta name="robots" content="noindex">
+  <script>
+    // Laboratorio de Materiales: la URL permanente /laboratorio/<slug>/ se resuelve en /laboratorio/?m=<slug>
+    (function(){
+      var m = location.pathname.match(/^\/laboratorio\/([A-Za-z0-9-]+)\/?$/)
+      if(m) location.replace('/laboratorio/?m=' + encodeURIComponent(m[1].toLowerCase()))
+    })()
+  </script>
   <link rel="icon" type="image/png" href="/imagenes/logo.png">
   <link rel="stylesheet" href="/style.css">  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
