@@ -214,3 +214,13 @@
 .lab-picker-item:hover{ border-color:var(--color-primario); }
 .lab-picker-item img{ width:100%; aspect-ratio:1/1; object-fit:cover; display:block; }
 .lab-picker-item span{ display:block; padding:6px 8px; font-size:11.5px; line-height:1.3; word-break:break-word; }
+
+/* ============================================================
+   Etapa 5 — Código QR
+   ============================================================ */
+.lab-qr-box{ display:flex; gap:16px; align-items:center; flex-wrap:wrap; padding:14px; background:var(--color-fondo); border-radius:12px; }
+#labQrCanvas{ width:180px; height:180px; flex-shrink:0; background:#fff; border-radius:8px; image-rendering:pixelated; box-shadow:0 1px 6px var(--color-sombra); }
+.lab-qr-info{ flex:1; min-width:220px; display:flex; flex-direction:column; gap:12px; }
+.lab-qr-acc{ display:flex; flex-wrap:wrap; gap:8px; }
+.lab-btn-add:disabled{ opacity:.4; cursor:not-allowed; }
+.lab-btn-add:disabled:hover{ background:transparent; color:var(--color-primario); }
