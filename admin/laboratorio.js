@@ -178,6 +178,7 @@ function labRenderLista() {
       '<div class="lab-card-acc">' +
         '<button class="lab-btn" title="Editar" onclick="labAbrirModal(\'' + id + '\')"><i class="fa-solid fa-pen"></i></button>' +
         '<button class="lab-btn" title="Copiar enlace público" onclick="labCopiarEnlace(\'' + id + '\')"><i class="fa-solid fa-link"></i></button>' +
+        '<button class="lab-btn" title="Código QR" onclick="labAbrirQR(\'' + id + '\')"><i class="fa-solid fa-qrcode"></i></button>' +
         '<button class="lab-btn" title="' + (m.publicado ? 'Despublicar' : 'Publicar') + '" onclick="labTogglePublicar(\'' + id + '\')"><i class="fa-solid ' + (m.publicado ? 'fa-eye-slash' : 'fa-eye') + '"></i></button>' +
         '<button class="lab-btn lab-btn-borrar" title="Eliminar" onclick="labPedirEliminar(\'' + id + '\')"><i class="fa-solid fa-trash"></i></button>' +
       '</div>' +
@@ -329,6 +330,17 @@ function labAbrirModal(id) {
         '<div class="lab-url-box"><span id="labUrlTexto"></span>' +
         '<button type="button" class="lab-btn-add" onclick="labCopiarEnlaceForm()"><i class="fa-solid fa-copy"></i> Copiar</button></div>' +
         '<div class="lab-hint" id="labUrlNota"></div></div>' +
+      '<div class="mform-grupo"><label>Código QR para el envase</label>' +
+        '<div class="lab-qr-box">' +
+          '<canvas id="labQrCanvas" width="240" height="240" aria-label="Código QR de la ficha"></canvas>' +
+          '<div class="lab-qr-info">' +
+            '<div class="lab-hint" id="labQrNota"></div>' +
+            '<div class="lab-qr-acc">' +
+              '<button type="button" class="lab-btn-add" id="labQrPng" onclick="labQrDescargar(\'png\')"><i class="fa-solid fa-download"></i> PNG (pantalla / impresión)</button>' +
+              '<button type="button" class="lab-btn-add" id="labQrSvg" onclick="labQrDescargar(\'svg\')"><i class="fa-solid fa-download"></i> SVG (vectorial)</button>' +
+            '</div>' +
+          '</div>' +
+        '</div></div>' +
       (item ? '<div class="lab-hint">Código: <b>' + labEsc(item.codigo) + '</b> · ' + (item.muestras_count || 0) + ' muestras</div>' : '') +
     '</div>'
 
@@ -383,6 +395,7 @@ function labActualizarSlug() {
   document.getElementById('labUrlNota').textContent = slug
     ? 'El QR del envase debe apuntar a esta dirección.'
     : 'Completá el nombre para generar la dirección.'
+  labQrActualizar()
 }
 
 function labCopiarEnlaceForm() {
@@ -929,3 +942,101 @@ function labMdInsertarImg(i) {
   labCerrar('modalLabImg')
   labTab('uso')
 }
+
+
+// ============================================================
+//  CÓDIGO QR (etapa 5) — se genera en el navegador, sin servicios externos
+//  Usa qrcode-generator (MIT, Kazuhiko Arase): admin/qrcode-generator.js
+//  El QR apunta SIEMPRE a la URL permanente /laboratorio/<slug>/
+// ============================================================
+
+var LAB_QR_MARGEN = 4          // módulos de margen blanco (mínimo del estándar)
+
+function labQrModelo(url) {
+  if (typeof qrcode !== 'function') return null
+  var qr = qrcode(0, 'Q')      // versión automática, corrección de errores Q (25 %): resiste roces en el envase
+  qr.addData(url)
+  qr.make()
+  return qr
+}
+
+function labQrDibujar(canvas, qr, escala) {
+  var n = qr.getModuleCount(), total = n + LAB_QR_MARGEN * 2
+  canvas.width = canvas.height = total * escala
+  var ctx = canvas.getContext('2d')
+  if (!ctx) return
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.fillStyle = '#000000'
+  for (var r = 0; r < n; r++) for (var c = 0; c < n; c++) {
+    if (qr.isDark(r, c)) ctx.fillRect((c + LAB_QR_MARGEN) * escala, (r + LAB_QR_MARGEN) * escala, escala, escala)
+  }
+}
+
+function labQrSVG(qr) {
+  var n = qr.getModuleCount(), total = n + LAB_QR_MARGEN * 2, d = ''
+  for (var r = 0; r < n; r++) {
+    var c = 0
+    while (c < n) {
+      if (qr.isDark(r, c)) {
+        var ini = c
+        while (c < n && qr.isDark(r, c)) c++
+        d += 'M' + (ini + LAB_QR_MARGEN) + ' ' + (r + LAB_QR_MARGEN) + 'h' + (c - ini) + 'v1h-' + (c - ini) + 'z'
+      } else c++
+    }
+  }
+  return '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + total + ' ' + total +
+    '" width="' + total * 10 + '" height="' + total * 10 + '" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#ffffff"/>' +
+    '<path fill="#000000" d="' + d + '"/></svg>'
+}
+
+function labQrUrl() {
+  var slug = document.getElementById('labSlug') ? document.getElementById('labSlug').value : ''
+  return slug ? LAB_URL_BASE + slug + '/' : ''
+}
+
+// El QR definitivo solo se habilita cuando la ficha ya fue publicada al menos una vez
+// (en ese momento el slug queda bloqueado y la URL no puede cambiar).
+function labQrActualizar() {
+  var canvas = document.getElementById('labQrCanvas')
+  if (!canvas || !_labForm) return
+  var url = labQrUrl(), item = _labForm.item
+  var nota = document.getElementById('labQrNota')
+  var bPng = document.getElementById('labQrPng'), bSvg = document.getElementById('labQrSvg')
+  var definitivo = !!(item && item.publicadoEn)
+  var qr = url ? labQrModelo(url) : null
+
+  canvas.style.display = qr ? '' : 'none'
+  if (qr) labQrDibujar(canvas, qr, Math.max(2, Math.floor(240 / (qr.getModuleCount() + LAB_QR_MARGEN * 2))))
+  bPng.disabled = bSvg.disabled = !(qr && definitivo)
+
+  if (!url) nota.textContent = 'Completá el nombre de la ficha para generar el QR.'
+  else if (typeof qrcode !== 'function') nota.textContent = 'No se pudo cargar el generador de QR. Recargá la página.'
+  else if (!definitivo) nota.textContent = 'Vista previa provisoria. La dirección se vuelve permanente al publicar la ficha: publicala y guardá; después podés descargar el QR definitivo para imprimir.'
+  else if (!item.publicado) nota.textContent = 'La ficha está en borrador: el QR mostrará «material no disponible» hasta que la publiques de nuevo.'
+  else nota.textContent = 'Listo para imprimir. Apunta a ' + url + ' (probalo con el celular antes de imprimir en cantidad).'
+}
+
+function labDescargarBlob(blob, nombre) {
+  var u = URL.createObjectURL(blob)
+  var a = document.createElement('a')
+  a.href = u; a.download = nombre
+  document.body.appendChild(a); a.click(); a.remove()
+  setTimeout(function () { URL.revokeObjectURL(u) }, 3000)
+}
+
+function labQrDescargar(formato) {
+  if (!_labForm || !_labForm.item || !_labForm.item.publicadoEn) return
+  var url = labQrUrl(), qr = url ? labQrModelo(url) : null
+  if (!qr) { toast('❌ No se pudo generar el QR', 'err'); return }
+  var base = 'QR_' + (_labForm.item.codigo || 'LAB') + '_' + document.getElementById('labSlug').value
+  if (formato === 'svg') {
+    labDescargarBlob(new Blob([labQrSVG(qr)], { type: 'image/svg+xml' }), base + '.svg')
+  } else {
+    var total = qr.getModuleCount() + LAB_QR_MARGEN * 2
+    var c = document.createElement('canvas')
+    labQrDibujar(c, qr, Math.max(8, Math.floor(1400 / total)))   // ≈ 1400 px: nítido para imprimir
+    c.toBlob(function (b) { labDescargarBlob(b, base + '.png') }, 'image/png')
+  }
+}
+
+function labAbrirQR(id) { labAbrirModal(id); labTab('publicacion') }
